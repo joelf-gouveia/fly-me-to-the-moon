@@ -54,7 +54,7 @@ try {
 
 
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5174/candy-planet-study.html' })
+  await send('Page.navigate', { url: 'http://127.0.0.1:5174/studies/candy-planet-study.html' })
   for (let i = 0; i < 80; i++) {
     if (await evaluate('!!document.querySelector("#candy-view canvas") && !!document.querySelector("#detail-title")?.textContent')) break
     await delay(250)

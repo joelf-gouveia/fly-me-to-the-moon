@@ -2,7 +2,7 @@
 
 Status: option B is implemented in the game on 26 September 2026. This page
 keeps the original proposal. [What the game now does](#what-the-game-now-does)
-lists the implementation. Open `/cotton-candy-study.html` on the Vite server.
+lists the implementation. Open `/studies/cotton-candy-study.html` on the Vite server.
 The study controls do not change the game or saved game data. In the study,
 **Before** is the clouds of Blossom Haven before option B.
 

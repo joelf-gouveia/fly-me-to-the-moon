@@ -54,7 +54,7 @@ try {
   // Manual frames: each renderStudy() advances the animation by a fixed step.
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `window.studyNow = 0; window.requestAnimationFrame = callback => { window.studyFrame = callback; return 1; }; window.renderStudy = (steps = 1) => { for (let i = 0; i < steps; i++) { window.studyNow += 33; window.studyFrame(window.studyNow); } };` })
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/hair-style-study.html` })
+  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/studies/hair-style-study.html` })
   for (let i = 0; i < 100; i++) {
     if (await evaluate('!!window.studyFrame && document.body.dataset.measured === "true"')) break
     await delay(250)

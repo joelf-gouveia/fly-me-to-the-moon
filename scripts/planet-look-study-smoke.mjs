@@ -55,7 +55,7 @@ try {
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${origin}/planet-look-study.html` })
+  await send('Page.navigate', { url: `${origin}/studies/planet-look-study.html` })
   for (let i = 0; i < 240; i++) {
     if (await evaluate('!!document.querySelector("#planet-view canvas") && !!window.__planetStudy')) break
     await delay(250)

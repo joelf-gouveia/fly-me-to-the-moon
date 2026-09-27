@@ -2,7 +2,7 @@
 
 Status: implemented in the game on 26 September 2026. This page keeps the
 original proposal. [What the game now does](#what-the-game-now-does) lists the
-differences. Open `/star-map-study.html` on the Vite server. The study controls
+differences. Open `/studies/star-map-study.html` on the Vite server. The study controls
 do not change the game or saved game data.
 
 ## What to review

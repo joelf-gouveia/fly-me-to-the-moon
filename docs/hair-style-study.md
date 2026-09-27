@@ -1,6 +1,6 @@
 # Hair that flies with her: fairy hair study
 
-Status: in the game since 26 September 2026. Open `/hair-style-study.html` on the
+Status: in the game since 26 September 2026. Open `/studies/hair-style-study.html` on the
 Vite server. The study controls do not change the game or saved game data.
 [Game integration](#game-integration) describes what the game does.
 
@@ -204,7 +204,7 @@ hung behind the head. Thus both styles are back in their first shape.
 | `src/fairy-hair.ts` | The hair styles of the game, the parts, and the swing |
 | `src/fairy.ts` | Builds the hair with the rig and swings it in `pose()` |
 | `src/fairy.test.ts` | Nine styles, one visible at a time, and the swing |
-| `hair-style-study.html` | Page entry |
+| `studies/hair-style-study.html` | Page entry |
 | `src/hair-study/styles.ts` | Pixie, Crown braid, the style notes, and the measurements |
 | `src/hair-study/styles.test.ts` | Order, visibility, colors, boost straightening, and the attachment, ear, wing and mesh checks for all eleven styles |
 | `src/hair-study/main.ts` | Close-up, line-up, table, menu preview, shortlist and export |

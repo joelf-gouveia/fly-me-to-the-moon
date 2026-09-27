@@ -50,7 +50,7 @@ try {
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5174/star-map-study.html' })
+  await send('Page.navigate', { url: 'http://127.0.0.1:5174/studies/star-map-study.html' })
   for (let i = 0; i < 80; i++) {
     if (await evaluate('!!document.querySelector("#sky canvas") && !!document.querySelector("#b-stars")?.textContent')) break
     await delay(250)

@@ -5,7 +5,7 @@ import type { LocationMode, VisitorState } from './model'
 import './style.css'
 
 document.querySelector<HTMLDivElement>('#candy-study')!.innerHTML = `
-  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>WORLD STUDY / 02</span><a href="/fairy-flight-study.html">Fairy flight study ↗</a></header>
+  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>WORLD STUDY / 02</span><a href="/studies/fairy-flight-study.html">Fairy flight study ↗</a></header>
   <main>
     <section class="intro">
       <div><p class="eyebrow">A LITTLE PLANET. A VERY SWEET HOME.</p><h1>Somewhere<br><em>the rivers fizz.</em></h1></div>

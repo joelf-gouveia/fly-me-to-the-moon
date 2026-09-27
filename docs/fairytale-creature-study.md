@@ -1,6 +1,6 @@
 # Once upon a meadow: fairytale creature study
 
-Status: in the game since 26 September 2026. Open `/fairytale-creature-study.html`
+Status: in the game since 26 September 2026. Open `/studies/fairytale-creature-study.html`
 on the Vite server. The study controls do not change the game or saved game data.
 [Game integration](#game-integration) describes what the game does.
 
@@ -108,7 +108,7 @@ about 800 (28 cows).
 - The magic is always on in the game. The glow has the same strength by day and by night.
 
 The habitat code (`src/creatures/habitat.ts`, `src/creatures/spherical.ts`)
-does not change. The creature study (`/creature-study.html`) still shows the
+does not change. The creature study (`/studies/creature-study.html`) still shows the
 pastel animals; it records the design before this change.
 
 ## Decisions
@@ -121,7 +121,7 @@ pastel animals; it records the design before this change.
 
 | File | Purpose |
 | --- | --- |
-| `fairytale-creature-study.html` | Page entry |
+| `studies/fairytale-creature-study.html` | Page entry |
 | `src/creatures/fairytale.ts` | Mapping, names, notes and labels |
 | `src/creatures/fairytale-models.ts` | The five models, the merged build, and the ribbon butterfly for comparison |
 | `src/creatures/fairytale-models.test.ts` | Mapping, footprint, ground contact, mesh count, merged build and switches |

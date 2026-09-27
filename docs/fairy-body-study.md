@@ -1,6 +1,6 @@
 # A fairy in one piece: fairy body study
 
-Status: C is in the game since 27 September 2026. Open `/fairy-body-study.html`
+Status: C is in the game since 27 September 2026. Open `/studies/fairy-body-study.html`
 on the Vite server. The study controls do not change the game or saved game data.
 In the study, *Today* is the body of the game before this change.
 [Game integration](#game-integration) describes what the game does.
@@ -233,7 +233,7 @@ looks do not change.
 | `src/fairy.ts` | The rig: head frame and pivot, the body, the strand correction, `joints`, `targets` and `materials` |
 | `src/fairy.test.ts` | The parts of the body, the head lift, fixed bones, and the rig without a body |
 | `src/body-study/classic-body.ts` | The body of the game before the change, for Today and A |
-| `fairy-body-study.html` | Page entry |
+| `studies/fairy-body-study.html` | Page entry |
 | `src/body-study/bodies.ts` | The four bodies, the two-bone solve, and the measurements |
 | `src/body-study/bodies.test.ts` | Open joints of today, closed joints of A, B and C, fixed bones, the hand targets of B, the arm motion and boost reach of C, the head lift, the hair and look, and the strand correction |
 | `src/body-study/main.ts` | Close-up, joints view, Beside Today, line-up, tables and export |

@@ -12,7 +12,7 @@ selected. The interactive study preserves the original 20-minute comparison.
 
 ## Original study
 
-Open `/candy-planet-study.html` on the Vite server. This is an adult-facing,
+Open `/studies/candy-planet-study.html` on the Vite server. This is an adult-facing,
 interactive design artifact, not a replacement for the child-facing game.
 Its controls and export are review tools only and never override live game state.
 The placement alternatives below record the original proposals, not the chosen

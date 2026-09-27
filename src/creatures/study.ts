@@ -10,7 +10,7 @@ import './style.css'
 const kinds: Species[] = ['rabbit', 'sheep', 'duck', 'cow']
 const perSpecies = 5
 document.querySelector('#creature-study')!.innerHTML = `
-  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>FIELD NOTES / 02</span><a href="/fairy-flight-study.html">Fairy study ↗</a></header>
+  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>FIELD NOTES / 02</span><a href="/studies/fairy-flight-study.html">Fairy study ↗</a></header>
   <main>
     <section class="intro"><div><p class="eyebrow">A LITTLE COMPANY FOR THE JOURNEY</p><h1>Little lives.<br><em>A livelier world.</em></h1></div><div class="intro-copy"><p>A rabbit in the grass. A duck on the water.</p><p>Small, familiar creatures with just enough movement to make a place feel inhabited. Explore a living patch of Earth or Blossom Haven.</p><span class="study-badge">Now in the game · study controls are preview-only</span></div></section>
     <section class="workspace" aria-label="Creature design and habitat preview">

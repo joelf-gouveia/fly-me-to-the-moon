@@ -53,7 +53,7 @@ try {
   await send('Page.enable')
 
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5174/fairy-flight-study.html' })
+  await send('Page.navigate', { url: 'http://127.0.0.1:5174/studies/fairy-flight-study.html' })
   for (let i = 0; i < 80; i++) {
     if (await evaluate('document.querySelectorAll("canvas").length === 2')) break
     await delay(250)

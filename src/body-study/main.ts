@@ -31,7 +31,7 @@ const swatches = (part: 'hairColor' | 'dress' | 'skin', label: string, options: 
     `<button data-look="${part}" data-value="${id}" aria-label="${label}" title="${label}" style="--swatch:${hex(color)}"><i></i></button>`).join('')}</div></fieldset>`
 
 document.querySelector('#body-study')!.innerHTML = `
-  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>CHARACTER STUDY / 03 · BODY</span><a href="/hair-style-study.html">Hair study ↗</a></header>
+  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>CHARACTER STUDY / 03 · BODY</span><a href="/studies/hair-style-study.html">Hair study ↗</a></header>
   <main>
     <section class="intro">
       <div><p class="eyebrow">A FAIRY IN ONE PIECE</p><h1>Joined at<br><em>every joint.</em></h1></div>

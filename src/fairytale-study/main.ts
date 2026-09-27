@@ -21,7 +21,7 @@ const habitatLabel = { land: 'LAND ONLY', water: 'WATER ONLY', air: 'IN THE AIR'
 const residentCounts: Record<Resident, string> = { cow: 'Up to 32', sheep: 'Up to 32', rabbit: 'Up to 32', duck: 'Up to 32', butterfly: '5 by the cottage' }
 
 document.querySelector('#fairytale-study')!.innerHTML = `
-  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>FAIRYTALE FIELD NOTES</span><a href="/creature-study.html">Animal study ↗</a></header>
+  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>FAIRYTALE FIELD NOTES</span><a href="/studies/creature-study.html">Animal study ↗</a></header>
   <main>
     <section class="intro">
       <div><p class="eyebrow">BLOSSOM HAVEN · A NEW BESTIARY</p><h1>Once upon<br><em>a meadow.</em></h1></div>

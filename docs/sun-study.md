@@ -2,7 +2,7 @@
 
 Status: option B is implemented in the game on 27 September 2026, with every part of option A.
 [What the game now does](#what-the-game-now-does) lists the implementation. The rest of this page keeps
-the study. Open `/sun-study.html` on the Vite server. The study controls do not change the game or saved
+the study. Open `/studies/sun-study.html` on the Vite server. The study controls do not change the game or saved
 game data.
 
 The planet look study gave the seven planets the look of their pictures, but the Sun was one flat

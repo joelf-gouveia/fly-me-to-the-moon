@@ -39,7 +39,7 @@ try {
   await send('Runtime.enable'); await send('Page.enable')
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `window.requestAnimationFrame = callback => { window.studyFrame = callback; return 1; }; window.renderStudy = () => window.studyFrame(performance.now());` })
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1120, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/creature-study.html` })
+  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/studies/creature-study.html` })
   for (let i = 0; i < 100; i++) {
     if (await evaluate('!!window.studyFrame')) break
     await delay(250)

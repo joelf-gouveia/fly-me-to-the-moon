@@ -80,7 +80,7 @@ descent. `journeyHeading` in `src/journey.ts` now descends to a planet core
 target, and `src/journey.test.ts` covers it.
 
 Screenshots and results are in `artifacts.local/mobile-play/`. The original audit
-and questionnaire remain in `/mobile-study.html` as a record of the earlier gap.
+and questionnaire remain in `/studies/mobile-study.html` as a record of the earlier gap.
 
 Still required on physical hardware: Apple Chrome/WebKit, audio interruption
 recovery, browser bars/notches, comfortable thumb reach for children, thermal

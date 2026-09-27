@@ -2,7 +2,7 @@
 
 Status: option B is implemented in the game on 27 September 2026, with every fix of option A
 and the rounder rocky worlds. [What the game now does](#what-the-game-now-does) lists the
-implementation. The rest of this page keeps the study. Open `/planet-look-study.html` on the
+implementation. The rest of this page keeps the study. Open `/studies/planet-look-study.html` on the
 Vite server. The study controls do not change the game or saved game data. Earth, the Moon,
 Ceres, Vesta and Blossom Haven keep their look.
 

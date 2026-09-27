@@ -53,7 +53,7 @@ try {
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${origin}/cotton-candy-study.html` })
+  await send('Page.navigate', { url: `${origin}/studies/cotton-candy-study.html` })
   for (let i = 0; i < 120; i++) {
     if (await evaluate('!!document.querySelector("#sky canvas") && !!window.__cloudStudy && window.__cloudStudy.stats().calls > 0')) break
     await delay(250)

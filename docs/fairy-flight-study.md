@@ -1,6 +1,6 @@
 # Fairy flight: normal and boost pose study
 
-Open `/fairy-flight-study.html` on the project's dev server. The interactive
+Open `/studies/fairy-flight-study.html` on the project's dev server. The interactive
 artifact has three pose pairs, synchronized rear / three-quarter / side views,
 adjustable body lean and camera elevation, silhouette and approximate gameplay
 size checks, three background colors, pause, slow motion, and a JSON export of

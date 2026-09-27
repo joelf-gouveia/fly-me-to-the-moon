@@ -50,7 +50,7 @@ try {
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5174/asteroid-belt-study.html' })
+  await send('Page.navigate', { url: 'http://127.0.0.1:5174/studies/asteroid-belt-study.html' })
   for (let i = 0; i < 80; i++) {
     if (await evaluate('!!document.querySelector("#belt canvas") && !!window.__beltStudy')) break
     await delay(250)

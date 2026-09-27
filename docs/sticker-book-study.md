@@ -2,7 +2,7 @@
 
 Status: option A is in the game on 27 September 2026, without the voice. The
 voice, the Portuguese book, the search stars (B) and the poster (C) stay in the
-study for later. Open `/sticker-book-study.html` on the Vite server. The study
+study for later. Open `/studies/sticker-book-study.html` on the Vite server. The study
 controls do not change the game or saved game data. The study saves its own book
 as `fairy-sticker-book-study-v1`.
 

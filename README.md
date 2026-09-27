@@ -235,7 +235,7 @@ for the focused desktop/mobile check, including saved selections after reload.
 
 ## Fairy flight pose study
 
-Visit `/fairy-flight-study.html` on the dev server for an interactive comparison
+Visit `/studies/fairy-flight-study.html` on the dev server for an interactive comparison
 of three normal/boost animation directions. Inspect rear, three-quarter and side
 views, adjust body lean and camera elevation, test silhouettes at gameplay size,
 and download the preferred direction as JSON. The game now uses **B — Sky Dancer**:
@@ -249,7 +249,7 @@ Research and design notes are in
 
 ## Fairy hair study
 
-Visit `/hair-style-study.html` for **Hair that flies with her**, a study of eight
+Visit `/studies/hair-style-study.html` for **Hair that flies with her**, a study of eight
 new hair styles on the fairy rig of the game: Pixie, Space buns, Cloud curls,
 Ponytail, Crown braid, Long braid, Twin braids and Long waves. See each style from
 the menu and flight cameras of the game, in cruise and in boost, with the hair in
@@ -272,7 +272,7 @@ for desktop/mobile checks, export checks, and screenshots.
 
 ## Fairy body study
 
-Visit `/fairy-body-study.html` for **A fairy in one piece**, a study of the body of
+Visit `/studies/fairy-body-study.html` for **A fairy in one piece**, a study of the body of
 the fairy. Today she is 26 separate shapes: her shoulders stand away from her body,
 her limbs stretch, and her wings float behind her back. Compare today with three
 options on the same head, hair, wings and flight pose: **A — Joined joints** (balls
@@ -295,7 +295,7 @@ for desktop/mobile checks, export checks, and screenshots.
 
 ## Creature study
 
-Visit `/creature-study.html` for **Little lives**, an interactive proposal for
+Visit `/studies/creature-study.html` for **Little lives**, an interactive proposal for
 rabbits, sheep, ducks and cows on Earth and Blossom Haven. Compare simple animal
 features, inspect close-ups, show safe walking/swimming paths, regenerate
 terrain, and shuffle residents. Land animals stay on dry ground and ducks stay
@@ -320,7 +320,7 @@ residents and pegasus foals after arrival at Blossom Haven, and mobile rendering
 
 ## Fairytale creature study
 
-Visit `/fairytale-creature-study.html` for **Once upon a meadow**, the study that
+Visit `/studies/fairytale-creature-study.html` for **Once upon a meadow**, the study that
 replaced every Blossom Haven creature with a fairytale creature. The unicorn
 replaces the cow, the dragonling the sheep, the kitsune kit the rabbit, the Frog
 Prince the duck, and the pegasus foal the ribbon butterflies. Each creature keeps
@@ -341,7 +341,7 @@ for desktop/mobile checks, export checks, and screenshots.
 
 ## Candy planet study
 
-Visit `/candy-planet-study.html` for the smaller candy-home concept: soda-water
+Visit `/studies/candy-planet-study.html` for the smaller candy-home concept: soda-water
 rivers, lollipop trees, candy canes, clouds, butterflies, and a flower cottage.
 Explore seven ecosystem notes in live 3D and compare a fixed outer-rim home,
 a reliable flower doorway, and an optional 20-minute roaming planet. The time
@@ -356,7 +356,7 @@ checks of the study, teleport safeguards, and JSON export.
 
 ## Day and night study
 
-Visit `/day-night-study.html` for **When the world turns**, an interactive lighting
+Visit `/studies/day-night-study.html` for **When the world turns**, an interactive lighting
 proposal. Scrub dawn, noon, sunset and night in the same 3D garden, compare gentle
 and deep nights, play a day, and export the settings. The
 [technical study](docs/day-night-study.md) covers the existing light, solar
@@ -381,7 +381,7 @@ for desktop/mobile controls, export checks, and screenshots.
 
 ## Phone and iPad study
 
-Visit `/mobile-study.html` for the mobile compatibility review, a screen-size
+Visit `/studies/mobile-study.html` for the mobile compatibility review, a screen-size
 comparison, and a 14-question brief covering devices, touch controls, layout,
 performance and delivery. Answers save in this browser and export as Markdown.
 The optional browser check reports WebGL 2 and touch capability, not game speed.
@@ -393,12 +393,12 @@ retains the baseline evidence and physical-device test matrix.
 
 With Vite on port 5174, run
 `node scripts/mobile-audit.mjs "path/to/chrome.exe"` to reproduce the layout
-audit. On the same Wi-Fi, open `http://<computer-LAN-IP>:5174/mobile-study.html`
+audit. On the same Wi-Fi, open `http://<computer-LAN-IP>:5174/studies/mobile-study.html`
 after starting Vite with `npm run dev -- --host 0.0.0.0 --port 5174`.
 
 ## Star map study
 
-Visit `/star-map-study.html` for **A sky full of stories**, a proposal for a
+Visit `/studies/star-map-study.html` for **A sky full of stories**, a proposal for a
 larger star map. Compare the game sky of today with 24 star pictures, 2,887 real
 stars from the Bright Star Catalog, a Milky Way glow, and ten James Webb Space
 Telescope pictures. Turn to any picture, change the faintest star, and export
@@ -418,7 +418,7 @@ the toggle, the names, the Webb caption credit and the Worlds credits.
 
 ## Asteroid belt study
 
-Visit `/asteroid-belt-study.html` for **Rocks between the worlds**, a proposal
+Visit `/studies/asteroid-belt-study.html` for **Rocks between the worlds**, a proposal
 for an asteroid belt between Mars and Jupiter. Compare three options in live 3D:
 **A — Glitter ribbon** (dust and a faint glow), **B — Rock ring** (3,200 rocks
 all around the Sun), and **C — Living belt** (the glow of A, rocks near the fairy,
@@ -436,7 +436,7 @@ port 5174 for desktop/mobile checks, export checks, and screenshots.
 
 ## Sticker book study
 
-Visit `/sticker-book-study.html` for **Every world, a sticker**, a proposal for
+Visit `/studies/sticker-book-study.html` for **Every world, a sticker**, a proposal for
 a sticker book for young players. Each world gives a sticker the first time the
 fairy arrives, and a voice says one short fact. Compare three options:
 **A — Stamp card** (one sticker for each world), **B — Hello and search**
@@ -467,7 +467,7 @@ export checks, and 390/320 px screenshots.
 
 ## Cotton candy cloud study
 
-Visit `/cotton-candy-study.html` for **Spun-sugar skies**, a proposal to make
+Visit `/studies/cotton-candy-study.html` for **Spun-sugar skies**, a proposal to make
 the clouds of Blossom Haven into cotton candy. Compare the clouds from before with
 three options over the real home terrain: **A — Candy tint** (the same clouds in
 pink, blue and lilac), **B — Spun-sugar puffs** (round tufts with spun-sugar
@@ -490,7 +490,7 @@ cloud layer of Blossom Haven, the white mist on Earth, and shader errors.
 
 ## Moon study
 
-Visit `/moon-study.html` for **A moon for the fairy**, a proposal for a Moon that
+Visit `/studies/moon-study.html` for **A moon for the fairy**, a proposal for a Moon that
 orbits Earth. Compare three options in live 3D: **A — Sky Moon** (a picture in
 Earth's sky), **B — Close Moon** (528 m from Earth, the same size as the Sun from
 the ground), and **C — Journey Moon** (1,100 m, on an orbit tilted 28°). See each
@@ -509,7 +509,7 @@ screenshots. An optional second argument sets the server origin.
 
 ## Proportions study
 
-Visit `/proportions-study.html` for **How big is a world?**, a study of the sizes
+Visit `/studies/proportions-study.html` for **How big is a world?**, a study of the sizes
 of the worlds and the space between them. From far away the Moon looks like one
 more planet, because its orbit is 56% of the distance from Earth to Mercury.
 Six sliders change the planet size, the spacing, the Moon's orbit and size, the
@@ -531,7 +531,7 @@ screenshots. An optional second argument sets the server origin.
 
 ## Planet look study
 
-Visit `/planet-look-study.html` for **Worlds worth the trip**, a study of the look
+Visit `/studies/planet-look-study.html` for **Worlds worth the trip**, a study of the look
 of the seven planets. Earth and Blossom Haven stay as they are. Compare the planets
 from before the study with three options: **A — Retune** (the same code with new numbers),
 **B — Storybook paint** (A, plus a map for each planet that the graphics card paints
@@ -555,7 +555,7 @@ argument sets the server origin.
 
 ## Sun study
 
-Visit `/sun-study.html` for **Here comes the Sun**, a study of the look of the Sun.
+Visit `/studies/sun-study.html` for **Here comes the Sun**, a study of the look of the Sun.
 Compare the Sun from before the study with three options: **A — Retune** (limb darkening, a brighter
 core, a glare with no edge, and a Sun that shows in the sky of Earth), **B — Living Sun**
 (A, plus granules, sunspots, a turning surface, the corona, the chromosphere and

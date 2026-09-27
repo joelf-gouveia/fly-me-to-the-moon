@@ -4,7 +4,7 @@ Status: the recommendation is implemented in the game on 27 September 2026, with
 the Sun at ×1.6 and trees at their base density. This page keeps the proposal:
 *Today* in the study is the game before the change. [What the game now
 does](#what-the-game-now-does) lists the implementation. Open
-`/proportions-study.html` on the Vite server. The study controls do not change the
+`/studies/proportions-study.html` on the Vite server. The study controls do not change the
 game or saved game data.
 
 From far away, the Moon looks like one more planet. This study finds why, and

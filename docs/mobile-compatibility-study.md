@@ -7,7 +7,7 @@ pre-change game and its original findings.
 
 Reviewed 26 September 2026. Scope: the flight game at `/`, with its current
 day/night cycle, wildlife, world travel and customization. The study page is
-`/mobile-study.html`. It collects preferences; it does not modify the game.
+`/studies/mobile-study.html`. It collects preferences; it does not modify the game.
 
 ## Verdict
 
@@ -212,7 +212,7 @@ No horizontal overflow was found at 1440 × 1000, 390 × 844, 320 × 568,
 screenshots and results are in `artifacts.local/mobile-study/`.
 
 For a phone/iPad on the same trusted Wi-Fi, open
-`http://<computer-LAN-IP>:5174/mobile-study.html`. The computer must stay on,
+`http://<computer-LAN-IP>:5174/studies/mobile-study.html`. The computer must stay on,
 the devices must be able to reach each other, and the firewall must allow the
 development server. Do not use `localhost` on the phone to reach the computer.
 No router port forwarding is needed for this local test. A public deployment

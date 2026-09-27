@@ -1,6 +1,6 @@
 # Little lives — creature study
 
-Open `/creature-study.html` with the development server running. This is a
+Open `/studies/creature-study.html` with the development server running. This is a
 separate interactive design sandbox for Earth and Blossom Haven. All four
 approved creatures are now in the flight game too, using the same models with
 their details enabled. Study switches affect only the preview.

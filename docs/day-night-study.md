@@ -1,7 +1,7 @@
 # When the world turns: day and night study
 
 Status: design proposal and independent visual prototype, 26 September 2026.
-Open `/day-night-study.html` on the Vite server. No gameplay lighting or world
+Open `/studies/day-night-study.html` on the Vite server. No gameplay lighting or world
 placement is changed by this study.
 
 ## What to review
@@ -202,7 +202,7 @@ study paused; it should not secretly halt live planetary mechanics.
 - `src/day-night-study/main.ts`: timeline, comparison, explanation and export.
 - `src/day-night-study/model.test.ts`: geometry and transition checks.
 - `scripts/day-night-study-smoke.mjs`: desktop/mobile, controls, export, screenshots.
-- `day-night-study.html`: separate Vite build entry.
+- `studies/day-night-study.html`: separate Vite build entry.
 
 Run `npm test` and `npm run build`. With Vite on port 5174, run
 `node scripts/day-night-study-smoke.mjs "path/to/chrome.exe"`.

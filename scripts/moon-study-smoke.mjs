@@ -52,7 +52,7 @@ try {
   const check = (selector, value) => evaluate(`(() => { const box = document.querySelector(${JSON.stringify(selector)}); if (box.checked !== ${value}) box.click() })()`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1100, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${origin}/moon-study.html` })
+  await send('Page.navigate', { url: `${origin}/studies/moon-study.html` })
   for (let i = 0; i < 120; i++) {
     if (await evaluate('!!document.querySelector("#moon canvas") && !!window.__moonStudy')) break
     await delay(250)

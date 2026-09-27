@@ -2,7 +2,7 @@
 
 Status: option C is implemented in the game on 26 September 2026, with the three
 proposed fixes. This page keeps the original proposal. [What the game now
-does](#what-the-game-now-does) lists the implementation. Open `/moon-study.html`
+does](#what-the-game-now-does) lists the implementation. Open `/studies/moon-study.html`
 on the Vite server. The study controls do not change the game or saved game data.
 
 On 27 September 2026 the game changed its proportions ([proportions

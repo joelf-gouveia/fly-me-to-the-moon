@@ -47,7 +47,7 @@ try {
   await send('Page.enable')
   if (studyOnly) {
     await send('Emulation.setDeviceMetricsOverride', { width:1440, height:1000, deviceScaleFactor:1, mobile:false })
-    await send('Page.navigate', { url: new URL('mobile-study.html', base).href })
+    await send('Page.navigate', { url: new URL('studies/mobile-study.html', base).href })
     let ready = false
     for (let i = 0; i < 80; i++) {
       if (await evaluate('!!document.querySelector("#brief-preview")')) { ready = true; break }

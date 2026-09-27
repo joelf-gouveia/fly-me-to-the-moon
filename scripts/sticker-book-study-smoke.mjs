@@ -61,7 +61,7 @@ try {
   // Record what the browser voice says: headless browsers have no voices.
   const stubVoice = () => evaluate('window.__spoken = []; window.__spokenLang = []; speechSynthesis.speak = line => { window.__spoken.push(line.text); window.__spokenLang.push(line.lang) }; true')
   async function open() {
-    await send('Page.navigate', { url: `${origin}/sticker-book-study.html` })
+    await send('Page.navigate', { url: `${origin}/studies/sticker-book-study.html` })
     for (let i = 0; i < 80; i++) {
       if (await evaluate('!!window.__stickerStudy').catch(() => false)) break
       await delay(250)

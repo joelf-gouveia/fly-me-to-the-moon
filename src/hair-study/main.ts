@@ -30,7 +30,7 @@ const swatches = (part: 'hairColor' | 'skin', options: readonly { id: string; la
     `<button data-look="${part}" data-value="${id}" aria-label="${label}" title="${label}" style="--swatch:#${color.toString(16).padStart(6, '0')}"><i></i></button>`).join('')}</div>`
 
 document.querySelector('#hair-study')!.innerHTML = `
-  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>CHARACTER STUDY / 02 · HAIR</span><a href="/fairy-flight-study.html">Flight pose study ↗</a></header>
+  <header class="masthead"><a href="/">✧ &nbsp; Fly me to the moon</a><span>CHARACTER STUDY / 02 · HAIR</span><a href="/studies/fairy-flight-study.html">Flight pose study ↗</a></header>
   <main>
     <section class="intro">
       <div><p class="eyebrow">A FAIRY, SEEN FROM BEHIND</p><h1>Hair that<br><em>flies with her.</em></h1></div>
