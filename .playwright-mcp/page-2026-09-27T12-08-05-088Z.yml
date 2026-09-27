@@ -1,0 +1,348 @@
+- generic [ref=f15e2]:
+  - banner [ref=f15e3]:
+    - link "✧ Fly me to the moon" [ref=f15e4] [cursor=pointer]:
+      - /url: /
+    - generic [ref=f15e5]: CHARACTER STUDY / 03 · BODY
+    - link "Hair study ↗" [ref=f15e6] [cursor=pointer]:
+      - /url: /hair-style-study.html
+  - main [ref=f15e7]:
+    - generic [ref=f15e8]:
+      - generic [ref=f15e9]:
+        - paragraph [ref=f15e10]: A FAIRY IN ONE PIECE
+        - heading [level=1] [ref=f15e11]:
+          - text: Joined at
+          - emphasis [ref=f15e12]: every joint.
+      - generic [ref=f15e13]:
+        - paragraph [ref=f15e14]: How can the fairy look less like a set of shapes, and more like a fairy?
+        - paragraph [ref=f15e15]: Today she is 26 separate shapes. Her shoulders stand away from her body, her limbs stretch, and her wings float behind her back. This study puts three new bodies on the same head, hair, wings and flight pose, and measures each joint.
+        - generic [ref=f15e16]: Study only · the game does not change
+    - generic [ref=f15e17]:
+      - generic [ref=f15e18]:
+        - generic [ref=f15e19]:
+          - group "Camera" [ref=f15e20]:
+            - button "Menu view" [ref=f15e21] [cursor=pointer]
+            - button "Flight view" [ref=f15e22] [cursor=pointer]
+            - button "¾" [pressed] [ref=f15e23] [cursor=pointer]
+            - button "Side" [ref=f15e24] [cursor=pointer]
+            - button "Front" [ref=f15e25] [cursor=pointer]
+          - group "Flight speed" [ref=f15e26]:
+            - button "Cruise" [pressed] [ref=f15e27] [cursor=pointer]
+            - button "Boost" [ref=f15e28] [cursor=pointer]
+        - generic [ref=f15e29]:
+          - img "Fairy with the Storybook fairy body, three-quarter view" [ref=f15e30]
+          - generic: THREE-QUARTER VIEW
+          - generic:
+            - generic: C · STORYBOOK FAIRY
+            - generic: Drag to turn · scroll to zoom
+        - generic [ref=f15e31]:
+          - generic [ref=f15e32]:
+            - checkbox "Show the joints" [ref=f15e33] [cursor=pointer]
+            - text: Show the joints
+          - generic [ref=f15e34]:
+            - checkbox "Beside Today" [ref=f15e35] [cursor=pointer]
+            - text: Beside Today
+          - generic [ref=f15e36]:
+            - generic [ref=f15e37]: Backdrop
+            - group "Backdrop" [ref=f15e38]:
+              - button "Meadow" [pressed] [ref=f15e39] [cursor=pointer]
+              - button "Sky" [ref=f15e40] [cursor=pointer]
+              - button "Night" [ref=f15e41] [cursor=pointer]
+          - generic [ref=f15e42]:
+            - checkbox "Silhouette" [ref=f15e43] [cursor=pointer]
+            - text: Silhouette
+          - button "Pause motion" [ref=f15e44] [cursor=pointer]
+      - complementary "Body" [ref=f15e45]:
+        - generic [ref=f15e46]:
+          - paragraph [ref=f15e47]: CHOOSE A BODY
+          - generic [ref=f15e48]: 4 / 4
+        - group "Body" [ref=f15e49]:
+          - button "– Today" [ref=f15e50] [cursor=pointer]:
+            - generic [ref=f15e51]: –
+            - generic [ref=f15e52]: Today
+          - button "A Joined joints" [ref=f15e53] [cursor=pointer]:
+            - generic [ref=f15e54]: A
+            - generic [ref=f15e55]: Joined joints
+          - button "B One smooth body" [ref=f15e56] [cursor=pointer]:
+            - generic [ref=f15e57]: B
+            - generic [ref=f15e58]: One smooth body
+          - button "C Storybook fairy" [pressed] [ref=f15e59] [cursor=pointer]:
+            - generic [ref=f15e60]: C
+            - generic [ref=f15e61]: Storybook fairy
+        - generic [ref=f15e62]:
+          - heading "Storybook fairy" [level=2] [ref=f15e63]
+          - generic [ref=f15e64]: C
+        - paragraph [ref=f15e65]: B with fairy proportions and more joints. Longer, slimmer legs, a pointed petal skirt that moves with the wings, soft wrists, pointed toes, and a head that looks where she flies.
+        - list [ref=f15e66]:
+          - listitem [ref=f15e67]: The body of B, with a smaller waist
+          - listitem [ref=f15e68]: Legs 12% longer and slimmer limbs
+          - listitem [ref=f15e69]: Pointed petals that move with the wingbeat
+          - listitem [ref=f15e70]: Soft wrists and pointed toes
+          - listitem [ref=f15e71]: The head lifts to look ahead and stays level
+          - listitem [ref=f15e72]: Curled slippers with a gold pom
+        - generic [ref=f15e73]:
+          - generic [ref=f15e74]:
+            - term [ref=f15e75]: Open joints
+            - definition [ref=f15e76]: …
+          - generic [ref=f15e77]:
+            - term [ref=f15e78]: Bone stretch
+            - definition [ref=f15e79]: …
+          - generic [ref=f15e80]:
+            - term [ref=f15e81]: Wing roots
+            - definition [ref=f15e82]: …
+          - generic [ref=f15e83]:
+            - term [ref=f15e84]: Face below the flight line
+            - definition [ref=f15e85]: …
+          - generic [ref=f15e86]:
+            - term [ref=f15e87]: Joints that turn
+            - definition [ref=f15e88]: "7"
+          - generic [ref=f15e89]:
+            - term [ref=f15e90]: Meshes · triangles
+            - definition [ref=f15e91]: …
+        - group "Hair style" [ref=f15e92]:
+          - combobox "Hair style" [ref=f15e94]:
+            - option "Bun" [selected]
+            - option "Bob"
+            - option "Tails"
+            - option "Space buns"
+            - option "Cloud curls"
+            - option "Ponytail"
+            - option "Long braid"
+            - option "Twin braids"
+            - option "Long waves"
+        - group "Hair color" [ref=f15e95]:
+          - group "Hair color" [ref=f15e97]:
+            - button "Midnight" [ref=f15e98] [cursor=pointer]
+            - button "Plum" [pressed] [ref=f15e100] [cursor=pointer]
+            - button "Chestnut" [ref=f15e102] [cursor=pointer]
+            - button "Auburn" [ref=f15e104] [cursor=pointer]
+            - button "Honey" [ref=f15e106] [cursor=pointer]
+            - button "Moonlight" [ref=f15e108] [cursor=pointer]
+            - button "Rose" [ref=f15e110] [cursor=pointer]
+            - button "Lavender" [ref=f15e112] [cursor=pointer]
+            - button "Sky" [ref=f15e114] [cursor=pointer]
+            - button "Mint" [ref=f15e116] [cursor=pointer]
+        - group "Dress" [ref=f15e118]:
+          - group "Dress" [ref=f15e120]:
+            - button "Rose" [pressed] [ref=f15e121] [cursor=pointer]
+            - button "Blossom" [ref=f15e123] [cursor=pointer]
+            - button "Coral" [ref=f15e125] [cursor=pointer]
+            - button "Buttercup" [ref=f15e127] [cursor=pointer]
+            - button "Fern" [ref=f15e129] [cursor=pointer]
+            - button "Mint" [ref=f15e131] [cursor=pointer]
+            - button "Sky" [ref=f15e133] [cursor=pointer]
+            - button "Moon" [ref=f15e135] [cursor=pointer]
+            - button "Lilac" [ref=f15e137] [cursor=pointer]
+            - button "Berry" [ref=f15e139] [cursor=pointer]
+        - group "Skin" [ref=f15e141]:
+          - group "Skin" [ref=f15e143]:
+            - button "Porcelain" [ref=f15e144] [cursor=pointer]
+            - button "Peach" [pressed] [ref=f15e146] [cursor=pointer]
+            - button "Rosy" [ref=f15e148] [cursor=pointer]
+            - button "Honey" [ref=f15e150] [cursor=pointer]
+            - button "Golden" [ref=f15e152] [cursor=pointer]
+            - button "Caramel" [ref=f15e154] [cursor=pointer]
+            - button "Bronze" [ref=f15e156] [cursor=pointer]
+            - button "Cocoa" [ref=f15e158] [cursor=pointer]
+            - button "Lilac" [ref=f15e160] [cursor=pointer]
+            - button "Seafoam" [ref=f15e162] [cursor=pointer]
+        - group "Wings" [ref=f15e164]:
+          - group "Wing shape" [ref=f15e166]:
+            - button "Petal" [pressed] [ref=f15e167] [cursor=pointer]
+            - button "Luna" [ref=f15e168] [cursor=pointer]
+            - button "Flutter" [ref=f15e169] [cursor=pointer]
+    - generic [ref=f15e170]:
+      - generic [ref=f15e171]:
+        - generic [ref=f15e172]:
+          - paragraph [ref=f15e173]: THE LINE-UP
+          - heading "Four bodies, side by side." [level=2] [ref=f15e174]
+          - paragraph [ref=f15e175]:
+            - text: Every body with the same look and motion.
+            - emphasis [ref=f15e176]: Flight distance
+            - text: uses the flight camera of the game (2.8 m up, 8 m back, 58° view). Each fairy has the same size in pixels as in a 900 px tall game window.
+        - generic [ref=f15e177]:
+          - group "Line-up distance" [ref=f15e178]:
+            - button "Close" [pressed] [ref=f15e179] [cursor=pointer]
+            - button "Flight distance" [ref=f15e180] [cursor=pointer]
+          - group "Line-up angle" [ref=f15e181]:
+            - button "Rear" [pressed] [ref=f15e182] [cursor=pointer]
+            - button "Side" [ref=f15e183] [cursor=pointer]
+            - button "Front" [ref=f15e184] [cursor=pointer]
+      - generic [ref=f15e185]:
+        - img "Four fairies in a row, one for each body"
+        - list [ref=f15e186]:
+          - listitem [ref=f15e187]:
+            - button "Show Today in the close-up" [ref=f15e188] [cursor=pointer]:
+              - generic [ref=f15e189]: Today
+          - listitem [ref=f15e190]:
+            - button "Show Joined joints in the close-up" [ref=f15e191] [cursor=pointer]:
+              - generic [ref=f15e192]: A · Joined joints
+          - listitem [ref=f15e193]:
+            - button "Show One smooth body in the close-up" [ref=f15e194] [cursor=pointer]:
+              - generic [ref=f15e195]: B · One smooth body
+          - listitem [ref=f15e196]:
+            - button "Show Storybook fairy in the close-up" [ref=f15e197] [cursor=pointer]:
+              - generic [ref=f15e198]: C · Storybook fairy
+      - paragraph [ref=f15e199]: CLOSE / REAR · the cruise pose, or the boost pose when Boost is on
+    - generic [ref=f15e200]:
+      - generic [ref=f15e202]:
+        - paragraph [ref=f15e203]: MEASURED ON THE RIG
+        - heading "What the numbers say." [level=2] [ref=f15e204]
+        - paragraph [ref=f15e205]:
+          - text: The page measures each body when it loads, through one wingbeat in cruise and one in boost.
+          - emphasis [ref=f15e206]: Filled
+          - text: is the smallest part of a small ball at the joint that is inside the body. A joint with less than 90% is open.
+          - emphasis [ref=f15e207]: Bone stretch
+          - text: is the largest change of a bone length.
+          - emphasis [ref=f15e208]: Wing roots
+          - text: is the distance from the root of each upper wing to the body.
+      - table [ref=f15e210]:
+        - rowgroup [ref=f15e211]:
+          - row [ref=f15e212]:
+            - columnheader "Body" [ref=f15e213]
+            - columnheader "Open joints" [ref=f15e214]
+            - columnheader "Bone stretch" [ref=f15e215]
+            - columnheader "Wing roots" [ref=f15e216]
+            - columnheader "Face in cruise" [ref=f15e217]
+            - columnheader "Face in boost" [ref=f15e218]
+            - columnheader "Joints that turn" [ref=f15e219]
+            - columnheader "Meshes" [ref=f15e220]
+            - columnheader "Triangles" [ref=f15e221]
+        - rowgroup [ref=f15e222]:
+          - row [ref=f15e223]:
+            - rowheader "– Today" [ref=f15e224]:
+              - generic [ref=f15e225]: –
+              - generic [ref=f15e226]: Today
+            - cell "3 of 12" [ref=f15e227]
+            - cell "60%" [ref=f15e228]
+            - cell "0.10 away" [ref=f15e229]
+            - cell "32°" [ref=f15e230]
+            - cell "66°" [ref=f15e231]
+            - cell "4" [ref=f15e232]
+            - cell "26" [ref=f15e233]
+            - cell "5,294" [ref=f15e234]
+          - row [ref=f15e235]:
+            - rowheader "A Joined joints" [ref=f15e236]:
+              - generic [ref=f15e237]: A
+              - generic [ref=f15e238]: Joined joints
+            - cell "None" [ref=f15e239]
+            - cell "60%" [ref=f15e240]
+            - cell "Attached" [ref=f15e241]
+            - cell "32°" [ref=f15e242]
+            - cell "66°" [ref=f15e243]
+            - cell "6" [ref=f15e244]
+            - cell "41" [ref=f15e245]
+            - cell "10,574" [ref=f15e246]
+          - row [ref=f15e247]:
+            - rowheader "B One smooth body" [ref=f15e248]:
+              - generic [ref=f15e249]: B
+              - generic [ref=f15e250]: One smooth body
+            - cell "None" [ref=f15e251]
+            - cell "0%" [ref=f15e252]
+            - cell "Attached" [ref=f15e253]
+            - cell "32°" [ref=f15e254]
+            - cell "66°" [ref=f15e255]
+            - cell "6" [ref=f15e256]
+            - cell "47" [ref=f15e257]
+            - cell "16,188" [ref=f15e258]
+          - row [ref=f15e259]:
+            - rowheader "C Storybook fairy" [ref=f15e260]:
+              - generic [ref=f15e261]: C
+              - generic [ref=f15e262]: Storybook fairy
+            - cell "…" [ref=f15e263]
+            - cell "…" [ref=f15e264]
+            - cell "…" [ref=f15e265]
+            - cell "…" [ref=f15e266]
+            - cell "…" [ref=f15e267]
+            - cell "…" [ref=f15e268]
+            - cell "…" [ref=f15e269]
+            - cell "…" [ref=f15e270]
+      - table [ref=f15e272]:
+        - rowgroup [ref=f15e273]:
+          - row [ref=f15e274]:
+            - columnheader "Joint · filled" [ref=f15e275]
+            - columnheader "Today" [ref=f15e276]
+            - columnheader "A · Joined joints" [ref=f15e277]
+            - columnheader "B · One smooth body" [ref=f15e278]
+            - columnheader "C · Storybook fairy" [ref=f15e279]
+        - rowgroup [ref=f15e280]:
+          - row [ref=f15e281]:
+            - rowheader "Neck base" [ref=f15e282]
+            - cell "100%" [ref=f15e283]
+            - cell "100%" [ref=f15e284]
+            - cell "100%" [ref=f15e285]
+            - cell "…" [ref=f15e286]
+          - row [ref=f15e287]:
+            - rowheader "Neck top" [ref=f15e288]
+            - cell "100%" [ref=f15e289]
+            - cell "100%" [ref=f15e290]
+            - cell "100%" [ref=f15e291]
+            - cell "…" [ref=f15e292]
+          - row [ref=f15e293]:
+            - rowheader "Shoulders" [ref=f15e294]
+            - cell "43%" [ref=f15e295]
+            - cell "100%" [ref=f15e296]
+            - cell "100%" [ref=f15e297]
+            - cell "…" [ref=f15e298]
+          - row [ref=f15e299]:
+            - rowheader "Elbows" [ref=f15e300]
+            - cell "79%" [ref=f15e301]
+            - cell "100%" [ref=f15e302]
+            - cell "100%" [ref=f15e303]
+            - cell "…" [ref=f15e304]
+          - row [ref=f15e305]:
+            - rowheader "Wrists" [ref=f15e306]
+            - cell "100%" [ref=f15e307]
+            - cell "100%" [ref=f15e308]
+            - cell "100%" [ref=f15e309]
+            - cell "…" [ref=f15e310]
+          - row [ref=f15e311]:
+            - rowheader "Knees" [ref=f15e312]
+            - cell "91%" [ref=f15e313]
+            - cell "100%" [ref=f15e314]
+            - cell "100%" [ref=f15e315]
+            - cell "…" [ref=f15e316]
+          - row [ref=f15e317]:
+            - rowheader "Ankles" [ref=f15e318]
+            - cell "100%" [ref=f15e319]
+            - cell "100%" [ref=f15e320]
+            - cell "100%" [ref=f15e321]
+            - cell "…" [ref=f15e322]
+      - status [ref=f15e323]: Measuring the bodies…
+    - generic [ref=f15e324]:
+      - generic [ref=f15e325]:
+        - paragraph [ref=f15e326]: WHAT THE STUDY SHOWS
+        - heading "Five reasons she looks loose." [level=2] [ref=f15e327]
+      - article [ref=f15e328]:
+        - text: 01 / SHOULDERS
+        - heading "The arms start outside the body" [level=3] [ref=f15e329]
+        - paragraph [ref=f15e330]: The shoulder points are 0.23 from the middle. The torso is only 0.16 wide at that height, so the flat end of each arm stands in the air. A ball or a sleeve closes the gap.
+      - article [ref=f15e331]:
+        - text: 02 / FLAT ENDS
+        - heading "Cylinders open at a bend" [level=3] [ref=f15e332]
+        - paragraph [ref=f15e333]: Two cut cylinders meet at one point. When the joint bends, a wedge opens on the outer side. Capsules with the same radius at the joint have no seam at any angle.
+      - article [ref=f15e334]:
+        - text: 03 / BONES
+        - heading "The limbs stretch" [level=3] [ref=f15e335]
+        - paragraph [ref=f15e336]: The pose moves the joints, not the bones. A forearm can grow by more than half of its length between cruise and boost. A two-bone solve keeps each bone at one length and reaches the same hands and feet.
+      - article [ref=f15e337]:
+        - text: 04 / WINGS
+        - heading "The wings float behind her" [level=3] [ref=f15e338]
+        - paragraph [ref=f15e339]: The wing roots are almost 0.1 behind the back. A petal bow between the roots holds the wings, and it gives the rear camera a clear centre.
+      - article [ref=f15e340]:
+        - text: 05 / FAIRY
+        - heading "She looks at the ground" [level=3] [ref=f15e341]
+        - paragraph [ref=f15e342]: "The head leans with the body: 32° down in cruise, 66° in boost. A head that lifts to look ahead, soft wrists, pointed toes and petals that move with the wings make her feel light."
+    - generic [ref=f15e343]:
+      - generic [ref=f15e344]:
+        - paragraph [ref=f15e345]: THE RECOMMENDATION
+        - heading "C · Storybook fairy, in two steps." [level=2] [ref=f15e346]
+        - paragraph [ref=f15e347]: "First bring the joined body of B into the game: it closes every joint and fixes the bones. Then add the proportions and the moving joints of C. The head, the hair, the wings and the customization stay the same."
+        - paragraph [ref=f15e348]:
+          - strong [ref=f15e349]: "Your pick: C · Storybook fairy."
+          - text: This is the recommendation.
+      - generic [ref=f15e350]:
+        - button "Use the recommendation" [ref=f15e351] [cursor=pointer]
+        - button "Save study settings ↓" [ref=f15e352] [cursor=pointer]
+    - generic [ref=f15e353]:
+      - generic [ref=f15e354]: Original procedural study · the same head, hair and wings as the game · no reference assets
+      - generic [ref=f15e355]: Study made 27 September 2026

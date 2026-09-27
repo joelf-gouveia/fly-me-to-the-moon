@@ -1,2 +1,593 @@
-# fly-me-to-the-moon
-A small browser game for education about space
+# Fly me to the moon
+
+A small browser flight game built with Three.js and TypeScript. Start over a
+procedural Earth, drift along its surface, climb through clouds, and explore the
+solar system.
+
+Run `npm install`, then `npm run dev`. On Windows PowerShell, use `npm.cmd` if
+the shell blocks npm's script wrapper. `npm run build` creates `dist/`;
+`npm test` checks terrain generation, repeat visits, spherical flight, and fairy animation.
+
+## Flight
+
+- **Begin your adventure** starts the flight. There is one mode.
+- The ✿ flower button in flight (**Guide me home**, then **Fly home**) is an
+  option. It shows the flower marker and the guiding fireflies to Blossom Haven.
+  **Stop following** returns to free flight. The Blossom Haven picture in
+  **Worlds** also starts this guide.
+- The flower cottage is always on Blossom Haven, with or without the guide.
+  The first arrival shows the discovery celebration.
+
+- W / Up: climb; S / Down: descend.
+- A / Left and D / Right: turn.
+- Release the controls near a planet to cruise along its curvature.
+- Shift: faster flight; Space or the pause button: pause.
+- Open **Worlds** and choose a picture for a guided journey. Steering takes
+  over from normal world guidance. Touch devices have arrows at every width,
+  a held **Boost** button and a **Hover / Fly** toggle. **Menu** holds the extra
+  controls and flight details. Switching apps pauses until **Keep flying** is tapped.
+
+For phone/iPad play on home Wi-Fi, run `npm run play:lan` and open the printed
+Network URL on the device. See [Mobile play](docs/mobile-play.md) for controls,
+performance settings and the remaining physical-device validation.
+
+Earth has raised terrain, meadows, trees, sea-level rivers and oceans, and a
+cloud layer. Leaving well beyond the atmosphere arms a new visit; descending
+back into the upper atmosphere regenerates the landscape once. Flying through
+clouds alone does not change it. Other natural planets also regenerate on arrival;
+Blossom Haven keeps the same familiar landscape.
+
+Mercury is airless, Venus has dense golden haze, and Mars has thin dusty air.
+The gas and ice giants offer cloud flight with a soft lower flight boundary,
+rather than a rocky surface. All scales and atmospheric effects are stylized:
+Earth is 550 game metres across, and cruising around it takes about 2.7 minutes.
+Travel speed grows outside the atmosphere to keep the solar system reachable:
+up to 968 m/s in open space, or 2,226 m/s with Shift.
+
+The sizes and distances come from the [proportions study](#proportions-study).
+World data is in base units; `src/proportions.ts` multiplies every radius, air and
+cloud height by 1.25, every distance from the Sun by 2.5, the Sun by 1.6 and the
+flight speed in open space by 2.25. Trees, grass and candy scenery grow in number
+with the area of their world, so they keep their density.
+
+The seven planets have the look of their pictures (option B of the
+[planet look study](#planet-look-study)). The graphics card paints a map for each
+giant and for the closed cloud deck of Venus: Jupiter's belts and Great Red Spot,
+Saturn's bands and polar hexagon, the pale cyan of Uranus, and Neptune's dark spot and
+white streaks. Mars has dark regions, ice caps and a long canyon; Mercury has dark
+plains and bright ray craters. Mercury and Mars have half the relief, so they are
+round from space; the flight ground is lower too. Each planet has its real axial
+tilt, and Uranus lies on its side. Saturn's rings are on its equator, with the
+Cassini gap and a shadow on the planet; Uranus has thin rings. From far away the
+night sides are dark, the air is a thin rim, and the cloud puffs show only inside
+the air. A new visit to a giant gives new storms. The maps are 2048 × 1024 on a
+computer and 1024 × 512 on a phone. Earth, the Moon, Ceres, Vesta and Blossom Haven
+keep their look. The recipes are in `src/planet-paint.ts`; the numbers are in
+`src/planet-look.ts`.
+
+The Sun is alive (option B of the [Sun study](#sun-study)). Its disc is cream in the
+middle and darker and redder at the edge, as a real Sun is. Granules boil on its
+surface, sunspots turn with it (faster at the equator than at the poles), and a corona
+with streamers, a thin red rim and five prominence loops surround it. The fairy can fly
+through the loops. From Earth the Sun shows in the blue sky: white by day and orange
+when it is low. The blue sky hides the corona and the loops, as in the real sky. Phones
+use a lighter shader, and reduced motion stops the Sun. The numbers are in
+`src/sun-look.ts`; the shaders are in `src/sun-paint.ts`.
+
+## Asteroid belt
+
+The asteroid belt fills the space between Mars and Jupiter, 12,125 to 13,875 m from
+the Sun. From far away it is a ring of dust and a faint glow, with the dark
+Kirkwood gaps where Jupiter clears the orbits. Inside the belt, tumbling rocks
+come and go around the fairy, and the flight panel says **Asteroid belt**.
+The rocks have no collisions: a rock that comes near the fairy or the camera
+shrinks away. The belt turns with the planets and fades inside atmospheres,
+as the stars do. Phones draw half of the dust and rocks.
+
+**Ceres** and **Vesta**, two small airless worlds, orbit inside the belt at their
+real distances. Both are in **Worlds**. Ceres has the bright salt spots of
+Occator crater; Vesta has a giant crater at its south pole. Blossom Haven never
+relocates into the belt. The belt data is in `src/belt.ts`; the scene is in
+`src/asteroid-belt.ts`.
+
+Run `node scripts/asteroid-belt-smoke.mjs "path/to/chrome.exe"` against the dev
+server for a guided trip through the belt to Ceres and Vesta, the Worlds
+pictures, the home check and the phone budget. An optional second argument sets
+the server origin, for example a server without file watching.
+
+## The Moon
+
+The Moon orbits Earth 963 m from its centre (3.5 Earth radii), on an orbit tilted
+28°. It has radius 75 m, 0.273 of Earth, as in the real Solar System. A lunar month is 300 s
+at 1× orbital speed, so there are 12 new moons in each game year. The Moon keeps
+its near side, with the dark maria, toward Earth. It rises in the east, and it
+is in **Worlds** after Earth; a guided trip from the meadow takes about 16 s.
+
+The Moon shows phases, because its night side is dark from far away. The fog
+does not hide it, so it shows from Earth's ground. On Earth the night light comes
+from the Moon: a high full moon gives the brightest night, and a night with no Moon
+keeps a gentle fill. Eclipses come in two seasons each game year. Near the Moon
+the fairy moves with it, up to 85 m above its ground, at every orbital speed.
+Blossom Haven never relocates into the Moon's path. The Moon data is in
+`src/moon.ts`.
+
+Run `node scripts/moon-smoke.mjs "path/to/chrome.exe"` against the dev server for
+the orbit, the Worlds picture and map, a guided trip to the Moon, the carry at
+8× and the phone layout. An optional second argument sets the server origin.
+
+## Night sky
+
+The sky has the 2,887 brightest real stars from the NASA Bright Star Catalog
+and a soft Milky Way glow. Stars fade inside atmospheres and in daylight.
+**Star pictures** shows or hides 24 star pictures (19 constellations and 5
+well-known shapes such as the Big Dipper), the names of the pictures and bright
+stars, and ten James Webb Space Telescope pictures near their real places. It is
+off at the start. The Webb picture nearest the middle of the view shows a
+caption with its ESA/Webb credit; **Worlds** lists every credit. Sources and
+limits are in [Star scenery data](docs/star-data.md).
+
+## Blossom Haven
+
+The flower button leads to a candy home with half Earth's diameter (radius 137.5,
+diameter 275 game metres): spiral lollipops, striped candy canes, marshmallow
+stones, mint-blue soda water and bubbles, and a flower cottage. Fairytale
+creatures live there: unicorns, dragonlings, kitsune kits, Frog Princes on lily
+pads, and five pegasus foals that circle over the cottage garden.
+
+The clouds are cotton candy: 50 round tufts of pink, blue and lilac floss with
+spun-sugar strands, in one draw call (half on a phone). The mist in the cloud
+layer is candy pink, and the sky over the cottage stays clear. The clouds are in
+`src/cotton-candy.ts`; see the cotton candy cloud study below.
+
+Home starts about **28 km from Earth** in the game's compressed solar system,
+not beside it. The flower marks the cottage on Blossom Haven, including when
+exploring its surface; fireflies show the safe route around intervening terrain.
+Home teleports every **five minutes of active, unguided play** to a clear position
+anywhere within the compact solar-system play area. Candidate positions avoid
+other planets, their atmospheres, Saturn's rings, the Sun, and a nearby fairy.
+The clock stops for **Guide me home / Fly home**, including temporary
+steering overrides while that guide remains enabled. Use **Stop following** to
+return to manual flight and resume the relocation clock. Manual approach does
+not stop relocation.
+
+When she is visiting (inside the atmosphere plus a small margin), the fairy,
+camera, trail, and home move together. The terrain seed, cottage, and discovery
+remain unchanged. The flower guide updates immediately and a gentle notice
+announces the move. No countdown or deadline is shown. Pause, customization,
+the world map, and background tabs do not advance the clock. Reloading starts
+a fresh interval and the initial distant location; discovery stays saved.
+
+Run `node scripts/blossom-smoke.mjs "path/to/chrome.exe"` against the dev server
+for the five-minute clock, guided lock, arrival, visitor/camera carry, and mobile
+browser checks. Pure simulation tests cover placement and relocation safety.
+
+## Sticker book
+
+Each of the 13 worlds gives a sticker the first time the fairy arrives: the
+Sun, the eight planets, the Moon, Ceres, Vesta and Blossom Haven. A world counts
+as reached when the flight panel says the fairy is near it: closer than 85 m, or
+1.5 times the atmosphere, whichever is larger. The fairy starts on Earth, so the
+Earth sticker comes when she flies out to space and comes back: the same new
+visit that makes a new landscape. A note shows the new sticker and one short fact, and the chime plays
+when the sound is on. Every fourth sticker has a bigger note.
+
+The sticker button beside the palette opens **My space stickers**. Flight waits
+while the book is open, and Escape closes it. Tap a sticker to read its fact. Tap
+an empty space to see where to fly, and **Fly there** starts the guided flight of
+**Worlds**. The book always suggests the nearest empty space. **Worlds** marks each
+world that has its sticker with a star. On a touch screen, **Stickers** is in Menu.
+The book suggests Earth last. Its empty space says: fly out to space, then come back.
+
+The book is saved in this browser as `fairy-sticker-book`. Every player earns the
+Blossom Haven sticker with a visit, also a player who found the home before. The
+stickers and their facts are in `src/stickers.ts`; the book is `src/sticker-book.ts`.
+This is option A of the sticker book study below, without the voice.
+
+Run `node scripts/sticker-book-smoke.mjs "path/to/chrome.exe"` against the dev
+server for no sticker at the start, the book, **Fly there** to Mars, the Earth
+sticker after the return, the marks in **Worlds**, the saved book and the phone
+menu. An optional second argument sets the server origin, for example a server
+without file watching.
+
+## Settings
+
+The gear button beside the sticker button opens **Settings**, a panel for
+grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
+open, and Escape closes it. The panel is in `src/settings.ts`.
+
+**Reset sticker book** shows how many stickers the book has, then asks for a
+confirmation before it removes them: "Remove all 5 stickers? This cannot be
+undone." **Keep the stickers** has the focus, so an extra Enter changes nothing.
+After a reset, the world where the fairy is gives no sticker until she leaves it.
+The reset changes only the sticker book: the fairy look and the home discovery stay.
+
+Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
+for the panel, the confirmation, the reset at the Moon, Escape and the phone menu.
+An optional second argument sets the server origin.
+
+## Character customization
+
+Choose **Choose your look** on the welcome card, or the palette button during
+flight. Pick one of nine hair styles (Bun, Bob, Tails, Space buns, Cloud curls,
+Ponytail, Long braid, Twin braids, Long waves) and one wing shape (Petal, Luna,
+Flutter). Then pick one of ten colors each for the hair, dress, wings and skin.
+Each choice applies instantly and is saved in this browser. The camera moves
+closer and flight waits while the panel is open; close it or press Escape to return.
+
+The fairy has the Storybook body of the [fairy body study](#fairy-body-study): one
+bodice with a waist, a pointed petal skirt, capsule limbs with fixed bones, arms that
+float and reach ahead in boost, soft wrists, pointed toes, a face, and a petal bow
+that holds the wings. Her head lifts to look where she flies. The body is in
+`src/fairy-body.ts`.
+
+The leggings and shoes use a deep shade of the dress color. Each wing color
+has a matching sparkle for the glow and trail. Option names, colors and
+defaults live in `src/customization.ts`. Looks saved with the old Rose, Moon
+and Fern palettes convert to the matching colors on load.
+The body, hair and wing geometry is built once in `createFairyRig` in `src/fairy.ts`; switching
+styles changes visibility, and switching colors updates shared materials. The hair
+styles are in `src/fairy-hair.ts`. The Ponytail, Long braid, Twin braids and Long
+waves swing gently with the flight and straighten along her body in boost. The six
+newer styles stay clear of the wings and the pointed ears in every wing shape.
+
+Run `node scripts/browser-smoke.mjs "path/to/chrome.exe" --customization`
+for the focused desktop/mobile check, including saved selections after reload.
+
+## Fairy flight pose study
+
+Visit `/fairy-flight-study.html` on the dev server for an interactive comparison
+of three normal/boost animation directions. Inspect rear, three-quarter and side
+views, adjust body lean and camera elevation, test silhouettes at gameplay size,
+and download the preferred direction as JSON. The game now uses **B — Sky Dancer**:
+32° normal flight with open arms and staggered legs, and a 66° forward-reaching
+Shift boost. Transitions take 0.25 seconds into boost and 0.4 seconds back to cruise.
+The study shares the game's character rig; its controls only change the preview.
+With the Storybook body, the three directions change the lean, the legs and the
+wingbeat; the arms use the floating arm pose in every direction.
+Research and design notes are in
+[docs/fairy-flight-study.md](docs/fairy-flight-study.md).
+
+## Fairy hair study
+
+Visit `/hair-style-study.html` for **Hair that flies with her**, a study of eight
+new hair styles on the fairy rig of the game: Pixie, Space buns, Cloud curls,
+Ponytail, Crown braid, Long braid, Twin braids and Long waves. See each style from
+the menu and flight cameras of the game, in cruise and in boost, with the hair in
+motion. Compare all eleven styles at close range and at flight distance, see how the
+customization menu would look, make a shortlist, and export it as JSON. The long
+styles swing and straighten along the body in boost. The page measures each style
+on the rig: the hair seen from behind, the ears, and contact with the wings.
+The study controls do not change the game.
+
+The game now has the six recommended styles: Space buns, Cloud curls, Ponytail,
+Long braid, Twin braids and Long waves, with the gentle hair motion. The study also
+found that Tails and Bob pass through the transparent wings; they keep their first
+shape, because a position clear of the wings changed their look too much.
+Pixie and Crown braid stay in the study. The study and the game share the hair
+geometry in `src/fairy-hair.ts`. The [technical study](docs/hair-style-study.md)
+gives the measurements, the rules, and the integration.
+
+Run `node scripts/hair-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for desktop/mobile checks, export checks, and screenshots.
+
+## Fairy body study
+
+Visit `/fairy-body-study.html` for **A fairy in one piece**, a study of the body of
+the fairy. Today she is 26 separate shapes: her shoulders stand away from her body,
+her limbs stretch, and her wings float behind her back. Compare today with three
+options on the same head, hair, wings and flight pose: **A — Joined joints** (balls
+at the joints, puff sleeves, and a bow that holds the wings), **B — One smooth body**
+(one bodice with a waist, tapered limbs with fixed bones, a petal skirt, a face) and
+**C — Storybook fairy** (B, with longer legs, arms that float and reach ahead in
+boost, pointed petals that move with the wings, soft wrists, pointed toes, and a
+head that looks where she flies). Show the
+joints, see each body beside today, compare all four in the line-up, and export the
+settings. Its controls do not change the game.
+
+The page measures each joint, the bone stretch, the gap at the wing roots, the
+angle of the face and the hand motion. The game now uses option C; see
+[Character customization](#character-customization). In the study, *Today* is the
+body of the game before this change. The [technical study](docs/fairy-body-study.md)
+gives the numbers, the two-bone solve, and the game integration.
+
+Run `node scripts/body-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for desktop/mobile checks, export checks, and screenshots.
+
+## Creature study
+
+Visit `/creature-study.html` for **Little lives**, an interactive proposal for
+rabbits, sheep, ducks and cows on Earth and Blossom Haven. Compare simple animal
+features, inspect close-ups, show safe walking/swimming paths, regenerate
+terrain, and shuffle residents. Land animals stay on dry ground and ducks stay
+on water; unsuitable spawns are skipped. Export your study settings as JSON.
+
+All four animals now also live in the flight game on Earth. On Blossom Haven,
+fairytale creatures take their slots (see the fairytale study below).
+Rabbits, sheep, and cows wander on dry ground; ducks paddle on water. Spawns and
+short routes adapt to the rendered terrain and avoid trees, candy scenery, and
+the cottage. Earth gets new residents when its terrain regenerates; Blossom
+Haven keeps its residents on return visits and when its world moves. Flight
+pause also pauses wildlife. Distant animals are culled to keep rendering light.
+
+The study remains an independent place to try optional features; its settings
+do not change the game. [Design and habitat rules](docs/creature-study.md)
+describe both versions.
+
+Run `node scripts/creature-smoke.mjs "path/to/chrome.exe"` for its browser checks.
+Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
+the actual game, including movement, pause, both populations, the fairytale
+residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
+
+## Fairytale creature study
+
+Visit `/fairytale-creature-study.html` for **Once upon a meadow**, the study that
+replaced every Blossom Haven creature with a fairytale creature. The unicorn
+replaces the cow, the dragonling the sheep, the kitsune kit the rabbit, the Frog
+Prince the duck, and the pegasus foal the ribbon butterflies. Each creature keeps
+the habitat, footprint, speed and count of the creature it replaces. Compare the
+animals from before with the fairytale creatures on the home terrain, by day and
+by night. Inspect close-ups, turn off the details and the magic, and see the whole
+cast beside the fairy at close range and at flight distance. Export the settings as JSON.
+
+The game now uses these creatures on Blossom Haven, with every detail and all
+the magic on. Earth keeps its animals. The models are in
+`src/creatures/fairytale-models.ts`; the game builds them with `merge: true`, which
+joins the static parts into 14 to 21 meshes per creature. The study controls change
+only the study. The [technical study](docs/fairytale-creature-study.md) gives the
+design rules, the draw cost, and the integration.
+
+Run `node scripts/fairytale-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for desktop/mobile checks, export checks, and screenshots.
+
+## Candy planet study
+
+Visit `/candy-planet-study.html` for the smaller candy-home concept: soda-water
+rivers, lollipop trees, candy canes, clouds, butterflies, and a flower cottage.
+Explore seven ecosystem notes in live 3D and compare a fixed outer-rim home,
+a reliable flower doorway, and an optional 20-minute roaming planet. The time
+simulator preserves the original comparison; changing study controls does not
+change the game. The selected live version now uses the candy ecosystem and
+the five-minute relocation rules above, not the original 20-minute proposal.
+Details and research are in
+[docs/candy-planet-study.md](docs/candy-planet-study.md).
+
+Run `node scripts/candy-study-smoke.mjs "path/to/chrome.exe"` for desktop/mobile
+checks of the study, teleport safeguards, and JSON export.
+
+## Day and night study
+
+Visit `/day-night-study.html` for **When the world turns**, an interactive lighting
+proposal. Scrub dawn, noon, sunset and night in the same 3D garden, compare gentle
+and deep nights, play a day, and export the settings. The
+[technical study](docs/day-night-study.md) covers the existing light, solar
+geometry, atmosphere, stars, planet differences, and the polar cottage edge case.
+
+The game now has this day and night cycle. The Sun is the light source for every
+world, so each planet has a day side and a night side. The local sky, fog, stars,
+ambient light and atmosphere follow the Sun's elevation at the fairy. Axial spin,
+orbits, flight and relocation all change that elevation; there is no separate day
+clock. At 1× orbital speed a solar day is about 225 seconds on Earth and 277 on
+Blossom Haven. Nights are gentle: a soft lilac fill keeps terrain readable, and
+lit cottage windows glow brighter. Planets block sunlight to the far side and cast
+eclipses (`src/sun-shading.ts`). Thresholds and night palettes are in
+`src/daylight.ts`. The first flight starts in mid-morning on Earth.
+
+The cottage is at Blossom Haven's south pole, so spin does not change its light.
+Its sky depends on where home is: golden hour at the start position, and day or
+night after a move.
+
+Run `node scripts/day-night-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for desktop/mobile controls, export checks, and screenshots.
+
+## Phone and iPad study
+
+Visit `/mobile-study.html` for the mobile compatibility review, a screen-size
+comparison, and a 14-question brief covering devices, touch controls, layout,
+performance and delivery. Answers save in this browser and export as Markdown.
+The optional browser check reports WebGL 2 and touch capability, not game speed.
+
+The study records the original gaps. The accepted controls, responsive layout,
+background pause and mobile graphics budget are now implemented; see
+[Mobile play](docs/mobile-play.md). The [technical study](docs/mobile-compatibility-study.md)
+retains the baseline evidence and physical-device test matrix.
+
+With Vite on port 5174, run
+`node scripts/mobile-audit.mjs "path/to/chrome.exe"` to reproduce the layout
+audit. On the same Wi-Fi, open `http://<computer-LAN-IP>:5174/mobile-study.html`
+after starting Vite with `npm run dev -- --host 0.0.0.0 --port 5174`.
+
+## Star map study
+
+Visit `/star-map-study.html` for **A sky full of stories**, a proposal for a
+larger star map. Compare the game sky of today with 24 star pictures, 2,887 real
+stars from the Bright Star Catalog, a Milky Way glow, and ten James Webb Space
+Telescope pictures. Turn to any picture, change the faintest star, and export
+the settings. The game now uses this proposal; the study keeps the sky from
+before the change as its comparison, and its controls do not change the game.
+
+The Webb pictures are ESA/Webb images under CC BY 4.0; the page shows the full
+credit for each one. The [technical study](docs/star-map-study.md) covers the
+catalog, the picture set, the image license, placement, cost, and the steps to
+bring it into the game. `node scripts/star-map-data.mjs` regenerates the star
+data and downloads the image previews.
+
+Run `node scripts/star-map-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for desktop/mobile checks, credits, export, and screenshots. Run
+`node scripts/star-sky-smoke.mjs "path/to/chrome.exe"` to check the sky in the game:
+the toggle, the names, the Webb caption credit and the Worlds credits.
+
+## Asteroid belt study
+
+Visit `/asteroid-belt-study.html` for **Rocks between the worlds**, a proposal
+for an asteroid belt between Mars and Jupiter. Compare three options in live 3D:
+**A — Glitter ribbon** (dust and a faint glow), **B — Rock ring** (3,200 rocks
+all around the Sun), and **C — Living belt** (the glow of A, rocks near the fairy,
+and Ceres and Vesta to visit). See each option from the whole system, from Mars,
+and inside the belt with the fairy. The study shows the cost of each option on
+a computer and a phone, and exports the settings. Its controls do not change the
+game. The game now uses option C; see [Asteroid belt](#asteroid-belt).
+
+The [technical study](docs/asteroid-belt-study.md) covers the free space in the
+gap, the relocation problem that every option must fix first, the files to
+change, and the recommendation.
+
+Run `node scripts/asteroid-belt-study-smoke.mjs "path/to/chrome.exe"` against
+port 5174 for desktop/mobile checks, export checks, and screenshots.
+
+## Sticker book study
+
+Visit `/sticker-book-study.html` for **Every world, a sticker**, a proposal for
+a sticker book for young players. Each world gives a sticker the first time the
+fairy arrives, and a voice says one short fact. Compare three options:
+**A — Stamp card** (one sticker for each world), **B — Hello and search**
+(A, plus a shiny star for one search task on each world), and **C — Space poster**
+(the child puts each sticker on its path around the Sun). Pretend to fly,
+collect stickers, turn the voice and the words on or off, and export the
+settings. The study saves its own book; its controls do not change the game.
+The game now uses option A without the voice; see [Sticker book](#sticker-book).
+The voice stays in the study for later.
+
+The [technical study](docs/sticker-book-study.md) covers the arrival test, the
+voice, every spoken line, the checks for the search tasks, and the steps to
+bring the book into the game. The lines are in `src/sticker-book-study/model.ts`;
+a test keeps them short and free of numbers.
+
+The voice is recorded with Kokoro-82M, an open neural voice (Apache-2.0), into
+`public/voice/`. **Language of the book** switches between English and European
+Portuguese. Kokoro has no European Portuguese voice, so espeak-ng makes the
+European Portuguese phonemes and the English voice Heart says them; an accent can
+remain. **Voice** compares the recorded voice with the browser voice.
+After a change of text, record the changed lines again:
+`npm install --no-save kokoro-js @breezystack/lamejs @echogarden/espeak-ng-emscripten`,
+then `node scripts/sticker-voice.mjs`. The first run downloads the model (about 330 MB).
+
+Run `node scripts/sticker-book-study-smoke.mjs "path/to/chrome.exe"` against
+port 5174 for the stickers, the voice lines, the poster hints, the saved book,
+export checks, and 390/320 px screenshots.
+
+## Cotton candy cloud study
+
+Visit `/cotton-candy-study.html` for **Spun-sugar skies**, a proposal to make
+the clouds of Blossom Haven into cotton candy. Compare the clouds from before with
+three options over the real home terrain: **A — Candy tint** (the same clouds in
+pink, blue and lilac), **B — Spun-sugar puffs** (round tufts with spun-sugar
+strands and one draw call), and **C — Floss on a cone** (B, with striped paper
+cones and sugar sparkles). See each option from the garden, in the cloud layer
+behind the fairy, and from space, by day, at golden hour and at night. Change
+the mist of the cloud layer from white to candy pink, and export the settings.
+Its controls do not change the game. The game now uses option B with the pink
+mist; the study keeps the clouds from before as **Before**.
+
+The [technical study](docs/cotton-candy-cloud-study.md) covers the sun shading
+limit on the cloud material, the white mist, the olive cloud bases, the clear
+column above the cottage, the cost of each option, and the files that changed.
+
+Run `node scripts/cotton-candy-study-smoke.mjs "path/to/chrome.exe"` against
+port 5174 for desktop/mobile checks, export checks, and screenshots.
+Run `node scripts/cotton-candy-smoke.mjs "path/to/chrome.exe"` to check the
+clouds in the game: the puffs on a computer and a phone, the pink mist in the
+cloud layer of Blossom Haven, the white mist on Earth, and shader errors.
+
+## Moon study
+
+Visit `/moon-study.html` for **A moon for the fairy**, a proposal for a Moon that
+orbits Earth. Compare three options in live 3D: **A — Sky Moon** (a picture in
+Earth's sky), **B — Close Moon** (528 m from Earth, the same size as the Sun from
+the ground), and **C — Journey Moon** (1,100 m, on an orbit tilted 28°). See each
+option from space, from a meadow on Earth, and from the Moon behind the fairy.
+Play one game year, jump to the next full moon or eclipse, change the orbit tilt,
+and turn the proposed fixes on and off. Its controls do not change the game.
+
+The [technical study](docs/moon-study.md) covers the month of 300 s, the tidal
+lock, why Earth's wide shadow darkens each full moon at a small tilt, the
+relocation and carry problems that a Moon world must fix first, the fog and light
+fixes, and the files to change. The game now uses option C; see [The Moon](#the-moon).
+
+Run `node scripts/moon-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+for the options, the views, the eclipse jumps, export checks, and 390/320 px
+screenshots. An optional second argument sets the server origin.
+
+## Proportions study
+
+Visit `/proportions-study.html` for **How big is a world?**, a study of the sizes
+of the worlds and the space between them. From far away the Moon looks like one
+more planet, because its orbit is 56% of the distance from Earth to Mercury.
+Six sliders change the planet size, the spacing, the Moon's orbit and size, the
+flight speed in open space and the Sun size. Twelve targets give a pass or a fail,
+and a search finds the smallest change that meets every target for a planet size.
+See the result from far away, as the whole system, as Earth and the Moon, and from
+Earth's ground. Its controls do not change the game.
+
+The [technical study](docs/proportions-study.md) explains the findings and lists
+the constants to change. The recommendation is planets ×1.25, spacing ×2.5, the
+Moon at 3.5 Earth radii with its real size, and 2.25 times the flight speed in
+open space. No setting meets every target with planets 1.5 times as large.
+The game now uses the recommendation, with the Sun at ×1.6 and trees at their
+base density. In the study, *Today* is the game before this change.
+
+Run `node scripts/proportions-study-smoke.mjs "path/to/chrome.exe"` against port
+5174 for the presets, the search, the views, export checks, and 390/320 px
+screenshots. An optional second argument sets the server origin.
+
+## Planet look study
+
+Visit `/planet-look-study.html` for **Worlds worth the trip**, a study of the look
+of the seven planets. Earth and Blossom Haven stay as they are. Compare the planets
+from before the study with three options: **A — Retune** (the same code with new numbers),
+**B — Storybook paint** (A, plus a map for each planet that the graphics card paints
+from the pictures), and **C — Photo maps** (A, plus the Solar System Scope maps,
+CC BY 4.0, in `public/planets/ssc/`). See each planet as a portrait, on approach and
+in flight, side by side with **Before**, beside its reference map and its measured
+colours. Its controls do not change the game. The game now uses option B, with rounder
+rocky worlds (see [Flight](#flight)); the study keeps the old look as **Before**, made
+again from a copy of the old code in `src/planet-look-study/legacy.ts`.
+
+The study found six causes of the dull look: bands with half the contrast of the
+pictures, a lit night side, cloud puffs that show as flakes from space, a thick air
+halo, shadows cast from behind the Sun (Venus and Jupiter before the proportions
+change; Blossom Haven after a move now), and Saturn's rings 11.7° off its equator. The [technical study](docs/planet-look-study.md)
+gives the numbers, the cost and the files that changed.
+
+Run `node scripts/planet-look-study-smoke.mjs "path/to/chrome.exe"` against port
+5174 for all 21 looks, the views, export checks, and 390/320 px screenshots. It uses
+the graphics card; add `--swiftshader` for software rendering. An optional second
+argument sets the server origin.
+
+## Sun study
+
+Visit `/sun-study.html` for **Here comes the Sun**, a study of the look of the Sun.
+Compare the Sun from before the study with three options: **A — Retune** (limb darkening, a brighter
+core, a glare with no edge, and a Sun that shows in the sky of Earth), **B — Living Sun**
+(A, plus granules, sunspots, a turning surface, the corona, the chromosphere and
+prominence loops, all made on the graphics card), and **C — Camera light** (B, plus
+bloom and lens flare). See the Sun from space, at its edge, in flight 40 m above it and
+from Earth's meadow at three Sun heights, side by side with **Before**. Measure the frame
+time of the four options. Its controls do not change the game. The game now uses option B
+(see [Flight](#flight)); the study keeps the old Sun as **Before**, made again from a copy
+of the old code in `src/sun-study/legacy.ts`.
+
+The study found six causes of the flat look: one colour from the centre to the edge, a
+disc dimmer than a sunlit cloud, a glow that stops at 2.04 radii, a Sun that the fog and
+the air hide from the meadow, no motion, and no surface detail for the fairy to fly over.
+The recommendation was A, then B with its phone shader, and not C. The
+[technical study](docs/sun-study.md) gives the real values, the numbers, the cost and the
+files that changed.
+
+Run `node scripts/sun-study-smoke.mjs "path/to/chrome.exe"` against port 5174 for the
+four views in four options, the pixel checks, the frame times, export checks, and 390/320
+px screenshots. It uses the graphics card; add `--swiftshader` for software rendering.
+An optional second argument sets the server origin.
+
+Run `node scripts/sun-smoke.mjs "path/to/chrome.exe"` against the dev server for the Sun
+in the game: the living Sun, the Sun in the sky of the meadow, its motion, a guided trip
+to the Sun and the phone shader. Add `--swiftshader` for software rendering.
+
+## Browser checks
+
+With the dev server at `http://127.0.0.1:5174`, run
+`node scripts/browser-smoke.mjs "path/to/chrome.exe"` using an installed Chromium
+browser. This checks low flight, ascent, return generation and the mobile layout;
+screenshots are written to `artifacts.local/`.
+
+Run `node scripts/sky-dancer-smoke.mjs "path/to/chrome.exe"` for cruise, boost,
+recovery, appearance controls, and mobile screenshots.

@@ -1,0 +1,433 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - link "✧ Fly me to the moon" [ref=e4] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e5]: CHARACTER STUDY / 02 · HAIR
+    - link "Flight pose study ↗" [ref=e6] [cursor=pointer]:
+      - /url: /fairy-flight-study.html
+  - main [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - paragraph [ref=e10]: A FAIRY, SEEN FROM BEHIND
+        - heading [level=1] [ref=e11]:
+          - text: Hair that
+          - emphasis [ref=e12]: flies with her.
+      - generic [ref=e13]:
+        - paragraph [ref=e14]: Which new hair styles should she have?
+        - paragraph [ref=e15]: The game has three hair styles. This study puts eight new styles on the same fairy. See each style from the game camera, in motion, and at flight distance. Then make a shortlist.
+        - generic [ref=e16]: Study only · the game keeps Bun, Bob and Tails
+    - generic [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]:
+          - group "Camera" [ref=e20]:
+            - button "Menu view" [pressed] [ref=e21] [cursor=pointer]
+            - button "Flight view" [ref=e22] [cursor=pointer]
+            - button "¾" [ref=e23] [cursor=pointer]
+            - button "Side" [ref=e24] [cursor=pointer]
+            - button "Front" [ref=e25] [cursor=pointer]
+          - group "Flight speed" [ref=e26]:
+            - button "Cruise" [pressed] [ref=e27] [cursor=pointer]
+            - button "Boost" [ref=e28] [cursor=pointer]
+        - generic [ref=e29]:
+          - img "Fairy with the Ponytail hair style, game camera · menu open" [ref=e30]
+          - generic: GAME CAMERA · MENU OPEN
+          - generic:
+            - generic: PONYTAIL · NEW
+            - generic: Drag to turn · scroll to zoom
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]: Hair motion
+            - group "Hair motion" [ref=e34]:
+              - button "Still" [ref=e35] [cursor=pointer]
+              - button "Gentle" [pressed] [ref=e36] [cursor=pointer]
+              - button "Lively" [ref=e37] [cursor=pointer]
+          - generic [ref=e38]:
+            - generic [ref=e39]: Backdrop
+            - group "Backdrop" [ref=e40]:
+              - button "Meadow" [pressed] [ref=e41] [cursor=pointer]
+              - button "Sky" [ref=e42] [cursor=pointer]
+              - button "Night" [ref=e43] [cursor=pointer]
+          - generic [ref=e44]:
+            - checkbox "Silhouette" [ref=e45] [cursor=pointer]
+            - text: Silhouette
+          - button "Pause motion" [ref=e46] [cursor=pointer]
+      - complementary "Hair style" [ref=e47]:
+        - generic [ref=e48]:
+          - paragraph [ref=e49]: CHOOSE A STYLE
+          - generic [ref=e50]: 7 / 11
+        - group "Hair style" [ref=e51]:
+          - button "Bun IN GAME" [ref=e52] [cursor=pointer]:
+            - generic [ref=e55]: Bun
+            - generic [ref=e56]: IN GAME
+          - button "Bob IN GAME" [ref=e57] [cursor=pointer]:
+            - generic [ref=e60]: Bob
+            - generic [ref=e61]: IN GAME
+          - button "Tails IN GAME" [ref=e62] [cursor=pointer]:
+            - generic [ref=e65]: Tails
+            - generic [ref=e66]: IN GAME
+          - button "Pixie NEW" [ref=e67] [cursor=pointer]:
+            - generic [ref=e72]: Pixie
+            - generic [ref=e73]: NEW
+          - button "Space buns NEW" [ref=e74] [cursor=pointer]:
+            - generic [ref=e78]: Space buns
+            - generic [ref=e79]: NEW
+          - button "Cloud curls NEW" [ref=e80] [cursor=pointer]:
+            - generic [ref=e84]: Cloud curls
+            - generic [ref=e85]: NEW
+          - button "Ponytail NEW" [pressed] [ref=e86] [cursor=pointer]:
+            - generic [ref=e90]: Ponytail
+            - generic [ref=e91]: NEW
+          - button "Crown braid NEW" [ref=e92] [cursor=pointer]:
+            - generic [ref=e96]: Crown braid
+            - generic [ref=e97]: NEW
+          - button "Long braid NEW" [ref=e98] [cursor=pointer]:
+            - generic [ref=e101]: Long braid
+            - generic [ref=e102]: NEW
+          - button "Twin braids NEW" [ref=e103] [cursor=pointer]:
+            - generic [ref=e107]: Twin braids
+            - generic [ref=e108]: NEW
+          - button "Long waves NEW" [ref=e109] [cursor=pointer]:
+            - generic [ref=e113]: Long waves
+            - generic [ref=e114]: NEW
+        - generic [ref=e115]:
+          - heading "Ponytail" [level=2] [ref=e116]
+          - generic [ref=e117]: UP
+        - paragraph [ref=e118]: A high tail from the crown. It swings behind her and streams back in boost.
+        - generic [ref=e119]:
+          - generic [ref=e120]:
+            - term [ref=e121]: Seen from behind
+            - definition [ref=e122]: 106%
+          - generic [ref=e123]:
+            - term [ref=e124]: Outside the cap
+            - definition [ref=e125]: +6%
+          - generic [ref=e126]:
+            - term [ref=e127]: Wings
+            - definition [ref=e128]: Clear
+          - generic [ref=e129]:
+            - term [ref=e130]: Ears
+            - definition [ref=e131]: Visible
+          - generic [ref=e132]:
+            - term [ref=e133]: Motion
+            - definition [ref=e134]: Swings
+          - generic [ref=e135]:
+            - term [ref=e136]: Meshes
+            - definition [ref=e137]: "6"
+        - generic [ref=e138]:
+          - checkbox "Add to the shortlist" [checked] [ref=e139] [cursor=pointer]
+          - generic [ref=e140]: Add to the shortlist
+        - group "Hair color" [ref=e141]:
+          - group "Hair color" [ref=e143]:
+            - button "Midnight" [ref=e144] [cursor=pointer]
+            - button "Plum" [pressed] [ref=e146] [cursor=pointer]
+            - button "Chestnut" [ref=e148] [cursor=pointer]
+            - button "Auburn" [ref=e150] [cursor=pointer]
+            - button "Honey" [ref=e152] [cursor=pointer]
+            - button "Moonlight" [ref=e154] [cursor=pointer]
+            - button "Rose" [ref=e156] [cursor=pointer]
+            - button "Lavender" [ref=e158] [cursor=pointer]
+            - button "Sky" [ref=e160] [cursor=pointer]
+            - button "Mint" [ref=e162] [cursor=pointer]
+        - group "Skin" [ref=e164]:
+          - group "Skin" [ref=e166]:
+            - button "Porcelain" [ref=e167] [cursor=pointer]
+            - button "Peach" [pressed] [ref=e169] [cursor=pointer]
+            - button "Rosy" [ref=e171] [cursor=pointer]
+            - button "Honey" [ref=e173] [cursor=pointer]
+            - button "Golden" [ref=e175] [cursor=pointer]
+            - button "Caramel" [ref=e177] [cursor=pointer]
+            - button "Bronze" [ref=e179] [cursor=pointer]
+            - button "Cocoa" [ref=e181] [cursor=pointer]
+            - button "Lilac" [ref=e183] [cursor=pointer]
+            - button "Seafoam" [ref=e185] [cursor=pointer]
+        - group "Wings" [ref=e187]:
+          - group "Wing shape" [ref=e189]:
+            - button "Petal" [pressed] [ref=e190] [cursor=pointer]
+            - button "Luna" [ref=e191] [cursor=pointer]
+            - button "Flutter" [ref=e192] [cursor=pointer]
+    - generic [ref=e193]:
+      - generic [ref=e194]:
+        - generic [ref=e195]:
+          - paragraph [ref=e196]: THE LINE-UP
+          - heading "All eleven, side by side." [level=2] [ref=e197]
+          - paragraph [ref=e198]:
+            - text: Every style on its own fairy, with the same look and motion.
+            - emphasis [ref=e199]: Flight distance
+            - text: uses the flight camera of the game (2.8 m up, 8 m back, 58° view). Each fairy has the same size in pixels as in a 900 px tall game window.
+        - generic [ref=e200]:
+          - group "Line-up distance" [ref=e201]:
+            - button "Close" [pressed] [ref=e202] [cursor=pointer]
+            - button "Flight distance" [ref=e203] [cursor=pointer]
+          - group "Line-up angle" [ref=e204]:
+            - button "Rear" [pressed] [ref=e205] [cursor=pointer]
+            - button "Side" [ref=e206] [cursor=pointer]
+      - generic [ref=e207]:
+        - img "Eleven fairies in a row, one for each hair style"
+        - list [ref=e208]:
+          - listitem [ref=e209]:
+            - button "Show Bun in the close-up" [ref=e210] [cursor=pointer]:
+              - generic [ref=e211]: Bun
+              - generic [ref=e212]: IN GAME
+          - listitem [ref=e213]:
+            - button "Show Bob in the close-up" [ref=e214] [cursor=pointer]:
+              - generic [ref=e215]: Bob
+              - generic [ref=e216]: IN GAME
+          - listitem [ref=e217]:
+            - button "Show Tails in the close-up" [ref=e218] [cursor=pointer]:
+              - generic [ref=e219]: Tails
+              - generic [ref=e220]: IN GAME
+          - listitem [ref=e221]:
+            - button "Show Pixie in the close-up" [ref=e222] [cursor=pointer]:
+              - generic [ref=e223]: Pixie
+              - generic [ref=e224]: NEW
+          - listitem [ref=e225]:
+            - button "Show Space buns in the close-up" [ref=e226] [cursor=pointer]:
+              - generic [ref=e227]: Space buns
+              - generic [ref=e228]: NEW · ✓ SHORTLIST
+          - listitem [ref=e229]:
+            - button "Show Cloud curls in the close-up" [ref=e230] [cursor=pointer]:
+              - generic [ref=e231]: Cloud curls
+              - generic [ref=e232]: NEW · ✓ SHORTLIST
+          - listitem [ref=e233]:
+            - button "Show Ponytail in the close-up" [ref=e234] [cursor=pointer]:
+              - generic [ref=e235]: Ponytail
+              - generic [ref=e236]: NEW · ✓ SHORTLIST
+          - listitem [ref=e237]:
+            - button "Show Crown braid in the close-up" [ref=e238] [cursor=pointer]:
+              - generic [ref=e239]: Crown braid
+              - generic [ref=e240]: NEW
+          - listitem [ref=e241]:
+            - button "Show Long braid in the close-up" [ref=e242] [cursor=pointer]:
+              - generic [ref=e243]: Long braid
+              - generic [ref=e244]: NEW · ✓ SHORTLIST
+          - listitem [ref=e245]:
+            - button "Show Twin braids in the close-up" [ref=e246] [cursor=pointer]:
+              - generic [ref=e247]: Twin braids
+              - generic [ref=e248]: NEW · ✓ SHORTLIST
+          - listitem [ref=e249]:
+            - button "Show Long waves in the close-up" [ref=e250] [cursor=pointer]:
+              - generic [ref=e251]: Long waves
+              - generic [ref=e252]: NEW · ✓ SHORTLIST
+      - paragraph [ref=e253]: CLOSE / REAR · the cruise pose, or the boost pose when Boost is on
+    - generic [ref=e254]:
+      - generic [ref=e256]:
+        - paragraph [ref=e257]: MEASURED ON THE RIG
+        - heading "What the numbers say." [level=2] [ref=e258]
+        - paragraph [ref=e259]:
+          - text: The page measures each style on the real fairy rig when it loads.
+          - emphasis [ref=e260]: Seen from behind
+          - text: is the hair area that the flight camera sees, where the bare cap is 100%.
+          - emphasis [ref=e261]: Outside the cap
+          - text: is the part of that area that is not over the cap.
+          - emphasis [ref=e262]: Wings
+          - text: samples each wing surface through a full wingbeat, in cruise and in boost, with lively hair motion.
+      - table [ref=e264]:
+        - rowgroup [ref=e265]:
+          - row [ref=e266]:
+            - columnheader "Style" [ref=e267]
+            - columnheader "Family" [ref=e268]
+            - columnheader "Seen from behind" [ref=e269]
+            - columnheader "Outside the cap" [ref=e270]
+            - columnheader "Wings" [ref=e271]
+            - columnheader "Ears" [ref=e272]
+            - columnheader "Motion" [ref=e273]
+            - columnheader "Meshes" [ref=e274]
+            - columnheader "Shortlist" [ref=e275]
+        - rowgroup [ref=e276]:
+          - row [ref=e277]:
+            - rowheader "Bun IN GAME" [ref=e278]:
+              - generic [ref=e281]: Bun
+              - generic [ref=e282]: IN GAME
+            - cell "Up" [ref=e283]
+            - cell "128%" [ref=e284]
+            - cell "+28%" [ref=e285]
+            - cell "Clear" [ref=e286]
+            - cell "Visible" [ref=e287]
+            - cell "Still" [ref=e288]
+            - cell "2" [ref=e289]
+            - cell "In game" [ref=e290]
+          - row [ref=e291]:
+            - rowheader "Bob IN GAME" [ref=e292]:
+              - generic [ref=e295]: Bob
+              - generic [ref=e296]: IN GAME
+            - cell "Short" [ref=e297]
+            - cell "169%" [ref=e298]
+            - cell "+64%" [ref=e299]
+            - cell "Touches Luna" [ref=e300]
+            - cell "Visible" [ref=e301]
+            - cell "Still" [ref=e302]
+            - cell "2" [ref=e303]
+            - cell "In game" [ref=e304]
+          - row [ref=e305]:
+            - rowheader "Tails IN GAME" [ref=e306]:
+              - generic [ref=e309]: Tails
+              - generic [ref=e310]: IN GAME
+            - cell "Down" [ref=e311]
+            - cell "183%" [ref=e312]
+            - cell "+82%" [ref=e313]
+            - cell "Touches all" [ref=e314]
+            - cell "Visible" [ref=e315]
+            - cell "Still" [ref=e316]
+            - cell "4" [ref=e317]
+            - cell "In game" [ref=e318]
+          - row [ref=e319]:
+            - rowheader "Pixie" [ref=e320]
+            - cell "Short" [ref=e326]
+            - cell "115%" [ref=e327]
+            - cell "+15%" [ref=e328]
+            - cell "Clear" [ref=e329]
+            - cell "Visible" [ref=e330]
+            - cell "Still" [ref=e331]
+            - cell "7" [ref=e332]
+            - cell [ref=e333]:
+              - checkbox "Shortlist Pixie" [ref=e334] [cursor=pointer]
+          - row [ref=e335]:
+            - rowheader "Space buns" [ref=e336]
+            - cell "Up" [ref=e341]
+            - cell "141%" [ref=e342]
+            - cell "+41%" [ref=e343]
+            - cell "Clear" [ref=e344]
+            - cell "Visible" [ref=e345]
+            - cell "Still" [ref=e346]
+            - cell "4" [ref=e347]
+            - cell [ref=e348]:
+              - checkbox "Shortlist Space buns" [checked] [ref=e349] [cursor=pointer]
+          - row [ref=e350]:
+            - rowheader "Cloud curls" [ref=e351]
+            - cell "Short" [ref=e356]
+            - cell "159%" [ref=e357]
+            - cell "+59%" [ref=e358]
+            - cell "Clear" [ref=e359]
+            - cell "Visible" [ref=e360]
+            - cell "Still" [ref=e361]
+            - cell "15" [ref=e362]
+            - cell [ref=e363]:
+              - checkbox "Shortlist Cloud curls" [checked] [ref=e364] [cursor=pointer]
+          - row [ref=e365]:
+            - rowheader "Ponytail" [ref=e366]
+            - cell "Up" [ref=e371]
+            - cell "106%" [ref=e372]
+            - cell "+6%" [ref=e373]
+            - cell "Clear" [ref=e374]
+            - cell "Visible" [ref=e375]
+            - cell "Swings" [ref=e376]
+            - cell "6" [ref=e377]
+            - cell [ref=e378]:
+              - checkbox "Shortlist Ponytail" [checked] [ref=e379] [cursor=pointer]
+          - row [ref=e380]:
+            - rowheader "Crown braid" [ref=e381]
+            - cell "Up" [ref=e386]
+            - cell "108%" [ref=e387]
+            - cell "+8%" [ref=e388]
+            - cell "Clear" [ref=e389]
+            - cell "Visible" [ref=e390]
+            - cell "Still" [ref=e391]
+            - cell "19" [ref=e392]
+            - cell [ref=e393]:
+              - checkbox "Shortlist Crown braid" [ref=e394] [cursor=pointer]
+          - row [ref=e395]:
+            - rowheader "Long braid" [ref=e396]
+            - cell "Down" [ref=e400]
+            - cell "136%" [ref=e401]
+            - cell "+30%" [ref=e402]
+            - cell "Clear" [ref=e403]
+            - cell "Visible" [ref=e404]
+            - cell "Swings" [ref=e405]
+            - cell "8" [ref=e406]
+            - cell [ref=e407]:
+              - checkbox "Shortlist Long braid" [checked] [ref=e408] [cursor=pointer]
+          - row [ref=e409]:
+            - rowheader "Twin braids" [ref=e410]
+            - cell "Down" [ref=e415]
+            - cell "141%" [ref=e416]
+            - cell "+34%" [ref=e417]
+            - cell "Clear" [ref=e418]
+            - cell "Visible" [ref=e419]
+            - cell "Swings" [ref=e420]
+            - cell "14" [ref=e421]
+            - cell [ref=e422]:
+              - checkbox "Shortlist Twin braids" [checked] [ref=e423] [cursor=pointer]
+          - row [ref=e424]:
+            - rowheader "Long waves" [ref=e425]
+            - cell "Down" [ref=e430]
+            - cell "166%" [ref=e431]
+            - cell "+51%" [ref=e432]
+            - cell "Clear" [ref=e433]
+            - cell "Visible" [ref=e434]
+            - cell "Swings" [ref=e435]
+            - cell "15" [ref=e436]
+            - cell [ref=e437]:
+              - checkbox "Shortlist Long waves" [checked] [ref=e438] [cursor=pointer]
+      - status [ref=e439]: Measured 11 styles on the rig with the default look. The bare cap is 0.136 square units from behind.
+    - generic [ref=e440]:
+      - generic [ref=e442]:
+        - paragraph [ref=e443]: IN THE GAME MENU
+        - heading "How the menu would look." [level=2] [ref=e444]
+        - paragraph [ref=e445]:
+          - text: The
+          - emphasis [ref=e446]: Make her yours
+          - text: panel shows hair styles in rows of three. Each button is 68 px tall with a 7 px gap, so each new row makes the panel 75 px taller. The panel scrolls when it is taller than the screen.
+      - generic [ref=e447]:
+        - generic "Preview of the hair group in the game menu" [ref=e448]:
+          - paragraph [ref=e449]: YOUR FAIRY
+          - paragraph [ref=e450]: Make her yours
+          - paragraph [ref=e451]: HAIR
+          - list [ref=e452]:
+            - listitem [ref=e453]:
+              - generic [ref=e456]: Bun
+            - listitem [ref=e457]:
+              - generic [ref=e460]: Bob
+            - listitem [ref=e461]:
+              - generic [ref=e464]: Tails
+            - listitem [ref=e465]:
+              - generic [ref=e469]: Space buns
+            - listitem [ref=e470]:
+              - generic [ref=e474]: Cloud curls
+            - listitem [ref=e475]:
+              - generic [ref=e479]: Ponytail
+            - listitem [ref=e480]:
+              - generic [ref=e483]: Long braid
+            - listitem [ref=e484]:
+              - generic [ref=e488]: Twin braids
+            - listitem [ref=e489]:
+              - generic [ref=e493]: Long waves
+        - generic [ref=e505]:
+          - generic [ref=e506]:
+            - strong [ref=e507]: "9"
+            - generic [ref=e508]: HAIR STYLES
+          - generic [ref=e509]:
+            - strong [ref=e510]: "3"
+            - generic [ref=e511]: ROWS OF THREE
+          - generic [ref=e512]:
+            - strong [ref=e513]: "+150"
+            - generic [ref=e514]: PX TALLER THAN TODAY
+          - paragraph [ref=e515]: Every row is full.
+    - generic [ref=e516]:
+      - generic [ref=e517]:
+        - paragraph [ref=e518]: WHAT THE STUDY SHOWS
+        - heading "Four rules for new hair." [level=2] [ref=e519]
+      - article [ref=e520]:
+        - text: 01 / THE BACK OF THE HEAD
+        - heading "Design for the rear camera" [level=3] [ref=e521]
+        - paragraph [ref=e522]: In flight, the camera is behind her and 19° above. A style that only changes the face or the top of the cap is hard to see. Pixie and Crown braid add the least outside the cap.
+      - article [ref=e523]:
+        - text: 02 / MOTION
+        - heading "Let long hair move" [level=3] [ref=e524]
+        - paragraph [ref=e525]: From behind, a ponytail covers the cap and adds little new shape. Its swing and its stream in boost make it clear. Motion also makes boost easier to feel.
+      - article [ref=e526]:
+        - text: 03 / THE WING LINE
+        - heading "Stay inside x = ±0.19 below the ears" [level=3] [ref=e527]
+        - paragraph [ref=e528]: Each wing starts at x = ±0.19 and only goes out from there. Hair inside that line cannot touch a wing. Tails and Bob in the game today cross it.
+      - article [ref=e529]:
+        - text: 04 / THE EARS
+        - heading "Keep the pointed ears clear" [level=3] [ref=e530]
+        - paragraph [ref=e531]: The pointed ears tell the player that she is a fairy. The test checks that each ear tip stays outside every part of the hair.
+    - generic [ref=e532]:
+      - generic [ref=e533]:
+        - 'heading "Your shortlist: six new styles." [level=2] [ref=e534]'
+        - paragraph [ref=e535]: Space buns, Cloud curls, Ponytail, Long braid, Twin braids, Long waves. The menu would have 9 hair styles in 3 rows. Save the settings to hand the shortlist to the build.
+      - generic [ref=e536]:
+        - button "Use the recommendation" [ref=e537] [cursor=pointer]
+        - button "Save study settings ↓" [ref=e538] [cursor=pointer]
+    - generic [ref=e539]:
+      - generic [ref=e540]: Original procedural study · the same rig as the game · no reference assets
+      - generic [ref=e541]: Study made 26 September 2026

@@ -1,0 +1,94 @@
+.adventure [hidden] { display: none !important; }
+.adventure-tools { position: absolute; z-index: 3; top: 126px; left: 40px; width: 330px; }
+.adventure button { cursor: pointer; font: inherit; }
+.home-controls { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.flower-button { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 8px 20px 8px 12px; border: 1px solid #ffd0e0; border-radius: 22px; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); color: #603449; box-shadow: 0 8px 28px #4d123b20; font-weight: 600 !important; font-size: 13px !important; }
+.flower-symbol { font-size: 38px; line-height: 1; color: #b55782; }
+.flower-button[aria-pressed=true] { border-color: #fff3b4; box-shadow: 0 0 18px #ffc9e54d; }
+#stop-home { padding: 9px 14px; min-height: 44px; border: 1px solid #ffffff44; border-radius: 16px; background: #242039de; color: #fff2e7; font-size: 12px; }
+.explore-tools { display: flex; gap: 7px; margin-top: 10px; }
+.explore-tools button { min-height: 48px; padding: 8px 12px; border: 1px solid #ffffff40; border-radius: 16px; color: #fff6e7; background: #182335c9; font-size: 11px; backdrop-filter: blur(10px); }
+.explore-tools span { margin-right: 5px; font-size: 20px; vertical-align: middle; }
+.explore-tools button[aria-pressed=true] { color: #ffe4a4; border-color: #ffe4a4; }
+#home-help { max-width: 240px; padding: 8px 12px; border-radius: 12px; margin: 8px 0 0; font-size: 10px; line-height: 1.5; color: #ffefdf; background: #182335a6; }
+#home-beacon { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 56px; height: 56px; padding: 0; border-radius: 50%; border: 1px solid #ffe3f49c; color: #fff0a8; background: #bb568bc2; box-shadow: 0 0 22px #ffb5de77; }
+#home-beacon > span { font-size: 40px; line-height: 1; }
+#home-beacon small { display: none; position: absolute; right: -12px; top: -8px; color: white; font-size: 20px; text-shadow: 0 1px 5px #181527; }
+#home-beacon.at-edge small { display: block; }
+.journey-picker { display: none; }
+#world-map { width: min(700px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 30px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008; }
+#world-map::backdrop { background: #040916a6; backdrop-filter: blur(8px); }
+#world-map header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+#world-map h2 { margin: 7px 0; font: 34px 'Italiana', Georgia, serif; }
+#world-map .eyebrow { color: #d5bed4; }
+#close-map { width: 48px; height: 48px; flex-shrink: 0; border: 1px solid #ffffff44; border-radius: 50%; color: #fff; background: transparent; font-size: 26px; }
+.map-caption, .map-footnote { font-size: 12px; line-height: 1.6; color: #c3c9da; }
+.map-footnote { margin-bottom: 0; font-size: 10px; text-align: center; }
+.sky-credits { margin-top: 16px; font-size: 10px; line-height: 1.55; color: #c3c9da; }
+.sky-credits summary { cursor: pointer; text-align: center; color: #e6d9e8; }
+.sky-credits p { margin: 8px 0; }
+.sky-credits ul { margin: 0; padding-left: 16px; }
+.sky-credits li { margin-bottom: 4px; }
+.sky-credits a { color: #f0d6a8; }
+.solar-map { margin: 16px 0 20px; padding: 14px 18px 8px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d; }
+.solar-map > p { margin: 0; color: #ddd0e4; font-size: 11px; text-align: center; }
+.solar-map > p span { margin-right: 5px; color: #ffe2a8; font-size: 19px; vertical-align: -2px; }
+.solar-map svg { display: block; width: min(100%, 530px); height: auto; margin: 4px auto 0; overflow: visible; }
+.solar-map .solar-orbit { fill: none; stroke-width: 1; stroke-opacity: .42; }
+.solar-map.hide-orbit-paths .solar-orbit { display: none; }
+.solar-map .solar-sun { fill: #ffd793; stroke: #fff0be; stroke-width: 2; }
+.solar-map .solar-sun-label { fill: #fff0c8; font: 8px 'DM Mono', monospace; text-anchor: middle; letter-spacing: .1em; }
+.solar-map .solar-planet { stroke: #fff7ee; stroke-width: 1.2; }
+.solar-map g[data-orbit-marker] text { fill: #eee3f0; font: 8px 'DM Sans', sans-serif; text-anchor: middle; paint-order: stroke; stroke: #13121d; stroke-width: 2.5px; stroke-linejoin: round; }
+.picture-worlds { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.world-picture { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 140px; padding: 15px 6px 12px; border-radius: 20px; border: 1px solid #d5cbed22; background: #ffffff05; color: #f5eddf; }
+.world-picture:hover, .world-picture:focus-visible { background: #ffffff12; border-color: #f2b9d8; }
+.world-picture strong { font-size: 11px; font-weight: 500; }
+.world-picture small { font-size: 9px; color: #c0c7db; }
+.planet-picture { width: 48px; height: 48px; margin: 4px; display: grid; place-items: center; flex-shrink: 0; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), var(--planet-color); box-shadow: inset -8px -4px 10px #0004, 0 0 20px #ffffff08; font-size: 36px; color: #669b79; position: relative; }
+.planet-picture.saturn::after { content: ''; position: absolute; width: 70px; height: 20px; border: 5px solid #e7c794aa; border-radius: 50%; transform: rotate(-25deg); }
+.planet-picture.jupiter, .planet-picture.neptune { background: repeating-linear-gradient(10deg, #ffffff33 0 5px, transparent 5px 10px), var(--planet-color); }
+.planet-picture.fairy { color: #ffefc4; background-color: #e68db6; }
+/* Dwarf worlds: smaller pictures. Ceres has its bright salt spots; Vesta has its big crater. */
+.planet-picture.ceres, .planet-picture.vesta { width: 32px; height: 32px; margin: 12px; }
+.planet-picture.ceres::after { content: ''; position: absolute; width: 5px; height: 4px; left: 17px; top: 11px; border-radius: 50%; background: #fbf7ec; box-shadow: 0 0 5px #fff8; }
+.planet-picture.vesta { border-radius: 52% 48% 40% 60% / 58% 50% 50% 42%; }
+.planet-picture.vesta::after { content: ''; position: absolute; width: 14px; height: 8px; left: 10px; bottom: 3px; border-radius: 50%; background: #0003; }
+/* The Moon: a small grey picture with dark maria. */
+.planet-picture.moon { width: 36px; height: 36px; margin: 10px; background: radial-gradient(circle at 36% 42%, #7c7d82 0 5px, transparent 6px), radial-gradient(circle at 62% 60%, #7c7d82 0 7px, transparent 8px), radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), var(--planet-color); }
+.home-picture { grid-row: 1; grid-column: 1; border-color: #f2acd066; background: #dc85b015; }
+.you-are-here { border-color: #ffe1a2; }
+.you-are-here small { color: #ffe1a2; }
+#home-celebration { position: absolute; z-index: 4; top: 24%; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; width: max-content; max-width: calc(100vw - 32px); padding: 18px 26px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eeed; pointer-events: none; box-shadow: 0 10px 50px #6f3c6220; }
+#home-celebration > span { font-size: 58px; color: #c76894; }
+#home-celebration small { font-size: 9px; letter-spacing: .2em; }
+#home-celebration h2 { font: 30px 'Italiana', Georgia, serif; margin: 6px 0; }
+#home-celebration p { font-size: 11px; margin: 0; }
+.celebration-petals { position: absolute; inset: 0; z-index: 3; overflow: hidden; pointer-events: none; }
+#home-move-note { position: absolute; z-index: 4; bottom: 112px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; width: max-content; max-width: min(460px, calc(100vw - 32px)); padding: 13px 21px; border: 1px solid #efd2e38c; border-radius: 24px; background: #352741ed; color: #ffe8f2; pointer-events: none; box-shadow: 0 5px 24px #11082220; }
+#home-move-note > span { font-size: 32px; color: #f2b4d6; }
+#home-move-note p { font-size: 12px; line-height: 1.6; margin: 0; }
+.celebration-petals i { position: absolute; top: -25px; left: calc(var(--i) * 7%); width: 12px; height: 20px; border-radius: 80% 0 80% 30%; background: #ffc5dfa6; animation: petal-drift 7s linear both; animation-delay: calc(var(--i) * .06s); }
+@keyframes petal-drift { to { transform: translate(60px, 85vh) rotate(180deg); opacity: 0; } }
+@media (max-width: 720px) {
+  .adventure-tools { left: 15px; top: 105px; width: calc(100vw - 30px); }
+  .flower-button { min-height: 54px; gap: 7px; padding: 8px 12px; font-size: 11px !important; border-radius: 18px; }
+  .flower-symbol { font-size: 31px; }
+  .explore-tools { gap: 6px; }
+  .explore-tools button { font-size: 10px; padding: 6px 9px; }
+  .explore-tools span { display: block; margin: 0; font-size: 20px; }
+  #home-help { display: none; }
+  #stop-home { font-size: 10px; min-height: 44px; }
+  #world-map { padding: 20px 16px; }
+  #world-map h2 { font-size: 29px; }
+  .solar-map { padding: 10px 6px 4px; }
+  .picture-worlds { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .world-picture { min-height: 120px; padding: 8px 4px; gap: 7px; }
+  .world-picture strong { font-size: 10px; }
+  #home-celebration { top: 33%; gap: 12px; padding: 16px; }
+  #home-celebration h2 { font-size: 25px; }
+  #home-celebration > span { font-size: 38px; }
+  #home-move-note { bottom: 200px; padding: 12px 16px; }
+  .touch-controls { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); }
+}
+@media (prefers-reduced-motion: reduce) { .celebration-petals { display: none; } }

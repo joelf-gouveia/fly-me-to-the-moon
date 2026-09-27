@@ -1,0 +1,27 @@
+/* Settings uses the look of the Worlds dialog and the sticker book. */
+.settings [hidden] { display: none !important; }
+.settings button { cursor: pointer; font: inherit; }
+#settings { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 30px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008; }
+#settings::backdrop { background: #040916a6; backdrop-filter: blur(8px); }
+#settings header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+#settings h2 { margin: 7px 0; font: 34px 'Italiana', Georgia, serif; }
+#settings .eyebrow { margin: 0; font: 10px 'DM Mono', monospace; letter-spacing: .16em; color: #d5bed4; }
+#close-settings { width: 48px; height: 48px; flex-shrink: 0; border: 1px solid #ffffff44; border-radius: 50%; color: #fff; background: transparent; font-size: 26px; }
+.setting { display: grid; gap: 14px; padding: 18px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d; }
+.setting h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
+.setting p { margin: 0; font-size: 13px; line-height: 1.5; color: #d9cfe2; }
+#reset-stickers, .reset-confirm button { min-height: 44px; padding: 8px 16px; border: 1px solid #ffffff44; border-radius: 16px; color: #fff6e7; background: #182335c9; font-size: 13px !important; }
+#reset-stickers { justify-self: start; }
+#reset-stickers:disabled { opacity: .45; cursor: default; }
+.reset-confirm { display: grid; gap: 8px; padding: 14px; border: 1px solid #ffb4c877; border-radius: 14px; background: #3a1f2e80; }
+#reset-question { font-size: 15px; font-weight: 600; color: #fff0f4; }
+.reset-confirm div { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.reset-confirm .danger { border-color: #ffb4c8; color: #4a1f33; background: #ffc9d8; font-weight: 600 !important; }
+#reset-status:empty { display: none; }
+#reset-status { color: #ffe2a8; }
+#settings button:focus-visible, #settings-toggle:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+@media (max-width: 560px) {
+  #settings { padding: 22px 16px; }
+  #settings h2 { font-size: 28px; }
+  .reset-confirm button { flex: 1; }
+}

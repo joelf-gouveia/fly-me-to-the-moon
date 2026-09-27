@@ -1,0 +1,24 @@
+{
+  "name": "fly-me-to-the-moon",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "test": "vitest run",
+    "preview": "vite preview",
+    "play:lan": "vite --host 0.0.0.0 --port 5174 --strictPort"
+  },
+  "devDependencies": {
+    "@types/three": "^0.186.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.2"
+  },
+  "dependencies": {
+    "lucide": "^1.48.0",
+    "simplex-noise": "^4.0.3",
+    "three": "^0.186.1"
+  }
+}
