@@ -26,7 +26,7 @@ measures their cost. "Today" in the findings and the tables is the Sun before th
 The preview uses the game code where it can: `createWorlds()` with the painted planets, the renderer,
 the tone mapping and the lights of `src/main.ts`, the planet shadow of `createSunShading()`, and a copy
 of the rules of `updateEnvironment()` for the fog, the sky and the light. Option B is the Sun of
-`createWorlds()`. The Before option is a copy of the old code (`src/sun-study/legacy.ts`): the sphere of
+`createWorlds()`. The Before option is a copy of the old code (`studies/sun-study/legacy.ts`): the sphere of
 one colour, with fog, and the glow sprite. Differences from the game:
 
 - The worlds do not orbit, and only Earth turns (for the meadow view).
@@ -225,10 +225,10 @@ the disc fills the screen. This is the case to test on a real phone.
 ## Into the game
 
 1. `src/worlds.ts`, `createWorlds()`: replace the `MeshBasicMaterial` of the Sun with the look of
-   `createSunLook()` in `src/sun-study/looks.ts`. Move it to a game file, for example `src/sun-look.ts`.
+   `createSunLook()` in `studies/sun-study/looks.ts`. Move it to a game file, for example `src/sun-look.ts`.
 2. `src/main.ts`: remove `sunGlow` and `makeSoftDiscTexture()`. The glare shell replaces them.
 3. `src/main.ts`, `updateEnvironment()`: give the look the air density at the camera and the sunlight
-   colour against `sunColor`, as `environment()` in `src/sun-study/scene.ts` does.
+   colour against `sunColor`, as `environment()` in `studies/sun-study/scene.ts` does.
 4. `src/main.ts`, `animate()`: give the look the game time, or 0 when `reducedMotion` matches.
 5. For B on a touch device, build the look with `phone = true`.
 6. Keep `frustumCulled = false` on the glare shell, because the camera can be inside it.
@@ -263,10 +263,10 @@ the disc fills the screen. This is the case to test on a real phone.
 | No glow sprite: the glare shell replaces it. `makeSoftDiscTexture()` stays for the fireflies and the relocation glow | `src/main.ts` |
 | Each frame: the game time (0 with reduced motion), the air at the camera, and the colour of the sunlight there, dimmer when the Sun is low | `updateEnvironment()` in `src/main.ts` |
 | The Sun shaders compile in the background at the start (`renderer.compileAsync()`). The first frame with the living Sun took 0.45 to 0.52 s on the test computer with an empty shader cache, for the computer and the phone shader | `src/main.ts` |
-| The planet look study has no glow sprite either, so its Sun is the game Sun | `src/planet-look-study/scene.ts` |
+| The planet look study has no glow sprite either, so its Sun is the game Sun | `studies/planet-look-study/scene.ts` |
 | `NOISE` is exported, so the Sun uses the same simplex noise as the painted planets | `src/planet-paint.ts` |
 
-`src/sun-look.test.ts` checks the real values, the built look and its place in the game.
+`tests/sun-look.test.ts` checks the real values, the built look and its place in the game.
 `node scripts/sun-smoke.mjs "path/to/chrome.exe"` checks the game: the living Sun, the white morning Sun in
 the sky of the meadow, the motion, a guided trip to the Sun, and the phone shader. It writes screenshots to
 `artifacts.local/sun/`.
@@ -289,11 +289,11 @@ the sky of the meadow, the motion, a guided trip to the Sun, and the phone shade
 
 ## Verification
 
-- `npx vitest run src/sun-study` checks the Sun values against `src/worlds.ts`, `src/main.ts` and
+- `npx vitest run studies/sun-study` checks the Sun values against `src/worlds.ts`, `src/main.ts` and
   `src/flight.ts`, the limb darkening against the table of Hestroffer and Magnan, the tone mapping, the
   cloud comparison, the glow edge and the glare, the fog, the width from Earth, the real values at the
   game scale, the places of the sunspots and the prominences, and the cost.
-- `node scripts/sun-study-smoke.mjs "path/to/chrome.exe"` against port 5174 draws four views in four
+- `node studies/sun-study/sun-study-smoke.mjs "path/to/chrome.exe"` against port 5174 draws four views in four
   options, checks the camera distances, the Sun height at the meadow, the pixel at the centre of the Sun
   (sky today, Sun in option A, orange when low), motion, the split view, the phone shader, the frame
   times, the export, this document link and the 390/320 px layouts. It writes screenshots to

@@ -1,6 +1,6 @@
 /* Input availability is independent of viewport width. */
 .mobile-top, .touch-actions, .mobile-action-label { display: none; }
-.game-shell { height: 100dvh; overscroll-behavior: none; }
+.game-shell { overscroll-behavior: none; }
 /* Long presses and sliding thumbs must not select the game text or open a callout. */
 .game-shell { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
 .touch-actions { touch-action: none; }
@@ -9,11 +9,11 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .touch-ui #scene canvas { touch-action: none; }
 .is-customizing .pause-label { visibility: hidden; }
 .game-shell .touch-controls { display: none; }
-.welcome-card { max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
+.welcome-card { max-height: calc(var(--view-height, 100dvh) - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; overscroll-behavior: contain; }
 .pause-label button { flex: none; min-height: 40px; padding: 8px 18px; background: #ffe4ad; border: 0; border-radius: 999px; color: #32283d; font: 600 14px system-ui; cursor: pointer; }
 .pause-label.is-visible { pointer-events: auto; z-index: 6; }
 .pause-label:not(.is-visible) { visibility: hidden; }
-#flight-menu { width: min(430px, calc(100vw - 32px)); max-height: calc(100dvh - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; padding: 22px; border: 1px solid #b5b4d960; border-radius: 24px; background: #1f2540; color: #fff4de; }
+#flight-menu { width: min(430px, calc(var(--view-width, 100vw) - 32px)); max-height: calc(var(--view-height, 100dvh) - 32px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; padding: 22px; border: 1px solid #b5b4d960; border-radius: 24px; background: #1f2540; color: #fff4de; }
 #flight-menu::backdrop { background: #080c22a0; }
 #flight-menu header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 #flight-menu h2 { margin: 0; font: 28px Georgia, serif; }
@@ -24,9 +24,9 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 #flight-menu .destination, #flight-menu .flight-panel, #flight-menu .adventure-tools { position: static; width: auto; max-width: none; margin: 14px 0; }
 #flight-menu .destination { display: flex; }
 #flight-menu .flight-panel { display: flex; }
-#flight-menu .controls-copy { display: none; }
-#flight-menu .explore-tools { flex-wrap: wrap; }
-#flight-menu .explore-tools button { min-height: 52px; font-size: 13px; }
+/* Worlds moves to the top of a touch screen, so the Menu has no explore row. */
+#flight-menu .explore-tools { display: none; }
+#flight-menu .home-controls { margin-top: 0; }
 #flight-menu .touch-help { font-size: 14px; line-height: 1.7; color: #d8d6e7; }
 .touch-ui { --edge-left: max(12px, env(safe-area-inset-left)); --edge-right: max(12px, env(safe-area-inset-right)); --edge-top: max(12px, env(safe-area-inset-top)); --edge-bottom: max(14px, env(safe-area-inset-bottom)); --arrow-size: clamp(52px, 5vw, 64px); }
 .touch-ui .brand { display: none; }
@@ -50,7 +50,7 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .touch-ui:not(.has-started) .touch-controls, .touch-ui:not(.has-started) .touch-actions,
 .touch-ui:not(.has-started) .mobile-top, .touch-ui:not(.has-started) .toolbar { visibility: hidden; }
 .touch-ui.is-menu-open #home-beacon { display: none; }
-.touch-ui .customizer { right: var(--edge-right); bottom: var(--edge-bottom); max-height: calc(100dvh - var(--edge-top) - var(--edge-bottom)); }
+.touch-ui .customizer { right: var(--edge-right); bottom: var(--edge-bottom); max-height: calc(var(--view-height, 100dvh) - var(--edge-top) - var(--edge-bottom)); }
 .touch-ui .customizer-close { width: 48px; height: 48px; }
 .touch-ui .swatch { height: 44px; }
 .touch-ui .swatch i { width: 24px; height: 24px; }
@@ -59,11 +59,11 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .touch-ui .welcome-card small { font: 13px/1.6 system-ui; color: #e0dbe9; }
 .touch-ui .welcome-card button { min-height: 52px; font-size: 14px; }
 .touch-ui .welcome-card > p:not(.eyebrow) { font-size: 13px; color: #e0dbe9; }
-.touch-ui .pause-label { display: block; top: 50%; bottom: auto; transform: translate(-50%, -50%); width: min(340px, calc(100vw - 32px)); text-align: center; padding: 22px 24px 20px; border-radius: 24px; background: #1f2540f2; white-space: normal; font-size: 20px; }
+.touch-ui .pause-label { display: block; top: 50%; bottom: auto; transform: translate(-50%, -50%); width: min(340px, calc(var(--view-width, 100vw) - 32px)); text-align: center; padding: 22px 24px 20px; border-radius: 24px; background: #1f2540f2; white-space: normal; font-size: 20px; }
 .touch-ui .pause-label button { display: block; margin: 12px auto 0; min-height: 52px; padding: 12px 22px; border-radius: 14px; font-size: 16px; }
-.touch-ui #world-map { max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; }
+.touch-ui #world-map { max-height: calc(var(--view-height, 100dvh) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom)); overflow-y: auto; }
 .touch-ui #home-move-note { bottom: calc(var(--edge-bottom) + 145px); }
 .touch-ui button:focus-visible { outline: 3px solid #ffe6aa; outline-offset: 3px; }
 .graphics-message { position: fixed; z-index: 20; inset: 0; display: grid; place-content: center; text-align: center; background: #172039f5; color: #fff0d8; padding: 28px; font: 18px/1.6 system-ui; }
 .graphics-message[hidden] { display: none; }.graphics-message p { max-width: 460px; }.graphics-message button { min-height: 52px; padding: 12px 24px; border: 0; border-radius: 14px; background: #ffe4ad; font: inherit; }
-@media (max-height: 500px) { .touch-ui .welcome-card { padding: 20px; }.touch-ui .welcome-card h2 { font-size: 34px; }.touch-ui .welcome-sparkle { display: none; }.touch-ui .welcome-card > p:not(.eyebrow) { margin-bottom: 14px; }.touch-ui .welcome-card small { margin-top: 10px; }.touch-ui .customizer { width: min(370px, calc(100vw - 32px)); }.touch-ui .customizer-group { margin-top: 14px; } }
+@media (max-height: 500px) { .touch-ui .welcome-card { padding: 20px; }.touch-ui .welcome-card h2 { font-size: 34px; }.touch-ui .welcome-sparkle { display: none; }.touch-ui .welcome-card > p:not(.eyebrow) { margin-bottom: 14px; }.touch-ui .welcome-card small { margin-top: 10px; }.touch-ui .customizer { width: min(370px, calc(var(--view-width, 100vw) - 32px)); }.touch-ui .customizer-group { margin-top: 14px; } }

@@ -73,7 +73,7 @@ The browser voice (`speechSynthesis`) has limits:
 - Some devices have no English voice.
 - Browsers speak only after a tap. The study shows its first line as a caption only.
 
-Thus the study plays recorded lines. `scripts/sticker-voice.mjs` records every
+Thus the study plays recorded lines. `studies/sticker-book-study/sticker-voice.mjs` records every
 line in `LINES` with Kokoro-82M, an open neural voice (Apache-2.0). It runs on
 the computer, with no account and no cost. The recordings sound the same on all
 devices, and they work offline after the first load.
@@ -96,9 +96,9 @@ To record again after a change of text:
 
 ```sh
 npm install --no-save kokoro-js @breezystack/lamejs @echogarden/espeak-ng-emscripten
-node scripts/sticker-voice.mjs                   # English and Portuguese, af_heart
-node scripts/sticker-voice.mjs --lang pt         # Portuguese only
-node scripts/sticker-voice.mjs bf_emma --lang en # another voice
+node studies/sticker-book-study/sticker-voice.mjs                   # English and Portuguese, af_heart
+node studies/sticker-book-study/sticker-voice.mjs --lang pt         # Portuguese only
+node studies/sticker-book-study/sticker-voice.mjs bf_emma --lang en # another voice
 ```
 
 The game needs one voice for each language, so it ships about 2.5 MB of audio
@@ -206,7 +206,7 @@ asteroid belt. The Moon shares path 3 with Earth, because it goes around Earth.
 
 ## The words
 
-Every line obeys three rules. A test in `src/sticker-book-study/model.test.ts`
+Every line obeys three rules. A test in `studies/sticker-book-study/model.test.ts`
 checks each rule.
 
 - A line has no numbers.
@@ -216,7 +216,7 @@ checks each rule.
 The facts are from the NASA Science Solar System pages and the NASA Dawn mission.
 Blossom Haven says that it is a pretend world, so the child can tell the real
 worlds from the story world. The full list is in `STICKERS` in
-`src/sticker-book-study/model.ts` and in the **The words** table on the page.
+`studies/sticker-book-study/model.ts` and in the **The words** table on the page.
 
 ## Steps to bring the book into the game
 
@@ -255,8 +255,8 @@ later, as a calm activity at the end of a session.
 
 ## Checks
 
-- `npm test` runs `src/sticker-book-study/model.test.ts`.
-- `node scripts/sticker-book-study-smoke.mjs "path/to/chrome.exe"` checks the
+- `npm test` runs `studies/sticker-book-study/model.test.ts`.
+- `node studies/sticker-book-study/sticker-book-study-smoke.mjs "path/to/chrome.exe"` checks the
   study against port 5174: every recorded line of every voice, the order of the
   lines, the browser voice, the three options, the poster hints, the saved book
   after a reload, the export, and the 390 px and 320 px layouts.

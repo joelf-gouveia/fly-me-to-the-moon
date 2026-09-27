@@ -55,7 +55,7 @@ before, so one swing bends the whole strand.
 
 ## Measurements
 
-The page measures each style on the real rig when it loads. `src/hair-study/styles.test.ts`
+The page measures each style on the real rig when it loads. `studies/hair-style-study/styles.test.ts`
 runs the same measurements.
 
 - **Seen from behind**: the hair area that the flight camera sees (19° above, the
@@ -181,7 +181,7 @@ body from before; this is the measurement on the Storybook body:
 
 All six newer styles still pass every rule. When the head lifts, the sides of Bob
 move back to the wing roots, so Bob now also touches the Flutter wings. Bob keeps
-its first shape, and `src/hair-study/styles.test.ts` records the new contact.
+its first shape, and `studies/hair-style-study/styles.test.ts` records the new contact.
 
 ### Bob and Tails
 
@@ -195,7 +195,7 @@ The study now checks that every part joins the cap, and it checks the outer half
 each ear. A new search with all checks found positions clear of the wings, but they
 kept only about 60% of the shape of Tails and 65% of Bob outside the cap. Tails then
 hung behind the head. Thus both styles are back in their first shape.
-`src/hair-study/styles.test.ts` records their known contact, so a change to them shows.
+`studies/hair-style-study/styles.test.ts` records their known contact, so a change to them shows.
 
 ## Files
 
@@ -203,13 +203,13 @@ hung behind the head. Thus both styles are back in their first shape.
 | --- | --- |
 | `src/fairy-hair.ts` | The hair styles of the game, the parts, and the swing |
 | `src/fairy.ts` | Builds the hair with the rig and swings it in `pose()` |
-| `src/fairy.test.ts` | Nine styles, one visible at a time, and the swing |
+| `tests/fairy.test.ts` | Nine styles, one visible at a time, and the swing |
 | `studies/hair-style-study.html` | Page entry |
-| `src/hair-study/styles.ts` | Pixie, Crown braid, the style notes, and the measurements |
-| `src/hair-study/styles.test.ts` | Order, visibility, colors, boost straightening, and the attachment, ear, wing and mesh checks for all eleven styles |
-| `src/hair-study/main.ts` | Close-up, line-up, table, menu preview, shortlist and export |
-| `src/hair-study/style.css` | Page styles and the style icons |
-| `scripts/hair-study-smoke.mjs` | Browser check of the study and screenshots |
+| `studies/hair-style-study/styles.ts` | Pixie, Crown braid, the style notes, and the measurements |
+| `studies/hair-style-study/styles.test.ts` | Order, visibility, colors, boost straightening, and the attachment, ear, wing and mesh checks for all eleven styles |
+| `studies/hair-style-study/main.ts` | Close-up, line-up, table, menu preview, shortlist and export |
+| `studies/hair-style-study/style.css` | Page styles and the style icons |
+| `studies/hair-style-study/hair-study-smoke.mjs` | Browser check of the study and screenshots |
 
 ## Verification
 
@@ -220,7 +220,7 @@ hung behind the head. Thus both styles are back in their first shape.
   flight in the game.
 - `npm run build` builds the study page.
 - With the dev server on port 5174, run
-  `node scripts/hair-study-smoke.mjs "path/to/chrome.exe"`. It checks the
+  `node studies/hair-style-study/hair-study-smoke.mjs "path/to/chrome.exe"`. It checks the
   measurements, the wing and ear rules, the camera views, boost, night, the
   line-up, the shortlist, the menu preview, the export, the pause, and the layout
   at 390 px and 320 px. The screenshots go to `artifacts.local/hair-study/`.

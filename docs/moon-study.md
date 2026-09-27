@@ -71,7 +71,7 @@ nearest other world: 1,948 m from Earth's centre.
 | Moon to Venus and its air | 2,183 m | 1,611 m |
 | Moon to the Sun | 2,112 m | 1,540 m |
 
-`clearances()` in `src/moon-study/model.ts` calculates these values. A test keeps
+`clearances()` in `studies/moon-study/model.ts` calculates these values. A test keeps
 the near zones apart and the other gaps above 500 m.
 
 ## Finding 2: a month of five minutes
@@ -299,7 +299,7 @@ Moon takes no Earth shadow.
 | `src/daylight.ts` | No change: the default sky profile is black space |
 | `src/flight.ts`, `src/journey.ts` | No change: both read the world position each frame |
 
-The study model (`src/moon-study/model.ts`) has the orbit, the phase, the
+The study model (`studies/moon-study/model.ts`) has the orbit, the phase, the
 eclipse test and the relocation test with no scene code. Move the shared parts
 to a new `src/moon.ts`, as `src/belt.ts` did for the asteroid belt.
 
@@ -318,12 +318,12 @@ to a new `src/moon.ts`, as `src/belt.ts` did for the asteroid belt.
 
 ## Tests and checks
 
-- `npm test` runs `src/moon-study/model.test.ts`: the 12 months and the wrap, the
+- `npm test` runs `studies/moon-study/model.test.ts`: the 12 months and the wrap, the
   direction of the Moon in the sky, the sizes and the quarter phase, the gaps,
   the eclipse seasons, the relocation risk with a copy of `clearHomePosition()`,
   the carry speeds, and the budgets.
 - With the Vite server on port 5174, run
-  `node scripts/moon-study-smoke.mjs "path/to/chrome.exe"`. It checks each option
+  `node studies/moon-study/moon-study-smoke.mjs "path/to/chrome.exe"`. It checks each option
   in each view, the Moon's orbit radius in the preview, the fog and earthshine
   fixes, the eclipse jumps against the model, the export, this document link,
   and 390 px and 320 px layouts. Screenshots go to `artifacts.local/moon-study/`.
@@ -360,7 +360,7 @@ Known limit: the fairy's sparkle trail stays where it was drawn. Near the Moon,
 which carries the fairy at about 21 m/s, the trail makes a long line. The same
 effect is shorter on Earth.
 
-Checks: `src/moon.test.ts` (the orbit around Earth, the wrap, the tidal lock, the
+Checks: `tests/moon.test.ts` (the orbit around Earth, the wrap, the tidal lock, the
 tilt, the maria on the near side, the relocation test, the moonlight and the
 earthshine). `scripts/moon-smoke.mjs` flies from the meadow to the Moon in the real
 game and checks the carry of a hovering fairy at 8×.

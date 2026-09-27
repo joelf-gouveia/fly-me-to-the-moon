@@ -16,8 +16,8 @@ The prototype shows the game sky of today and the proposed sky in the same 3D vi
 - **Save study** exports the settings, the cost figures and the resolved figure data as JSON.
 
 The *Before* baseline is a frozen copy of the old sky in
-`src/star-map-study/legacy-sky.ts`. The proposal preview is in
-`src/star-map-study/scene.ts`. It uses the same data and geometry as the game
+`studies/star-map-study/legacy-sky.ts`. The proposal preview is in
+`studies/star-map-study/scene.ts`. It uses the same data and geometry as the game
 (`src/star-data.ts`, `src/star-map.ts`), the same sky axes (`starDirection()`)
 and the same sky radius (`STAR_SKY_RADIUS`).
 
@@ -199,7 +199,7 @@ screen. The game must update that value when the ratio changes.
 Do the steps in this order. Each step can ship alone.
 
 1. **Real stars.** Move the generator to produce `src/star-catalog.ts` with a `Float32Array` of RA, Dec, magnitude and B-V. Replace the random stars in `createStarSky()` with one `ShaderMaterial` point cloud. Keep `catalogStars` for the named stars. Update `docs/star-data.md` with the new ADQL query and row count.
-2. **More pictures.** Add the new outlines to `starPictures` with HR numbers. Keep the test in `src/stars.test.ts` that every endpoint is in the catalog. Add the test that each segment is shorter than 40 degrees.
+2. **More pictures.** Add the new outlines to `starPictures` with HR numbers. Keep the test in `tests/stars.test.ts` that every endpoint is in the catalog. Add the test that each segment is shorter than 40 degrees.
 3. **Names.** Add figure and star labels to the HUD. Show them only with **Star pictures** on. Fade them with `stars.update()`.
 4. **Tap a picture.** Select the nearest line under a tap. Show one caption. Do not pause the flight.
 5. **Milky Way.** Add the glow sphere to the star group. Add its material to the fade list.
@@ -254,7 +254,7 @@ names and the Webb pictures together. It is off at the start.
 ```sh
 node scripts/star-map-data.mjs
 npm test
-node scripts/star-map-study-smoke.mjs "path/to/chrome.exe"
+node studies/star-map-study/star-map-study-smoke.mjs "path/to/chrome.exe"
 ```
 
 `scripts/star-map-data.mjs` queries the public NASA HEASARC TAP service with:

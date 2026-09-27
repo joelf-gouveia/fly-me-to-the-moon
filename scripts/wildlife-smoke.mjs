@@ -93,7 +93,7 @@ try {
     if (await evaluate('!!window.__fairyTest && !!window.gameFrame && !!document.querySelector("#begin-button")')) break
     await delay(250)
   }
-  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("#follow-home").click(); advanceGame(0.05)')
+  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("[data-world=fairy]").click(); advanceGame(0.05)')
   let home
   for (let i = 0; i < 150; i++) {
     await evaluate('advanceGame(2)')

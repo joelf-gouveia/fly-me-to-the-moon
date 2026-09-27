@@ -10,8 +10,9 @@ browser use, existing local saves, and explicit resume after backgrounding.
 On touch devices the arrows sit on the left. Hold **Boost** on the right to fly
 faster; releasing it returns to normal speed. **Hover** stops flight; its label
 changes to **Fly** so you can start moving again. **Worlds**, **Menu**, and pause
-stay at the top. Menu contains appearance, sound, world speed, star/orbit toggles,
-home guidance in adventure mode, and flight details. Opening the menu pauses
+stay at the top. Menu contains appearance, stickers, **Settings** (sound, star
+pictures, orbit paths and world speed), **Stop following** while the flower guide is
+on, and flight details. Opening the menu pauses
 flight and the home relocation clock; closing it returns to the preceding pause
 state. Switching apps, losing focus or losing the graphics context pauses the
 game until **Keep flying** is tapped. Sound is muted while paused/backgrounded.
@@ -77,7 +78,7 @@ The desktop flight check (`scripts/browser-smoke.mjs`) also passes: climb to
 space, a guided return to Earth, and a new landscape. This check found a fault
 from before the mobile work: a guided journey to a planet circled it without
 descent. `journeyHeading` in `src/journey.ts` now descends to a planet core
-target, and `src/journey.test.ts` covers it.
+target, and `tests/journey.test.ts` covers it.
 
 Screenshots and results are in `artifacts.local/mobile-play/`. The original audit
 and questionnaire remain in `/studies/mobile-study.html` as a record of the earlier gap.

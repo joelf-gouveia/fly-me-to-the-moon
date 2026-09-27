@@ -64,7 +64,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: 'http://127.0.0.1:5174/?test' })
   for (let i = 0; i < 80; i++) {
-    if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#journey-world option")')) break
+    if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#settings-toggle")')) break
     await delay(250)
   }
   await mkdir('artifacts.local/star-sky', { recursive: true })
@@ -79,10 +79,10 @@ try {
   assert(!state.pictures && state.labels.length === 0, 'Star pictures are on before the toggle')
   assert(state.webb.every(image => !image.loaded), 'Webb pictures load before the toggle')
 
-  await evaluate('document.querySelector("#show-stars").click()')
+  await evaluate('document.querySelector("#setting-stars").click()')
   await evaluate('advanceFlight(0.5)')
   state = await sky()
-  assert(state.pictures, 'The Star pictures button does not turn the pictures on')
+  assert(state.pictures, 'The Star pictures switch does not turn the pictures on')
   assert(state.visibility > 0.05 || state.labels.length === 0, 'Names show in a daylight sky')
 
   // Climb out of the atmosphere, as in scripts/browser-smoke.mjs.
@@ -120,19 +120,19 @@ try {
   }
   console.log(`Names seen while turning: ${seen.size}. Captions: ${[...captions].join(', ') || 'none on this path'}`)
 
-  await evaluate('document.querySelector("#show-stars").click()')
+  await evaluate('document.querySelector("#setting-stars").click()')
   await evaluate('advanceFlight(0.2)')
   state = await sky()
   assert(!state.pictures && state.labels.length === 0 && state.caption === null, 'The toggle does not hide names, lines and pictures')
   assert(await evaluate('!document.querySelector("#scene canvas") || document.querySelector(".sky-labels").hidden'), 'The name layer stays visible')
   await screenshot('pictures-off')
 
-  await evaluate('document.querySelector("#open-map").click()')
-  const credits = await evaluate('[...document.querySelectorAll(".sky-credits li a")].map(a => a.href)')
-  assert(credits.length === 10 && credits.every(href => href.startsWith('https://esawebb.org/images/')), 'Worlds dialog credits are incomplete')
-  await evaluate('document.querySelector("#close-map").click()')
+  await evaluate('document.querySelector("#settings-toggle").click()')
+  const credits = await evaluate('[...document.querySelectorAll("#settings .sky-credits li a")].map(a => a.href)')
+  assert(credits.length === 10 && credits.every(href => href.startsWith('https://esawebb.org/images/')), 'Settings credits are incomplete')
+  await evaluate('document.querySelector("#close-settings").click()')
 
-  await evaluate('document.querySelector("#show-stars").click()')
+  await evaluate('document.querySelector("#setting-stars").click()')
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
   await evaluate('dispatchEvent(new Event("resize")); advanceFlight(0.5)')
   await screenshot('mobile-390')

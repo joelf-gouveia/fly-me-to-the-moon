@@ -34,12 +34,13 @@ import {
   wingOptions,
 } from './customization'
 import type { FairyLook, LookPart } from './customization'
-import { createElement, Palette, Pause, Play, Volume2, VolumeX, X } from 'lucide'
+import { createElement, Palette, Pause, Play, X } from 'lucide'
 import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
 import { createSettings } from './settings'
+import { view, watchView } from './viewport'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
   return `
@@ -86,21 +87,11 @@ app.innerHTML = `
           <strong><span id="speed-value">12</span> <small>m/s</small></strong>
         </div>
       </div>
-      <div class="controls-copy">
-        <div><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></div>
-        <p>↑ / W climb · ↓ / S descend<br><span>← → turn · Shift boost · release to cruise</span></p>
-      </div>
     </section>
 
     <div class="toolbar">
       <button id="customize-toggle" class="icon-button" type="button" aria-label="Customize your fairy" aria-expanded="false" aria-controls="customizer">
         <i data-icon="customize"></i>
-      </button>
-      <button id="sound-toggle" class="icon-button" type="button" aria-label="Turn ambient sound on">
-        <i data-icon="sound-off"></i>
-      </button>
-      <button id="orbit-speed-toggle" class="icon-button" type="button" aria-label="Orbital speed 1 times normal. Click for 8 times normal." title="Orbital speed: 1×">
-        <span id="orbit-speed-value">1×</span>
       </button>
       <button id="pause-toggle" class="icon-button" type="button" aria-label="Pause flight">
         <i data-icon="pause"></i>
@@ -154,17 +145,12 @@ app.innerHTML = `
       <div class="welcome-sparkle"><i></i><i></i><i></i></div>
       <p class="eyebrow">YOUR WINGS ARE READY</p>
       <h2>Drift beyond<br>the blue</h2>
-      <p>Wander freely through rivers, clouds, and stars.<br>Or follow the flower on a journey to find home.</p>
+      <p>Wander freely through rivers, clouds, and stars.<br>Or open Worlds and follow the flower home.</p>
       <button id="begin-button" type="button"><span>Begin your adventure</span><span>→</span></button>
       <button id="welcome-customize" class="welcome-customize" type="button"><span>Choose your look</span><span>✦</span></button>
       <small id="steering-hint">Use WASD or arrow keys to steer</small>
     </section>
 
-    <div class="journey-picker">
-      <label for="journey-world">FOLLOW A WORLD</label>
-      <div><select id="journey-world" aria-label="Choose a destination"></select><button id="journey-go" type="button">Set course ↗</button></div>
-      <p id="journey-status">W / ↑ to climb · S / ↓ to descend</p>
-    </div>
     <div id="arrival-note" role="status"></div>
     <div id="pause-label" class="pause-label"><span>A moment of stillness</span><button id="resume-flight" type="button">▶ Keep flying</button></div>
 
@@ -188,21 +174,15 @@ function mountIcon(target: Element | null, icon: typeof Pause) {
   target.replaceChildren(createElement(icon, { width: 18, height: 18, 'stroke-width': 1.6 }))
 }
 
-mountIcon(document.querySelector('[data-icon="sound-off"]'), VolumeX)
 mountIcon(document.querySelector('[data-icon="pause"]'), Pause)
 mountIcon(document.querySelector('[data-icon="customize"]'), Palette)
 mountIcon(document.querySelector('[data-icon="close"]'), X)
-const hoverHint = document.createElement('span')
-const ctrlKey = document.createElement('kbd')
-ctrlKey.textContent = 'Ctrl'
-hoverHint.append(' · ', ctrlKey, ' toggles hover')
-document.querySelector('.controls-copy p span')?.append(hoverHint)
 
 const sceneHost = document.querySelector<HTMLDivElement>('#scene')!
 const scene = new THREE.Scene()
 scene.background = new THREE.Color(0x02030f)
 
-const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.08, 80000)
+const camera = new THREE.PerspectiveCamera(58, view.width / view.height, 0.08, 80000)
 let renderer: THREE.WebGLRenderer
 try {
   renderer = new THREE.WebGLRenderer({ antialias: !touchDevice, powerPreference: 'high-performance' })
@@ -211,9 +191,9 @@ try {
   document.getElementById('retry-graphics')!.onclick = () => location.reload()
   return
 }
-function renderRatio() { return touchDevice ? mobileQuality.ratio(innerWidth, innerHeight, devicePixelRatio) : Math.min(devicePixelRatio, 1.8) }
+function renderRatio() { return touchDevice ? mobileQuality.ratio(view.width, view.height, devicePixelRatio) : Math.min(devicePixelRatio, 1.8) }
 renderer.setPixelRatio(renderRatio())
-renderer.setSize(innerWidth, innerHeight)
+renderer.setSize(view.width, view.height)
 renderer.outputColorSpace = THREE.SRGBColorSpace
 renderer.toneMapping = THREE.ACESFilmicToneMapping
 renderer.toneMappingExposure = 1.15
@@ -401,17 +381,16 @@ document.querySelectorAll<HTMLButtonElement>('[data-custom]').forEach((button) =
 })
 
 const keys = createFlightInput()
-const controlKeys = new Set<string>()
 function clearInput() {
-  keys.clear(); controlKeys.clear(); boosted = false
+  keys.clear(); boosted = false
   document.querySelectorAll('[data-key].is-held').forEach(button => button.classList.remove('is-held'))
 }
 let started = false
 let paused = false
 let hoverHeld = false
 let boosted = false
-const orbitSpeedSteps = [1, 8, 16, 32, 64] as const
-let orbitSpeedFactor: typeof orbitSpeedSteps[number] = 1
+// World speed of Settings: 1×, 8×, 16×, 32× or 64×. It starts at 1× at each visit.
+let orbitSpeedFactor = 1
 let soundOn = false
 let audioContext: AudioContext | null = null
 let audioGain: GainNode | null = null
@@ -447,8 +426,6 @@ const adventure = createAdventure(worlds, {
   stop: stopHome,
   travel: travelTo,
   map: open => { mapOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-map-open', open) },
-  stars: show => stars.setConstellations(show),
-  orbits: show => { orbits.paths.visible = show },
 })
 adventure.setFound(homeFound)
 // One sticker for each world, the first time the fairy arrives. Flight waits while the book is open.
@@ -458,9 +435,14 @@ const stickerBook = createStickerBook(worlds, {
   chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
 })
 // Settings for grown-ups, beside the book button. Flight waits while it is open.
-createSettings({
+const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
   stickers: stickerBook,
+  sound: setSound,
+  stars: show => stars.setConstellations(show),
+  // The switch shows the paths in the sky only. The Worlds map always shows them.
+  orbits: show => { orbits.paths.visible = show },
+  speed: factor => { orbitSpeedFactor = factor },
 })
 
 function followHome() {
@@ -546,17 +528,14 @@ window.addEventListener('keydown', (event) => {
   if (customizing || mapOpen || bookOpen || settingsOpen || menuOpen || event.target instanceof HTMLSelectElement) return
   if (!started || (paused && event.code !== 'Space')) return
   if (event.target instanceof HTMLButtonElement && ['Space', 'Enter'].includes(event.code)) return
-  if (event.code === 'ControlLeft' || event.code === 'ControlRight') {
-    if (!event.repeat && controlKeys.size === 0) toggleHover()
-    controlKeys.add(event.code)
-  }
+  // Q toggles hover. Ctrl did before, but Ctrl+W closes the tab and Ctrl+D or Ctrl+S opens a browser dialog.
+  if (event.code === 'KeyQ' && !event.repeat && !event.ctrlKey && !event.metaKey && !event.altKey) toggleHover()
   if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Space'].includes(event.code)) event.preventDefault()
   setKey(event.code, true)
   if (event.code === 'Space' && !event.repeat && !(event.target instanceof HTMLButtonElement)) togglePause()
 })
 window.addEventListener('keyup', (event) => {
   setKey(event.code, false)
-  if (event.code === 'ControlLeft' || event.code === 'ControlRight') controlKeys.delete(event.code)
 })
 window.addEventListener('blur', () => { clearInput(); if (started) setPaused(true) })
 
@@ -591,17 +570,6 @@ document.querySelector<HTMLButtonElement>('#begin-button')!.addEventListener('cl
 
 const pauseButton = document.querySelector<HTMLButtonElement>('#pause-toggle')!
 const pauseLabel = document.querySelector<HTMLElement>('#pause-label')!
-const orbitSpeedButton = document.querySelector<HTMLButtonElement>('#orbit-speed-toggle')!
-const orbitSpeedValue = document.querySelector<HTMLElement>('#orbit-speed-value')!
-orbitSpeedButton.addEventListener('click', () => {
-  const current = orbitSpeedSteps.indexOf(orbitSpeedFactor)
-  orbitSpeedFactor = orbitSpeedSteps[(current + 1) % orbitSpeedSteps.length]
-  const next = orbitSpeedSteps[(orbitSpeedSteps.indexOf(orbitSpeedFactor) + 1) % orbitSpeedSteps.length]
-  orbitSpeedValue.textContent = `${orbitSpeedFactor}×`
-  orbitSpeedButton.ariaLabel = `Orbital speed ${orbitSpeedFactor} times normal. Click for ${next} times normal.`
-  orbitSpeedButton.title = `Orbital speed: ${orbitSpeedFactor}× · click for ${next}×`
-  orbitSpeedButton.classList.toggle('is-active', orbitSpeedFactor > 1)
-})
 function togglePause() {
   if (!started) return
   setPaused(!paused)
@@ -618,7 +586,7 @@ function setPaused(value: boolean) {
   if (audioContext && audioGain) {
     audioGain.gain.cancelScheduledValues(audioContext.currentTime)
     audioGain.gain.setTargetAtTime(soundOn && !paused && !document.hidden ? 0.62 : 0, audioContext.currentTime, 0.05)
-    if (!paused && soundOn) void audioContext.resume().catch(() => { soundButton.ariaLabel = 'Tap to restore sound' })
+    if (!paused && soundOn) void audioContext.resume().catch(() => settings.soundNote('The sound stopped. Turn the switch off and on again.'))
   }
 }
 pauseButton.addEventListener('click', togglePause)
@@ -631,7 +599,6 @@ document.addEventListener('visibilitychange', () => {
   }
 })
 
-const soundButton = document.querySelector<HTMLButtonElement>('#sound-toggle')!
 function createAmbience() {
   audioContext = new AudioContext()
   audioGain = audioContext.createGain()
@@ -648,18 +615,20 @@ function createAmbience() {
   })
 }
 
-soundButton.addEventListener('click', async () => {
+/** The Sound switch of Settings. The switch is a tap, so the browser lets the sound start. */
+async function setSound(on: boolean) {
   try {
-  if (!audioContext) createAmbience()
-  await audioContext!.resume()
-  soundOn = !soundOn
-  audioGain!.gain.cancelScheduledValues(audioContext!.currentTime)
-  audioGain!.gain.linearRampToValueAtTime(soundOn && !paused && !document.hidden ? 0.62 : 0, audioContext!.currentTime + 0.45)
-  soundButton.classList.toggle('is-active', soundOn)
-  soundButton.ariaLabel = soundOn ? 'Turn ambient sound off' : 'Turn ambient sound on'
-  mountIcon(soundButton.querySelector('i'), soundOn ? Volume2 : VolumeX)
-  } catch { soundButton.ariaLabel = 'Sound unavailable. Tap to try again.' }
-})
+    if (!audioContext) createAmbience()
+    await audioContext!.resume()
+    soundOn = on
+    audioGain!.gain.cancelScheduledValues(audioContext!.currentTime)
+    audioGain!.gain.linearRampToValueAtTime(soundOn && !paused && !document.hidden ? 0.62 : 0, audioContext!.currentTime + 0.45)
+  } catch {
+    soundOn = false
+    settings.soundNote('The browser does not allow sound now. Try the switch again.')
+  }
+  return soundOn
+}
 
 createMobileUI(open => { menuOpen = open }, clearInput)
 const graphicsMessage = document.createElement('div')
@@ -681,18 +650,6 @@ const speedValue = document.querySelector<HTMLElement>('#speed-value')!
 
 const regionLabel = document.querySelector<HTMLElement>('#flight-region')!
 const arrivalNote = document.querySelector<HTMLElement>('#arrival-note')!
-const journeyStatus = document.querySelector<HTMLElement>('#journey-status')!
-const journeySelect = document.querySelector<HTMLSelectElement>('#journey-world')!
-journeySelect.innerHTML = worlds.map((world) => `<option value="${world.name}">${world.name}</option>`).join('')
-journeySelect.value = 'Earth'
-document.querySelector<HTMLButtonElement>('#journey-go')!.addEventListener('click', () => {
-  stopHome()
-  destination = worlds.find((world) => world.name === journeySelect.value)!
-  if (destination === home) { followHome(); return }
-  if (!started) document.querySelector<HTMLButtonElement>('#begin-button')!.click()
-  journeyStatus.textContent = `Following ${destination.name} · steer to take over`
-  renderer.domElement.focus()
-})
 
 function updateNearestWorld() {
   nearestWorld = nearestWorldAt(fairy.position, worlds)
@@ -720,7 +677,7 @@ function updateNearestWorld() {
     : world.cloudHeight && nearestDistance > world.cloudHeight + 12 ? 'Above the clouds'
     : world.cloudHeight && Math.abs(nearestDistance - world.cloudHeight - 4) < 9 ? 'Through the clouds'
     : world.kind === 'fairy' ? 'Candy groves · sparkling soda rivers'
-    : world.kind === 'earth' ? `Below the clouds · landscape ${world.visit}`
+    : world.kind === 'earth' ? 'Below the clouds'
     : world.kind === 'mars' ? 'Thin, dusty air'
     : world.kind === 'venus' ? 'Dense golden haze' : 'Drifting through cloud bands'
 
@@ -772,10 +729,7 @@ function updateFairy(delta: number) {
   boosted = keys.has('ShiftLeft') || keys.has('ShiftRight')
   const guidingHome = homeGuide.update(delta, Boolean(yaw || pitch))
   homeSuspended = homeGuide.enabled && !guidingHome
-  if (yaw || pitch) {
-    destination = null
-    journeyStatus.textContent = 'Free flight · release to follow the horizon'
-  }
+  if (yaw || pitch) destination = null
   if (guidingHome) destination = home
   if (destination) {
     const target = destination === home ? guideTarget : destination.group.position
@@ -792,7 +746,6 @@ function updateFairy(delta: number) {
       heading.addScaledVector(targetNormal, -heading.dot(targetNormal)).normalize()
       if (heading.lengthSq() < 0.01) heading.set(1, 0, 0)
       orientFlight(fairy.quaternion, heading, targetNormal)
-      journeyStatus.textContent = `Cruising around ${destination.name}`
       if (destination === home) { discoverHome(); homeGuide.stop() }
       destination = null
     } else {
@@ -825,7 +778,7 @@ function updateCamera(delta: number) {
   camera.position.add(cameraTranslation)
   cameraLook.add(cameraTranslation)
   previousFlightPosition.copy(fairy.position)
-  cameraOffset.set(0, 2.8, customizing ? (innerWidth > 720 ? 3.4 : 5.8) : 8).applyQuaternion(fairy.quaternion)
+  cameraOffset.set(0, 2.8, customizing ? (view.width > 720 ? 3.4 : 5.8) : 8).applyQuaternion(fairy.quaternion)
   cameraGoal.copy(fairy.position).add(cameraOffset)
   camera.position.lerp(cameraGoal, 1 - Math.exp(-delta * 6))
   // Hills can rise between the fairy and camera; never put the view underground.
@@ -841,8 +794,8 @@ function updateCamera(delta: number) {
   camera.lookAt(cameraLook)
   camera.fov = THREE.MathUtils.lerp(camera.fov, boosted ? 66 : 58, 1 - Math.exp(-delta * 2.5))
   if (customizing) {
-    camera.setViewOffset(innerWidth, innerHeight, innerWidth > 720 ? innerWidth * 0.13 : 0,
-      innerWidth > 720 ? 0 : innerHeight * 0.26, innerWidth, innerHeight)
+    camera.setViewOffset(view.width, view.height, view.width > 720 ? view.width * 0.13 : 0,
+      view.width > 720 ? 0 : view.height * 0.26, view.width, view.height)
   } else if (camera.view?.enabled) camera.clearViewOffset()
   camera.updateProjectionMatrix()
 }
@@ -969,7 +922,7 @@ function animate(timestamp?: number) {
   sunShading.update(worlds)
   sunShading.track(scene)
   renderer.render(scene, camera)
-  skyLabels.update(camera, innerWidth, innerHeight)
+  skyLabels.update(camera, view.width, view.height)
   requestAnimationFrame(animate)
 }
 
@@ -981,6 +934,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     home: home.group.position.toArray(), radius: home.radius, atmosphere: home.atmosphere,
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
+    destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
     found: homeFound, paused, mapOpen, bookOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
@@ -1010,12 +964,12 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   }) } })
 }
 
-window.addEventListener('resize', () => {
+watchView(() => {
   clearInput()
-  camera.aspect = innerWidth / innerHeight
+  camera.aspect = view.width / view.height
   camera.updateProjectionMatrix()
   renderer.setPixelRatio(renderRatio())
-  renderer.setSize(innerWidth, innerHeight)
+  renderer.setSize(view.width, view.height)
 })
 }
 

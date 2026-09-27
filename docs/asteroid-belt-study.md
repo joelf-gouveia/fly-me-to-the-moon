@@ -49,7 +49,7 @@ light in open space, the same star sky (`createStarSky()`), and the same fairy
 
 The belt fills 4,850 m to 5,550 m from the Sun, and 160 m above and below the
 middle plane. This maps the real belt, 2.1 to 3.3 AU, onto the game gap in a
-straight line: `auToGame()` and `gameToAu()` in `src/asteroid-belt-study/model.ts`.
+straight line: `auToGame()` and `gameToAu()` in `studies/asteroid-belt-study/model.ts`.
 
 | Edge | Distance from the Sun | Free space to the belt |
 | --- | --- | --- |
@@ -132,7 +132,7 @@ Jupiter. The study draws the gaps in the dust, the glow and the near field.
 
 All three options are scenery, not a `World`. Put the code in one new module,
 `src/asteroid-belt.ts`, with `createAsteroidBelt(scene, mobile)`. Call it in
-`src/main.ts` after `createWorlds()`. The study code in `src/asteroid-belt-study/`
+`src/main.ts` after `createWorlds()`. The study code in `studies/asteroid-belt-study/`
 is the starting point: `model.ts` has no Three.js code and has tests.
 
 ### A: Glitter ribbon
@@ -244,11 +244,11 @@ the simplest. B cannot become C without replacing its rock layer.
 
 ## Tests and checks
 
-- `npm test` runs `src/asteroid-belt-study/model.test.ts`: clearances, the gaps
+- `npm test` runs `studies/asteroid-belt-study/model.test.ts`: clearances, the gaps
   in the samples, the relocation risk, the budgets, stable cells, and the
   dwarf worlds clear of the gaps and of the rocks.
 - With the Vite server on port 5174, run
-  `node scripts/asteroid-belt-study-smoke.mjs "path/to/chrome.exe"`. It checks
+  `node studies/asteroid-belt-study/asteroid-belt-study-smoke.mjs "path/to/chrome.exe"`. It checks
   each option in three views against the model counts, the Ceres view, the
   phone budget, the safe zones, the export, this document link, and 390 px and
   320 px layouts. Screenshots go to `artifacts.local/asteroid-belt-study/`.
@@ -278,9 +278,9 @@ Differences from the proposal:
   fairy is in the belt, and **Open space** elsewhere.
 - Rocks do not tumble when the system asks for reduced motion.
 
-Checks: `src/asteroid-belt.test.ts` (the belt and the dwarf worlds turn together,
+Checks: `tests/asteroid-belt.test.ts` (the belt and the dwarf worlds turn together,
 rocks stay away from the camera and the fairy, the phone budget, the dwarf
-terrain) and `src/relocation.test.ts` (the belt test).
+terrain) and `tests/relocation.test.ts` (the belt test).
 `scripts/asteroid-belt-smoke.mjs` flies the fairy through the belt to Ceres and
 Vesta in the real game.
 

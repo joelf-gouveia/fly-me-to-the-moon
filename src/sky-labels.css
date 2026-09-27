@@ -5,7 +5,7 @@
 .sky-label.star { font-size: 10px; color: #aeb9d6; translate: 8px -120%; }
 .sky-label.webb { font: 9px 'DM Mono', monospace; letter-spacing: .12em; text-transform: uppercase; color: #f0d6a8; translate: -50% 4px; }
 
-.sky-caption { position: absolute; z-index: 3; left: 50%; bottom: 116px; transform: translateX(-50%); width: min(440px, calc(100vw - 32px)); padding: 14px 20px; border: 1px solid #f0d6a855; border-radius: 18px; color: #f5ecdf; background: #0a1224e6; box-shadow: 0 8px 30px #0006; }
+.sky-caption { position: absolute; z-index: 3; left: 50%; bottom: 116px; transform: translateX(-50%); width: min(440px, calc(var(--view-width, 100vw) - 32px)); padding: 14px 20px; border: 1px solid #f0d6a855; border-radius: 18px; color: #f5ecdf; background: #0a1224e6; box-shadow: 0 8px 30px #0006; }
 .sky-caption .eyebrow { margin: 0 0 4px; font: 9px 'DM Mono', monospace; letter-spacing: .15em; color: #f6d8a4; }
 .sky-caption h2 { margin: 0 0 4px; font: 22px 'Italiana', Georgia, serif; }
 .sky-caption .about { margin: 0 0 6px; font-size: 12px; line-height: 1.5; }

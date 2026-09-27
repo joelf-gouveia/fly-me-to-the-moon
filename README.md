@@ -8,20 +8,40 @@ Run `npm install`, then `npm run dev`. On Windows PowerShell, use `npm.cmd` if
 the shell blocks npm's script wrapper. `npm run build` creates `dist/`;
 `npm test` checks terrain generation, repeat visits, spherical flight, and fairy animation.
 
+## Project layout
+
+Rule: `src/` contains only the code of the website. Put all other files in the
+folders below.
+
+| Folder | Contents |
+|---|---|
+| `src/` | The code and the styles of the game. |
+| `tests/` | The unit tests of the game. The folders are the same as in `src/`. |
+| `scripts/` | The browser checks of the game and the data tools of the game. |
+| `studies/` | One page for each study, for example `studies/moon-study.html`. |
+| `studies/<study>/` | The code, the unit tests and the scripts of that study. The folder has the name of the page. |
+| `docs/` | The documents of the game and of the studies. |
+| `public/` | The images, the sounds and the other static files. |
+
+A study can use code from `src/`. The code in `src/` does not use code from
+`studies/`. Only a game test in `tests/` can compare the game with a study.
+
 ## Flight
 
 - **Begin your adventure** starts the flight. There is one mode.
-- The ✿ flower button in flight (**Guide me home**, then **Fly home**) is an
-  option. It shows the flower marker and the guiding fireflies to Blossom Haven.
-  **Stop following** returns to free flight. The Blossom Haven picture in
-  **Worlds** also starts this guide.
+- The ✿ Blossom Haven picture in **Worlds** starts the flower guide. It shows
+  the flower marker and the guiding fireflies to Blossom Haven. While the guide
+  is on, **Stop following** shows under **Worlds** and returns to free flight.
 - The flower cottage is always on Blossom Haven, with or without the guide.
   The first arrival shows the discovery celebration.
 
 - W / Up: climb; S / Down: descend.
 - A / Left and D / Right: turn.
 - Release the controls near a planet to cruise along its curvature.
-- Shift: faster flight; Space or the pause button: pause.
+- Shift: faster flight; Q: hover; Space or the pause button: pause.
+- On a computer the screen has **Worlds** at the top left and four round
+  buttons at the bottom right: **Your fairy**, **Stickers**, **Settings** and
+  pause. **Settings** has the sound, the sky switches, World speed and the keys.
 - Open **Worlds** and choose a picture for a guided journey. Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
   a held **Boost** button and a **Hover / Fly** toggle. **Menu** holds the extra
@@ -122,8 +142,9 @@ and a soft Milky Way glow. Stars fade inside atmospheres and in daylight.
 **Star pictures** shows or hides 24 star pictures (19 constellations and 5
 well-known shapes such as the Big Dipper), the names of the pictures and bright
 stars, and ten James Webb Space Telescope pictures near their real places. It is
-off at the start. The Webb picture nearest the middle of the view shows a
-caption with its ESA/Webb credit; **Worlds** lists every credit. Sources and
+a switch in **Settings**, off at the start, and it stays after a reload. The Webb
+picture nearest the middle of the view shows a caption with its ESA/Webb credit;
+**Settings** lists every credit. Sources and
 limits are in [Star scenery data](docs/star-data.md).
 
 ## Blossom Haven
@@ -145,7 +166,7 @@ exploring its surface; fireflies show the safe route around intervening terrain.
 Home teleports every **five minutes of active, unguided play** to a clear position
 anywhere within the compact solar-system play area. Candidate positions avoid
 other planets, their atmospheres, Saturn's rings, the Sun, and a nearby fairy.
-The clock stops for **Guide me home / Fly home**, including temporary
+The clock stops for the flower guide, including temporary
 steering overrides while that guide remains enabled. Use **Stop following** to
 return to manual flight and resume the relocation clock. Manual approach does
 not stop relocation.
@@ -193,7 +214,17 @@ without file watching.
 
 The gear button beside the sticker button opens **Settings**, a panel for
 grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
-open, and Escape closes it. The panel is in `src/settings.ts`.
+open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts:
+
+- **Sound**: the soft hum and the chimes. The switch is a tap, so the browser lets
+  the sound start. It is off at each visit.
+- **In the sky**: **Star pictures**, **Orbit paths** and **World speed** (1×, 8×,
+  16×, 32× or 64×). **Orbit paths** shows the coloured lines in the sky only; the
+  **Worlds** map always shows its paths. The two switches stay after a reload
+  (`fairy-settings` in `localStorage`); World speed starts at 1× at each visit.
+- **How to fly**: the keys on a computer, the touch buttons on a touch screen.
+- **Sticker book**: the reset below.
+- **Pictures in the sky: credits**: the star data and the ten Webb pictures.
 
 **Reset sticker book** shows how many stickers the book has, then asks for a
 confirmation before it removes them: "Remove all 5 stickers? This cannot be
@@ -202,7 +233,8 @@ After a reset, the world where the fairy is gives no sticker until she leaves it
 The reset changes only the sticker book: the fairy look and the home discovery stay.
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
-for the panel, the confirmation, the reset at the Moon, Escape and the phone menu.
+for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
+buttons, the sky switches, World speed, the sound, the saved switches and the phone menu.
 An optional second argument sets the server origin.
 
 ## Character customization
@@ -267,7 +299,7 @@ Pixie and Crown braid stay in the study. The study and the game share the hair
 geometry in `src/fairy-hair.ts`. The [technical study](docs/hair-style-study.md)
 gives the measurements, the rules, and the integration.
 
-Run `node scripts/hair-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/hair-style-study/hair-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for desktop/mobile checks, export checks, and screenshots.
 
 ## Fairy body study
@@ -290,7 +322,7 @@ angle of the face and the hand motion. The game now uses option C; see
 body of the game before this change. The [technical study](docs/fairy-body-study.md)
 gives the numbers, the two-bone solve, and the game integration.
 
-Run `node scripts/body-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/fairy-body-study/body-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for desktop/mobile checks, export checks, and screenshots.
 
 ## Creature study
@@ -313,7 +345,7 @@ The study remains an independent place to try optional features; its settings
 do not change the game. [Design and habitat rules](docs/creature-study.md)
 describe both versions.
 
-Run `node scripts/creature-smoke.mjs "path/to/chrome.exe"` for its browser checks.
+Run `node studies/creature-study/creature-smoke.mjs "path/to/chrome.exe"` for its browser checks.
 Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
 the actual game, including movement, pause, both populations, the fairytale
 residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
@@ -336,7 +368,7 @@ joins the static parts into 14 to 21 meshes per creature. The study controls cha
 only the study. The [technical study](docs/fairytale-creature-study.md) gives the
 design rules, the draw cost, and the integration.
 
-Run `node scripts/fairytale-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/fairytale-creature-study/fairytale-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for desktop/mobile checks, export checks, and screenshots.
 
 ## Candy planet study
@@ -351,7 +383,7 @@ the five-minute relocation rules above, not the original 20-minute proposal.
 Details and research are in
 [docs/candy-planet-study.md](docs/candy-planet-study.md).
 
-Run `node scripts/candy-study-smoke.mjs "path/to/chrome.exe"` for desktop/mobile
+Run `node studies/candy-planet-study/candy-study-smoke.mjs "path/to/chrome.exe"` for desktop/mobile
 checks of the study, teleport safeguards, and JSON export.
 
 ## Day and night study
@@ -376,7 +408,7 @@ The cottage is at Blossom Haven's south pole, so spin does not change its light.
 Its sky depends on where home is: golden hour at the start position, and day or
 night after a move.
 
-Run `node scripts/day-night-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/day-night-study/day-night-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for desktop/mobile controls, export checks, and screenshots.
 
 ## Phone and iPad study
@@ -411,7 +443,7 @@ catalog, the picture set, the image license, placement, cost, and the steps to
 bring it into the game. `node scripts/star-map-data.mjs` regenerates the star
 data and downloads the image previews.
 
-Run `node scripts/star-map-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/star-map-study/star-map-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for desktop/mobile checks, credits, export, and screenshots. Run
 `node scripts/star-sky-smoke.mjs "path/to/chrome.exe"` to check the sky in the game:
 the toggle, the names, the Webb caption credit and the Worlds credits.
@@ -431,7 +463,7 @@ The [technical study](docs/asteroid-belt-study.md) covers the free space in the
 gap, the relocation problem that every option must fix first, the files to
 change, and the recommendation.
 
-Run `node scripts/asteroid-belt-study-smoke.mjs "path/to/chrome.exe"` against
+Run `node studies/asteroid-belt-study/asteroid-belt-study-smoke.mjs "path/to/chrome.exe"` against
 port 5174 for desktop/mobile checks, export checks, and screenshots.
 
 ## Sticker book study
@@ -449,7 +481,7 @@ The voice stays in the study for later.
 
 The [technical study](docs/sticker-book-study.md) covers the arrival test, the
 voice, every spoken line, the checks for the search tasks, and the steps to
-bring the book into the game. The lines are in `src/sticker-book-study/model.ts`;
+bring the book into the game. The lines are in `studies/sticker-book-study/model.ts`;
 a test keeps them short and free of numbers.
 
 The voice is recorded with Kokoro-82M, an open neural voice (Apache-2.0), into
@@ -459,9 +491,9 @@ European Portuguese phonemes and the English voice Heart says them; an accent ca
 remain. **Voice** compares the recorded voice with the browser voice.
 After a change of text, record the changed lines again:
 `npm install --no-save kokoro-js @breezystack/lamejs @echogarden/espeak-ng-emscripten`,
-then `node scripts/sticker-voice.mjs`. The first run downloads the model (about 330 MB).
+then `node studies/sticker-book-study/sticker-voice.mjs`. The first run downloads the model (about 330 MB).
 
-Run `node scripts/sticker-book-study-smoke.mjs "path/to/chrome.exe"` against
+Run `node studies/sticker-book-study/sticker-book-study-smoke.mjs "path/to/chrome.exe"` against
 port 5174 for the stickers, the voice lines, the poster hints, the saved book,
 export checks, and 390/320 px screenshots.
 
@@ -482,7 +514,7 @@ The [technical study](docs/cotton-candy-cloud-study.md) covers the sun shading
 limit on the cloud material, the white mist, the olive cloud bases, the clear
 column above the cottage, the cost of each option, and the files that changed.
 
-Run `node scripts/cotton-candy-study-smoke.mjs "path/to/chrome.exe"` against
+Run `node studies/cotton-candy-study/cotton-candy-study-smoke.mjs "path/to/chrome.exe"` against
 port 5174 for desktop/mobile checks, export checks, and screenshots.
 Run `node scripts/cotton-candy-smoke.mjs "path/to/chrome.exe"` to check the
 clouds in the game: the puffs on a computer and a phone, the pink mist in the
@@ -503,7 +535,7 @@ lock, why Earth's wide shadow darkens each full moon at a small tilt, the
 relocation and carry problems that a Moon world must fix first, the fog and light
 fixes, and the files to change. The game now uses option C; see [The Moon](#the-moon).
 
-Run `node scripts/moon-study-smoke.mjs "path/to/chrome.exe"` against port 5174
+Run `node studies/moon-study/moon-study-smoke.mjs "path/to/chrome.exe"` against port 5174
 for the options, the views, the eclipse jumps, export checks, and 390/320 px
 screenshots. An optional second argument sets the server origin.
 
@@ -525,7 +557,7 @@ open space. No setting meets every target with planets 1.5 times as large.
 The game now uses the recommendation, with the Sun at ×1.6 and trees at their
 base density. In the study, *Today* is the game before this change.
 
-Run `node scripts/proportions-study-smoke.mjs "path/to/chrome.exe"` against port
+Run `node studies/proportions-study/proportions-study-smoke.mjs "path/to/chrome.exe"` against port
 5174 for the presets, the search, the views, export checks, and 390/320 px
 screenshots. An optional second argument sets the server origin.
 
@@ -540,7 +572,7 @@ CC BY 4.0, in `public/planets/ssc/`). See each planet as a portrait, on approach
 in flight, side by side with **Before**, beside its reference map and its measured
 colours. Its controls do not change the game. The game now uses option B, with rounder
 rocky worlds (see [Flight](#flight)); the study keeps the old look as **Before**, made
-again from a copy of the old code in `src/planet-look-study/legacy.ts`.
+again from a copy of the old code in `studies/planet-look-study/legacy.ts`.
 
 The study found six causes of the dull look: bands with half the contrast of the
 pictures, a lit night side, cloud puffs that show as flakes from space, a thick air
@@ -548,7 +580,7 @@ halo, shadows cast from behind the Sun (Venus and Jupiter before the proportions
 change; Blossom Haven after a move now), and Saturn's rings 11.7° off its equator. The [technical study](docs/planet-look-study.md)
 gives the numbers, the cost and the files that changed.
 
-Run `node scripts/planet-look-study-smoke.mjs "path/to/chrome.exe"` against port
+Run `node studies/planet-look-study/planet-look-study-smoke.mjs "path/to/chrome.exe"` against port
 5174 for all 21 looks, the views, export checks, and 390/320 px screenshots. It uses
 the graphics card; add `--swiftshader` for software rendering. An optional second
 argument sets the server origin.
@@ -564,7 +596,7 @@ bloom and lens flare). See the Sun from space, at its edge, in flight 40 m above
 from Earth's meadow at three Sun heights, side by side with **Before**. Measure the frame
 time of the four options. Its controls do not change the game. The game now uses option B
 (see [Flight](#flight)); the study keeps the old Sun as **Before**, made again from a copy
-of the old code in `src/sun-study/legacy.ts`.
+of the old code in `studies/sun-study/legacy.ts`.
 
 The study found six causes of the flat look: one colour from the centre to the edge, a
 disc dimmer than a sunlit cloud, a glow that stops at 2.04 radii, a Sun that the fog and
@@ -573,7 +605,7 @@ The recommendation was A, then B with its phone shader, and not C. The
 [technical study](docs/sun-study.md) gives the real values, the numbers, the cost and the
 files that changed.
 
-Run `node scripts/sun-study-smoke.mjs "path/to/chrome.exe"` against port 5174 for the
+Run `node studies/sun-study/sun-study-smoke.mjs "path/to/chrome.exe"` against port 5174 for the
 four views in four options, the pixel checks, the frame times, export checks, and 390/320
 px screenshots. It uses the graphics card; add `--swiftshader` for software rendering.
 An optional second argument sets the server origin.
@@ -581,6 +613,44 @@ An optional second argument sets the server origin.
 Run `node scripts/sun-smoke.mjs "path/to/chrome.exe"` against the dev server for the Sun
 in the game: the living Sun, the Sun in the sky of the meadow, its motion, a guided trip
 to the Sun and the phone shader. Add `--swiftshader` for software rendering.
+
+## Planet transition study
+
+Visit `/studies/planet-transition-study.html` for **Into the air, out to the stars**, a
+study of the flight into a world and out of it. The live view flies the Earth and the fairy
+of the game with four rule sets: **Today** (the flight code of the game), **A — Retune**
+(no snaps, a gentle brake, no trap at the edge of space), **B — One sky** (one steering
+rule everywhere, with an up of the sky that turns from the solar system to the world) and
+**C — Cloud door** (B, plus a short glide through a cloud veil and a lift to space). Play six
+scripted moments, or fly from the meadow or from space with the keys. Charts compare the
+altitude, the largest turn in one frame and the speed of the four rule sets. Its controls
+do not change the game.
+
+The study found nine causes of the jarring transition. The largest: W and S turn a loop
+above 151 m, so a fairy that holds W comes back to Earth upside down (a turn of 169° in one
+frame); a fairy that lets go above the clouds stays at the edge of space; a fairy with no
+key never comes into the air; and the approach brakes at about 1,000 m/s². The
+recommendation is B. The study is parked with no decision; the game keeps its flight of
+today. The [technical study](docs/planet-transition-study.md) gives the numbers, the
+options, the decisions to make and the steps to start again.
+
+Run `node studies/planet-transition-study/transition-study-smoke.mjs "path/to/chrome.exe"` against port 5174 for
+the score table, the charts, a dive with each option, a free-flight climb, export checks,
+and 390/320 px screenshots. An optional second argument sets the server origin.
+
+## Screen study
+
+Visit `/studies/ui-simplify-study.html` for **Fewer buttons, more sky**, a study of the
+controls on the flight screen. A working drawing of the screen compares **Today**,
+**A — Two switches** (Star pictures and Orbit paths in Settings), **B — Grown-up corner**
+(A, plus World speed and the credits in Settings, and no dead or debug parts) and
+**C — Four buttons** (B, plus Sound and the keys in Settings) on a computer and a phone.
+The game now uses option C, without **Guide me home**: the Blossom Haven picture in
+**Worlds** starts the flower guide. The [technical study](docs/ui-simplify-study.md) gives
+the findings, the options and what changed.
+
+Run `node studies/ui-simplify-study/ui-study-smoke.mjs "path/to/chrome.exe"` against port 5174 to check the
+game controls, each option of the study, export, and 390/320 px layouts.
 
 ## Browser checks
 

@@ -111,15 +111,16 @@ try {
   }
   assert(state.belt.nearest === 'Moon' && state.belt.region === 'Airless · grey dust and dark seas', `Did not reach the Moon: ${JSON.stringify(state.belt)}`)
   // The panel names the Moon 85 m above its ground; the trip ends 12 m above it.
-  const status = () => evaluate('document.querySelector("#journey-status").textContent')
-  for (let tick = 0; tick < 40 && !(await status()).includes('Cruising around Moon'); tick++) { await evaluate('advanceFlight(0.25)'); seconds += 0.25 }
-  assert((await status()).includes('Cruising around Moon'), `The guided trip did not end at the Moon: ${await status()}`)
+  // The trip ends when the game clears the destination.
+  for (let tick = 0; tick < 40 && (await snapshot()).destination === 'Moon'; tick++) { await evaluate('advanceFlight(0.25)'); seconds += 0.25 }
+  assert((await snapshot()).destination === null, `The guided trip did not end at the Moon: ${(await snapshot()).destination}`)
   await evaluate('advanceFlight(2)')
   await screenshot('moon-arrival')
 
   step('carry at 8×')
   await evaluate('document.querySelector("#hover-toggle").click()')
-  await evaluate('document.querySelector("#orbit-speed-toggle").click()')
+  await evaluate(`document.querySelector(${JSON.stringify('#settings [data-speed="8"]')}).click()`)
+  assert((await snapshot()).orbitSpeed === 8, 'World speed of Settings does not set 8×')
   await evaluate('advanceFlight(0.5)')
   const before = await snapshot()
   await evaluate('advanceFlight(4)')

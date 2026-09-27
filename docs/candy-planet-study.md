@@ -79,11 +79,11 @@ Sources checked 25 September 2026:
 
 ## Implementation and checks
 
-- `src/candy-study/scene.ts`: code-built 3D visual concept.
-- `src/candy-study/model.ts`: ecosystem brief and pure location-preview model.
-- `src/candy-study/main.ts`: review interface and JSON design export.
-- `src/candy-study/model.test.ts`: scale, fixed home, active time, deferred moves.
-- `scripts/candy-study-smoke.mjs`: browser checks for field notes, location
+- `studies/candy-planet-study/scene.ts`: code-built 3D visual concept.
+- `studies/candy-planet-study/model.ts`: ecosystem brief and pure location-preview model.
+- `studies/candy-planet-study/main.ts`: review interface and JSON design export.
+- `studies/candy-planet-study/model.test.ts`: scale, fixed home, active time, deferred moves.
+- `studies/candy-planet-study/candy-study-smoke.mjs`: browser checks for field notes, location
   comparison, deferred movement, export correctness, and mobile overflow.
 
 Exported JSON records the proposal only. No saved game state is altered.

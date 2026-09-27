@@ -1,0 +1,229 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400&family=Italiana&family=Manrope:wght@400;500;600&display=swap');
+
+/* The page: the dark look of the transition study. */
+:root { font-family: Inter, "Segoe UI", sans-serif; color: #dfe5f0; background: #070b18; font-synthesis: none; line-height: 1.6; color-scheme: dark }
+* { box-sizing: border-box }
+body { margin: 0; background: #070b18 }
+button, input { font: inherit }
+button { cursor: pointer; color: inherit; background: transparent; border: 1px solid #36405a; border-radius: 7px; padding: 9px 15px; min-height: 44px }
+button:hover { background: #1b2340 }
+button[aria-pressed=true] { border-color: #e5c28e; background: #e5c28e14; color: #f6d9aa }
+:focus-visible { outline: 2px solid #efc88a; outline-offset: 4px }
+a { color: #ead0a1; text-underline-offset: 5px }
+code { font-size: .92em; color: #f0d6a8 }
+main { max-width: 1560px; margin: auto; padding: 0 4.2% }
+.masthead { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 24px 0; border-bottom: 1px solid #2b3350; font-size: 12px; letter-spacing: .08em }
+.masthead a { text-decoration: none; color: #dce2ee; letter-spacing: 0 }
+.masthead b { color: #edc68d; margin: 0 8px }
+.masthead button { font-size: 12px }
+.intro { display: flex; justify-content: space-between; align-items: end; gap: 40px; padding: 45px 0 35px }
+.eyebrow { font-size: 10px; font-weight: 650; letter-spacing: .16em; color: #a9b5cc; margin: 0 0 12px }
+h1, h2, h3, p { margin-top: 0 }
+h1 { font-family: Georgia, serif; font-size: clamp(36px, 4.2vw, 66px); font-weight: 400; line-height: 1.1; letter-spacing: -.045em; margin-bottom: 0 }
+h1 em { color: #e9c592; font-weight: 400 }
+h2 { font-family: Georgia, serif; font-weight: 400; line-height: 1.2 }
+h3 { font-size: 16px; font-weight: 550; margin-bottom: 9px }
+.status-line { margin: 0 0 22px; padding: 12px 16px; border: 1px solid #9fd3b455; border-radius: 10px; background: #9fd3b40f; font-size: 13px; color: #c9e6d4 }
+.status-line b { color: #bfe7cf }
+.intro > p { font-size: 13px; color: #aab5ca; line-height: 1.85; max-width: 420px; margin-bottom: 0 }
+
+.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 330px; border: 1px solid #323b58; border-radius: 12px; overflow: hidden; background: #0d1326 }
+.stage-column { min-width: 0; display: flex; flex-direction: column }
+.stage-bar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 16px 18px; border-bottom: 1px solid #2b3350 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px }
+.chips button { font-size: 12px; padding: 6px 12px; min-height: 36px; border-radius: 18px }
+.stage { flex: 1; display: grid; align-items: start; justify-items: center; padding: 16px; min-height: 420px; background: radial-gradient(circle at 50% 40%, #151c36, #070b18) }
+.mock-frame { position: relative; overflow: hidden; border-radius: 14px; box-shadow: 0 20px 60px #0009 }
+.stage-note { margin: 0; padding: 12px 18px 16px; font-size: 11px; color: #97a3bb; border-top: 1px solid #2b3350 }
+
+.controls { border-left: 1px solid #323b58; padding: 24px 22px }
+.controls fieldset { border: 0; padding: 0; margin: 0 0 12px }
+.controls legend { font-size: 11px; color: #c1cadb; margin-bottom: 8px }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 6px }
+.options button { font-size: 12px; padding: 7px; text-align: left }
+.options b { color: #edc68d; margin-right: 4px }
+#option-line { font-size: 12px; color: #aeb9cf; min-height: 58px }
+.check { display: flex; align-items: center; gap: 9px; font-size: 12px; min-height: 36px }
+.check input { accent-color: #e9c592; width: 16px; height: 16px }
+.budget { margin-top: 18px; padding-top: 18px; border-top: 1px solid #2b3350 }
+.meter-row { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; margin: 7px 0; color: #a9b5cb }
+.meter-row output { color: #eed3a7; font-variant-numeric: tabular-nums; text-align: right }
+#moves { list-style: none; margin: 0; padding: 0; font-size: 11px }
+#moves li { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0; border-bottom: 1px dashed #28304a; color: #c5cddd }
+#moves b, .pill { font-size: 10px; font-weight: 600; letter-spacing: .04em; white-space: nowrap }
+[data-place=settings] { color: #9fd3b4 }
+[data-place=removed] { color: #f0a7b7 }
+[data-place=screen] { color: #8e99b1 }
+.wide { width: 100%; margin-top: 18px; border-color: #e5c28e; color: #f6d9aa }
+
+.section-block { margin: 66px 0 0 }
+.section-block > h2 { font-size: 36px; letter-spacing: -.02em; margin-bottom: 14px }
+.section-note { font-size: 12px; color: #aab5ca; max-width: 900px }
+.table-wrap { overflow-x: auto; margin-top: 22px; border: 1px solid #2b3350; border-radius: 10px }
+table { width: 100%; border-collapse: collapse; font-size: 12px; min-width: 900px }
+th, td { text-align: left; vertical-align: top; padding: 11px 14px; border-bottom: 1px solid #222a44 }
+thead th { font-size: 10px; letter-spacing: .08em; color: #a9b5cc; font-weight: 600; background: #0d1326 }
+tbody th { font-weight: 550; color: #eef1f7; max-width: 380px }
+tbody th small { color: #8e99b1; font-weight: 400 }
+tbody th p { margin: 4px 0 0; font-weight: 400; font-size: 11px; color: #97a3bb }
+tbody td { color: #c1cadb }
+tbody tr:last-child > * { border-bottom: 0 }
+
+.findings { margin: 12px 0 0; padding: 0; list-style: none; counter-reset: finding; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid #2b3350 }
+.findings li { counter-increment: finding; padding: 22px 22px 22px 0; border-bottom: 1px solid #2b3350 }
+.findings li:not(:nth-child(4n + 1)) { padding-left: 22px; border-left: 1px solid #2b3350 }
+.findings li::before { content: counter(finding); color: #d7b982; font-family: Georgia, serif; font-size: 22px }
+.findings h3 { margin-top: 6px }
+.findings p { font-size: 12px; color: #aab5ca; margin-bottom: 0 }
+
+.brief { display: grid; grid-template-columns: 1fr 1.7fr; gap: 70px; margin: 66px 0 0 }
+.brief-title h2 { font-size: 40px; letter-spacing: -.025em; margin-bottom: 20px }
+.brief-title p:not(.eyebrow) { max-width: 400px; color: #aab5ca; font-size: 13px }
+.steps article { display: flex; gap: 24px; padding: 20px 0; border-bottom: 1px solid #2b3350 }
+.steps article:first-child { padding-top: 0 }
+.steps article > span { color: #d7b982; font-family: Georgia, serif; font-size: 24px }
+.steps p { font-size: 13px; color: #aab5ca; margin-bottom: 0 }
+
+.decisions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid #2b3350; border-bottom: 1px solid #2b3350; margin-top: 18px }
+.decisions fieldset { border: 0; margin: 0; padding: 22px 22px 22px 0; min-width: 0 }
+.decisions fieldset + fieldset { border-left: 1px solid #2b3350; padding-left: 22px }
+.decisions legend { float: left; width: 100%; font-weight: 550; margin-bottom: 8px }
+.decisions p { clear: both; font-size: 12px; color: #aab5ca }
+.decisions label { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; padding: 7px 0; min-height: 36px; cursor: pointer }
+.decisions input { accent-color: #e9c592; width: 16px; height: 16px; margin: 2px 0 0; flex-shrink: 0 }
+footer { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 66px; padding: 26px 0 40px; border-top: 1px solid #2b3350; font-size: 10px; letter-spacing: .1em; color: #8e99b1 }
+
+/* The drawing of the game screen: the fonts, the glass and the sizes of the game (src/style.css). */
+.mock { position: absolute; left: 0; top: 0; width: var(--w); height: var(--h); transform-origin: 0 0; overflow: hidden; font-family: 'Manrope', system-ui, sans-serif; color: #fffdf2; background: #9ab8cf }
+.mock button { min-height: 0; font-family: inherit; color: inherit; cursor: pointer }
+.mock button:hover { background: revert-layer }
+.sky { position: absolute; inset: 0; width: 100%; height: 100% }
+.sky.is-meadow { background: linear-gradient(#86a9c6, #b9cfdc 55%, #d7e2e2) }
+.sky.is-space { background: radial-gradient(circle at 50% 55%, #1a1f3d, #03040f 70%) }
+.constellation polyline, .constellation line { fill: none; stroke: #b9c6ff; stroke-opacity: .7; stroke-width: 1.2; stroke-dasharray: 3 3 }
+.constellation text { fill: #d4dcff; font: 11px 'Manrope', sans-serif; letter-spacing: .1em }
+.constellation .star-name { font-size: 9px; opacity: .8 }
+.fairy { position: absolute; left: 50%; top: 58%; transform: translate(-50%, -50%); font-size: 46px; color: #ffe6f0; text-shadow: 0 0 24px #fff }
+.m-eyebrow { margin: 0; font: 9px 'DM Mono', monospace; letter-spacing: .2em; color: #ffffffa8 }
+.m-glass { background: #06091b6e; border: 1px solid #ffffff29; backdrop-filter: blur(12px) }
+.m-brand { position: absolute; top: 34px; left: 40px }
+.m-brand h3 { margin: 2px 0 0; font: 27px 'Italiana', Georgia, serif; font-weight: 400 }
+.m-adventure { position: absolute; top: 126px; left: 40px; display: grid; gap: 12px; justify-items: start }
+.m-home { display: flex; align-items: center; gap: 10px; padding: 16px 22px; border: 1px solid #fff; border-radius: 18px; background: linear-gradient(135deg, #ffdcec, #f4bfd8); color: #6b2d4c !important; font-size: 13px; font-weight: 500 }
+.m-home span { font-size: 22px; color: #c04a7d }
+.m-row { display: flex; gap: 8px; align-items: stretch }
+.m-chip { padding: 12px 13px; border: 1px solid #ffffff29; border-radius: 12px; background: #1d2a4ad9; font-size: 12px }
+.m-chip.is-on { border-color: #f8dca2; color: #ffe2a9 }
+.m-help { margin: 0; padding: 7px 12px; border-radius: 8px; background: #2a3a58cc; font-size: 10.5px }
+.m-destination { position: absolute; top: 36px; right: 40px; display: flex; gap: 14px; align-items: center; padding: 16px 20px 18px; min-width: 216px; border: 1px solid #ffffff29; border-radius: 14px; background: #2e3f5dd0 }
+.m-destination h4 { margin: 3px 0; font: 21px 'Italiana', Georgia, serif; font-weight: 400 }
+.m-destination p { margin: 0; font-size: 11px; color: #ffffffb8 }
+.m-destination .m-region { margin-top: 4px; font-size: 10px; color: #fff5d3c2; display: flex; gap: 4px }
+.m-destination .m-eyebrow { font-size: 8px }
+.orbit-dot { width: 30px; height: 20px; border: 1px solid #ffffff55; border-radius: 50%; display: grid; place-items: center }
+.orbit-dot::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #7fc0f0 }
+.m-panel { position: absolute; left: 40px; bottom: 34px; display: flex; align-items: center; gap: 22px; padding: 14px 20px; border: 1px solid #ffffff29; border-radius: 14px; background: #1c2a3dd0 }
+.m-speedo { display: flex; align-items: center; gap: 14px }
+.m-speedo > span { width: 32px; height: 32px; border: 1px solid #ffffff44; border-radius: 50%; display: grid; place-items: center; color: #f8dca2 }
+.m-speedo strong { font: 18px 'DM Mono', monospace; font-weight: 400 }
+.m-speedo small { font-size: 9px; opacity: .6 }
+.m-keys { display: flex; align-items: center; gap: 14px; padding-left: 20px; border-left: 1px solid #ffffff29 }
+.keycaps { display: grid; grid-template-columns: repeat(3, 16px); gap: 3px }
+.keycaps kbd:first-child { grid-column: 2 }
+.mock kbd { display: grid; place-items: center; height: 16px; border: 1px solid #ffffff44; border-radius: 3px; font: 8px 'DM Mono', monospace; color: #ffffffb8 }
+.m-keys p { margin: 0; font-size: 9.5px; line-height: 1.8; color: #ffffffc4 }
+.m-keys p span { color: #ffffff70 }
+.m-keys p kbd { display: inline-block; height: auto; padding: 0 4px }
+.m-toolbar { position: absolute; right: 40px; bottom: 36px; display: flex; gap: 8px; align-items: center }
+.m-icon { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; border: 1px solid #ffffff29; border-radius: 50%; background: #06091b6e; color: #ffffff9e !important }
+.m-icon.is-active { color: #ffe2a9 !important; background: #725b4847 }
+.m-speed { font: 11px 'DM Mono', monospace; color: #fee2a7 }
+
+/* A control that the option moves: a dashed outline, with its new place under it. */
+.ghost { position: relative; display: inline-flex; flex-direction: column; align-items: center; opacity: .5; outline: 1.5px dashed #9fd3b4; outline-offset: 3px; border-radius: 14px; filter: grayscale(.6) }
+.ghost[data-moved=removed] { outline-color: #f0a7b7 }
+.ghost > * { pointer-events: none }
+.ghost-tag { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; font: 600 9px 'Manrope', sans-serif; letter-spacing: .06em; padding: 2px 6px; border-radius: 4px; background: #0b1124; color: #9fd3b4 }
+.ghost[data-moved=removed] .ghost-tag { color: #f0a7b7 }
+.m-region .ghost { border-radius: 4px; outline-offset: 1px }
+.m-region .ghost-tag { top: calc(100% + 5px); left: 0; transform: none }
+.m-panel .ghost .ghost-tag { top: auto; bottom: calc(100% + 8px) }
+.m-toolbar .ghost .ghost-tag { top: auto; bottom: calc(100% + 8px) }
+
+/* The proposed Settings dialog, as src/settings.css draws it. */
+.m-backdrop { position: absolute; inset: 0; background: #040916a6; backdrop-filter: blur(6px) }
+.m-settings, .m-menu { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(520px, calc(100% - 32px)); max-height: calc(100% - 40px); overflow: auto; padding: 26px 28px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008 }
+.m-settings header, .m-menu header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px }
+.m-settings h3, .m-menu h3 { margin: 6px 0 0; font: 32px 'Italiana', Georgia, serif; font-weight: 400 }
+.m-close { width: 44px; height: 44px; padding: 0; border: 1px solid #ffffff44; border-radius: 50%; background: transparent; font-size: 24px }
+.m-section { display: grid; gap: 10px; padding: 14px 16px; margin-top: 10px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d }
+.m-section.is-new { border-color: #9fd3b477 }
+.m-section h5 { margin: 0; font-size: 14px; font-weight: 600; display: flex; gap: 8px; align-items: center }
+.new { font: 600 8px 'Manrope', sans-serif; letter-spacing: .12em; padding: 2px 6px; border-radius: 4px; background: #9fd3b433; color: #bfe7cf }
+.m-section small { display: block; font-size: 11.5px; line-height: 1.45; color: #d9cfe2 }
+.m-section b { font-size: 13px; font-weight: 500 }
+.m-switch { display: flex; justify-content: space-between; align-items: center; gap: 14px; cursor: pointer; position: relative }
+.m-switch input { position: absolute; opacity: 0; width: 44px; height: 26px; right: 0; margin: 0; cursor: pointer }
+.m-switch i { flex-shrink: 0; width: 44px; height: 26px; border-radius: 13px; background: #3a4262; position: relative; transition: background .2s }
+.m-switch i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff6e7; transition: transform .2s }
+.m-switch input:checked + i { background: #d9b778 }
+.m-switch input:checked + i::after { transform: translateX(18px) }
+.m-switch input:focus-visible + i { outline: 2px solid #ffe0a1; outline-offset: 3px }
+.m-steps { display: grid; gap: 8px }
+.m-steps [role=radiogroup] { display: flex; gap: 5px }
+.m-steps button { flex: 1; min-height: 36px; padding: 4px; border: 1px solid #ffffff44; border-radius: 12px; background: #182335c9; font: 12px 'DM Mono', monospace }
+.m-steps button[aria-checked=true] { border-color: #f8dca2; background: #d9b77833; color: #ffe2a9 }
+.m-reset { display: grid; gap: 8px; justify-items: start }
+.m-reset button { min-height: 40px; padding: 6px 14px; border: 1px solid #ffffff44; border-radius: 14px; background: #182335c9; font-size: 12px; opacity: .6; cursor: default }
+.m-details summary { cursor: pointer; font-size: 13px }
+.m-text { margin: 0 }
+.m-saved { margin: 12px 0 0; font-size: 11px; color: #bfe7cf }
+
+/* The phone: src/mobile.css. */
+.m-top { position: absolute; top: 12px; left: 12px; right: 12px; display: flex; gap: 10px; align-items: center }
+.m-pill { padding: 12px 16px; border: 1px solid #ffffff29; border-radius: 16px; background: #1e2a4ae6; font-size: 15px }
+.m-round { margin-left: auto; width: 52px; height: 52px; padding: 0; display: grid; place-items: center; border: 1px solid #ffffff29; border-radius: 50%; background: #1e2a4ae6 }
+.m-arrows { position: absolute; left: 12px; bottom: 16px; display: grid; grid-template-columns: repeat(3, 52px); grid-template-rows: repeat(2, 52px); gap: 6px }
+.m-arrows span, .m-thumbs span { display: grid; place-items: center; border: 1px solid #ffffff29; border-radius: 14px; background: #1e2a4ae6; font-size: 22px }
+.m-arrows span:first-child { grid-column: 2 }
+.m-arrows span:nth-child(2) { grid-column: 1 }
+.m-thumbs { position: absolute; right: 12px; bottom: 16px; display: grid; gap: 8px }
+.m-thumbs span { width: 92px; height: 56px; font-size: 18px; line-height: 1.1 }
+.m-thumbs small { font-size: 12px; font-weight: 600 }
+.phone .m-menu { top: 60px; transform: translateX(-50%); width: calc(100% - 24px); max-height: calc(100% - 72px); padding: 22px 20px }
+.m-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px }
+.m-actions > .ghost { display: flex }
+.m-action { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 54px; border: 1px solid #ffffff29; border-radius: 16px; background: #161b33; font-size: 13px }
+.m-adventure-menu { display: grid; gap: 10px; justify-items: start; margin: 18px 0 16px }
+.m-adventure-menu .m-row:empty { display: none }
+.m-destination.compact { position: static; margin-bottom: 10px; background: #161b33 }
+.m-speedo.boxed { padding: 12px 16px; border: 1px solid #ffffff29; border-radius: 14px; background: #161b33 }
+.m-touch-help { margin: 12px 0 0; font-size: 12px; line-height: 1.6; color: #d8d6e7 }
+.phone .ghost { width: 100% }
+.phone .m-row .ghost { width: auto }
+.phone .m-destination.compact .ghost { width: auto }
+
+@media (max-width: 1100px) {
+  .findings, .decisions { grid-template-columns: 1fr 1fr }
+  .findings li:not(:nth-child(4n + 1)) { padding-left: 0; border-left: 0 }
+  .findings li:nth-child(2n) { padding-left: 22px; border-left: 1px solid #2b3350 }
+  .decisions fieldset + fieldset { border-left: 0; padding-left: 0 }
+  .decisions fieldset:nth-child(2n) { border-left: 1px solid #2b3350; padding-left: 22px }
+}
+@media (max-width: 1000px) {
+  .workspace { grid-template-columns: 1fr }
+  .controls { border-left: 0; border-top: 1px solid #323b58 }
+  .brief { grid-template-columns: 1fr; gap: 30px }
+}
+@media (max-width: 740px) {
+  main { padding: 0 16px }
+  .masthead span { display: none }
+  .intro { flex-direction: column; align-items: start; gap: 18px; padding: 32px 0 26px }
+  .section-block > h2, .brief-title h2 { font-size: 28px }
+  .findings, .decisions { grid-template-columns: 1fr }
+  .findings li, .findings li:nth-child(2n) { padding: 18px 0; border-left: 0 }
+  .decisions fieldset, .decisions fieldset:nth-child(2n) { border-left: 0; padding: 18px 0 }
+  .decisions fieldset + fieldset { border-top: 1px solid #2b3350 }
+  .stage { padding: 10px; min-height: 0 }
+  .stage-bar { padding: 12px }
+}

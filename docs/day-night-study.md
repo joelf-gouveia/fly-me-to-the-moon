@@ -11,7 +11,7 @@ night. Scrub local solar time, play an accelerated day, visit the cottage,
 compare gentle/deep night, and toggle a representative always-day baseline.
 Export records the current proposal as JSON; it never writes saved game data.
 
-The preview reuses `src/candy-study/scene.ts` and the game's fairy rig. It adds
+The preview reuses `studies/candy-planet-study/scene.ts` and the game's fairy rig. It adds
 a gradient sky, illustrative stars, a Sun disc, direct light, cool fill, warm
 windows, fog color, and a single 1024-square shadow map. The garden is an authored
 concept scene, not the live game's terrain. The Sun moves in the garden's local
@@ -197,13 +197,13 @@ study paused; it should not secretly halt live planetary mechanics.
 
 ## Artifact files and validation
 
-- `src/day-night-study/model.ts`: solar geometry, art thresholds, preview clock.
-- `src/day-night-study/scene.ts`: lighting wrapper around the existing garden.
-- `src/day-night-study/main.ts`: timeline, comparison, explanation and export.
-- `src/day-night-study/model.test.ts`: geometry and transition checks.
-- `scripts/day-night-study-smoke.mjs`: desktop/mobile, controls, export, screenshots.
+- `studies/day-night-study/model.ts`: solar geometry, art thresholds, preview clock.
+- `studies/day-night-study/scene.ts`: lighting wrapper around the existing garden.
+- `studies/day-night-study/main.ts`: timeline, comparison, explanation and export.
+- `studies/day-night-study/model.test.ts`: geometry and transition checks.
+- `studies/day-night-study/day-night-study-smoke.mjs`: desktop/mobile, controls, export, screenshots.
 - `studies/day-night-study.html`: separate Vite build entry.
 
 Run `npm test` and `npm run build`. With Vite on port 5174, run
-`node scripts/day-night-study-smoke.mjs "path/to/chrome.exe"`.
+`node studies/day-night-study/day-night-study-smoke.mjs "path/to/chrome.exe"`.
 The existing candy study retains its original default lighting.

@@ -108,7 +108,7 @@ the ponytail of B.
 
 ## Measurements
 
-The page measures each body when it loads. `src/body-study/bodies.test.ts` runs
+The page measures each body when it loads. `studies/fairy-body-study/bodies.test.ts` runs
 the same measurements.
 
 - **Filled**: at each joint, the study puts 160 fixed points in a ball with 0.85
@@ -193,7 +193,7 @@ looks do not change.
 
 - `src/fairy-body.ts` builds the body. `buildBody` takes a set of options:
   `storybookBody` is C, the body of the game. The study builds B from the same
-  builder with its own options (`smoothBody` in `src/body-study/bodies.ts`).
+  builder with its own options (`smoothBody` in `studies/fairy-body-study/bodies.ts`).
   The module also has the two-bone solve (`solveLimb`), the capsule geometry
   (`taperedCapsule`) and the pose targets of the flight directions (`poseTargets`).
 - `createFairyRig` in `src/fairy.ts` builds the head, the hair cap, the ears and
@@ -207,7 +207,7 @@ looks do not change.
 - The rig returns `joints` (the joints of the body), `targets` (the pose targets)
   and `materials`. `createFairyRig({ body: false })` leaves out the body below the
   head. The study uses it for Today, A and B.
-- The body of the game before the change is in `src/body-study/classic-body.ts`.
+- The body of the game before the change is in `studies/fairy-body-study/classic-body.ts`.
   The study shows it as Today and builds A on it.
 - The body has 55 meshes and about 18,000 triangles, against 26 meshes and 5,300
   triangles before. There is one fairy in the game.
@@ -231,14 +231,14 @@ looks do not change.
 | --- | --- |
 | `src/fairy-body.ts` | The body builder, the options of C, the two-bone solve and the pose targets |
 | `src/fairy.ts` | The rig: head frame and pivot, the body, the strand correction, `joints`, `targets` and `materials` |
-| `src/fairy.test.ts` | The parts of the body, the head lift, fixed bones, and the rig without a body |
-| `src/body-study/classic-body.ts` | The body of the game before the change, for Today and A |
+| `tests/fairy.test.ts` | The parts of the body, the head lift, fixed bones, and the rig without a body |
+| `studies/fairy-body-study/classic-body.ts` | The body of the game before the change, for Today and A |
 | `studies/fairy-body-study.html` | Page entry |
-| `src/body-study/bodies.ts` | The four bodies, the two-bone solve, and the measurements |
-| `src/body-study/bodies.test.ts` | Open joints of today, closed joints of A, B and C, fixed bones, the hand targets of B, the arm motion and boost reach of C, the head lift, the hair and look, and the strand correction |
-| `src/body-study/main.ts` | Close-up, joints view, Beside Today, line-up, tables and export |
-| `src/body-study/style.css` | Page styles |
-| `scripts/body-study-smoke.mjs` | Browser check of the study and screenshots |
+| `studies/fairy-body-study/bodies.ts` | The four bodies, the two-bone solve, and the measurements |
+| `studies/fairy-body-study/bodies.test.ts` | Open joints of today, closed joints of A, B and C, fixed bones, the hand targets of B, the arm motion and boost reach of C, the head lift, the hair and look, and the strand correction |
+| `studies/fairy-body-study/main.ts` | Close-up, joints view, Beside Today, line-up, tables and export |
+| `studies/fairy-body-study/style.css` | Page styles |
+| `studies/fairy-body-study/body-study-smoke.mjs` | Browser check of the study and screenshots |
 
 ## Verification
 
@@ -248,7 +248,7 @@ looks do not change.
   flight and the customization in the game.
 - `npm run build` builds the study page.
 - With the dev server on port 5174, run
-  `node scripts/body-study-smoke.mjs "path/to/chrome.exe"`. It checks the
+  `node studies/fairy-body-study/body-study-smoke.mjs "path/to/chrome.exe"`. It checks the
   measurements, the camera views, the joints view, Beside Today, boost, night, the
   line-up, the export, the pause, and the layout at 390 px and 320 px. The
   screenshots go to `artifacts.local/body-study/`. Set `FAIRY_TEST_URL` for another

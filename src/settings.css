@@ -1,13 +1,14 @@
 /* Settings uses the look of the Worlds dialog and the sticker book. */
 .settings [hidden] { display: none !important; }
 .settings button { cursor: pointer; font: inherit; }
-#settings { width: min(520px, calc(100vw - 32px)); max-height: calc(100dvh - 40px); padding: 30px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008; }
+#settings { width: min(520px, calc(var(--view-width, 100vw) - 32px)); max-height: calc(var(--view-height, 100dvh) - 40px); padding: 30px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008; }
 #settings::backdrop { background: #040916a6; backdrop-filter: blur(8px); }
 #settings header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
 #settings h2 { margin: 7px 0; font: 34px 'Italiana', Georgia, serif; }
 #settings .eyebrow { margin: 0; font: 10px 'DM Mono', monospace; letter-spacing: .16em; color: #d5bed4; }
 #close-settings { width: 48px; height: 48px; flex-shrink: 0; border: 1px solid #ffffff44; border-radius: 50%; color: #fff; background: transparent; font-size: 26px; }
 .setting { display: grid; gap: 14px; padding: 18px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d; }
+.setting + .setting, .setting + .sky-credits { margin-top: 12px; }
 .setting h3 { margin: 0 0 4px; font-size: 15px; font-weight: 600; }
 .setting p { margin: 0; font-size: 13px; line-height: 1.5; color: #d9cfe2; }
 #reset-stickers, .reset-confirm button { min-height: 44px; padding: 8px 16px; border: 1px solid #ffffff44; border-radius: 16px; color: #fff6e7; background: #182335c9; font-size: 13px !important; }
@@ -19,7 +20,34 @@
 .reset-confirm .danger { border-color: #ffb4c8; color: #4a1f33; background: #ffc9d8; font-weight: 600 !important; }
 #reset-status:empty { display: none; }
 #reset-status { color: #ffe2a8; }
-#settings button:focus-visible, #settings-toggle:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+/* A switch row: the title and the note on the left, the switch on the right. */
+.setting-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; position: relative; cursor: pointer; }
+.setting-row > span { display: grid; gap: 3px; }
+.setting-row b { font-size: 14px; font-weight: 500; }
+.setting-row small { font-size: 12px; line-height: 1.45; color: #d9cfe2; }
+.setting-row input { position: absolute; right: 0; top: 50%; width: 48px; height: 44px; margin: -22px 0 0; opacity: 0; cursor: pointer; }
+.setting-row i { flex-shrink: 0; position: relative; width: 48px; height: 28px; border-radius: 14px; background: #3a4262; transition: background .2s; }
+.setting-row i::after { content: ''; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff6e7; transition: transform .2s; }
+.setting-row input:checked + i { background: #d9b778; }
+.setting-row input:checked + i::after { transform: translateX(20px); }
+.setting-row input:focus-visible + i { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+.speed-row-setting { display: grid; gap: 10px; cursor: default; }
+.speed-steps { display: flex; flex-wrap: wrap; gap: 6px; }
+.speed-steps button { flex: 1 0 44px; min-height: 44px; padding: 4px; border: 1px solid #ffffff44; border-radius: 14px; color: #fff6e7; background: #182335c9; font: 13px 'DM Mono', monospace; }
+.speed-steps button[aria-checked=true] { border-color: #f8dca2; color: #ffe2a9; background: #d9b77833; }
+.how-to-fly p { margin: 0; }
+.how-keys { display: grid; gap: 6px; }
+.how-to-fly kbd { display: inline-block; min-width: 20px; padding: 1px 5px; border: 1px solid #ffffff44; border-radius: 5px; background: #ffffff0f; font: 11px 'DM Mono', monospace; text-align: center; }
+.touch-ui .how-keys, .game-shell:not(.touch-ui) .how-touch { display: none; }
+#sound-status:empty { display: none; }
+#sound-status { color: #ffe2a8; }
+.sky-credits { margin-top: 12px; font-size: 11px; line-height: 1.55; color: #c3c9da; }
+.sky-credits summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; justify-content: center; color: #e6d9e8; }
+.sky-credits p { margin: 8px 0; font-size: 11px; color: #c3c9da; }
+.sky-credits ul { margin: 0; padding-left: 16px; }
+.sky-credits li { margin-bottom: 4px; }
+.sky-credits a { color: #f0d6a8; }
+#settings button:focus-visible, #settings summary:focus-visible, #settings-toggle:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
 @media (max-width: 560px) {
   #settings { padding: 22px 16px; }
   #settings h2 { font-size: 28px; }

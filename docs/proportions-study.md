@@ -109,7 +109,7 @@ in open space (968 m/s) it takes 33.7 s, as today.
 ## Targets
 
 The targets are design choices for a storybook game, not physics. Change them in
-`TARGETS` in `src/proportions-study/model.ts`.
+`TARGETS` in `studies/proportions-study/model.ts`.
 
 | Target | Goal | Today | Planets ×1.25 |
 | --- | --- | --- | --- |
@@ -176,9 +176,9 @@ The values are for the recommendation. The page shows them for every setting.
 
 Other changes to check:
 
-- Tests that use today's distances: `src/home-world.test.ts` (Blossom Haven more
-  than 10,000 m from Earth), `src/relocation.test.ts`, `src/asteroid-belt.test.ts`,
-  `src/moon.test.ts` and the study models that copy `data`.
+- Tests that use today's distances: `tests/home-world.test.ts` (Blossom Haven more
+  than 10,000 m from Earth), `tests/relocation.test.ts`, `tests/asteroid-belt.test.ts`,
+  `tests/moon.test.ts` and the study models that copy `data`.
 - The asteroid belt dust spreads over a ring 2.5 times as large. Its glow gets
   fainter unless the dust count grows.
 - The README gives today's sizes ("Earth is 440 game metres across", "Home starts
@@ -198,11 +198,11 @@ Other changes to check:
 
 ## Tests and checks
 
-- `npm test` runs `src/proportions-study/model.test.ts`: today's values against the
+- `npm test` runs `studies/proportions-study/model.test.ts`: today's values against the
   game, the pairing of today, the effect of size and spacing, the search at 1.25,
   1.4 and 1.5, the Moon's size in the sky, the trips, and the code table.
 - With the Vite server on port 5174, run
-  `node scripts/proportions-study-smoke.mjs "path/to/chrome.exe"`. It checks the
+  `node studies/proportions-study/proportions-study-smoke.mjs "path/to/chrome.exe"`. It checks the
   presets and the sliders against the model, the search, the four views, the
   export, this document link, and 390 px and 320 px layouts. Screenshots go to
   `artifacts.local/proportions-study/`.
@@ -234,7 +234,7 @@ Differences from the proposal:
 - **Candy scenery** on Blossom Haven also keeps its density, not only Earth's trees.
 - **Clouds and animals** keep their counts, so they are 64% as dense as before.
 
-Checks: `src/proportions.test.ts` (the game constants against the recommended set,
+Checks: `tests/proportions.test.ts` (the game constants against the recommended set,
 the tree density, Ceres and Vesta in the larger belt, relocation across the larger
 system). `scripts/moon-smoke.mjs` and `scripts/asteroid-belt-smoke.mjs` fly in the
 resized game.

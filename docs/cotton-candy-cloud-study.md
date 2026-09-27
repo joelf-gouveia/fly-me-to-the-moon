@@ -74,7 +74,7 @@ Thus the cotton candy look must go into `onBeforeCompile` on a
 shading on its own sun, and the tufts of B and C go dark on the night side.
 
 The spun-sugar change of B has four parts. All are in `flossMaterial()` in
-`src/cotton-candy-study/scene.ts`:
+`studies/cotton-candy-study/scene.ts`:
 
 1. **Strands**: a noise pattern that turns around the vertical axis of each
    puff, as sugar does on the spinning head of a machine.
@@ -148,7 +148,7 @@ They twinkle on the night side too.
 | `src/worlds.ts`, `buildClouds()` | For `world.kind === 'fairy'`, call the new module. Other worlds do not change |
 | `src/main.ts`, `updateEnvironment()` | Use the mist color of Blossom Haven when the nearest world is Blossom Haven. Keep `cloudWhite` for other worlds |
 | `src/main.ts`, `animate()` | Set the time value of the floss material. Use 0 when `reducedMotion` is on |
-| `src/cotton-candy.test.ts` (new) | Move the layout tests from `src/cotton-candy-study/model.test.ts` |
+| `tests/cotton-candy.test.ts` (new) | Move the layout tests from `studies/cotton-candy-study/model.test.ts` |
 | `scripts/blossom-smoke.mjs` | Check the cloud mesh and the mist color on arrival |
 
 ## What the game now does
@@ -163,7 +163,7 @@ They twinkle on the night side too.
   of Blossom Haven, and `cloudWhite` on other worlds.
 - `animate()` in `src/main.ts` sets `flossTime`. It is 0 when reduced motion is
   on, so the puffs do not breathe.
-- `src/cotton-candy.test.ts` checks the puff count on a computer and a phone,
+- `tests/cotton-candy.test.ts` checks the puff count on a computer and a phone,
   the material, the clear column, the height above the terrain, and that Earth
   keeps its clouds.
 - The test diagnostics of the game (`?test`) give the number of cloud puffs,
@@ -182,10 +182,10 @@ They twinkle on the night side too.
 
 ## How to check
 
-- `npx vitest run src/cotton-candy-study` checks that the Today layout is the
+- `npx vitest run studies/cotton-candy-study` checks that the Today layout is the
   same as the instances of `buildClouds()`, that all clouds stay above the
   terrain, the clear column, the phone budget and the cost of each option.
-- `node scripts/cotton-candy-study-smoke.mjs "path/to/chrome.exe"` checks the
+- `node studies/cotton-candy-study/cotton-candy-study-smoke.mjs "path/to/chrome.exe"` checks the
   page in a browser: four options in two views, the cloud layer with both
   mists, golden hour and night, the phone budget, export, this document, and
   390 px and 320 px layouts. An optional second argument sets the server

@@ -143,6 +143,45 @@ try {
   await delay(100)
   assert(!(await snapshot()).settingsOpen && !(await evaluate('document.querySelector("#settings").open')), 'Escape does not close Settings')
 
+  // Option C of docs/ui-simplify-study.md: four toolbar buttons, and the grown-up controls in Settings.
+  step('option C')
+  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,stickers-toggle,settings-toggle,pause-toggle', `The toolbar is not the four buttons: ${await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()')}`)
+  assert(await evaluate('["#follow-home", "#show-stars", "#show-orbits", "#sound-toggle", "#orbit-speed-toggle", ".journey-picker", ".controls-copy"].every(s => !document.querySelector(s))'), 'A removed control is still in the game')
+  assert(await evaluate('document.querySelector("#home-help").hidden'), 'The guide help shows with no guide')
+  assert(!(await text('#flight-region')).includes('landscape'), 'The world panel still shows the landscape number')
+  const mapPaths = () => evaluate('[...document.querySelectorAll(".solar-orbit")].every(path => getComputedStyle(path).display !== "none")')
+  await click('#open-map'); await evaluate('advanceFlight(0.1)')
+  assert(await mapPaths(), 'The Worlds map hides its paths with the switch off')
+  await click('#close-map')
+  state = await snapshot()
+  assert(!state.orbitPaths && !state.sky.pictures && state.orbitSpeed === 1 && !state.sound, `Wrong start state: ${JSON.stringify({ orbits: state.orbitPaths, stars: state.sky.pictures, speed: state.orbitSpeed, sound: state.sound })}`)
+  await click('#settings-toggle')
+  assert(await evaluate('getComputedStyle(document.querySelector(".how-keys")).display !== "none" && getComputedStyle(document.querySelector(".how-touch")).display === "none"'), 'How to fly does not show the keys on a computer')
+  await click('#setting-orbits'); await click('#setting-stars'); await click('#settings [data-speed="16"]')
+  // The sound needs a real tap: the browser starts sound only after a user action.
+  const box = await evaluate('(() => { const r = document.querySelector("#setting-sound + i").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 } })()')
+  for (const type of ['mousePressed', 'mouseReleased']) await send('Input.dispatchMouseEvent', { type, x: box.x, y: box.y, button: 'left', clickCount: 1 })
+  for (let i = 0; i < 20 && !(await snapshot()).sound; i++) await delay(100)
+  state = await snapshot()
+  assert(state.orbitPaths && state.sky.pictures && state.orbitSpeed === 16 && state.sound, `The switches do not act: ${JSON.stringify({ orbits: state.orbitPaths, stars: state.sky.pictures, speed: state.orbitSpeed, sound: state.sound })}`)
+  assert(JSON.stringify(JSON.parse(await evaluate('localStorage.getItem("fairy-settings")'))) === '{"stars":true,"orbits":true}', 'The sky switches are not saved')
+  await screenshot('sky-switches')
+  await click('#setting-orbits'); await click('#close-settings')
+  state = await snapshot()
+  assert(!state.orbitPaths && state.sky.pictures, 'The Orbit paths switch does not turn the paths off')
+  await click('#open-map'); await evaluate('advanceFlight(0.1)')
+  assert(await mapPaths(), 'The Orbit paths switch hides the paths of the Worlds map')
+  await click('#close-map')
+  await click('#settings-toggle'); await click('#setting-orbits'); await click('#close-settings')
+
+  // After a reload: the two sky switches stay, World speed and the sound start again.
+  await load(false)
+  state = await snapshot()
+  assert(state.orbitPaths && state.sky.pictures && state.orbitSpeed === 1 && !state.sound, `Wrong state after a reload: ${JSON.stringify({ orbits: state.orbitPaths, stars: state.sky.pictures, speed: state.orbitSpeed, sound: state.sound })}`)
+  assert(await evaluate('document.querySelector("#setting-stars").checked && document.querySelector("#setting-orbits").checked && !document.querySelector("#setting-sound").checked'), 'The switches do not show the saved state')
+  assert(await evaluate('document.querySelector("#settings [data-speed=\\"1\\"]").getAttribute("aria-checked")') === 'true', 'World speed does not start at 1×')
+  await evaluate('localStorage.removeItem("fairy-settings")')
+
   for (const width of [390, 320]) {
     step(`phone ${width}`); await load(true, width)
     await click('#begin-button')
@@ -153,6 +192,8 @@ try {
     await evaluate('advanceFlight(0.2)')
     state = await snapshot()
     assert(state.settingsOpen && !state.menuOpen, 'The Settings button does not swap the menu for Settings')
+    assert(await evaluate('[...document.querySelectorAll(".menu-actions button")].map(b => b.id).join()') === 'customize-toggle,stickers-toggle,settings-toggle', 'The phone menu is not the three buttons')
+    assert(await evaluate('getComputedStyle(document.querySelector(".how-touch")).display !== "none" && getComputedStyle(document.querySelector(".how-keys")).display === "none"'), 'How to fly does not show the touch help on a phone')
     assert(!(await evaluate('document.documentElement.scrollWidth > innerWidth')), `Overflow at ${width}px`)
     assert(await evaluate('(() => { const d = document.querySelector("#settings").getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth })()'), `Settings is wider than the screen at ${width}px`)
     const smallest = await evaluate('Math.min(...[...document.querySelectorAll("#settings button")].filter(b => b.offsetParent).map(b => Math.min(b.offsetWidth, b.offsetHeight)))')
@@ -161,7 +202,7 @@ try {
   }
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, and the 390/320 px phone menu. No browser errors.')
+  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, the four toolbar buttons, the removed controls, the map paths, the sky switches, World speed, the sound, the saved switches after a reload, How to fly, and the 390/320 px phone menu. No browser errors.')
 } finally {
   ws?.close(); browser.kill()
 }

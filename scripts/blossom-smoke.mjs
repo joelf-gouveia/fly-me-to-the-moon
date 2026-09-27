@@ -74,7 +74,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: appUrl })
   for (let i = 0; i < 80; i++) {
-    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#journey-world option")')) break
+    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#settings-toggle")')) break
     await delay(250)
   }
 
@@ -87,10 +87,10 @@ try {
   const distance = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]))
   const initial = await snapshot()
   if (initial.radius !== 110 || initial.candy.some(value => !value)) throw new Error('Candy world is missing or the wrong size')
-  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("#follow-home").click(); advanceFlight(0.05); document.querySelector("#stop-home").click(); advanceFlight(295)')
+  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("[data-world=fairy]").click(); advanceFlight(0.05); document.querySelector("#stop-home").click(); advanceFlight(295)')
   let state = await snapshot()
   if (state.moves !== 0) throw new Error('Planet moved before five active minutes')
-  await evaluate('document.querySelector("#follow-home").click(); advanceFlight(2)')
+  await evaluate('document.querySelector("[data-world=fairy]").click(); advanceFlight(2)')
   const locked = await snapshot()
   if (!locked.guided || locked.moves !== 0 || Math.abs(locked.elapsed - state.elapsed) > 0.05) throw new Error('Guided navigation did not pause relocation')
   console.log('Five-minute interval and guided navigation lock verified')

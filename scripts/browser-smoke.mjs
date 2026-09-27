@@ -79,7 +79,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: appUrl })
   for (let i = 0; i < 80; i++) {
-    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#journey-world option")')) break
+    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#settings-toggle")')) break
     await delay(250)
   }
   await evaluate('document.querySelector("#begin-button").click()')
@@ -121,14 +121,17 @@ try {
     await send('Input.dispatchKeyEvent', { type: 'keyUp', code: 'Escape', key: 'Escape' })
     if (await evaluate('document.querySelector("#customize-toggle").getAttribute("aria-expanded")') !== 'false') throw new Error('Escape did not close the panel')
     await evaluate('document.querySelector("#pause-toggle").click(); document.querySelector("#customize-toggle").focus()')
+    // W climbs: the height in the world panel rises.
+    const height = () => evaluate('parseFloat(document.querySelector("#planet-distance").textContent)')
+    const low = await height()
     await send('Input.dispatchKeyEvent', { type: 'keyDown', code: 'KeyW', key: 'w' })
-    await evaluate('advanceFlight(0.2)')
+    await evaluate('advanceFlight(1.5)')
     await send('Input.dispatchKeyEvent', { type: 'keyUp', code: 'KeyW', key: 'w' })
-    if (!await evaluate('document.querySelector("#journey-status").textContent.startsWith("Free flight")')) throw new Error('Steering did not resume after customization')
+    if (!(await height() > low)) throw new Error('Steering did not resume after customization')
     await send('Page.reload')
     await delay(1000)
     for (let i = 0; i < 80; i++) {
-      if (await evaluate('!!window.testFrame && !!document.querySelector("#journey-world option")')) break
+      if (await evaluate('!!window.testFrame && !!document.querySelector("#settings-toggle")')) break
       await delay(250)
     }
     const selected = await evaluate('Array.from(document.querySelectorAll(\'[data-custom][aria-pressed="true"]\'), b => b.dataset.value).join(",")')
@@ -151,16 +154,17 @@ try {
   await evaluate('advanceFlight(3)')
   await screenshot('earth-ascent')
   console.log('Ascent:', await evaluate('document.querySelector(".destination").innerText'))
-  await evaluate('document.querySelector("#journey-go").click()')
+  // Fly back with the Earth picture of Worlds. On the way in, the game builds a new Earth and says so.
+  await evaluate('document.querySelector("#open-map").click(); document.querySelector("[data-world=earth]").click()')
   const returnProgress = []
-  for (let i = 0; i < 20; i++) {
+  let returned = false
+  for (let i = 0; i < 20 && !returned; i++) {
     await evaluate('advanceFlight(5)')
-    const status = await evaluate('document.querySelector("#journey-status").textContent')
-    returnProgress.push({ status, distance: await evaluate('document.querySelector("#planet-distance").textContent'), pause: await evaluate('document.querySelector("#pause-toggle").ariaLabel') })
-    if (status === 'Cruising around Earth') break
+    const note = await evaluate('document.querySelector("#arrival-note").textContent')
+    returnProgress.push({ note, distance: await evaluate('document.querySelector("#planet-distance").textContent'), pause: await evaluate('document.querySelector("#pause-toggle").ariaLabel') })
+    returned = note === 'A new Earth to explore'
   }
   console.log('Return:', await evaluate('document.querySelector(".destination").innerText'))
-  const returned = await evaluate('document.querySelector("#flight-region").textContent.includes("landscape 2")')
   if (!returned) throw new Error(`Return from space failed to generate a new Earth: ${JSON.stringify(returnProgress)}`)
   await evaluate('document.querySelector("#pause-toggle").click()')
   await screenshot('earth-return')

@@ -48,7 +48,7 @@ Why these five:
 ## Design rules
 
 1. **One for one.** A creature fits inside the footprint of the creature it replaces.
-   `src/creatures/fairytale-models.test.ts` checks the body at four animation times.
+   `tests/creatures/fairytale-models.test.ts` checks the body at four animation times.
    Magic effects are not part of the body, because they do not collide.
 2. **Cute proportions.** Large heads, short legs, large dark eyes with a white highlight, and pink cheeks.
 3. **Colors from the planet.** The colors come from the candy palette in `src/candy.ts`.
@@ -124,20 +124,20 @@ pastel animals; it records the design before this change.
 | `studies/fairytale-creature-study.html` | Page entry |
 | `src/creatures/fairytale.ts` | Mapping, names, notes and labels |
 | `src/creatures/fairytale-models.ts` | The five models, the merged build, and the ribbon butterfly for comparison |
-| `src/creatures/fairytale-models.test.ts` | Mapping, footprint, ground contact, mesh count, merged build and switches |
+| `tests/creatures/fairytale-models.test.ts` | Mapping, footprint, ground contact, mesh count, merged build and switches |
 | `src/creatures/population.ts` | Chooses the fairytale models for Blossom Haven |
 | `src/candy.ts` | The pegasus foals over the cottage garden |
-| `src/fairytale-study/main.ts` | Meadow, close-up, line-up, table and export |
-| `scripts/fairytale-study-smoke.mjs` | Browser check of the study and screenshots |
+| `studies/fairytale-creature-study/main.ts` | Meadow, close-up, line-up, table and export |
+| `studies/fairytale-creature-study/fairytale-study-smoke.mjs` | Browser check of the study and screenshots |
 | `scripts/wildlife-smoke.mjs` | Browser check of the game, including the arrival at Blossom Haven |
 
 ## Verification
 
-- `npm test` runs the model tests with the other tests. `src/creatures/spherical.test.ts`
+- `npm test` runs the model tests with the other tests. `tests/creatures/spherical.test.ts`
   checks that Blossom Haven shows only fairytale creatures and Earth only animals.
 - `npm run build` builds the study page.
 - With the dev server on port 5174, run
-  `node scripts/fairytale-study-smoke.mjs "path/to/chrome.exe"`.
+  `node studies/fairytale-creature-study/fairytale-study-smoke.mjs "path/to/chrome.exe"`.
   It checks the five creatures, the three habitats, the switches, the
   comparison, the line-up, the night light, the export, the new residents,
   the pause, and the layout at 390 px and 320 px. The screenshots go to

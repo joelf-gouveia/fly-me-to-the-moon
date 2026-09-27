@@ -97,7 +97,7 @@ try {
   await send('Page.navigate', { url: new URL('?test', base).href })
   let ready = false
   for (let i = 0; i < 160; i++) {
-    if (await evaluate('typeof window.auditFrame === "function" && !!document.querySelector("#journey-world option")')) { ready = true; break }
+    if (await evaluate('typeof window.auditFrame === "function" && !!document.querySelector("#settings-toggle")')) { ready = true; break }
     await delay(250)
   }
   if (!ready) throw new Error('Game did not initialize')

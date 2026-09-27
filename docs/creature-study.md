@@ -104,7 +104,7 @@ Implementation: `src/creatures/habitat.ts` handles terrain, placement and paths;
 motion per resident, missing habitats, map edges, whole-body shore buffers, and
 water/land barriers between valid endpoints. `npm run build` builds the study.
 
-`node scripts/creature-smoke.mjs "path/to/chrome.exe"` checks the browser UI,
+`node studies/creature-study/creature-smoke.mjs "path/to/chrome.exe"` checks the browser UI,
 feature export, both worlds, terrain regeneration, resident shuffling and mobile
 layout. Set `FAIRY_TEST_URL` to the server origin if it is not port 5174.
 

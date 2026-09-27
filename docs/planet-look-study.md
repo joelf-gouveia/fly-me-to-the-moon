@@ -32,7 +32,7 @@ proportions, unless a line says "before".
 The preview uses the game code where it can. Option B is `createWorlds()` from
 `src/worlds.ts` with the frame update `updatePlanetLooks()`, the renderer, the tone mapping
 and the lights of `src/main.ts`, and the planet shadow of `createSunShading()`. The Before
-option is a copy of the old code (`src/planet-look-study/legacy.ts`): the old deck, the one-colour
+option is a copy of the old code (`studies/planet-look-study/legacy.ts`): the old deck, the one-colour
 ground with the full relief, the flakes, the thick air, and the five flat rings. The flight view uses the rules of
 `updateEnvironment()` for fog, sky and light. Differences from the game:
 
@@ -61,7 +61,7 @@ ground with the full relief, the flakes, the thick air, and the five flat rings.
 
 The study measures the reference maps in the browser. For each 10° band of latitude it
 takes the mean colour, and it gives the 18 bands in OKLCH. `PLANETS[id].reference` in
-`src/planet-look-study/model.ts` holds the values.
+`studies/planet-look-study/model.ts` holds the values.
 
 A mean colour of the whole map hides the bands: Jupiter's white zones and orange belts
 average to a grey (`#a7a196`, chroma 0.017). Thus the study uses two measures:
@@ -117,7 +117,7 @@ heights. Jupiter's shell is 181 m deep on a radius of 588 m, so a cream band sur
 the disc. The pictures show a thin bright rim.
 
 The proposal multiplies the depth by 0.12 when the camera is far from the planet
-(`HALO_THIN` in `src/planet-look-study/scene.ts`). The factor goes back to 1 between 1.1 and
+(`HALO_THIN` in `studies/planet-look-study/scene.ts`). The factor goes back to 1 between 1.1 and
 2.2 air depths above the ground, so the sky in flight does not change.
 
 ## Finding 5: shadows from behind the Sun
@@ -179,7 +179,7 @@ features of their pictures: no Great Red Spot, no ice caps, no hexagon.
 
 A, plus one hand-made recipe per planet. The graphics card paints each map in
 equirectangular form, reads it back, and uses it as an sRGB texture with mipmaps
-(`bakePlanetMap()` in `src/planet-look-study/paint.ts`). The map uses the uv of
+(`bakePlanetMap()` in `studies/planet-look-study/paint.ts`). The map uses the uv of
 `THREE.SphereGeometry`, so the game spheres can use it without a change.
 
 | Planet | What the recipe paints |
@@ -301,7 +301,7 @@ option B takes 58 to 441 ms for each planet, with the shader compile. Option A t
 | Uranus's rings in the space that relocation keeps clear (2.05 radii) | `occupiedRadius()` in `src/relocation.ts` |
 
 `createWorlds()` takes the renderer as a third argument. Without it, the giants keep the old
-canvas deck. `src/planet-look.test.ts` checks the relief, the light rules, the ring clearance
+canvas deck. `tests/planet-look.test.ts` checks the relief, the light rules, the ring clearance
 and the shadow test. The Moon smoke script passes in software rendering with the painted maps.
 
 ## Sources
@@ -315,10 +315,10 @@ and the shadow test. The Moon smoke script passes in software rendering with the
 
 ## Verification
 
-- `npx vitest run src/planet-look-study` checks the planet values and the proportions against
+- `npx vitest run studies/planet-look-study` checks the planet values and the proportions against
   `src/worlds.ts` and `src/main.ts`, the air shader lines that the patch uses, the measured contrast, the light
   contrast, the far-side shadow pairs, the ring gaps, and the cost.
-- `node scripts/planet-look-study-smoke.mjs "path/to/chrome.exe"` against port 5174 builds all
+- `node studies/planet-look-study/planet-look-study-smoke.mjs "path/to/chrome.exe"` against port 5174 builds all
   21 looks, checks the tilts, the views, the split view, the export and the 390/320 px
   layouts, and writes screenshots to `artifacts.local/planet-look-study/`. It uses the graphics
   card. The painted maps are too slow in software rendering; add `--swiftshader` to use it.

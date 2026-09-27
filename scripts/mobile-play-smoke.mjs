@@ -123,10 +123,24 @@ try {
   const snapshot=await evaluate('window.__fairyTest.snapshot()')
   await writeFile('artifacts.local/mobile-play/results.json',JSON.stringify({layouts,snapshot,errors,method:'Desktop Chrome touch emulation, synthetic visibility change, frozen/controlled animation. Not a hardware performance or WebKit test.'},null,2))
   if(errors.length)throw new Error(JSON.stringify(errors))
+  // iPad WebKit can show the page at a scale other than 1, for example in the desktop mode of Chrome.
+  // Headless Chrome does not zoom this page, so report a scaled visual viewport inside a 1180×820 layout.
+  await send('Emulation.setDeviceMetricsOverride',{width:1180,height:820,deviceScaleFactor:1,mobile:true})
+  const scaledView=await send('Page.addScriptToEvaluateOnNewDocument',{source:`const view=Object.assign(new EventTarget(),{offsetLeft:100,offsetTop:68,width:980,height:683,scale:1.2});Object.defineProperty(window,'visualViewport',{configurable:true,get:()=>view})`})
+  await send('Page.reload');await delay(500)
+  for(let i=0;i<160;i++){if(await evaluate('!!window.__fairyTest'))break;await delay(250)}
+  await evaluate(`document.querySelector('#begin-button').click();pump()`)
+  const insideView=selector=>`[...document.querySelectorAll(${JSON.stringify(selector)})].every(e=>{const r=e.getBoundingClientRect();return r.width>0&&r.left>=99.5&&r.top>=67.5&&r.right<=1080.5&&r.bottom<=751.5})`
+  await assert(`(()=>{const s=document.querySelector('.game-shell').getBoundingClientRect(),c=document.querySelector('#scene canvas').getBoundingClientRect();return [s.left,s.top,s.width,s.height,c.width,c.height].map(Math.round).join()==='100,68,980,683,980,683'})()`,'Scaled view: the shell or the canvas does not fill the visible area')
+  await assert(['.touch-controls button','.touch-actions button','#menu-toggle','#open-map','#pause-toggle'].map(insideView).join('&&'),'Scaled view: controls are outside the visible area')
+  await evaluate(`document.querySelector('#menu-toggle').click();pump()`)
+  await assert(insideView('#flight-menu'),'Scaled view: the menu is outside the visible area')
+  await send('Page.removeScriptToEvaluateOnNewDocument',{identifier:scaledView.identifier})
+  if(errors.length)throw new Error(JSON.stringify(errors))
   await send('Page.addScriptToEvaluateOnNewDocument',{source:`const getContext=HTMLCanvasElement.prototype.getContext; HTMLCanvasElement.prototype.getContext=function(type,...args){return type==='webgl2'?null:getContext.call(this,type,...args)}`})
   await send('Page.reload');await delay(500)
   for(let i=0;i<80;i++){if(await evaluate('!!document.querySelector("#retry-graphics")'))break;await delay(100)}
   await assert('!!document.querySelector("#retry-graphics") && !document.querySelector("#scene canvas")','Missing WebGL 2 should show a useful fallback')
   if(errors.length)throw new Error(JSON.stringify(errors))
-  console.log('Mobile play passed: seven viewports, multi-touch boost/release/cancel, no text selection, zoom guards, hover, menu, saved customization, Worlds, background pause/resume, context recovery and WebGL fallback.')
+  console.log('Mobile play passed: seven viewports, a scaled iPad view, multi-touch boost/release/cancel, no text selection, zoom guards, hover, menu, saved customization, Worlds, background pause/resume, context recovery and WebGL fallback.')
 } finally {ws?.close();browser.kill()}

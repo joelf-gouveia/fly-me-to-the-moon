@@ -74,7 +74,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: appUrl })
   for (let i = 0; i < 80; i++) {
-    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#journey-world option")')) break
+    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#settings-toggle")')) break
     await delay(250)
   }
 
@@ -83,7 +83,8 @@ try {
   if (await evaluate('!!document.querySelector("#welcome-home")')) throw new Error('The welcome card still offers a second mode')
   if (await evaluate('document.querySelector("#begin-button span").textContent') !== 'Begin your adventure') throw new Error('The welcome card is missing Begin your adventure')
   await evaluate('document.querySelector("#begin-button").click(); advanceFlight(0.1)')
-  if (await evaluate('document.querySelector(".home-controls").hidden || document.querySelector("#home-help").hidden')) throw new Error('The flower guide option is missing in flight')
+  if (await evaluate('!!document.querySelector("#follow-home")')) throw new Error('The Guide me home button is still on the screen')
+  if (!(await evaluate('document.querySelector("#home-help").hidden'))) throw new Error('The guide help shows before the guide is on')
   if (!(await evaluate('document.querySelector("#home-beacon").hidden'))) throw new Error('The flower marker shows before the guide is on')
   if ((await snapshot()).guided) throw new Error('The guide started without a request')
   await evaluate('document.querySelector("#open-map").click()')
@@ -92,12 +93,12 @@ try {
   if (await evaluate('document.querySelector("[data-world=fairy] .planet-picture").textContent') !== '✿') throw new Error('The map is missing the blossom icon')
   await evaluate('document.querySelector("#close-map").click()')
   await delay(100)
-  await evaluate('document.querySelector("#follow-home").click(); advanceFlight(0.1)')
-  if (!(await snapshot()).guided) throw new Error('The flower button did not start the guide')
+  await evaluate('document.querySelector("[data-world=fairy]").click(); advanceFlight(0.1)')
+  if (!(await snapshot()).guided) throw new Error('The Blossom Haven picture did not start the guide')
   if (await evaluate('document.querySelector("#home-beacon").hidden')) throw new Error('The guide is missing its flower marker')
   for (let i = 0; i < 100 && !(await snapshot()).found; i++) await evaluate('advanceFlight(2)')
   if (!(await snapshot()).found) throw new Error('Guided discovery failed')
-  console.log('One start button; the flower guide is an in-flight option with its marker, map icon and discovery.')
+  console.log('One start button; the Blossom Haven picture in Worlds starts the flower guide, with its marker, help and discovery.')
   console.log('Runtime errors:', JSON.stringify(errors))
   if (errors.length) process.exitCode = 1
 } finally {

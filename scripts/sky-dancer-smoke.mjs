@@ -75,7 +75,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
   await send('Page.navigate', { url: appUrl })
   for (let i = 0; i < 80; i++) {
-    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#journey-world option")')) break
+    if (await evaluate('!!document.querySelector("#scene canvas") && !!document.querySelector("#settings-toggle")')) break
     await delay(250)
   }
   await evaluate('document.querySelector("#begin-button").click()')
