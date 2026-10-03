@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { defaultFairyLook, hairColorOptions, lookColors, skinOptions, wingOptions } from '../../src/customization'
 import type { FairyLook } from '../../src/customization'
-import { createFairyRig, createSkyDancerAnimation, skyDancer } from '../../src/fairy'
+import { classicWings, createFairyRig, createSkyDancerAnimation, skyDancer } from '../../src/fairy'
 import { addStudyHair, areaFromBehind, candidateIds, measureStyle, motionLevels, studyStyles } from './styles'
 import type { CandidateId, Measurement, Motion, StudyHair, StudyStyle } from './styles'
 import './style.css'
@@ -76,7 +76,7 @@ document.querySelector('#hair-study')!.innerHTML = `
         <label class="shortlist-toggle"><input type="checkbox" id="shortlist-current"> <span id="shortlist-text">Add to the shortlist</span></label>
         <fieldset><legend>Hair color</legend>${swatches('hairColor', hairColorOptions)}</fieldset>
         <fieldset><legend>Skin</legend>${swatches('skin', skinOptions)}</fieldset>
-        <fieldset><legend>Wings</legend><div class="segmented small wide" role="group" aria-label="Wing shape">${wingOptions.map(({ id, label }) => `<button data-wings="${id}" aria-pressed="${id === 'petal'}">${label}</button>`).join('')}</div></fieldset>
+        <fieldset><legend>Wings</legend><div class="segmented small wide" role="group" aria-label="Wing shape">${wingOptions.map(({ id, label }) => `<button data-wings="${id}" aria-pressed="${id === defaultFairyLook.wings}">${label}</button>`).join('')}</div></fieldset>
       </aside>
     </section>
 
@@ -289,8 +289,8 @@ function applyLookEverywhere() {
 
 function formatWings(measurement: Measurement) {
   if (!measurement.wingContact.length) return 'Clear'
-  if (measurement.wingContact.length === wingOptions.length) return 'Touches all'
-  return `Touches ${measurement.wingContact.map(id => wingOptions.find(option => option.id === id)!.label).join(', ')}`
+  if (measurement.wingContact.length === classicWings.length) return 'Touches all'
+  return `Touches ${measurement.wingContact.map(id => id[0].toUpperCase() + id.slice(1)).join(', ')}`
 }
 const percent = (area: number) => `${Math.round(area / bareArea * 100)}%`
 

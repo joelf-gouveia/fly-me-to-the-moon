@@ -24,6 +24,8 @@ import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight } from './flight'
 import type { World } from './worlds'
 import { createFairyRig, createSkyDancerAnimation } from './fairy'
+import { designById } from './fairy-wings/designs'
+import { drawWingIcon } from './fairy-wings/icon'
 import {
   dressOptions,
   hairColorOptions,
@@ -133,7 +135,7 @@ app.innerHTML = `
         <div class="option-grid">
           ${wingOptions.map(({ id, label }) => `
             <button type="button" data-custom="wings" data-value="${id}" aria-pressed="false">
-              <span class="wing-preview wing-preview--${id}" aria-hidden="true"><i></i><i></i></span>
+              <canvas class="wing-preview" data-wing="${id}" width="88" height="68" aria-hidden="true"></canvas>
               <span>${label}</span>
             </button>`).join('')}
         </div>
@@ -335,9 +337,18 @@ const fairyTrail = new THREE.Points(trailGeometry, trailMaterial)
 fairyTrail.frustumCulled = false
 scene.add(fairyTrail)
 
+// The wing buttons show each wing in the wing colour of the look. They paint again only when that colour changes.
+let wingIconColor = ''
+function drawWingIcons(look: FairyLook) {
+  if (look.wingColor === wingIconColor) return
+  wingIconColor = look.wingColor
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-wing]').forEach(canvas => drawWingIcon(canvas, designById(canvas.dataset.wing!)!, look))
+}
+
 function applyFairyLook(look: FairyLook, persist = true) {
   fairyLook = { ...look }
   fairyRig.applyLook(look)
+  drawWingIcons(look)
   const { sparkle } = lookColors(look)
   fairyLight.color.setHex(sparkle).lerp(new THREE.Color(0xffffff), 0.35)
   for (let i = 0; i < trailCapacity; i++) {
@@ -861,6 +872,7 @@ function updateEnvironment() {
   // so there is no separate day clock.
   const light = world.kind === 'sun' ? fullDay : daylightAt(solarElevation(fairy.position, world.group.position, sun.group.position))
   daylight = light
+  fairyRig.wings.setDaylight(light.day)
   const profile = skyProfiles.get(world)!
   skyColor(profile, light, skyTint)
   mistTint.copy(world.kind === 'fairy' ? candyMist : cloudWhite).lerp(skyTint, light.night)

@@ -1,6 +1,8 @@
 import * as THREE from 'three'
-import { hairOptions, wingOptions } from '../../src/customization'
-import type { FairyLook, HairStyle, WingStyle } from '../../src/customization'
+import { hairOptions } from '../../src/customization'
+import type { FairyLook, HairStyle } from '../../src/customization'
+import { classicWings } from '../../src/fairy'
+import type { ClassicWing } from '../../src/fairy'
 import { skyDancer } from '../../src/fairy'
 import type { createFairyRig } from '../../src/fairy'
 import { createHairKit, hairMotion, onCap } from '../../src/fairy-hair'
@@ -144,7 +146,7 @@ function settle(rig: Rig, hair: StudyHair, boost: number, time: number, motion: 
 // earsVisible: the outer half of each ear is outside the hair. attached: every part joins the
 // cap, directly or through other parts. hairArea: all hair that the rear camera sees.
 // beyondCap: the part of it that is not over the cap.
-export type Measurement = { meshes: number; earsVisible: boolean; attached: boolean; wingContact: WingStyle[]; hairArea: number; beyondCap: number }
+export type Measurement = { meshes: number; earsVisible: boolean; attached: boolean; wingContact: ClassicWing[]; hairArea: number; beyondCap: number }
 
 // Points on the outer half of an ear cone (height 0.17, radius 0.06), from the middle to the tip.
 function outerEar(ear: THREE.Mesh) {
@@ -201,9 +203,10 @@ export function measureStyle(rig: Rig, hair: StudyHair, style: StudyStyle, look:
   const { hairArea, beyondCap } = areaFromBehind(body, parts)
 
   // Wings: sample each wing surface through a full beat, at cruise and boost, with lively motion.
-  const wingContact: WingStyle[] = []
-  for (const { id: wings } of wingOptions) {
-    hair.show(style, { ...look, wings })
+  // The study measured the three wings of that time. They stay in the rig, hidden.
+  const wingContact: ClassicWing[] = []
+  for (const wings of classicWings) {
+    hair.show(style, look)
     const wingMeshes = meshesOf(rig.root.getObjectByName(`wings-${wings}`)!)
     const samples = wingMeshes.map(surfaceSamples)
     let touches = false

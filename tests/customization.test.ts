@@ -22,7 +22,7 @@ describe('fairy customization', () => {
 
   it('converts a look saved with an old palette', () => {
     expect(parseFairyLook({ hair: 'bob', wings: 'luna', palette: 'moon' })).toEqual({
-      hair: 'bob', hairColor: 'moonlight', dress: 'moon', wings: 'luna', wingColor: 'moonbeam', skin: 'peach',
+      hair: 'bob', hairColor: 'moonlight', dress: 'moon', wings: 'glitter', wingColor: 'moonbeam', skin: 'peach',
     })
   })
 

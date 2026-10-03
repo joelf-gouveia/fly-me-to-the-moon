@@ -4,7 +4,7 @@ import { hairOptions } from '../../src/customization'
 import { createFairyRig, createSkyDancerAnimation, skyDancer } from '../../src/fairy'
 import { bodyIds, createBodyFairy, measureBody } from './bodies'
 
-const look = { hair: 'ponytail', hairColor: 'plum', dress: 'rose', wings: 'petal', wingColor: 'dewdrop', skin: 'peach' } as const
+const look = { hair: 'ponytail', hairColor: 'plum', dress: 'rose', wings: 'dew', wingColor: 'dewdrop', skin: 'peach' } as const
 
 describe('fairy body study', () => {
   const measured = Object.fromEntries(bodyIds.map(id => [id, measureBody(createBodyFairy(id))]))

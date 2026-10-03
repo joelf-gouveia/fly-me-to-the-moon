@@ -252,6 +252,7 @@ export function createLab(host: HTMLElement) {
     const up = fairy.position.clone().sub(world.group.position).normalize()
     const surfaceDay = THREE.MathUtils.lerp(1, light.day, density)
     ambient.position.copy(up)
+    rig.wings.setDaylight(light.day)
     ambient.intensity = THREE.MathUtils.lerp(1.1, THREE.MathUtils.lerp(0.85, 2.1, light.day), density)
     ambient.color.copy(nightAmbientSky).lerp(dayAmbientSky, surfaceDay)
     ambient.groundColor.copy(nightAmbientGround).lerp(dayAmbientGround, surfaceDay)
