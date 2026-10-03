@@ -1,16 +1,15 @@
 import { spawn } from 'node:child_process'
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const browserPath = process.argv[2]
 const customizationOnly = process.argv.includes('--customization')
-const debugPort = Number(process.env.FAIRY_DEBUG_PORT || 9333)
 const appUrl = process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174/'
 if (!browserPath) throw new Error('Pass a Chromium browser executable as the first argument')
 const profile = await mkdtemp(join(tmpdir(), 'fairy-browser-'))
 const browser = spawn(browserPath, [
-  '--headless', `--remote-debugging-port=${debugPort}`, `--user-data-dir=${profile}`,
+  '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
   '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
@@ -20,7 +19,7 @@ let ws
 try {
   let tabs
   for (let i = 0; i < 40; i++) {
-    try { tabs = await (await fetch(`http://127.0.0.1:${debugPort}/json`)).json(); break } catch { await delay(250) }
+    try { tabs = await (await fetch(`http://127.0.0.1:${(await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]}/json`)).json(); break } catch { await delay(250) }
   }
   if (!tabs?.length) throw new Error(`Browser did not start: ${browserErrors}`)
   ws = new WebSocket(tabs.find((tab) => tab.type === 'page').webSocketDebuggerUrl)
@@ -96,12 +95,12 @@ try {
   console.log('Paused:', await evaluate('document.querySelector("#pause-toggle").ariaLabel'))
   await evaluate('document.querySelector("#customize-toggle").click()')
   await evaluate('document.querySelector(\'[data-custom="hair"][data-value="bob"]\').click()')
-  await evaluate('document.querySelector(\'[data-custom="wings"][data-value="luna"]\').click()')
+  await evaluate('document.querySelector(\'[data-custom="wings"][data-value="glitter"]\').click()')
   for (const [part, value] of [['hairColor', 'lavender'], ['dress', 'buttercup'], ['wingColor', 'violet'], ['skin', 'cocoa']]) {
     await evaluate(`document.querySelector('[data-custom="${part}"][data-value="${value}"]').click()`)
   }
   const savedLook = await evaluate('localStorage.getItem("fairy-look")')
-  if (savedLook !== '{"hair":"bob","hairColor":"lavender","dress":"buttercup","wings":"luna","wingColor":"violet","skin":"cocoa"}') throw new Error(`Customization was not saved: ${savedLook}`)
+  if (savedLook !== '{"hair":"bob","hairColor":"lavender","dress":"buttercup","wings":"glitter","wingColor":"violet","skin":"cocoa"}') throw new Error(`Customization was not saved: ${savedLook}`)
   await evaluate('advanceFlight(1)')
   await delay(300)
   await screenshot('customization')
@@ -135,7 +134,7 @@ try {
       await delay(250)
     }
     const selected = await evaluate('Array.from(document.querySelectorAll(\'[data-custom][aria-pressed="true"]\'), b => b.dataset.value).join(",")')
-    if (selected !== 'bob,lavender,buttercup,luna,violet,cocoa') throw new Error(`Saved look was not restored: ${selected}`)
+    if (selected !== 'bob,lavender,buttercup,glitter,violet,cocoa') throw new Error(`Saved look was not restored: ${selected}`)
     await evaluate('document.querySelector("#welcome-customize").click()')
     if (!await evaluate('document.querySelector("#customizer").classList.contains("is-open")')) throw new Error('Welcome customization did not open')
     console.log('Customization: selection, persistence, Escape, welcome entry and responsive layout passed')

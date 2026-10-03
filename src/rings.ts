@@ -168,8 +168,10 @@ export type RingLineOptions = {
   /** The first heading of the line at the anchor. */
   heading?: THREE.Vector3
   obstacles?: RingObstacle[]
-  /** Ring centres of other lines. A new line keeps 40 m from them. */
+  /** Ring centres of other lines. A new line keeps `gap` metres from them. */
   avoid?: THREE.Vector3[]
+  /** The distance to the rings of the other lines. The default is 40 m. */
+  gap?: number
   line?: number
 }
 
@@ -184,7 +186,7 @@ export function ringLine(world: World, seed: number, options: RingLineOptions = 
   const grid = options.obstacles ? new ObstacleGrid(options.obstacles, world.radius) : undefined
   const spacing = Math.min(RING.spacing, world.radius * 0.17)
   const line = options.line ?? 0
-  const free = (centre: THREE.Vector3) => ringClear(world, centre, grid) && !options.avoid?.some(other => centre.distanceTo(other) < 40)
+  const free = (centre: THREE.Vector3) => ringClear(world, centre, grid) && !options.avoid?.some(other => centre.distanceTo(other) < (options.gap ?? 40))
   for (let attempt = 0; attempt < 600; attempt++) {
     const count = 5 + Math.floor(random() * 3)
     let normal: THREE.Vector3, heading: THREE.Vector3
@@ -260,7 +262,14 @@ export function ringLines(world: World, seed = world.seed, obstacles = sceneryOb
       // +X faces Earth (src/moon.ts).
       options.anchor = new THREE.Vector3(1, 0.15, 0.2).normalize()
     }
-    placements.push(...ringLine(world, (seed ^ 0x5a17) + line * 7919, options))
+    const lineSeed = (seed ^ 0x5a17) + line * 7919
+    let rings = ringLine(world, lineSeed, options)
+    // A crowded world, such as Blossom Haven with its gardens, can have no room for a line that keeps
+    // all the rules. Then the line can come nearer to the other lines. Last, it keeps clear of the
+    // cottage only: the rings are 5 m or more above the ground, over most plants.
+    if (!rings.length) rings = ringLine(world, lineSeed + 1, { ...options, gap: 20 })
+    if (!rings.length) rings = ringLine(world, lineSeed + 2, { ...options, gap: 20, obstacles: obstacles.filter(obstacle => obstacle.radius >= 20) })
+    placements.push(...rings)
   }
   return placements
 }
