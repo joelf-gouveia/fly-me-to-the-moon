@@ -201,6 +201,13 @@ only when the main folder has no uncommitted work.
   build pass on `master`.
 - [x] Delete the worktree and the branch. The branch was never on GitHub.
 
+### `features/earth-weather`
+
+- [x] Run the weather, seasons, main and weather study browser checks on the branch.
+- [x] Merge into `master`: merge `a9fe189`. The type check and the 429 unit tests pass on
+  `master`.
+- [x] Delete the worktree and the branch. The branch was never on GitHub.
+
 ## Next steps
 
 ### The weather of Earth, step 5
