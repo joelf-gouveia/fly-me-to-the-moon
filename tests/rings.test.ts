@@ -140,6 +140,23 @@ describe('sparkle ring placement', { timeout: 120000 }, () => {
     expect(ringLine(earth, 5, { obstacles: wall })).toEqual([])
   })
 
+  it('gives a crowded world all its lines: the lines keep clear of the large obstacles only', () => {
+    const earth = built('earth', 44, true)
+    // A tall plant of 15 m at 2,000 places: no room for a line that keeps clear of each one.
+    const plants = Array.from({ length: 2000 }, (_, i) => {
+      const y = 1 - (i + 0.5) / 1000, angle = i * 2.399963
+      return { normal: new THREE.Vector3(Math.sqrt(1 - y * y) * Math.cos(angle), y, Math.sqrt(1 - y * y) * Math.sin(angle)), radius: 15, top: earth.radius + 40 }
+    })
+    expect(ringLine(earth, 5, { obstacles: plants })).toEqual([])
+    const rings = ringLines(earth, earth.seed, plants)
+    expect(new Set(rings.map(ring => ring.line)).size).toBe(5)
+    // A large obstacle, such as the cottage, stays clear in each rule.
+    const cottage = [{ normal: rings[0].position.clone().normalize(), radius: 24, top: earth.radius + 40 }]
+    const clear = ringLines(earth, earth.seed, [...plants, ...cottage])
+    expect(new Set(clear.map(ring => ring.line)).size).toBe(5)
+    for (const ring of clear) expect(ring.position.clone().normalize().angleTo(cottage[0].normal) * earth.radius).toBeGreaterThan(24)
+  }, 120000)
+
   it('places the rings in the frame of the world group, whatever its turn', () => {
     const earth = built('earth', 44, true)
     const before = ringLines(earth).map(ring => ring.position.toArray())
