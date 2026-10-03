@@ -66,6 +66,14 @@ export const wingColorOptions = [
   { id: 'pearl', label: 'Pearl', color: 0xf4f1ea, sparkle: 0xfff0d0 },
 ] as const
 
+// The sparkle trail, from the fairy trail study (docs/fairy-trail-study.md). The ids are those of src/fairy-trail.ts.
+export const trailOptions = [
+  { id: 'pixie', label: 'Pixie dust' },
+  { id: 'tail', label: 'Comet tail' },
+  { id: 'halo', label: 'Sparkle halo' },
+  { id: 'feet', label: 'Shimmer steps' },
+] as const
+
 export const skinOptions = [
   { id: 'porcelain', label: 'Porcelain', color: 0xf8dccb },
   { id: 'peach', label: 'Peach', color: 0xefba9f },
@@ -85,6 +93,7 @@ export const lookOptions = {
   dress: dressOptions,
   wings: wingOptions,
   wingColor: wingColorOptions,
+  trail: trailOptions,
   skin: skinOptions,
 } as const
 
@@ -100,6 +109,7 @@ export const defaultFairyLook: FairyLook = {
   dress: 'rose',
   wings: 'dew',
   wingColor: 'dewdrop',
+  trail: 'pixie',
   skin: 'peach',
 }
 

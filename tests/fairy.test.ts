@@ -37,7 +37,7 @@ describe('Sky Dancer integration', () => {
       expect(advance).toBeLessThanOrEqual(5.2 * Math.PI * 2 / 60 + 0.00001)
       phase = animation.phase
     }
-    rig.applyLook({ hair: 'bob', hairColor: 'lavender', dress: 'buttercup', wings: 'glitter', wingColor: 'violet', skin: 'cocoa' })
+    rig.applyLook({ hair: 'bob', hairColor: 'lavender', dress: 'buttercup', wings: 'glitter', wingColor: 'violet', trail: 'pixie', skin: 'cocoa' })
     expect(rig.root.getObjectByName('hair-bob')!.visible).toBe(true)
     expect(rig.root.getObjectByName('hair-bun')!.visible).toBe(false)
     // The wings of the look are in one group. The three wings of before stay hidden.
@@ -50,7 +50,7 @@ describe('Sky Dancer integration', () => {
   it('builds every hair style once and shows only the chosen one', () => {
     const rig = createFairyRig({ withTrail: false })
     for (const { id } of hairOptions) {
-      rig.applyLook({ hair: id, hairColor: 'honey', dress: 'rose', wings: 'dew', wingColor: 'dewdrop', skin: 'peach' })
+      rig.applyLook({ hair: id, hairColor: 'honey', dress: 'rose', wings: 'dew', wingColor: 'dewdrop', trail: 'pixie', skin: 'peach' })
       const visible = hairOptions.filter(option => rig.root.getObjectByName(`hair-${option.id}`)!.visible).map(option => option.id)
       expect(visible).toEqual([id])
     }
@@ -59,7 +59,7 @@ describe('Sky Dancer integration', () => {
 
   it('swings the long hair gently in flight and keeps it at rest with no motion', () => {
     const rig = createFairyRig({ withTrail: false })
-    rig.applyLook({ hair: 'ponytail', hairColor: 'plum', dress: 'rose', wings: 'dew', wingColor: 'dewdrop', skin: 'peach' })
+    rig.applyLook({ hair: 'ponytail', hairColor: 'plum', dress: 'rose', wings: 'dew', wingColor: 'dewdrop', trail: 'pixie', skin: 'peach' })
     const group = rig.root.getObjectByName('hair-ponytail')!
     const tip = () => {
       let last: THREE.Object3D = group

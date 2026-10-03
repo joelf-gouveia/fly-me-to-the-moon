@@ -137,14 +137,14 @@ try {
     if (state.comet.inTail) inside++
     if (state.belt.region === 'Comet tail') labelled = true
     mostSparkles = Math.max(mostSparkles, state.comet.sparkles)
-    biggestTrail = Math.max(biggestTrail, state.comet.trailSize)
+    biggestTrail = Math.max(biggestTrail, state.comet.trailBonus)
     if (state.comet.inTail && labelled && !shot && state.comet.sparkles > 40) { await screenshot('in-tail'); shot = true }
     if (inside && !state.comet.inTail) break
   }
   assert(!state.hoverHeld, 'Hover is still on')
   assert(inside > 0, `The fairy never came into the tail: ${JSON.stringify(state.comet)} at ${JSON.stringify(state.fairy)}`)
   assert(labelled, 'The flight panel never said Comet tail')
-  assert(mostSparkles > 30 && biggestTrail > 0.35, `No sparkles or no longer trail: ${mostSparkles} sparkles, trail ${biggestTrail}`)
+  assert(mostSparkles > 30 && biggestTrail > 0.8, `No sparkles or no stronger trail: ${mostSparkles} sparkles, trail ${biggestTrail}`)
   // After the tail, the glow stays for a while, then goes.
   await evaluate('advanceFlight(0.5)')
   state = await snapshot()
@@ -152,7 +152,7 @@ try {
   await screenshot('after-tail')
   await evaluate('advanceFlight(4.5)')
   state = await snapshot()
-  assert(state.comet.glow === 0 && state.comet.trailSize < 0.21, `The glow does not end: ${JSON.stringify(state.comet)}`)
+  assert(state.comet.glow === 0 && state.comet.trailBonus === 0, `The glow does not end: ${JSON.stringify(state.comet)}`)
   assert(shootingInSpace.launched === 0 && state.shootingStars.launched === 0, `Shooting stars in open space: ${JSON.stringify(state.shootingStars)}`)
 
   step('Earth by day')

@@ -138,16 +138,16 @@ try {
   assert(ringsOf(state, 'Earth').taken.join() === '1', `The pass did not take ring 1: ${JSON.stringify(ringsOf(state, 'Earth'))}`)
   const chime = await evaluate('window.oscillators') - before
   assert(chime === 2, `The ring did not play a two-note chime: ${chime} new oscillators`)
-  assert(state.bursts > 0 && state.bursts <= state.burstSize && state.sparkle === 1 && state.trailSize > 0.3, `No burst or no bright trail: ${JSON.stringify(state)}`)
+  assert(state.bursts > 0 && state.bursts <= state.burstSize && state.sparkle === 1 && state.trailBonus === 1, `No burst or no bright trail: ${JSON.stringify(state)}`)
   await screenshot('earth-burst')
   // Hover, so the fairy does not fly on through the next ring of the line.
   await evaluate('document.querySelector("#hover-toggle").click()')
   await evaluate('advanceFlight(1.2)')
   state = await rings()
-  assert(state.trailShown === 144, `The trail is not longer after a ring: ${state.trailShown}`)
+  assert(state.trailBonus === 1, `The trail is not stronger after a ring: ${state.trailBonus}`)
   await evaluate('advanceFlight(3.2)')
   state = await rings()
-  assert(state.sparkle === 0 && state.trailShown === 72 && state.bursts === 0, `The longer trail did not end after 4 s: ${JSON.stringify(state)}`)
+  assert(state.sparkle === 0 && state.trailBonus === 0 && state.bursts === 0, `The stronger trail did not end after 4 s: ${JSON.stringify(state)}`)
 
   step('the return after 30 s')
   await evaluate('advanceFlight(23, 60, false)')
@@ -227,7 +227,7 @@ try {
   const calls = (await snapshot()).graphics.calls
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log(`Verified sparkle rings: Earth ${earth.count} rings in ${earth.lines} lines, Blossom Haven ${haven.count} in ${haven.lines}, the Moon ${moon.count} in ${moon.lines}; a pass with a two-note chime, a burst and a trail of 144 points for 4 s; the return after 30 s; a pass at boost speed at 20 frames a second; the rings carried with Blossom Haven; new rings for a new Earth (seed ${oldEarth.seed} → ${newEarth.seed}, ${newEarth.count} rings); the 390 px phone layout with ${calls} draw calls. No browser errors.`)
+  console.log(`Verified sparkle rings: Earth ${earth.count} rings in ${earth.lines} lines, Blossom Haven ${haven.count} in ${haven.lines}, the Moon ${moon.count} in ${moon.lines}; a pass with a two-note chime, a burst and a stronger trail for 4 s; the return after 30 s; a pass at boost speed at 20 frames a second; the rings carried with Blossom Haven; new rings for a new Earth (seed ${oldEarth.seed} → ${newEarth.seed}, ${newEarth.count} rings); the 390 px phone layout with ${calls} draw calls. No browser errors.`)
 } finally {
   ws?.close(); browser.kill()
 }
