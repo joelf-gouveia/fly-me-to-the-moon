@@ -6,7 +6,7 @@ import { SPECIES } from '../../src/foliage/species'
 import type { SpeciesId } from '../../src/foliage/species'
 import type { CameraShot, Feature, Lab } from '../feature-ideas-study/lab'
 import {
-  declination, EARTH_TILT, latitudeLabel, lookPhase, magicAt, magicOffset, monthAt, noonElevation, PALETTE, PATTERNS, seasonAt,
+  declination, EARTH_TILT, latitudeLabel, lookPhase, magicAt, magicOffset, monthAt, noonElevation, PALETTE, seasonAt,
   seasonStrength, snowCover,
 } from './model'
 import type { ClipId, Pattern, WorldId } from './model'
@@ -34,7 +34,7 @@ function kitOf(lab: Lab): Kit {
     kits.set(lab, kit)
   }
   kit.earth.setOn(1); kit.earth.setLook(0)
-  kit.fairy.setOn(1); kit.fairy.setLook(0); kit.fairy.setGarden(0); kit.fairy.setPattern('rings')
+  kit.fairy.setOn(1); kit.fairy.setLook(0)
   lab.fairy.visible = true
   return kit
 }
@@ -328,25 +328,6 @@ const magicGrove: Feature = { id: 'B2', create(lab) {
   }
 } }
 
-/** B3: the same magic year with three patterns, 4 s each. */
-const magicPatterns: Feature = { id: 'B3', create(lab) {
-  const seasons = kitOf(lab).fairy, caption = captionOf(lab)
-  const each = 4, shown: Pattern[] = ['halves', 'rings', 'patches']
-  lab.fairy.visible = false
-  lab.setShot(spaceShot(lab, seasons.world, -0.35))
-  return {
-    duration: each * shown.length, still: 6,
-    update(t) {
-      const pattern = PATTERNS.find(item => item.id === shown[Math.min(shown.length - 1, Math.floor(t / each))])!
-      seasons.setPattern(pattern.id)
-      seasons.setLook(0.15 + (t % each) / each * 0.5)
-      seasons.pose(0, 0, undefined, 12, 0.6 + t * 0.12)
-      caption(pattern.name, pattern.line)
-    },
-    dispose() { lab.fairy.visible = true; seasons.setPattern('rings') },
-  }
-} }
-
 /** The view of the flower cottage at the south pole of Blossom Haven. The door of the cottage faces local +Z. */
 function cottageView(lab: Lab, world: World) {
   const view = groundView(lab, world, COTTAGE, new THREE.Vector3(-0.38, 0, -0.925).normalize(), { back: 25, eye: 3.4, ahead: 0, lookUp: 3.6, circle: 4.5, height: 3 })
@@ -388,9 +369,6 @@ export const live = {
   model: 'A' as 'A' | 'B' | 'today',
   tilt: EARTH_TILT,
   hour: 12,
-  /** Blossom Haven: how a season goes over the planet, and the garden of always blossom. */
-  pattern: 'rings' as Pattern,
-  garden: false,
   weather: true,
   /** The player flies with the keys. */
   free: false,
@@ -419,7 +397,7 @@ export const LIVE: Feature = { id: 'LIVE', create(lab) {
       if (live.play) live.year = (live.year + delta / YEAR_CLIP) % 1
       const on = live.model === 'today' ? 0 : 1, tilt = !magic && live.model === 'A' ? live.tilt : 0
       kit.earth.setOn(on); kit.fairy.setOn(on)
-      if (magic) { kit.fairy.setLook(live.year); kit.fairy.setPattern(live.pattern); kit.fairy.setGarden(live.garden ? 1 : 0) }
+      if (magic) kit.fairy.setLook(live.year)
       else kit.earth.setLook(live.year, live.tilt)
       // Earth has no cottage: the pole button goes to 75° S there.
       const place = live.place === 'cottage' && !magic ? -75 : live.place
@@ -451,14 +429,14 @@ export const LIVE: Feature = { id: 'LIVE', create(lab) {
       const latitude = Math.round(latitudeOf(here))
       const quiet = !live.weather || live.model === 'today' || place === 'space'
       const [fall, amount]: [Fall | null, number] = quiet ? [null, 0]
-        : magic ? (live.garden && latitude < -80 ? ['petal', 1] : magicFall(live.pattern, here, live.year))
+        : magic ? magicFall('rings', here, live.year)
         : fallAt(latitude, live.year, live.tilt)
       kit.weather[live.world].update(t, delta, lab.camera.position, fall, amount)
       kit.weather[magic ? 'earth' : 'fairy'].update(t, delta, lab.camera.position, null, 0)
       if (live.model === 'today') caption('The game of today', magic ? 'Blossom Haven has one look all the time' : 'No tilt and no season: the Sun is over the equator all year')
-      else if (magic && place === 'space') caption(magicAt(live.pattern, COTTAGE, live.year).season.name, `At the cottage: ${magicAt(live.pattern, COTTAGE, live.year).season.name} · On the far side: ${magicAt(live.pattern, FAR_SIDE, live.year).season.name}`)
+      else if (magic && place === 'space') caption(magicAt('rings', COTTAGE, live.year).season.name, `At the cottage: ${magicAt('rings', COTTAGE, live.year).season.name} · On the far side: ${magicAt('rings', FAR_SIDE, live.year).season.name}`)
       else if (magic) {
-        const at = live.garden && latitude < -80 ? magicAt('whole', COTTAGE, 0) : magicAt(live.pattern, here, live.year)
+        const at = magicAt('rings', here, live.year)
         caption(at.season.name, `${at.season.plants} · ${at.season.air}`)
       } else if (place === 'space') caption(monthAt(live.year), `North: ${seasonWord(50, live.year).toLowerCase()} · South: ${seasonWord(-50, live.year).toLowerCase()}`)
       else {
@@ -474,8 +452,11 @@ export const LIVE: Feature = { id: 'LIVE', create(lab) {
   }
 } }
 
-/** The clips of the study, in the order of the page. */
-export const SEASON_CLIPS: Record<ClipId, Feature> = {
+/**
+ * The clips that the capture can record, in the order of the page. Clip B3 (three patterns) is a
+ * record of the second round: the game has the rings from the cottage only.
+ */
+export const SEASON_CLIPS: Partial<Record<ClipId, Feature>> = {
   E1: earthYear, E2: meadowYear, E3: onePlaces, E4: tiltOrPaint,
-  B1: magicYear, B2: magicGrove, B3: magicPatterns, B4: cottageChange,
+  B1: magicYear, B2: magicGrove, B4: cottageChange,
 }
