@@ -404,7 +404,7 @@ The body and hair geometry is built once in `createFairyRig` in `src/fairy.ts`; 
 styles changes visibility, and switching colors updates shared materials. The wings are
 in `src/fairy-wings/` (see the [fairy wing study](#fairy-wing-study)): each wing is a set
 of painted panels with a shader for the colour shift, the glitter and the light through
-the wing. Each wing takes the wing color, but Autumn leaf has fixed colors. A look saved
+the wing. Each wing takes the wing color. A look saved
 with Petal, Luna or Flutter gets Dew glass, Glitter vein or Swirl and gems. The hair
 styles are in `src/fairy-hair.ts`. The Ponytail, Long braid, Twin braids and Long
 waves swing gently with the flight and straighten along her body in boost. The six

@@ -15,7 +15,7 @@ export const BEFORE_OPTIONS = [
 /** The wings that started from a picture of Joel, with the number of the picture. */
 export const FROM_PICTURE: Record<string, number> = { glitter: 1, leaf: 2, silk: 3, rainbow: 4, swirl: 5 }
 
-/** The wings that Joel selected on 3 October 2026, now in the game: four rows of three in the menu. Autumn leaf has fixed colours; each other wing takes the wing colour of the menu. */
+/** The wings that Joel selected on 3 October 2026, now in the game: four rows of three in the menu. Each one takes the wing colour of the menu. */
 export const SELECTED = ['dew', 'glitter', 'leaf', 'silk', 'rainbow', 'swirl', 'monarch', 'swallowtail', 'frost', 'star', 'autumn', 'aurora']
 
 export const LEVERS: { id: keyof Levers; name: string; text: string }[] = [

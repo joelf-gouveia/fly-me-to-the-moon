@@ -48,10 +48,10 @@
     "drawCalls": 4,
     "pictures": 4,
     "megabytes": 5.3,
-    "ms": 75,
+    "ms": 92,
     "drawn": {
-      "calls": 102,
-      "triangles": 2274681
+      "calls": 129,
+      "triangles": 2197977
     }
   },
   "blossom": {

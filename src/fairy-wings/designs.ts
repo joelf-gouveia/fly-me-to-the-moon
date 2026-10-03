@@ -67,7 +67,8 @@ export const fract = (value: number) => value - Math.floor(value)
 const RAINBOW_SPAN = 0.5
 /** The hue of each band of Swirl and gems, in turns from the hue of the wing colour. */
 const PASTEL_TURNS: [number, RGB][] = [[0, [-0.1, 0, 0]], [0.25, [0.1, 0, 0]], [0.5, [0, 0, 0]], [0.75, [0.16, 0, 0]], [1, [-0.1, 0, 0]]]
-const AUTUMN: [number, RGB][] = [[0, [0.98, 0.82, 0.3]], [0.45, [0.96, 0.55, 0.2]], [0.8, [0.82, 0.25, 0.16]], [1, [0.5, 0.18, 0.12]]]
+/** Autumn leaf from the back to the edge: the hue in turns from the hue of the wing colour, the saturation and the lightness. */
+const AUTUMN: [number, RGB][] = [[0, [-0.07, 0.92, 0.72]], [0.45, [0, 0.9, 0.56]], [0.8, [0.05, 0.72, 0.42]], [1, [0.07, 0.6, 0.28]]]
 /** The hue of the curtains of Aurora, in turns from the hue of the wing colour. */
 const AURORA_TURNS: [number, RGB][] = [[0, [-0.14, 0, 0]], [0.35, [0, 0, 0]], [0.65, [0.16, 0, 0]], [1, [0.3, 0, 0]]]
 
@@ -242,15 +243,18 @@ export const DESIGNS: Design[] = [
     fx: { irid: 0.1, glitter: 0.5, glow: 1, back: 0.2 },
   },
   {
-    id: 'autumn', name: 'Autumn leaf', family: 'Nature', colour: 'Own colours',
-    line: 'A leaf in gold, orange and red, with pointed lobes.',
-    child: 'Each wing is a leaf of autumn with pointed lobes. It is gold near the back and red at the edge. A dark middle vein has side veins. The Sun shines through it.',
-    limit: 'It does not use the wing colour of the menu. It looks like Earth, not like Blossom Haven.',
+    id: 'autumn', name: 'Autumn leaf', family: 'Nature', colour: 'Wing colour',
+    line: 'A leaf with pointed lobes, bright at the back and deep at the edge.',
+    child: 'Each wing is a leaf with pointed lobes. It has a bright shade of the wing colour near the back and a deep shade at the edge, as a leaf that turns in autumn. A dark middle vein has side veins. The Sun shines through it.',
+    limit: 'It looks like a leaf of autumn only with a warm wing colour: Peach or Lemon. With Dewdrop it is a blue leaf.',
     panels: [{ from: 10, to: 82, length: 1.75, peak: 0.5, round: 0.5, scallop: [5, 0.3, 'spike'] }, { lower: true, from: -76, to: 0, length: 1.15, peak: 0.5, round: 0.5, scallop: [3, 0.3, 'spike'] }],
-    base: ({ x, y, rho }) => paint(ramp(AUTUMN, rho * 0.75 + noise(x * 3 + 7, y * 3) * 0.4), 0.88),
-    layers: () => [
-      { kind: 'leaf', twigs: 5, colour: [0.36, 0.15, 0.1], width: 0.016 },
-      { kind: 'edge', colour: [0.4, 0.16, 0.1], width: 0.02 },
+    base: ({ x, y, rho }, { wing }) => {
+      const [turn, saturation, lightness] = ramp(AUTUMN, rho * 0.75 + noise(x * 3 + 7, y * 3) * 0.4)
+      return paint(hsl(toHsl(wing)[0] + turn, saturation, lightness), 0.88)
+    },
+    layers: ({ wing }) => [
+      { kind: 'leaf', twigs: 5, colour: hsl(toHsl(wing)[0] + 0.07, 0.5, 0.18), width: 0.016 },
+      { kind: 'edge', colour: hsl(toHsl(wing)[0] + 0.07, 0.5, 0.2), width: 0.02 },
     ],
     fx: { irid: 0, glitter: 0.05, glow: 0, back: 0.8 },
   },

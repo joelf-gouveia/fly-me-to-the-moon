@@ -125,12 +125,12 @@ function startPage() {
 
     <section class="brief" aria-labelledby="brief-title">
       <div class="brief-title"><p class="eyebrow">05 / NOW IN THE GAME</p><h2 id="brief-title">The new rendering, and the twelve wings that you selected.</h2>
-        <p>The rendering gives more than a new shape gives: it makes the wing colour visible, and it makes the wing move with the light. You selected twelve wings on 3 October 2026: ${SELECTED.map(id => designById(id)!.name).join(', ')}. They fill four rows of three in the menu. Autumn leaf has fixed colours; each other wing takes the wing colour of the menu.</p></div>
+        <p>The rendering gives more than a new shape gives: it makes the wing colour visible, and it makes the wing move with the light. You selected twelve wings on 3 October 2026: ${SELECTED.map(id => designById(id)!.name).join(', ')}. They fill four rows of three in the menu. Each one takes the wing colour of the menu.</p></div>
       <div class="steps">
         <article><span>1</span><div><h3>One module for the wings</h3><p>The panels, the painter and the shader are in <code>src/fairy-wings/</code>. <code>createFairyRig()</code> uses it in place of its own wing loop. The wing beat of <code>pose()</code> did not change.</p></div></article>
         <article><span>2</span><div><h3>Petal, Luna and Flutter are gone from the menu</h3><p>A saved look with Petal gets Dew glass, which is the Petal shape. Luna gets Glitter vein, and Flutter gets Swirl and gems.</p></div></article>
         <article><span>3</span><div><h3>Twelve wings in the menu</h3><p><code>wingOptions</code> has the twelve wings. Each button of the menu shows a small picture of its wing in the wing colour of the look.</p></div></article>
-        <article><span>4</span><div><h3>Not done: the cost on a phone</h3><p>Measure the time to paint on a phone. If it is slow, paint at 256 pixels. The menu also does not show that the wing colour has no effect on Autumn leaf.</p></div></article>
+        <article><span>4</span><div><h3>Not done: the cost on a phone</h3><p>Measure the time to paint on a phone. If it is slow, paint at 256 pixels.</p></div></article>
       </div>
     </section>
 

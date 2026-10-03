@@ -77,7 +77,7 @@ the idea came from.
 | 13 | Frost | Nature | Wing colour | Sharp points on the edge | White frost ferns, crystals, much glitter | |
 | 14 | Starlight | Magic | Wing colour | Pointed upper, round lower | Night blue, stars with lines, edge in the wing colour | |
 | 15 | Petal bloom | Nature | Wing colour | Four petals with a notch | White middle, colour at the edge, gold points | |
-| 16 | Autumn leaf | Nature | Own colours | Pointed lobes | Gold to red, dark leaf veins | |
+| 16 | Autumn leaf | Nature | Wing colour | Pointed lobes | A bright shade at the back, a deep shade at the edge, dark leaf veins | |
 | 17 | Feather | Fabric | Wing colour | Tall, with feather tips | Three rows of feathers | |
 | 18 | Soap bubble | Magic | Own colours | Round | Almost clear, a film of colours, a white rim | |
 | 19 | Candy swirl | Magic | Wing colour | Round | Spiral stripes of a lollipop, sugar glitter | |
@@ -86,8 +86,7 @@ the idea came from.
 Joel selected twelve wings: Dew glass, Glitter vein, Leaf glass, Silk pleats, Rainbow
 cells, Swirl and gems, Monarch, Swallowtail, Frost, Starlight, Autumn leaf and Aurora.
 They include the five wings from the pictures. The menu shows three buttons in a row, so
-twelve wings fill four rows. Autumn leaf has fixed colours; each other selected wing
-takes the wing colour of the menu. The other eight wings stay in the study.
+twelve wings fill four rows. Each of the twelve takes the wing colour of the menu. The other eight wings stay in the study.
 
 ## The new rendering
 
@@ -189,8 +188,7 @@ paints only the wing of the look, so it holds the pictures of one wing.
   the wing pivots. The hair study measures them, and this study shows them as **Before**.
 - **The silhouette.** `setSilhouette()` shows each wing as a plain shape, with the
   outline from its picture.
-- **Not done.** The menu does not show that the wing colour has no effect on Autumn leaf.
-  The study did not measure a phone.
+- **Not done.** The study did not measure a phone.
 
 ## Limits and risks
 
@@ -204,9 +202,9 @@ paints only the wing of the look, so it holds the pictures of one wing.
   long hair in a turn. The study did not measure this.
 - **Phones.** The study did not measure a phone. The time to paint and the picture memory
   are the two numbers to measure.
-- **The wing colour.** Two wings do not use the wing colour of the menu: Autumn leaf
-  and Soap bubble. Autumn leaf is in the selection. When the player selects it, the menu
-  must show that the colour has no effect, or it must hide the colour.
+- **The wing colour.** One wing does not use the wing colour of the menu: Soap bubble.
+  It is not in the game. Autumn leaf looks like a leaf of autumn only with a warm wing
+  colour.
 - **Blossom Haven.** The clips show Earth. Blossom Haven is pink, so pink wings have less
   contrast there.
 

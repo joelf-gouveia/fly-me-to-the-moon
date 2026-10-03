@@ -143,9 +143,9 @@ describe('the text of the study', () => {
     expect(BEFORE_OPTIONS.map(option => BEFORE[option.id])).toEqual([...classicWings])
     expect(BEFORE_OPTIONS.map(option => option.name.toLowerCase())).toEqual([...classicWings])
   })
-  it('has the twelve selected wings, with the five wings from the pictures, and each but Autumn leaf takes the wing colour', () => {
+  it('has the twelve selected wings, with the five wings from the pictures, and each takes the wing colour', () => {
     expect(SELECTED.map(numberOf)).toEqual(['01', '02', '03', '04', '05', '06', '07', '11', '13', '14', '16', '20'])
-    for (const id of SELECTED) expect(DESIGNS.find(design => design.id === id)!.colour, id).toBe(id === 'autumn' ? 'Own colours' : 'Wing colour')
+    for (const id of SELECTED) expect(DESIGNS.find(design => design.id === id)!.colour, id).toBe('Wing colour')
     expect(Object.values(FROM_PICTURE).sort()).toEqual([1, 2, 3, 4, 5])
     for (const id of Object.keys(FROM_PICTURE)) expect(SELECTED).toContain(id)
   })
