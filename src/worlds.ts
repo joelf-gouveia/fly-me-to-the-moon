@@ -7,6 +7,8 @@ import { buildFoliage, GAME_LOOK } from './foliage/build'
 import type { FoliageUniforms } from './foliage/build'
 import { createFields, groundColour } from './foliage/zones'
 import { buildCottonCandyClouds } from './cotton-candy'
+import { createSeasonUniforms, seasonGround, seasonWater } from './seasons'
+import type { SeasonUniforms } from './seasons'
 import { createPopulation } from './creatures/population'
 import type { CreaturePopulation } from './creatures/population'
 import { CreatureObstacles } from './creatures/spherical'
@@ -41,6 +43,10 @@ export type World = {
   creatures?: CreaturePopulation
   /** Earth and Blossom Haven only: the wind and the night glow of the plants (src/foliage/build.ts). */
   foliage?: FoliageUniforms
+  /** Earth only: the look of its seasons (src/seasons.ts). updateEnvironment() in src/main.ts sets it. */
+  season?: SeasonUniforms
+  /** Earth only, after leanEarth() of src/seasons.ts: the lean of its axis. `rotation.y` stays the daily spin. */
+  tilt?: { angle: number; leanAngle: number; lean: THREE.Quaternion }
   /** The Moon only: the part of the hemisphere light on its ground. */
   earthshine?: THREE.IUniform<number>
   /** The seven planets only: the painted look of src/planet-paint.ts. */
@@ -117,11 +123,14 @@ export function homeCottageNormal() {
   return new THREE.Vector3(0, -1, 0)
 }
 
-/** Shared by the player's Earth start and the first nearby residents. */
+/**
+ * Shared by the player's Earth start and the first nearby residents. The meadow is in the leaf
+ * forest of the north, from 24° to 34°, where the seasons show (docs/seasons-study.md).
+ */
 export function meadowNormal(world: World) {
   const random = seededRandom(world.seed + 5), normal = new THREE.Vector3()
   for (let attempt = 0; attempt < 2000; attempt++) {
-    const y = random() * 0.9 - 0.45, angle = random() * Math.PI * 2
+    const y = 0.41 + random() * 0.15, angle = random() * Math.PI * 2
     normal.set(Math.sqrt(1 - y * y) * Math.cos(angle), y, Math.sqrt(1 - y * y) * Math.sin(angle))
     const sample = world.sample(normal.x, normal.y, normal.z)
     if (sample.height > 1.5 && sample.height < 5 && sample.river < 0.1) break
@@ -285,6 +294,8 @@ function buildGround(world: World) {
   const geometry = new THREE.SphereGeometry(1, width, height)
   const positions = geometry.attributes.position
   const colors = new Float32Array(positions.count * 3)
+  // The seasons read three numbers for each vertex: grass or not, the height, and the detail.
+  const seasonInfo = world.season ? new Float32Array(positions.count * 3) : null
   const direction = new THREE.Vector3()
   const sand = new THREE.Color(fairy ? 0xf6d6c1 : 0xd5c395)
   // The grass has the colour of its zone: a climate belt of Earth or a garden of Blossom Haven.
@@ -303,6 +314,7 @@ function buildGround(world: World) {
       else if (sample.height > (fairy ? 5.5 : 8.5)) color.copy(stone)
       else groundColour(GAME_LOOK[fairy ? 'fairy' : 'earth'], direction.x, direction.y, direction.z, sample, fields!, color)
       if (earth && (Math.abs(direction.y) > 0.9 || sample.height > 12)) color.copy(snow)
+      seasonInfo?.set([sample.height >= 0.7 && sample.height <= 8.5 && Math.abs(direction.y) <= 0.9 ? 1 : 0, sample.height, sample.detail], i * 3)
       color.multiplyScalar(0.87 + sample.detail * 0.22 + Math.max(0, sample.height) * 0.014)
     } else if (moon) moonGroundColor(direction, sample, color)
     else if (painter) painter(direction, sample, color)
@@ -311,6 +323,7 @@ function buildGround(world: World) {
     colors.set([color.r, color.g, color.b], i * 3)
   }
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+  if (seasonInfo) geometry.setAttribute('seasonInfo', new THREE.BufferAttribute(seasonInfo, 3))
   geometry.computeVertexNormals()
   if (moon) {
     const { material, earthshine } = createMoonMaterial()
@@ -319,6 +332,7 @@ function buildGround(world: World) {
   } else {
     const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.94 })
     if (isLookedPlanet(world.kind) && world.look) lookMaterial(material, world.kind, world.look)
+    if (world.season) seasonGround(material, world.season)
     world.surface.add(new THREE.Mesh(geometry, material))
   }
 
@@ -333,6 +347,7 @@ function buildGround(world: World) {
           float ripple = sin(waterPosition.x*2.8 + sin(waterPosition.z*1.9))*sin(waterPosition.z*3.1 + waterPosition.y*2.3);
           diffuseColor.rgb *= 0.95 + ripple*0.06;`)
     }
+    if (world.season) seasonWater(material, world.season)
     const waterGeometry = new THREE.SphereGeometry(world.radius, 256, 160)
     world.surface.add(new THREE.Mesh(waterGeometry, material))
     const obstacles = new CreatureObstacles()
@@ -443,6 +458,7 @@ export function createWorlds(scene: THREE.Scene, mobile = false, renderer?: THRE
       group, surface, clouds, sample: worldTerrain(kind, 1),
       seed: 1, visit: 0, armed: kind !== 'earth', gas: isGasWorld(kind), mobile,
       look: look ? createLookState() : undefined,
+      season: kind === 'earth' ? createSeasonUniforms() : undefined,
     }
     if (look) {
       // The real axial tilt. src/main.ts sets rotation.y; with the Euler order XYZ the planet turns about its tilted axis.

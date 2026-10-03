@@ -59,9 +59,11 @@ export function skyColor(profile: SkyProfile, light: Daylight, target: THREE.Col
 /**
  * Spin angle about +Y that puts a planet-local normal in mid-morning light.
  * Rising means positive spin carries the location toward the Sun.
+ * `lean` is the lean of the axis of a tilted world (Earth, src/seasons.ts); the spin is about that axis.
  */
-export function morningSpin(localNormal: THREE.Vector3, center: THREE.Vector3, sun: THREE.Vector3, targetElevation = 25) {
+export function morningSpin(localNormal: THREE.Vector3, center: THREE.Vector3, sun: THREE.Vector3, targetElevation = 25, lean?: THREE.Quaternion) {
   const toSun = sun.clone().sub(center).normalize()
+  if (lean) toSun.applyQuaternion(lean.clone().invert())
   const turned = new THREE.Vector3(), ahead = new THREE.Vector3(), axis = new THREE.Vector3(0, 1, 0)
   let best = 0, bestError = Infinity
   for (let step = 0; step < 360; step++) {

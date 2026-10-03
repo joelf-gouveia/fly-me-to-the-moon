@@ -1,45 +1,19 @@
 import * as THREE from 'three'
 import type { World } from '../../src/worlds'
-import { foliageMaterial } from '../../src/foliage/build'
-import { SPECIES } from '../../src/foliage/species'
-import type { SpeciesId } from '../../src/foliage/species'
-import { declination, EARTH_TILT, LOOK_LAG, PALETTE, SEASON_BAND, SNOW_LAPSE } from './model'
+import { setSeason } from '../../src/seasons'
+import { EARTH_TILT } from './model'
 
 /**
- * The prototype of the seasons of Earth, on the real Earth of the game. It adds to the materials
- * that createWorlds() made: the ground, the water and the plants of src/foliage/. The season of a
- * fragment comes from its latitude and from three numbers, so a change of season is a change of
- * uniforms only: no new mesh and no new texture.
+ * The study tools for the seasons: the lean of a world for a day of the year, the shader helper of
+ * the magic seasons (magic.ts), and the things in the air.
  *
- * It also leans the world on its axis (option A of the study) and adds petals, leaves and snow.
- * The magic seasons of Blossom Haven are in magic.ts. The game does not use this file.
+ * The seasons of Earth are in the game now (src/seasons.ts): the ground, the water and the plants
+ * of Earth read the uniforms of `world.season`. The study sets these uniforms for its clips. The
+ * first rounds of the study had the shader of Earth in this file.
  */
 const RAD = Math.PI / 180
 export const glsl = (hex: number) => { const c = new THREE.Color(hex); return `vec3(${c.r.toFixed(4)}, ${c.g.toFixed(4)}, ${c.b.toFixed(4)})` }
-/** A colour as a factor of the base colour, so the shade of each vertex stays. */
-export const factor = (hex: number, base: number) => { const c = new THREE.Color(hex), b = new THREE.Color(base); return `vec3(${(c.r / b.r).toFixed(4)}, ${(c.g / b.g).toFixed(4)}, ${(c.b / b.b).toFixed(4)})` }
-const sine = (degrees: number) => Math.sin(degrees * RAD).toFixed(4)
 
-/** The plants of src/foliage/species.ts that lose their leaves. The pines, the palms and the cactus stay green. */
-const LEAF_PLANTS: SpeciesId[] = ['oak', 'birch', 'bush']
-const SMALL_PLANTS: SpeciesId[] = ['grass', 'flowers', 'fern', 'reeds']
-
-const COMMON = /* glsl */`
-uniform float seasonQ; uniform vec2 seasonDecl; uniform float seasonOn;
-float seasonStrength(float sLat) { return smoothstep(${sine(SEASON_BAND.none)}, ${sine(SEASON_BAND.full)}, abs(sLat)); }
-// The sine of the noon height of the Sun: warmth() of model.ts.
-float seasonWarm(float sLat) { return sqrt(max(0.0, 1.0 - sLat * sLat)) * seasonDecl.y + sLat * seasonDecl.x; }
-// The south is half a year after the north. The switch is at the equator, where the season is 0.
-float seasonPhase(float sLat) { return fract(seasonQ + (sLat < 0.0 ? 0.5 : 0.0)); }
-vec3 seasonRamp(float q, vec3 a, vec3 b, vec3 c, vec3 d) {
-  float x = fract(q) * 4.0; float t = smoothstep(0.0, 1.0, fract(x));
-  return x < 1.0 ? mix(a, b, t) : x < 2.0 ? mix(b, c, t) : x < 3.0 ? mix(c, d, t) : mix(d, a, t);
-}
-float seasonRamp(float q, vec4 v) {
-  float x = fract(q) * 4.0; float t = smoothstep(0.0, 1.0, fract(x));
-  return x < 1.0 ? mix(v.x, v.y, t) : x < 2.0 ? mix(v.y, v.z, t) : x < 3.0 ? mix(v.z, v.w, t) : mix(v.w, v.x, t);
-}
-`
 /** The place of a plant: the translation of its instance matrix. A plant needs no new attribute. */
 export const INSTANCE_PLACE = /* glsl */`
 #ifdef USE_INSTANCING
@@ -116,105 +90,18 @@ export function createPose(world: World, sunPosition: THREE.Vector3) {
 
 export type Seasons = ReturnType<typeof createSeasons>
 
+/** The seasons of Earth for a clip: the uniforms of the game, and the lean of the study. */
 export function createSeasons(world: World, sunPosition: THREE.Vector3) {
-  const uniforms = { seasonQ: { value: 0 }, seasonDecl: { value: new THREE.Vector2(0, 1) }, seasonOn: { value: 1 } }
-  const snowAt = `(1.0 - smoothstep(${PALETTE.snowLine.low.toFixed(3)}, ${PALETTE.snowLine.high.toFixed(3)}, warm))`
-  const tints = PALETTE.ground.map(colour => factor(colour, PALETTE.base)).join(', ')
-
-  // ---- The ground: a mark for each vertex, then the season in the fragment.
-  const ground = markGround(world, 8.5, true), water = world.surface.children[1] as THREE.Mesh
-  patch(ground.material as THREE.Material, uniforms, COMMON, {
-    key: 'earth-ground',
-    vertexPars: 'attribute vec3 seasonInfo; varying vec3 vSeasonInfo;',
-    vertex: 'vSeasonDir = normalize(position); vSeasonInfo = seasonInfo;',
-    fragment: /* glsl */`{
-      float sLat = vSeasonDir.y;
-      float warm = seasonWarm(sLat) - max(vSeasonInfo.y, 0.0) * ${SNOW_LAPSE.toFixed(4)} + vSeasonInfo.z * 0.03;
-      vec3 tint = seasonRamp(seasonPhase(sLat), ${tints});
-      vec3 lived = mix(diffuseColor.rgb, diffuseColor.rgb * tint, seasonStrength(sLat) * vSeasonInfo.x);
-      lived = mix(lived, ${glsl(PALETTE.snow)} * (0.92 + vSeasonInfo.z * 0.08), ${snowAt});
-      diffuseColor.rgb = mix(diffuseColor.rgb, lived, seasonOn);
-    }`,
-  })
-
-  // ---- The water: ice near a cold pole.
-  patch(water.material as THREE.Material, uniforms, COMMON, {
-    key: 'earth-water',
-    fragment: /* glsl */`
-      float seasonWobble = sin(vSeasonDir.x * 41.0 + vSeasonDir.z * 23.0) * sin(vSeasonDir.y * 37.0 + vSeasonDir.x * 17.0) * 0.02;
-      float seasonIce = (1.0 - smoothstep(${PALETTE.iceLine.low.toFixed(3)}, ${PALETTE.iceLine.high.toFixed(3)}, seasonWarm(vSeasonDir.y) + seasonWobble)) * seasonOn;
-      diffuseColor.rgb = mix(diffuseColor.rgb, ${glsl(PALETTE.ice)}, seasonIce);`,
-    roughness: 'roughnessFactor = mix(roughnessFactor, 0.85, seasonIce);',
-  })
-
-  // ---- The plants of src/foliage/build.ts. The game gives all the plants of a world two materials.
-  // The study gives each kind its own material, so each kind can have its own season.
-  const tops = `${snowAt} * seasonOn * smoothstep(0.8, 2.2, vSeasonTop) * 0.9`
-  for (const object of world.surface.children) {
-    if (!(object instanceof THREE.InstancedMesh) || !object.name.startsWith('foliage-')) continue
-    const kind = object.name.slice(8) as SpeciesId
-    const material = foliageMaterial(SPECIES[kind].gloss, world.foliage!)
-    object.material = material
-    if (LEAF_PLANTS.includes(kind)) {
-      // A leaf tree or a bush: blossom, then its own green, then autumn colours, then a thin bare crown.
-      // aFoliage.x marks the leaves: the part that the game paints with the colour of the instance.
-      patch(material, uniforms, COMMON, {
-        key: 'earth-leaf',
-        vertexPars: 'varying float vSeasonHash; varying float vSeasonTop; varying float vSeasonLeaf;',
-        vertex: /* glsl */`${INSTANCE_PLACE}
-          vSeasonTop = position.y; vSeasonLeaf = aFoliage.x;
-          float seasonBare = seasonOn * seasonStrength(vSeasonDir.y) * seasonRamp(seasonPhase(vSeasonDir.y), vec4(0.0, 0.0, 0.1, 1.0));
-          transformed.xz *= 1.0 - 0.7 * seasonBare * aFoliage.x;`,
-        fragment: /* glsl */`{
-          float sLat = vSeasonDir.y, strength = seasonStrength(sLat) * seasonOn;
-          vec3 blossom = mix(${glsl(0x9fd060)}, ${glsl(0xf7b6cf)}, step(0.5, fract(vSeasonHash * 13.0)));
-          vec3 autumn = mix(${glsl(0xe08a2a)}, ${glsl(0xc0432a)}, fract(vSeasonHash * 7.0));
-          vec3 leaf = seasonRamp(seasonPhase(sLat), blossom, diffuseColor.rgb, autumn, ${glsl(0x6f5f4d)});
-          diffuseColor.rgb = mix(diffuseColor.rgb, leaf, strength * vSeasonLeaf);
-          float warm = seasonWarm(sLat);
-          diffuseColor.rgb = mix(diffuseColor.rgb, ${glsl(PALETTE.snow)}, ${tops});
-        }`,
-      })
-    } else if (SMALL_PLANTS.includes(kind)) {
-      // Grass, ferns, reeds and flowers: the colour of the ground, and no plant under the snow.
-      // The flowers are out in spring and in summer only.
-      patch(material, uniforms, COMMON, {
-        key: `earth-small-${kind === 'flowers'}`,
-        vertexPars: 'varying float vSeasonHash;',
-        vertex: /* glsl */`${INSTANCE_PLACE}
-          { float warm = seasonWarm(vSeasonDir.y); transformed *= 1.0 - ${snowAt} * seasonOn;
-            ${kind === 'flowers' ? 'transformed *= mix(1.0, seasonRamp(seasonPhase(vSeasonDir.y), vec4(1.0, 1.0, 0.15, 0.0)), seasonOn * seasonStrength(vSeasonDir.y));' : ''} }`,
-        fragment: kind === 'flowers' ? '' : /* glsl */`{
-          vec3 tint = seasonRamp(seasonPhase(vSeasonDir.y), ${tints});
-          diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * tint, seasonStrength(vSeasonDir.y) * seasonOn);
-        }`,
-      })
-    } else {
-      // Pines, palms, cactus and rocks keep their colour. They get snow on their tops in the cold.
-      patch(material, uniforms, COMMON, {
-        key: 'earth-evergreen',
-        vertexPars: 'varying float vSeasonHash; varying float vSeasonTop;',
-        vertex: `${INSTANCE_PLACE}\nvSeasonTop = position.y;`,
-        fragment: /* glsl */`{
-          float warm = seasonWarm(vSeasonDir.y);
-          diffuseColor.rgb = mix(diffuseColor.rgb, ${glsl(PALETTE.snow)}, ${tops});
-        }`,
-      })
-    }
-  }
-
+  const uniforms = world.season!
+  let on = 1
   return {
     world, uniforms,
-    /** Option A leans the axis; option B and the game of today keep it straight. */
+    /** Option A leans the axis; option B and the look with no season keep it straight. */
     pose: createPose(world, sunPosition),
     /** The look of a day of the year. `tilt` sets how far the snow line moves. */
-    setLook(year: number, tilt = EARTH_TILT) {
-      const sun = declination(year - LOOK_LAG, tilt) * RAD
-      uniforms.seasonQ.value = year - LOOK_LAG
-      uniforms.seasonDecl.value.set(Math.sin(sun), Math.cos(sun))
-    },
-    /** 0 is the game of today, 1 is the seasons. */
-    setOn(value: number) { uniforms.seasonOn.value = value },
+    setLook(year: number, tilt = EARTH_TILT) { setSeason(uniforms, year, tilt); uniforms.seasonOn.value = on },
+    /** 0 is the look with no season, 1 is the seasons. */
+    setOn(value: number) { on = value; uniforms.seasonOn.value = value },
   }
 }
 

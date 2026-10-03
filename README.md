@@ -219,6 +219,28 @@ picture nearest the middle of the view shows a caption with its ESA/Webb credit;
 **Settings** lists every credit. Sources and
 limits are in [Star scenery data](docs/star-data.md).
 
+## Seasons
+
+Earth has seasons. Its axis leans 23.4°, as the axis of the real Earth does, and one orbit
+is one year: 60 minutes at 1× World speed. The year starts at the real date of the device,
+so in October the north of the game is in autumn. The place changes the season: the north
+has summer while the south has winter, the lands near the equator have no season, and near
+a pole the Sun does not set in summer and does not rise in winter. The noon Sun is high
+in summer and low in winter, and the days are long in summer and short in winter.
+
+The grass takes the colour of its season. The broadleaf trees, the birches and the bushes
+get blossom in spring and gold and red leaves in autumn, and they are bare in winter. The
+pines, the palms and the cactus stay green. The flowers are out in spring and summer. The
+snow line comes down to 28° in winter, mountains get snow first, and the sea near a cold
+pole has ice. Petals, leaves or snow fall near the fairy. The flight starts in the leaf
+forest of the north, from 24° to 34°. The season code is in `src/seasons.ts` and
+`src/season-air.ts`; the [seasons study](docs/seasons-study.md) gives the model and the
+decisions. Blossom Haven has no seasons yet; the study gives it four magic seasons.
+
+Run `node scripts/seasons-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+lean, the year from the real date, the start in each season and the air. On the dev
+server, `/?test&year=0.875` starts in the winter of the north.
+
 ## Blossom Haven
 
 The flower button leads to a candy home with half Earth's diameter (radius 137.5,
@@ -857,9 +879,9 @@ and free flight. Its controls do not change the game.
 
 For Earth the study compares **A — Real tilt** (the axis leans 23.4° and the orbit makes
 the year) with **B — Painted year** (no tilt; a season clock paints each latitude). The
-recommendation is A, with the year started at the real date. For Blossom Haven the
-recommendation is the four magic seasons with no tilt, and the next season at each hop of
-the planet. The [technical study](docs/seasons-study.md) gives the findings, the model,
+game now uses A, with the year started at the real date; see [Seasons](#seasons). For
+Blossom Haven the decision is the four magic seasons with no tilt, and the next season at
+each hop of the planet. They are not in the game yet. The [technical study](docs/seasons-study.md) gives the findings, the model,
 the change for each part and the limits. The clips are in `public/studies/seasons/`. Run
 `node studies/seasons-study/seasons-study-capture.mjs "path/to/chrome.exe" E1,E2` against
 port 5174 to record the clips of E1 and E2 again.

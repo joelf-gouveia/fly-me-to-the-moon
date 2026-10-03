@@ -111,7 +111,7 @@ describe('sparkle ring placement', { timeout: 120000 }, () => {
   })
 
   it('starts the first Earth line ahead of the fairy at the meadow', () => {
-    const earth = built('earth', 44)
+    const earth = built('earth', 41)
     const meadow = meadowNormal(earth)
     const heading = new THREE.Vector3().crossVectors(meadow, new THREE.Vector3(0, 1, 0)).normalize()
     const start = meadow.clone().multiplyScalar(surfaceRadius(earth, meadow) + 7)

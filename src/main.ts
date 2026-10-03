@@ -13,6 +13,8 @@ import { createComet } from './comet-sky'
 import { createShootingStars, shootingStarDark } from './shooting-stars'
 import { CANDY_MIST, flossTime } from './cotton-candy'
 import { foliageWind, zoneNameAt } from './foliage/build'
+import { fallAt, leanEarth, seasonAt, setSeason, yearOf, yearOfDate } from './seasons'
+import { createSeasonAir } from './season-air'
 import { touchesBelt } from './belt'
 import { earthshineAt, MOON, moonlightAt } from './moon'
 import { PROPORTIONS } from './proportions'
@@ -300,11 +302,17 @@ fairy.add(fairyLight)
 // Start over a temperate meadow in mid-morning light, with the camera looking
 // along the horizon. Earth's spin then carries the meadow through the day.
 const meadow = meadowNormal(earth)
-earth.group.rotation.y = morningSpin(meadow, earth.group.position, sun.group.position)
+// Earth leans 23.4°, and its year starts at the real date: in October the north is in autumn
+// (docs/seasons-study.md). A browser check can give the year: ?test&year=0.875 is the coldest look of the north.
+const testYear = import.meta.env.DEV ? new URLSearchParams(location.search).get('year') : null
+leanEarth(earth, sun.group.position, testYear === null ? yearOfDate(new Date()) : Number(testYear))
+const seasonAir = createSeasonAir(earth, touchDevice ? 260 : 520)
+earth.group.rotation.y = morningSpin(meadow, earth.group.position, sun.group.position, 25, earth.tilt!.lean)
 earth.group.updateMatrixWorld()
 const earthOutward = meadow.clone().applyQuaternion(earth.group.quaternion)
 fairy.position.copy(earth.group.position).addScaledVector(earthOutward, surfaceRadius(earth, earthOutward) + 7)
-const initialForward = new THREE.Vector3().crossVectors(earthOutward, new THREE.Vector3(0, 1, 0)).normalize()
+// The heading is in the frame of Earth, as the first ring line of src/rings.ts: Earth leans, so its north is not the world Y axis.
+const initialForward = new THREE.Vector3().crossVectors(meadow, new THREE.Vector3(0, 1, 0)).normalize().applyQuaternion(earth.group.quaternion)
 orientFlight(fairy.quaternion, initialForward, earthOutward)
 scene.add(fairy)
 
@@ -861,6 +869,13 @@ function updateCamera(delta: number) {
 let skyVisibility = 1
 // Shooting stars come only in a dark sky inside the air (src/shooting-stars.ts).
 let meteorDark = 0
+// The year of Earth, from 0 to 1 (src/seasons.ts), and the latitude of the fairy on Earth in degrees.
+let earthYear = 0
+const earthLocal = new THREE.Vector3(), earthTurn = new THREE.Quaternion()
+function earthLatitude() {
+  earthLocal.copy(fairy.position).sub(earth.group.position).normalize().applyQuaternion(earthTurn.copy(earth.group.quaternion).invert())
+  return THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(earthLocal.y, -1, 1)))
+}
 function updateEnvironment() {
   const world = nearestWorld
   const altitude = camera.position.distanceTo(world.group.position) - world.radius
@@ -903,6 +918,11 @@ function updateEnvironment() {
   const moonlight = world === earth ? moonlightAt(fairy.position, normal, moon.group.position, sun.group.position) : null
   nightFill.intensity = 0.45 * light.night * density * (moonlight?.strength ?? 1)
   nightFill.target.position.copy(fairy.position)
+  // The season of Earth comes from its place on its orbit. Petals, leaves or snow fall near the fairy.
+  earthYear = yearOf(earth, sun.group.position)
+  setSeason(earth.season!, earthYear)
+  const falls = world === earth && altitude < 60 ? fallAt(earthLatitude(), earthYear) : { fall: null, amount: 0 }
+  seasonAir.update(reducedMotion.matches ? 0 : elapsed, timer.getDelta(), camera.position, falls.fall, falls.amount)
   // The toadstools, the crystals and the flowers of Blossom Haven glow at night.
   if (home.foliage) home.foliage.glow.value = world === home ? light.night * 1.5 : 0
   fillDirection.copy(normal).multiplyScalar(300).add(fillOffset).normalize()
@@ -1095,6 +1115,10 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       visible: comet.group.visible, trailSize: trailMaterial.size, ...comet.stats,
     },
     shootingStars: { ...shootingStars.stats, dark: meteorDark },
+    season: {
+      year: earthYear, on: earth.season!.seasonOn.value, tilt: earth.tilt!.angle, latitude: earthLatitude(), name: seasonAt(earthLatitude(), earthYear),
+      air: seasonAir.shown, airVisible: seasonAir.points.visible,
+    },
     sun: { look: sun.sunLook!.root.name, tint: sunTint.getHexString(), turn: sun.sunLook!.prominences?.rotation.y ?? 0, position: sun.group.position.toArray() },
     sky: {
       visibility: stars.visibility, pictures: stars.picturesShown,

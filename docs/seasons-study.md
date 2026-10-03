@@ -1,8 +1,60 @@
 # A year on two worlds: seasons study
 
-Status: a study, 3 October 2026, second round. Open `/studies/seasons-study.html` on the
-Vite server. The study does not change the game or saved game data. It saves its own
-answers as `fairy-seasons-study-v1`.
+Status: decided on 3 October 2026. The game has the seasons of Earth; see "In the game"
+below. The magic seasons of Blossom Haven are the next step. Open
+`/studies/seasons-study.html` on the Vite server. The controls of the study do not change
+the game or saved game data. It saves its own answers as `fairy-seasons-study-v1`.
+
+## Decisions of 3 October 2026
+
+| Decision | Answer |
+| --- | --- |
+| 1. What makes the seasons on Earth? | A: the real tilt of 23.4°. |
+| 2. When does the Earth year start, and how fast does it go? | It starts at the real date of the device. One orbit is one year. |
+| 3. Where does the flight start on Earth? | In the leaf forest, 24° to 34° N. |
+| 4. Which magic seasons does Blossom Haven get? | All four: Blossom time, Bubble time, Lantern time and Crystal time. |
+| 5. How does a magic season go over the planet? | Rings from the cottage. |
+| 6. When does the magic season change? | At each hop of the planet: a year is 20 minutes. |
+| 7. What happens at the cottage? | The cottage is the first place of each season. |
+| 8. What comes next? | Earth first, then Blossom Haven. |
+
+## In the game
+
+The game has the seasons of Earth, with decisions 1 to 3. Blossom Haven has no change yet.
+
+| Part | Where |
+| --- | --- |
+| The model, the lean and the shader changes | `src/seasons.ts` |
+| Petals, leaves and snow in the air | `src/season-air.ts` |
+| The season uniforms of Earth, the `seasonInfo` attribute of the ground, the start meadow | `createWorlds()`, `buildGround()` and `meadowNormal()` in `src/worlds.ts` |
+| One material for each way that a plant changes | `addFoliage()` in `src/foliage/build.ts` |
+| The lean at the start, the year on each frame | `leanEarth()` at the start and `updateEnvironment()` in `src/main.ts` |
+| The morning Sun of a leaned world | `morningSpin()` in `src/daylight.ts` |
+| Unit tests | `tests/seasons.test.ts` |
+| Browser check | `scripts/seasons-smoke.mjs` |
+
+How it differs from the proposal of this study:
+
+- **The lean has no new quaternion in the loop.** `leanEarth()` sets the Euler order of the
+  group of Earth to ZXY and sets `rotation.x` and `rotation.z`. `rotation.y` stays the
+  daily spin, so `animate()`, the studies and the tests that set `rotation.y` need no
+  change.
+- **The game leans Earth, not `createWorlds()`.** A study that calls `createWorlds()` gets
+  an Earth with a straight axis and with the seasons off (`seasonOn` is 0), which is the
+  look of before. This study sets the uniforms of the game for its Earth clips; its own
+  Earth shader is gone from `studies/seasons-study/seasons.ts`.
+- **The year comes from the geometry.** `yearOf()` reads the angle of the Sun around
+  Earth, so the orbit, World speed and a pause all agree with the season.
+- **The plants need no new attribute.** `plantSeason()` gives each kind of plant one of
+  four ways to change, and `addFoliage()` makes one material for each way: 8 materials at
+  most for Earth, in place of 2.
+- **The first heading of the fairy is in the frame of Earth**, as the first line of
+  sparkle rings is. Before, it used the world Y axis, which is not the north of a leaned
+  Earth.
+- A browser check can set the year: `/?test&year=0.875` starts in the coldest look of the
+  north. This works on the dev server only.
+
+The line numbers in the next sections describe the game before these changes.
 
 The first round gave the two worlds the seasons of Earth. The review of 3 October 2026
 said:
