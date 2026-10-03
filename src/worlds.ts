@@ -335,7 +335,7 @@ function buildGround(world: World) {
     } else obstacles = buildVegetation(world)
     const anchor = fairy ? new THREE.Vector3(0, -1, -0.12).normalize() : meadowNormal(world)
     const populationSeed = fairy ? (Math.random() * 0xffffffff) >>> 0 : world.seed ^ 0x71ac
-    world.creatures = createPopulation(world.group, geometry, waterGeometry, world.radius, fairy, obstacles, populationSeed, anchor, world.mobile ? 14 : 28)
+    world.creatures = createPopulation(world.group, geometry, waterGeometry, world.radius, fairy, obstacles, populationSeed, anchor, world.mobile ? 14 : 28, world.mobile)
   }
 }
 
