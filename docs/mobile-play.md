@@ -15,7 +15,8 @@ pictures, orbit paths and world speed), **Stop following** while the flower guid
 on, and flight details. Opening the menu pauses
 flight and the home relocation clock; closing it returns to the preceding pause
 state. Switching apps, losing focus or losing the graphics context pauses the
-game until **Keep flying** is tapped. Sound is muted while paused/backgrounded.
+game until **Keep flying** is tapped. Sound is muted while paused/backgrounded, and the voice
+of a new sticker stops. On iOS the tap on the Sound switch also lets the voice play later.
 
 Appearance and home discovery remain saved in this browser. Flight location is
 not saved, and progress is not synchronized across devices. Keyboard controls

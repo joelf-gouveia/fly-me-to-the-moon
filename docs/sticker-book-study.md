@@ -10,6 +10,11 @@ Later on 27 September 2026 the book moved into **Worlds**, and the worlds open o
 time: option D of [the world book study](world-book-study.md). The table below records
 option A as it was built.
 
+On 3 October 2026 the English voice came into the game: F2 of
+[the feature ideas study](feature-ideas-study.md), in `src/spoken-facts.ts`. A new sticker plays
+its hello line after the chime, and the note lights each word. The Portuguese voice stays in
+the study.
+
 ## What the game now does
 
 | Area | Implementation |

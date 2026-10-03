@@ -194,6 +194,19 @@ Earth sticker comes when she flies out to space and comes back: the same new
 visit that makes a new landscape. A note shows the new sticker and one short fact, and the chime plays
 when the sound is on. Every fourth sticker has a bigger note.
 
+The voice reads the note, so a child who cannot read yet hears the fact. With **Sound** on, a
+soft recorded voice says the name of the world and its fact, a moment after the chime
+(0.5 s, or 0.9 s after the longer chime of every fourth sticker). A small speaker mark in the
+note moves while the voice speaks, and each word lights up when the voice says it. The words
+share the length of the recording by their letters (`wordTimes()` in `src/spoken-facts.ts`).
+The voice stops when the game pauses, when the page hides, when **Sound** goes off and when the
+next line starts. The game has one audio element for the voice, so two lines never play together.
+With **Sound** off, the note has no speaker mark and no light. The lines are the hello lines of the
+sticker book study, in English only: `public/voice/en/af_heart/hello-<world>.mp3`, about 18 KB each,
+loaded when the sticker comes. A change of a fact needs a new recording (see the
+[sticker book study](#sticker-book-study)); a test compares each fact with
+`public/voice/manifest.json`. The voice is F2 of the [feature ideas study](#feature-ideas-study).
+
 The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
 for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
 card to read its fact or a hint, then **Fly there** for a guided flight. A card with its
@@ -211,9 +224,9 @@ guide. The Sun is on the map from the start, but it opens in its turn.
 The book is saved in this browser as `fairy-sticker-book`. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
 stickers, their facts and the rule of the open worlds are in `src/stickers.ts`; the book
-is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). This is option A of
-the sticker book study below, without the voice, in the one book of option D of the world
-book study.
+is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). The voice is
+`src/spoken-facts.ts`. This is option A of the sticker book study below, with the English
+voice, in the one book of option D of the world book study.
 
 Run `node scripts/sticker-book-smoke.mjs "path/to/chrome.exe"` against the dev
 server for no sticker at the start, the book in **Worlds**, the next door and the
@@ -221,14 +234,20 @@ locks, **Fly there** to the Moon, the Earth sticker after the return, the saved 
 and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
 
+Run `node scripts/spoken-facts-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+voice: no voice with the sound off, the line after the chime with the speaker mark and the lit
+words, the end of the line, the stop at a pause, when the page hides and when the sound goes off,
+one audio element, and the note at 390 px. An optional second argument sets the server origin.
+
 ## Settings
 
 The gear button beside the fairy button opens **Settings**, a panel for
 grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
 open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts:
 
-- **Sound**: the soft hum and the chimes. The switch is a tap, so the browser lets
-  the sound start. It is off at each visit.
+- **Sound**: the soft hum, the chimes and the voice that reads each new sticker. The
+  switch is a tap, so the browser lets the sound start; on a phone, the same tap lets the
+  voice play later. It is off at each visit.
 - **In the sky**: **Star pictures**, **Orbit paths** and **World speed** (1×, 8×,
   16×, 32× or 64×). **Orbit paths** shows the coloured lines in the sky only; the
   **Worlds** map always shows its paths. The two switches stay after a reload
@@ -488,8 +507,8 @@ fairy arrives, and a voice says one short fact. Compare three options:
 (the child puts each sticker on its path around the Sun). Pretend to fly,
 collect stickers, turn the voice and the words on or off, and export the
 settings. The study saves its own book; its controls do not change the game.
-The game now uses option A without the voice; see [Sticker book](#sticker-book).
-The voice stays in the study for later.
+The game now uses option A with the English voice; see [Sticker book](#sticker-book).
+The Portuguese voice stays in the study for later.
 
 The [technical study](docs/sticker-book-study.md) covers the arrival test, the
 voice, every spoken line, the checks for the search tasks, and the steps to
@@ -695,7 +714,8 @@ study code. **Sound** plays the chimes, the voice and the songs in step with the
 **Fly it live** runs the idea in live 3D. Pick the ideas at the end of the page. Its
 controls do not change the game.
 
-The recommendation is F1, F2, F3 and F5 first. The [technical study](docs/feature-ideas-study.md)
+The recommendation is F1, F2, F3 and F5 first. F2 (spoken facts) is now in the game; see
+[Sticker book](#sticker-book). The [technical study](docs/feature-ideas-study.md)
 gives the findings, the place of each change, the limits and how the clips were made. The
 clips are in `public/studies/feature-ideas/`. Run
 `node studies/feature-ideas-study/feature-ideas-study-capture.mjs "path/to/chrome.exe" F1,F2`

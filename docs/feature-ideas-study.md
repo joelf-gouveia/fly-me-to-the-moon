@@ -106,6 +106,14 @@ and the note says "You found a duck!" with a star on the sticker.
 A new sticker shows, and a soft voice says its name and its fact. The words of the fact
 light up with the voice. The voice speaks only when Sound is on.
 
+Status: in the game on 3 October 2026, in English only. `src/spoken-facts.ts` plays the
+hello line 0.5 s after the chime (0.9 s after the longer chime of every fourth sticker), with one
+audio element. The note in `src/sticker-book.ts` shows the speaker mark and lights each word.
+The word times come from the length of the recording, shared by the letters of each word, not
+from the loudness. The voice stops at a pause, when the page hides, when Sound goes off and when
+the next line starts. A language setting is not part of this change. See the Sticker book part of
+`README.md` and `scripts/spoken-facts-smoke.mjs`.
+
 - Change: play `public/voice/en/af_heart/hello-<world>.mp3` from the `chime` action of
   `createStickerBook()` in `src/main.ts`. Stop it in `setPaused(true)` and when the page
   hides.
