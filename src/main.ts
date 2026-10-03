@@ -507,18 +507,25 @@ function discoverHome() {
   try { localStorage.setItem('fairy-home-found', 'true') } catch { /* Keep discovery for this visit. */ }
   playChime([523.25, 659.25, 783.99])
 }
+/** A soft two-note chime for a creature hello. Hellos close together share one chime. */
+let lastHelloChime = -Infinity
+function playHelloChime() {
+  if (elapsed - lastHelloChime < 1) return
+  lastHelloChime = elapsed
+  playChime([1046.5, 1318.51], 0.03, 0.14)
+}
 /** A soft rising chime when the sound is on: the home discovery and each new sticker. */
-function playChime(notes: number[]) {
+function playChime(notes: number[], volume = 0.055, gap = 0.2) {
   if (!soundOn || !audioContext || !audioGain) return
   const now = audioContext.currentTime
   for (const [index, frequency] of notes.entries()) {
     const tone = audioContext.createOscillator(), gain = audioContext.createGain()
     tone.frequency.value = frequency
-    gain.gain.setValueAtTime(0, now + index * 0.2)
-    gain.gain.linearRampToValueAtTime(0.055, now + index * 0.2 + 0.08)
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.2 + 1.1)
+    gain.gain.setValueAtTime(0, now + index * gap)
+    gain.gain.linearRampToValueAtTime(volume, now + index * gap + 0.08)
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + index * gap + 1.1)
     tone.connect(gain).connect(audioGain)
-    tone.start(now + index * 0.2); tone.stop(now + index * 0.2 + 1.2)
+    tone.start(now + index * gap); tone.stop(now + index * gap + 1.2)
     tone.onended = () => { tone.disconnect(); gain.disconnect() }
   }
 }
@@ -953,6 +960,8 @@ function animate(timestamp?: number) {
   for (const world of worlds) {
     world.clouds.rotation.y += delta * 0.001
     world.creatures?.update(delta, camera.position)
+    // After update(): the hop and the turn go over the place on the route.
+    if (world.creatures?.greet(delta, fairy.position)) playHelloChime()
     world.animate?.(reducedMotion.matches ? 0 : elapsed)
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
@@ -1031,9 +1040,52 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       kinds: [...new Set(world.creatures!.residents.map(resident => resident.kind))],
       visible: world.creatures!.group.children.filter(model => model.visible).map(model => ({
         name: model.name, position: model.position.toArray(), fairytale: model.userData.fairytale ?? null,
+        distance: model.getWorldPosition(new THREE.Vector3()).distanceTo(fairy.position),
       })),
+      hellos: world.creatures!.helloState(),
     })),
-  }) } })
+    hellos: worlds.reduce((sum, world) => sum + (world.creatures?.helloState().count ?? 0), 0),
+  }),
+  /**
+   * Puts the fairy low over the ground near a creature, for the hello check. She flies toward
+   * the creature from `back` metres away, `altitude` metres over the ground. The creature is
+   * `side` metres to her right. Hover holds her still.
+   */
+  approach: (name: string, back = 10, altitude = 2.4, hover = false, side = 0) => {
+    const world = worlds.find(item => item.creatures?.group.getObjectByName(name))
+    const model = world?.creatures!.group.getObjectByName(name)
+    if (!world || !model) return false
+    const at = model.getWorldPosition(new THREE.Vector3())
+    const up = at.clone().sub(world.group.position).normalize()
+    const heading = forward.clone().addScaledVector(up, -forward.dot(up))
+    if (heading.lengthSq() < 0.01) heading.crossVectors(up, new THREE.Vector3(1, 0, 0))
+    heading.normalize()
+    const start = at.addScaledVector(heading, -back).addScaledVector(new THREE.Vector3().crossVectors(heading, up), -side)
+    const normal = start.clone().sub(world.group.position).normalize()
+    destination = null
+    homeGuide.stop()
+    if (hoverHeld !== hover) toggleHover()
+    placeFairy(world.group.position.clone().addScaledVector(normal, surfaceRadius(world, normal) + altitude), heading, normal)
+    return true
+  },
+  /** Puts the fairy at the end of the flower guide. The guide arrives on the next frame. */
+  arriveHome: () => {
+    const normal = guideTarget.clone().sub(home.group.position).normalize()
+    const heading = homeCottagePosition(home).sub(guideTarget)
+    placeFairy(guideTarget.clone(), heading.addScaledVector(normal, -heading.dot(normal)).normalize(), normal)
+  },
+} })
+  /** Moves the fairy, the camera and the trail together, with no sweep of the camera. */
+  function placeFairy(position: THREE.Vector3, heading: THREE.Vector3, up: THREE.Vector3) {
+    fairy.position.copy(position)
+    orientFlight(fairy.quaternion, heading, up)
+    forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
+    camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
+    cameraLook.copy(fairy.position).addScaledVector(forward, 12)
+    previousFlightPosition.copy(fairy.position)
+    for (let i = 0; i < trailCount; i++) trailPositions.set(fairy.position.toArray(), i * 3)
+    trailGeometry.attributes.position.needsUpdate = true
+  }
 }
 
 watchView(() => {

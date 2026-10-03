@@ -128,6 +128,10 @@ plays. Each creature says hello again only after 8 s.
   three hearts.
 - Note: `creatures.update()` puts each model back on its route at each frame. The hop
   must come after it: in the game, `greet()` runs after `update()`.
+- Status: in the game. `greet()` of `createPopulation()` and `src/creatures/hello.ts`
+  hold the feature. It works on Earth and on Blossom Haven. Ducks and Frog Princes bob.
+  The hearts are one point cloud (one draw call), half on a phone.
+  `scripts/creature-hello-smoke.mjs` checks it in the game.
 
 ### F4 · Sparkle rings
 
