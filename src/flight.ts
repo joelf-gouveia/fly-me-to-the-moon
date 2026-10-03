@@ -6,6 +6,17 @@ import { PROPORTIONS } from './proportions'
 /** Flight speed in open space: 430 m/s in base units, faster with the spacing of src/proportions.ts. */
 export const SPACE_SPEED = 430 * PROPORTIONS.speed
 
+/**
+ * A world carries the fairy along its orbit while she is close to it: fully below `full` metres
+ * above the world, and less and less up to `none` metres. Near a world she flies as slowly as
+ * 32 m/s, and a world can move faster than that on its orbit (Blossom Haven: 59 m/s). Without
+ * the carry, a fairy who follows a world can never come down to it.
+ */
+export const WORLD_CARRY = { full: 600, none: 1500 } as const
+export function worldCarry(altitude: number) {
+  return 1 - THREE.MathUtils.smoothstep(altitude, WORLD_CARRY.full, WORLD_CARRY.none)
+}
+
 export type FlightState = { position: THREE.Vector3; quaternion: THREE.Quaternion; speed: number }
 export type FlightInput = { yaw: number; pitch: number; boost: boolean }
 

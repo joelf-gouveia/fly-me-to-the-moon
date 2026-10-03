@@ -24,7 +24,7 @@ import { createSunShading } from './sun-shading'
 import { LOW_SUN_DIM } from './sun-look'
 import { updatePlanetLooks } from './planet-paint'
 import { visitTransition } from './terrain'
-import { hoverFlight, nearestWorldAt, orientFlight, stepFlight } from './flight'
+import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
 import { createFairyRig, createSkyDancerAnimation } from './fairy'
 import { designById } from './fairy-wings/designs'
@@ -770,6 +770,7 @@ const cameraTranslation = new THREE.Vector3()
 const steeringMatrix = new THREE.Matrix4()
 const steeringRotation = new THREE.Quaternion()
 const planetLocalOffset = new THREE.Vector3()
+const carryFrom = new THREE.Vector3(), carryShift = new THREE.Vector3()
 const planetLocalOrientation = new THREE.Quaternion()
 const inversePlanetOrientation = new THREE.Quaternion()
 let elapsed = 0
@@ -994,6 +995,10 @@ function animate(timestamp?: number) {
       planetLocalOrientation.copy(inversePlanetOrientation).multiply(fairy.quaternion)
     }
   }
+  // Higher up, the world still carries her along its orbit (not its spin), so she can catch a
+  // world that moves faster than she flies near it (worldCarry() in src/flight.ts).
+  const carry = attachedToWorld || nearbyWorld.kind === 'sun' ? 0 : worldCarry(fairy.position.distanceTo(nearbyWorld.group.position) - nearbyWorld.radius)
+  if (carry > 0) carryFrom.copy(nearbyWorld.group.position)
   for (const world of worlds) {
     if (delta > 0 && world.kind !== 'sun' && world.kind !== 'moon') world.group.rotation.y = (world.group.rotation.y + delta * Math.PI * 2 / axialSpinPeriods[world.kind]) % (Math.PI * 2)
   }
@@ -1002,7 +1007,7 @@ function animate(timestamp?: number) {
     fairy.position.copy(planetLocalOffset).applyQuaternion(attachedToWorld.group.quaternion).add(attachedToWorld.group.position)
     fairy.quaternion.copy(attachedToWorld.group.quaternion).multiply(planetLocalOrientation)
     forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
-  }
+  } else if (carry > 0) fairy.position.addScaledVector(carryShift.copy(nearbyWorld.group.position).sub(carryFrom), carry)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
   if (delta > 0) updateFairy(delta)

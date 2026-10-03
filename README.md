@@ -71,6 +71,12 @@ Earth is 550 game metres across, and cruising around it takes about 2.7 minutes.
 Travel speed grows outside the atmosphere to keep the solar system reachable:
 up to 968 m/s in open space, or 2,226 m/s with Shift.
 
+A world carries the fairy along its orbit while she is close to it: fully below 600 m
+above the world, and less and less up to 1,500 m. Near a world she flies as slowly as
+32 m/s, and Blossom Haven moves at about 59 m/s on its orbit. Without the carry, a fairy
+who follows a world from behind stays about 158 m above it. Inside the air of a world she
+also turns with it, as before. The numbers are `WORLD_CARRY` in `src/flight.ts`.
+
 The sizes and distances come from the [proportions study](#proportions-study).
 World data is in base units; `src/proportions.ts` multiplies every radius, air and
 cloud height by 1.25, every distance from the Sun by 2.5, the Sun by 1.6 and the
