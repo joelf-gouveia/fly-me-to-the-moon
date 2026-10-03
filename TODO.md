@@ -1,6 +1,7 @@
 # To do
 
-This file records the known faults, the open check results and the open merges of the game.
+This file records the known faults, the open check results, the open merges and the next
+steps of the game.
 
 Mark an item with `[x]` when it is done, and write the commit that closed it.
 
@@ -199,6 +200,44 @@ only when the main folder has no uncommitted work.
 - [x] Merge into `master`: merge `30561c9`. The type check, the 310 unit tests and the
   build pass on `master`.
 - [x] Delete the worktree and the branch. The branch was never on GitHub.
+
+## Next steps
+
+### The weather of Earth, step 5
+
+The game has steps 1 to 4 of the weather study (`docs/weather-study.md`): the weather map,
+the new clouds, the rain and the snow, and the sky, the light, the ground, the water, the
+plants and the stars. Step 5 is open. Each item is its own change, with unit tests, a
+browser check and a README part.
+
+- [ ] **The sound of the weather.** A soft rain sound that follows the rain at the camera
+  (`weatherAir.here.rain` in `src/main.ts`), the wind, and a soft, low rumble with the
+  glow of the thunder (`here.bolt`). No bang. The sound plays only with **Sound** on. The
+  study also proposes birds in spring and crickets on a summer night.
+- [ ] **The creatures.** Land animals go under the trees in the rain, and ducks stay out.
+  Fireflies come on dry nights only. Some animals come in summer only, and some sleep in
+  winter. Places to examine: `src/creatures/population.ts` and `src/creatures/habitat.ts`.
+- [ ] **The sticker tasks.** New tasks, for example "Fly through a rainbow" and "Find the
+  snow", and a sticker for each season. Places to examine: `src/stickers.ts` and
+  `src/sticker-book.ts`.
+
+Open points of steps 1 to 4:
+
+- [ ] Measure the frame time of the weather on a desktop and on a phone. The heap clouds
+  have 216,000 triangles on a desktop and 108,000 on a phone.
+- [ ] Check reduced motion in `scripts/weather-smoke.mjs`: the rain stands still and the
+  thunder does not flash.
+- [ ] Make the rain curtain easier to see in rain. In snow it is a pale column.
+- [ ] Make the base of a heap cloud gold at dusk. It is brown now.
+- [ ] Decide if the weather study page uses the game code. It has its own prototype now,
+  on an Earth with no game weather (`WORLD_OPTIONS.weather` in `src/worlds.ts`).
+
+Not selected in the study (decision 7): the name of the weather in the flight panel, and a
+wind that carries the fairy.
+
+### The weather of Blossom Haven
+
+- [ ] A study of magic weather for Blossom Haven. The weather study is for Earth only.
 
 ## Housekeeping
 

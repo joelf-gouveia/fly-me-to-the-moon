@@ -75,7 +75,7 @@ try {
   await send('Runtime.enable'); await send('Log.enable'); await send('Page.enable')
 
   // The middle of the look of each season in the north, and what is in the air there.
-  const seasons = [[0.125, 'spring', true], [0.375, 'summer', false], [0.625, 'autumn', true], [0.875, 'winter', true]]
+  const seasons = [[0.125, 'spring', true], [0.375, 'summer', false], [0.625, 'autumn', true], [0.875, 'winter', null]]
   for (const [year, name, air] of seasons) {
     const state = await open(year)
     assert(state.season.on === 1, `${name}: the seasons are off`)
@@ -83,7 +83,8 @@ try {
     assert(Math.abs(state.season.year - year) < 0.01, `${name}: the year is ${state.season.year}, not ${year}`)
     assert(state.season.name === name, `${name}: the season at the fairy is ${state.season.name}`)
     assert(state.season.latitude > 23.5 && state.season.latitude < 35, `${name}: the start is at ${state.season.latitude.toFixed(1)}°, not in the leaf forest`)
-    assert(state.season.airVisible === air, `${name}: the air is ${state.season.airVisible ? 'on' : 'off'}`)
+    // Snow falls only under a snow cloud of the weather (scripts/weather-smoke.mjs), so the winter has no fixed answer.
+    if (air !== null) assert(state.season.airVisible === air, `${name}: the air is ${state.season.airVisible ? 'on' : 'off'}`)
     assert(state.daylight.day > 0.9, `${name}: the start is not in daylight (${state.daylight.elevation.toFixed(1)}°)`)
     assert(Math.abs(state.daylight.elevation - 25) < 6, `${name}: the Sun is at ${state.daylight.elevation.toFixed(1)}° at the start, not near 25°`)
     await picture(`start-${name}.jpg`)

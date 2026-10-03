@@ -2,6 +2,7 @@ import '../seasons-study/style.css'
 import { createLab } from '../feature-ideas-study/lab'
 import type { Lab } from '../feature-ideas-study/lab'
 import { createTerrain, seededRandom } from '../../src/terrain'
+import { WORLD_OPTIONS } from '../../src/worlds'
 import { createFields } from '../../src/foliage/zones'
 import { seasonAt, yearOfDate } from '../../src/seasons'
 import type { SeasonName } from '../../src/seasons'
@@ -20,6 +21,8 @@ import seasonsStyle from '../seasons-study/page.css?inline'
 import pageStyle from './page.css?inline'
 
 const root = document.querySelector<HTMLDivElement>('#weather-study')!
+// The study has its own prototype of the weather, on an Earth with the puffs of before.
+WORLD_OPTIONS.weather = false
 const SEASONS: SeasonName[] = ['spring', 'summer', 'autumn', 'winter']
 
 /** The capture page: the lab alone at the size of the window. weather-study-capture.mjs asks for each frame. */

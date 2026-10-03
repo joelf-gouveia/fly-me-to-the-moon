@@ -8,6 +8,7 @@ import type { Batch, Site } from './planting'
 import { createFields, zoneAt } from './zones'
 import type { Fields, OptionId } from './zones'
 import { plantSeason, seasonPlant } from '../seasons'
+import { weatherPlant } from '../weather'
 
 /**
  * The plants of Earth and of Blossom Haven, from the foliage study (docs/foliage-study.md).
@@ -67,7 +68,8 @@ export function addFoliage(world: World, batches: Batch[], uniforms: FoliageUnif
     const key = `${gloss}-${season}`
     if (!materials.has(key)) {
       const material = foliageMaterial(gloss, uniforms)
-      materials.set(key, world.season && season ? seasonPlant(material, world.season, season) : material)
+      const seasonal = world.season && season ? seasonPlant(material, world.season, season) : material
+      materials.set(key, world.weather ? weatherPlant(seasonal, world.weather.uniforms) : seasonal)
     }
     return materials.get(key)!
   }
