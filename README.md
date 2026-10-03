@@ -150,6 +150,43 @@ server for a guided trip through the belt to Ceres and Vesta, the Worlds
 pictures, the home check and the phone budget. An optional second argument sets
 the server origin, for example a server without file watching.
 
+## Comet and shooting stars
+
+A comet goes around the Sun on a long ellipse through the inner solar system: from
+2,200 m (between the Sun and Mercury) to 14,000 m (the outer edge of the asteroid belt).
+Its orbit is tilted 20°, so it passes 1,900 m above or below the orbit of Earth. One pass
+takes 600 s (10 minutes) at 1× World speed, so a child sees it often. Six passes fill one
+game year, so the comet comes back with the planets. World speed makes it faster. It is
+fast near the Sun and slow far from it. The first pass near Earth comes about 90 s after
+the start.
+
+The comet has an icy nucleus, a glowing coma, a warm dust tail and a faint blue ion tail.
+Both tails point away from the Sun, and they are longer near the Sun (450 to 2,000 m for
+the dust tail). The dust tail bends back along the orbit. The comet fades inside
+atmospheres, as the stars and the belt do. It is not a world: it has no sticker, it is not
+in **Worlds**, and the fairy flies through it.
+
+When the fairy flies through a tail, sparkles burst around her and stream behind her, and
+her trail grows. The sparkles and the larger trail stay for 4 s after the tail. A soft
+chime plays when the sound is on. The flight panel says **Comet tail**.
+
+Shooting stars cross the night sky inside the air of each world with air, for example
+Earth, Blossom Haven, Mars and Venus. A shooting star is a thin bright streak with a
+glowing head, and it fades in 0.8 s. One comes every 2.5 to 6.5 s, at random. There are
+none by day, none in open space and none in a light sky. Venus counts as dark at night
+under its haze.
+
+Blossom Haven never relocates into the path of the comet or into its tails. The comet
+does not turn with the planets, so the check uses the whole path. Phones draw half of the
+tail particles and sparkles. With reduced motion, the tail is still and there are no
+shooting stars. The comet data and rules are in `src/comet.ts`; the comet scene is in
+`src/comet-sky.ts`; the shooting stars are in `src/shooting-stars.ts`.
+
+Run `node scripts/comet-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+comet from space, the tails away from the Sun, a pass through the tail, shooting stars on
+Earth at night and none by day, in open space or with reduced motion, and the phone budget
+at 390 px. An optional second argument sets the server origin.
+
 ## The Moon
 
 The Moon orbits Earth 963 m from its centre (3.5 Earth radii), on an orbit tilted
@@ -203,7 +240,8 @@ not beside it. The flower marks the cottage on Blossom Haven, including when
 exploring its surface; fireflies show the safe route around intervening terrain.
 Home teleports every **five minutes of active, unguided play** to a clear position
 anywhere within the compact solar-system play area. Candidate positions avoid
-other planets, their atmospheres, Saturn's rings, the Sun, and a nearby fairy.
+other planets, their atmospheres, Saturn's rings, the Sun, the path and the tails of the
+comet, and a nearby fairy.
 The clock stops for the flower guide, including temporary
 steering overrides while that guide remains enabled. Use **Stop following** to
 return to manual flight and resume the relocation clock. Manual approach does
