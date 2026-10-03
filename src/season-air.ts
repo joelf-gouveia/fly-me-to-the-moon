@@ -1,15 +1,22 @@
 import * as THREE from 'three'
 import type { World } from './worlds'
 import type { Fall } from './seasons'
+import type { MagicAir } from './magic-seasons'
 
 /**
- * Petals, leaves and snow in the air of a world, near the camera (docs/seasons-study.md). The
- * points are in a box in the frame of the world, so they turn with it. One draw call.
+ * The things in the air of a world, near the camera (docs/seasons-study.md): petals, leaves and
+ * snow on Earth, and petals, bubbles, fireflies and glitter on Blossom Haven. The points are in a
+ * box in the frame of the world, so they turn with it. One draw call for each world.
  */
-const FALLS: Record<Fall, { colour: number; size: number; speed: number; sway: number }> = {
+export type AirKind = Fall | MagicAir
+/** `speed` is in metres in each second toward the ground; a bubble and a firefly go up. */
+const FALLS: Record<AirKind, { colour: number; size: number; speed: number; sway: number }> = {
   snow: { colour: 0xffffff, size: 0.34, speed: 2.4, sway: 0.5 },
   leaf: { colour: 0xff9838, size: 0.5, speed: 1.5, sway: 1.6 },
   petal: { colour: 0xffc4dc, size: 0.42, speed: 1.1, sway: 1.2 },
+  bubble: { colour: 0xd8fff6, size: 0.6, speed: -1.3, sway: 0.9 },
+  firefly: { colour: 0xfff2a0, size: 0.36, speed: -0.25, sway: 2.2 },
+  glitter: { colour: 0xe4f1ff, size: 0.26, speed: 1.2, sway: 0.7 },
 }
 /** The half size of the box, in metres. */
 const HALF = 24
@@ -50,7 +57,7 @@ export function createSeasonAir(world: World, count = 520) {
     points,
     get shown() { return shown },
     /** `time` moves the points; reduced motion gives a fixed time. `amount` is from 0 to 1. */
-    update(time: number, delta: number, camera: THREE.Vector3, fall: Fall | null, amount: number) {
+    update(time: number, delta: number, camera: THREE.Vector3, fall: AirKind | null, amount: number) {
       shown = THREE.MathUtils.lerp(shown, fall ? amount : 0, 1 - Math.exp(-Math.max(delta, 0.016) * 3))
       material.opacity = shown * 0.9
       points.visible = shown > 0.01

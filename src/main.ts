@@ -15,6 +15,7 @@ import { CANDY_MIST, flossTime } from './cotton-candy'
 import { foliageWind, zoneNameAt } from './foliage/build'
 import { fallAt, leanEarth, seasonAt, setSeason, yearOf, yearOfDate } from './seasons'
 import { createSeasonAir } from './season-air'
+import { MAGIC_STEP, magicAt, setMagic, stepMagicYear } from './magic-seasons'
 import { touchesBelt } from './belt'
 import { earthshineAt, MOON, moonlightAt } from './moon'
 import { PROPORTIONS } from './proportions'
@@ -307,6 +308,11 @@ const meadow = meadowNormal(earth)
 const testYear = import.meta.env.DEV ? new URLSearchParams(location.search).get('year') : null
 leanEarth(earth, sun.group.position, testYear === null ? yearOfDate(new Date()) : Number(testYear))
 const seasonAir = createSeasonAir(earth, touchDevice ? 260 : 520)
+// The magic seasons of Blossom Haven (src/magic-seasons.ts). A visit starts in Blossom time, and each
+// hop of the planet brings the next season. A browser check can give the year: ?test&magic=0.5 is Lantern time.
+const testMagic = import.meta.env.DEV ? new URLSearchParams(location.search).get('magic') : null
+let magicTarget = testMagic === null ? 0 : Number(testMagic), magicYear = magicTarget
+const magicAir = createSeasonAir(home, touchDevice ? 260 : 520)
 earth.group.rotation.y = morningSpin(meadow, earth.group.position, sun.group.position, 25, earth.tilt!.lean)
 earth.group.updateMatrixWorld()
 const earthOutward = meadow.clone().applyQuaternion(earth.group.quaternion)
@@ -522,6 +528,8 @@ function moveHome() {
   home.group.updateMatrixWorld(true)
   teleportGlow.begin(previous, next, home.radius)
   adventure.notifyMove(result.carrying)
+  // The hop brings the next magic season. The look follows in about 20 s.
+  magicTarget += MAGIC_STEP
   return true
 }
 function discoverHome() {
@@ -725,7 +733,8 @@ function updateNearestWorld() {
     : world.cloudHeight && nearestDistance > world.cloudHeight + 12 ? 'Above the clouds'
     : world.cloudHeight && Math.abs(nearestDistance - world.cloudHeight - 4) < 9 ? 'Through the clouds'
     // The climate belt of Earth or the garden of Blossom Haven below the fairy (src/foliage/zones.ts).
-    : world.kind === 'fairy' ? `${zoneNameAt(world, fairy.position) ?? 'Candy gardens'} · sparkling soda rivers`
+    // The magic season and the garden below the fairy.
+    : world.kind === 'fairy' ? `${magicAt(homeHeight(), magicYear).season.name} · ${zoneNameAt(world, fairy.position) ?? 'Candy gardens'}`
     : world.kind === 'earth' ? zoneNameAt(world, fairy.position) ?? 'Below the clouds'
     : world.kind === 'mars' ? 'Thin, dusty air'
     : world.kind === 'venus' ? 'Dense golden haze' : 'Drifting through cloud bands'
@@ -872,6 +881,10 @@ let meteorDark = 0
 // The year of Earth, from 0 to 1 (src/seasons.ts), and the latitude of the fairy on Earth in degrees.
 let earthYear = 0
 const earthLocal = new THREE.Vector3(), earthTurn = new THREE.Quaternion()
+/** The height of the fairy over Blossom Haven as a part of its radius: -1 at the cottage, 1 on the far side. */
+function homeHeight() {
+  return earthLocal.copy(fairy.position).sub(home.group.position).normalize().applyQuaternion(earthTurn.copy(home.group.quaternion).invert()).y
+}
 function earthLatitude() {
   earthLocal.copy(fairy.position).sub(earth.group.position).normalize().applyQuaternion(earthTurn.copy(earth.group.quaternion).invert())
   return THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(earthLocal.y, -1, 1)))
@@ -923,6 +936,12 @@ function updateEnvironment() {
   setSeason(earth.season!, earthYear)
   const falls = world === earth && altitude < 60 ? fallAt(earthLatitude(), earthYear) : { fall: null, amount: 0 }
   seasonAir.update(reducedMotion.matches ? 0 : elapsed, timer.getDelta(), camera.position, falls.fall, falls.amount)
+  // The magic season of Blossom Haven: the ground, the season plants, and the thing in the air near the fairy.
+  setMagic(home.magic!, magicYear)
+  const magic = magicAt(homeHeight(), magicYear)
+  magicAir.update(reducedMotion.matches ? 0 : elapsed, timer.getDelta(), camera.position, world === home && altitude < 60 ? magic.season.air : null, Math.min(1, magic.full * 1.8))
+  // The toadstools of Lantern time glow softly by day and fully at night.
+  home.magic!.glow.value = Math.max(0.35, world === home ? light.night * 1.5 : 0)
   // The toadstools, the crystals and the flowers of Blossom Haven glow at night.
   if (home.foliage) home.foliage.glow.value = world === home ? light.night * 1.5 : 0
   fillDirection.copy(normal).multiplyScalar(300).add(fillOffset).normalize()
@@ -959,6 +978,7 @@ function animate(timestamp?: number) {
   const orbitDelta = started && !paused && !customizing && !menuOpen ? rawDelta : 0
   elapsed += delta
   homeClock.update(delta, homeGuide.enabled || destination === home, moveHome)
+  magicYear = stepMagicYear(magicYear, magicTarget, delta)
   // Remember the fairy in the nearest planet's local frame while she is in its
   // atmosphere, or near the airless Moon, which moves fast around Earth.
   // The frame moves with axial spin, the solar orbit and the Moon's orbit.
@@ -1070,6 +1090,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   }
   Object.defineProperty(window, '__fairyTest', { value: {
   aimRing,
+  /** A hop of Blossom Haven now, as the clock of src/relocation.ts makes each 5 minutes. */
+  hop: () => moveHome(),
   /** Puts the fairy at `position`, heading to `target`, with no guide. */
   place: (position: number[], target: number[]) => {
     destination = null
@@ -1115,6 +1137,12 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       visible: comet.group.visible, trailSize: trailMaterial.size, ...comet.stats,
     },
     shootingStars: { ...shootingStars.stats, dark: meteorDark },
+    magic: {
+      year: magicYear, target: magicTarget, on: home.magic!.magicOn.value, glow: home.magic!.glow.value,
+      season: magicAt(homeHeight(), magicYear).season.id, cottage: magicAt(-1, magicYear).season.id, farSide: magicAt(1, magicYear).season.id,
+      air: magicAir.shown, airVisible: magicAir.points.visible,
+      plants: Object.fromEntries(home.surface.children.filter(mesh => mesh.name.startsWith('magic-')).map(mesh => [mesh.name, (mesh as THREE.InstancedMesh).count])),
+    },
     season: {
       year: earthYear, on: earth.season!.seasonOn.value, tilt: earth.tilt!.angle, latitude: earthLatitude(), name: seasonAt(earthLatitude(), earthYear),
       air: seasonAir.shown, airVisible: seasonAir.points.visible,

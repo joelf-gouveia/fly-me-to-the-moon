@@ -9,6 +9,8 @@ import { createFields, groundColour } from './foliage/zones'
 import { buildCottonCandyClouds } from './cotton-candy'
 import { createSeasonUniforms, seasonGround, seasonWater } from './seasons'
 import type { SeasonUniforms } from './seasons'
+import { buildMagicPlants, createMagicUniforms, magicGround } from './magic-seasons'
+import type { MagicUniforms } from './magic-seasons'
 import { createPopulation } from './creatures/population'
 import type { CreaturePopulation } from './creatures/population'
 import { CreatureObstacles } from './creatures/spherical'
@@ -45,6 +47,8 @@ export type World = {
   foliage?: FoliageUniforms
   /** Earth only: the look of its seasons (src/seasons.ts). updateEnvironment() in src/main.ts sets it. */
   season?: SeasonUniforms
+  /** Blossom Haven only: the look of its magic seasons (src/magic-seasons.ts). src/main.ts sets it. */
+  magic?: MagicUniforms
   /** Earth only, after leanEarth() of src/seasons.ts: the lean of its axis. `rotation.y` stays the daily spin. */
   tilt?: { angle: number; leanAngle: number; lean: THREE.Quaternion }
   /** The Moon only: the part of the hemisphere light on its ground. */
@@ -295,7 +299,7 @@ function buildGround(world: World) {
   const positions = geometry.attributes.position
   const colors = new Float32Array(positions.count * 3)
   // The seasons read three numbers for each vertex: grass or not, the height, and the detail.
-  const seasonInfo = world.season ? new Float32Array(positions.count * 3) : null
+  const seasonInfo = world.season || world.magic ? new Float32Array(positions.count * 3) : null
   const direction = new THREE.Vector3()
   const sand = new THREE.Color(fairy ? 0xf6d6c1 : 0xd5c395)
   // The grass has the colour of its zone: a climate belt of Earth or a garden of Blossom Haven.
@@ -314,7 +318,7 @@ function buildGround(world: World) {
       else if (sample.height > (fairy ? 5.5 : 8.5)) color.copy(stone)
       else groundColour(GAME_LOOK[fairy ? 'fairy' : 'earth'], direction.x, direction.y, direction.z, sample, fields!, color)
       if (earth && (Math.abs(direction.y) > 0.9 || sample.height > 12)) color.copy(snow)
-      seasonInfo?.set([sample.height >= 0.7 && sample.height <= 8.5 && Math.abs(direction.y) <= 0.9 ? 1 : 0, sample.height, sample.detail], i * 3)
+      seasonInfo?.set([sample.height >= 0.7 && sample.height <= (fairy ? 5.5 : 8.5) && (fairy || Math.abs(direction.y) <= 0.9) ? 1 : 0, sample.height, sample.detail], i * 3)
       color.multiplyScalar(0.87 + sample.detail * 0.22 + Math.max(0, sample.height) * 0.014)
     } else if (moon) moonGroundColor(direction, sample, color)
     else if (painter) painter(direction, sample, color)
@@ -333,6 +337,7 @@ function buildGround(world: World) {
     const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.94 })
     if (isLookedPlanet(world.kind) && world.look) lookMaterial(material, world.kind, world.look)
     if (world.season) seasonGround(material, world.season)
+    if (world.magic) magicGround(material, world.magic)
     world.surface.add(new THREE.Mesh(geometry, material))
   }
 
@@ -360,6 +365,8 @@ function buildGround(world: World) {
     const anchor = fairy ? new THREE.Vector3(0, -1, -0.12).normalize() : meadowNormal(world)
     const populationSeed = fairy ? (Math.random() * 0xffffffff) >>> 0 : world.seed ^ 0x71ac
     world.creatures = createPopulation(world.group, geometry, waterGeometry, world.radius, fairy, obstacles, populationSeed, anchor, world.mobile ? 14 : 28, world.mobile)
+    // The season plants come last: they keep clear of the plants of the gardens and of the paths of the creatures.
+    if (world.magic) buildMagicPlants(world, obstacles, world.creatures.residents.flatMap(resident => resident.route))
   }
 }
 
@@ -498,6 +505,7 @@ export function createWorlds(scene: THREE.Scene, mobile = false, renderer?: THRE
     color: 0xf3acd1, sky: new THREE.Color(0xe7b6e8), group: homeGroup,
     surface: homeSurface, clouds: homeClouds, sample: createTerrain('fairy', HOME_SEED),
     seed: HOME_SEED, visit: 0, armed: false, gas: false, mobile,
+    magic: createMagicUniforms(),
   }
   regenerateWorld(home)
   addAtmosphere(home, sun.position)

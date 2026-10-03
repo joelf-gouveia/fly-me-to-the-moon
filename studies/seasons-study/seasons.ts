@@ -4,64 +4,13 @@ import { setSeason } from '../../src/seasons'
 import { EARTH_TILT } from './model'
 
 /**
- * The study tools for the seasons: the lean of a world for a day of the year, the shader helper of
- * the magic seasons (magic.ts), and the things in the air.
+ * The study tools for the seasons: the lean of a world for a day of the year, and the things in the air.
  *
  * The seasons of Earth are in the game now (src/seasons.ts): the ground, the water and the plants
  * of Earth read the uniforms of `world.season`. The study sets these uniforms for its clips. The
  * first rounds of the study had the shader of Earth in this file.
  */
 const RAD = Math.PI / 180
-export const glsl = (hex: number) => { const c = new THREE.Color(hex); return `vec3(${c.r.toFixed(4)}, ${c.g.toFixed(4)}, ${c.b.toFixed(4)})` }
-
-/** The place of a plant: the translation of its instance matrix. A plant needs no new attribute. */
-export const INSTANCE_PLACE = /* glsl */`
-#ifdef USE_INSTANCING
-  vec3 seasonPlace = instanceMatrix[3].xyz;
-#else
-  vec3 seasonPlace = position;
-#endif
-vSeasonDir = normalize(seasonPlace);
-vSeasonHash = fract(sin(dot(floor(seasonPlace * 8.0), vec3(12.9898, 78.233, 37.719))) * 43758.5453);`
-
-type Uniforms = Record<string, THREE.IUniform>
-export type Patch = { key: string; vertexPars?: string; vertex?: string; fragment: string; roughness?: string; emissive?: string }
-
-/** Adds a season change to a built-in material. It keeps each shader change that the material has. */
-export function patch(material: THREE.Material, uniforms: Uniforms, common: string, change: Patch) {
-  const previous = material.onBeforeCompile, previousKey = material.customProgramCacheKey()
-  material.onBeforeCompile = (shader, renderer) => {
-    previous.call(material, shader, renderer)
-    Object.assign(shader.uniforms, uniforms)
-    shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', `#include <common>\n${common}\nvarying vec3 vSeasonDir;\n${change.vertexPars ?? ''}`)
-      .replace('#include <begin_vertex>', `#include <begin_vertex>\n${change.vertex ?? 'vSeasonDir = normalize(position);'}`)
-    shader.fragmentShader = shader.fragmentShader
-      .replace('#include <common>', `#include <common>\n${common}\nvarying vec3 vSeasonDir;\n${change.vertexPars?.replace(/attribute [^;]+;/g, '') ?? ''}`)
-      .replace('#include <color_fragment>', `#include <color_fragment>\n${change.fragment}`)
-    if (change.roughness) shader.fragmentShader = shader.fragmentShader.replace('#include <roughnessmap_fragment>', `#include <roughnessmap_fragment>\n${change.roughness}`)
-    if (change.emissive) shader.fragmentShader = shader.fragmentShader.replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>\n${change.emissive}`)
-  }
-  material.customProgramCacheKey = () => `${previousKey}|season-${change.key}`
-  material.needsUpdate = true
-}
-
-/** Marks each ground vertex: grass or not, the height, the detail. `top` is the highest grass. */
-export function markGround(world: World, top: number, polarSnow: boolean) {
-  const ground = world.surface.children[0] as THREE.Mesh
-  const positions = ground.geometry.attributes.position
-  const info = new Float32Array(positions.count * 3), direction = new THREE.Vector3()
-  for (let i = 0; i < positions.count; i++) {
-    direction.fromBufferAttribute(positions, i).normalize()
-    const sample = world.sample(direction.x, direction.y, direction.z)
-    // The same limits as the grass of buildGround() in src/worlds.ts.
-    const grass = sample.height >= 0.7 && sample.height <= top && !(polarSnow && Math.abs(direction.y) > 0.9)
-    info.set([grass ? 1 : 0, sample.height, sample.detail], i * 3)
-  }
-  ground.geometry.setAttribute('seasonInfo', new THREE.BufferAttribute(info, 3))
-  return ground
-}
-
 /**
  * Turns a world for a day of the year. The world stays in its place and its axis turns, which
  * gives the same Sun in the sky as an orbit with a fixed axis. `noonAt` (a local direction) keeps

@@ -1,7 +1,7 @@
 # A year on two worlds: seasons study
 
-Status: decided on 3 October 2026. The game has the seasons of Earth; see "In the game"
-below. The magic seasons of Blossom Haven are the next step. Open
+Status: decided on 3 October 2026. The game has the seasons of Earth and the magic seasons
+of Blossom Haven; see "In the game" below. Open
 `/studies/seasons-study.html` on the Vite server. The controls of the study do not change
 the game or saved game data. It saves its own answers as `fairy-seasons-study-v1`.
 
@@ -20,7 +20,10 @@ the game or saved game data. It saves its own answers as `fairy-seasons-study-v1
 
 ## In the game
 
-The game has the seasons of Earth, with decisions 1 to 3. Blossom Haven has no change yet.
+The game has the seasons of Earth, with decisions 1 to 3, and the magic seasons of Blossom
+Haven, with decisions 4 to 7.
+
+### Earth
 
 | Part | Where |
 | --- | --- |
@@ -53,6 +56,48 @@ How it differs from the proposal of this study:
   Earth.
 - A browser check can set the year: `/?test&year=0.875` starts in the coldest look of the
   north. This works on the dev server only.
+
+### Blossom Haven
+
+| Part | Where |
+| --- | --- |
+| The four seasons, the ring, the clock, the ground shader and the season plants | `src/magic-seasons.ts` |
+| Petals, bubbles, fireflies and glitter in the air | `src/season-air.ts` |
+| The season uniforms of Blossom Haven, the `seasonInfo` attribute of its ground, the planting after the creatures | `createWorlds()` and `buildGround()` in `src/worlds.ts` |
+| The magic year, the step at a hop, the glow, the flight panel | `moveHome()`, `animate()`, `updateEnvironment()` and `updateNearestWorld()` in `src/main.ts` |
+| Unit tests | `tests/magic-seasons.test.ts` |
+| Browser check | `scripts/magic-seasons-smoke.mjs` |
+
+Answers to the points that the study left open:
+
+| Point | In the game |
+| --- | --- |
+| The first season of a visit | Blossom time. The magic year is not saved. |
+| The glow of the toadstools in Lantern time | A soft glow by day (0.35) and the full glow at night. |
+| The bubble bloom | The shape of the study, with fewer triangles. It is in `src/magic-seasons.ts`, not in `src/foliage/species.ts`, because it needs a clear material. |
+| Plants of the gardens that are season plants too | They stay all year. |
+| Creatures and the season plants | A season plant does not stand in a plant of the gardens, in a different season plant, or within 2.5 m of a point of a creature route. The planting runs after the creatures. |
+| The time of a change | 20 s for one season (`MAGIC_CHANGE_SECONDS`). A pause stops it. |
+| Phone | Half of the season plants. |
+
+How it differs from the proposal of this study:
+
+- **The game has the rings from the cottage only.** The three other patterns and the
+  garden of always blossom were in the study prototype. Clip B3 is a record of them. The
+  study page now sets the uniforms of the game for its Blossom Haven clips, and its own
+  shader and plants are gone from `studies/seasons-study/magic.ts`.
+- **The season plants are not in the plan of `src/foliage/planting.ts`.** They have their
+  own planting, which reads the obstacles of the gardens and the routes of the creatures.
+- **The flight panel shows the season.** "Candy groves · sparkling soda rivers" is now the
+  season and the garden, for example "Bubble time · Lollipop grove".
+- **A hop needs free flight.** The clock of `src/relocation.ts` does not hop while the
+  flower guide leads the fairy home, so the season does not change in a guided flight.
+- A browser check can set the magic year: `/?test&magic=0.5` starts in Lantern time, and
+  `__fairyTest.hop()` makes a hop. These work on the dev server only.
+
+The cost at the cottage, on a computer: 4,190 instances in five draw calls. The picture
+there has 4.6 million triangles in place of 3.4 million, because each season plant goes
+to the graphics card at each moment, also at size 0. The frame time was not measured.
 
 The line numbers in the next sections describe the game before these changes.
 

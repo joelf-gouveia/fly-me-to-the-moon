@@ -235,11 +235,36 @@ snow line comes down to 28° in winter, mountains get snow first, and the sea ne
 pole has ice. Petals, leaves or snow fall near the fairy. The flight starts in the leaf
 forest of the north, from 24° to 34°. The season code is in `src/seasons.ts` and
 `src/season-air.ts`; the [seasons study](docs/seasons-study.md) gives the model and the
-decisions. Blossom Haven has no seasons yet; the study gives it four magic seasons.
+decisions.
 
 Run `node scripts/seasons-smoke.mjs "path/to/chrome.exe"` against the dev server for the
 lean, the year from the real date, the start in each season and the air. On the dev
 server, `/?test&year=0.875` starts in the winter of the north.
+
+Blossom Haven has magic seasons of its own. They are not the seasons of Earth: the planet
+does not lean, and the Sun does not make them. There are four, in this order:
+
+| Season | Ground | Plants that grow in this season | Air |
+| --- | --- | --- | --- |
+| Blossom time | The colours of the four gardens | Blossom trees and giant flowers | Petals |
+| Bubble time | Mint green | Bubble blooms: clear bubbles on thin stems | Bubbles |
+| Lantern time | Violet | Giant toadstools that glow | Fireflies |
+| Crystal time | Frost white | Sugar crystals | Glitter |
+
+A visit starts in Blossom time. Each hop of the planet (each 5 minutes) brings the next
+season, so a magic year is 20 minutes, and the look changes in about 20 s. A new season
+starts at the cottage and goes out over the planet in a ring: the far side gets it three
+seasons later, so the planet shows two or three seasons at one time. The plants of a
+season grow from the ground when it comes and go back when it leaves; the candy of the
+four gardens stays all year. A season plant does not stand in a plant of the gardens or on
+the path of a creature. The toadstools of Lantern time glow softly by day and fully at
+night. The flight panel shows the season below the fairy, for example "Bubble time ·
+Lollipop grove". A phone gets half of the season plants. The code is in
+`src/magic-seasons.ts`.
+
+Run `node scripts/magic-seasons-smoke.mjs "path/to/chrome.exe"` against the dev server for
+the four seasons at the cottage, the next season after a hop, a pause and the phone. On
+the dev server, `/?test&magic=0.5` starts in Lantern time.
 
 ## Blossom Haven
 
@@ -881,7 +906,7 @@ For Earth the study compares **A — Real tilt** (the axis leans 23.4° and the 
 the year) with **B — Painted year** (no tilt; a season clock paints each latitude). The
 game now uses A, with the year started at the real date; see [Seasons](#seasons). For
 Blossom Haven the decision is the four magic seasons with no tilt, and the next season at
-each hop of the planet. They are not in the game yet. The [technical study](docs/seasons-study.md) gives the findings, the model,
+each hop of the planet. The game now has them too. The [technical study](docs/seasons-study.md) gives the findings, the model,
 the change for each part and the limits. The clips are in `public/studies/seasons/`. Run
 `node studies/seasons-study/seasons-study-capture.mjs "path/to/chrome.exe" E1,E2` against
 port 5174 to record the clips of E1 and E2 again.

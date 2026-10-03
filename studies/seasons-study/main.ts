@@ -7,7 +7,7 @@ import {
   CLIPS, clipById, dayHours, DECISIONS, declination, directionOf, EARTH_TILT, FINDINGS, groundColour, latitudeLabel, MAGIC, magicAt,
   magicColour, monthAt, noonElevation, OPTIONS, PALETTE, PATTERNS, SEASON_NAMES, seasonAt, WORLD_NAMES, YEAR_SECONDS, yearOfDate,
 } from './model'
-import type { ClipId, Pattern, WorldId } from './model'
+import type { ClipId, WorldId } from './model'
 import studyUrl from '../../docs/seasons-study.md?url'
 import studyText from '../../docs/seasons-study.md?raw'
 import sharedStyle from '../feature-ideas-study/page.css?inline'
@@ -25,7 +25,7 @@ function startCapture() {
   Object.defineProperty(window, '__capture', { value: {
     features: Object.keys(SEASON_CLIPS),
     load(id: ClipId) {
-      lab.load(SEASON_CLIPS[id])
+      lab.load(SEASON_CLIPS[id]!)
       const run = lab.run!
       return { duration: run.duration, still: run.still ?? run.duration * 0.6 }
     },
@@ -195,13 +195,12 @@ function startPage() {
         <div class="field"><span>Place</span>${chips('place', places.map(([value, label]) => [String(value), value === 'cottage' && magic ? 'Cottage' : label]), String(live.place))}</div>
         <label class="field"><span>${magic ? 'Magic year' : 'Day of the year'} <b id="year-label"></b></span><input type="range" id="year" min="0" max="1" step="0.002" value="${live.year}"></label>
         <div class="chips"><button type="button" id="play-year" aria-pressed="${live.play}">${live.play ? '❚❚ Stop the year' : '▶ Play the year'}</button>${magic ? '' : '<button type="button" id="today">Today</button>'}</div>
-        ${magic ? `<div class="field"><span>Seasons</span>${chips('model', [['A', 'Magic seasons'], ['today', 'Game of today']], live.model === 'today' ? 'today' : 'A')}</div>
-        <div class="field"><span>How a season spreads</span>${chips('pattern', PATTERNS.map(pattern => [pattern.id, pattern.name]), live.pattern)}</div>`
-        : `<div class="field"><span>Seasons</span>${chips('model', [['A', 'A · Real tilt'], ['B', 'B · Painted'], ['today', 'Game of today']], live.model)}</div>
+        ${magic ? `<div class="field"><span>Seasons</span>${chips('model', [['A', 'Magic seasons'], ['today', 'No seasons']], live.model === 'today' ? 'today' : 'A')}</div>`
+        : `<div class="field"><span>Seasons</span>${chips('model', [['A', 'A · Real tilt'], ['B', 'B · Painted'], ['today', 'No seasons']], live.model)}</div>
         <label class="field"><span>Tilt <b id="tilt-label"></b></span><input type="range" id="tilt" min="0" max="40" step="0.1" value="${live.tilt}"></label>`}
         <label class="field"><span>Hour of the day <b id="hour-label"></b></span><input type="range" id="hour" min="0" max="24" step="0.25" value="${live.hour}"></label>
         <label class="check"><input type="checkbox" id="weather"${live.weather ? ' checked' : ''}> ${magic ? 'Petals, bubbles, fireflies and glitter' : 'Petals, leaves and snow'}</label>
-        ${magic ? `<label class="check"><input type="checkbox" id="garden"${live.garden ? ' checked' : ''}> The garden of always blossom (cottage)</label>` : ''}
+
         <div class="chips"><button type="button" id="free" aria-pressed="${live.free}">${live.free ? 'Back to the tripod' : 'Free flight'}</button></div>
       </div>` : `
       <p class="eyebrow">${clip.id} · ${WORLD_NAMES[clip.world].toUpperCase()}</p>
@@ -217,7 +216,7 @@ function startPage() {
   }
   function renderLabels() {
     const set = (id: string, text: string) => { const element = document.getElementById(id); if (element) element.textContent = text }
-    set('year-label', live.world === 'fairy' ? `${magicAt(live.pattern, { x: 0, y: -1, z: 0 }, live.year).season.name} at the cottage` : monthAt(live.year))
+    set('year-label', live.world === 'fairy' ? `${magicAt('rings', { x: 0, y: -1, z: 0 }, live.year).season.name} at the cottage` : monthAt(live.year))
     set('tilt-label', `${live.tilt.toFixed(1)}°${Math.abs(live.tilt - EARTH_TILT) < 0.05 ? ' · Earth' : ''}`)
     set('hour-label', `${String(Math.floor(live.hour) % 24).padStart(2, '0')}:${String(Math.round(live.hour % 1 * 60)).padStart(2, '0')}`)
     const slider = document.querySelector<HTMLInputElement>('#year')
@@ -228,7 +227,6 @@ function startPage() {
       const { live: name, value } = button.dataset
       if (name === 'world') live.world = value as WorldId
       if (name === 'model') live.model = value as typeof live.model
-      if (name === 'pattern') live.pattern = value as Pattern
       if (name === 'place') live.place = value === 'space' || value === 'cottage' ? value : Number(value)
       if (name === 'world' || name === 'place') leaveFlight()
       renderDetail()
@@ -240,7 +238,6 @@ function startPage() {
     get('#play-year').addEventListener('click', () => { live.play = !live.play; renderDetail() })
     document.querySelector('#today')?.addEventListener('click', () => { live.year = today; live.play = false; renderDetail() })
     get<HTMLInputElement>('#weather').addEventListener('change', event => { live.weather = (event.target as HTMLInputElement).checked })
-    document.querySelector<HTMLInputElement>('#garden')?.addEventListener('change', event => { live.garden = (event.target as HTMLInputElement).checked })
     get('#free').addEventListener('click', () => {
       if (live.free) leaveFlight()
       else if (live.place !== 'space') { live.free = true; lab?.fly() }
