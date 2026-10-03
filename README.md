@@ -980,6 +980,32 @@ the cost and the limits. The clips are in `public/studies/fairy-wings/`. Run
 `node studies/fairy-wing-study/fairy-wing-study-capture.mjs "path/to/chrome.exe" dew,glitter http://localhost:5174`
 to record the clips of Dew glass and Glitter vein again.
 
+## Weather study
+
+Visit `/studies/weather-study.html` for **A sky that changes**, a study of weather on
+Earth: rain, snow that falls from a cloud, wind, morning mist, a rainbow and thunder far
+away, with new clouds in place of the puffs of the game. The game has no weather yet. In the study, four things make the weather of a place: the
+place (the climate belts of the game), the season, the hour and the fronts that move
+around the planet. So the jungle has warm rain, the desert has a clear sky, the rain belt
+of the tropics follows the Sun, and rain becomes snow in the cold. One small weather map
+holds the cloud, the rain and the wet ground of each place. The clouds, the light, the
+fog, the ground, the water, the plants and the stars read it. The new clouds are solid heap clouds, high wisps, a grey
+layer under a front and rain curtains. Ten clips from the engine
+of the game show the weather from space and from the ground. **Try it live** gives you
+the place, the day, the hour, the sky and free flight. Its controls do not change the
+game. The study does not include Blossom Haven.
+
+The study compares **A — A weather map** (each place has its own weather) with
+**B — One sky** (the whole planet has one weather at a time). The decision of 3 October 2026 is A, with
+all six kinds of weather; the game code is the next step. The
+[technical study](docs/weather-study.md) gives the findings, the model, the change for
+each part, the cost and the limits. The clips are in `public/studies/weather/`. Run
+`node studies/weather-study/weather-study-capture.mjs "path/to/chrome.exe" W1,W2` against
+port 5174 to record the clips of W1 and W2 again, and
+`node studies/weather-study/weather-study-smoke.mjs "path/to/chrome.exe"` for the browser
+check of the page.
+
+
 ## Browser checks
 
 With the dev server at `http://127.0.0.1:5174`, run

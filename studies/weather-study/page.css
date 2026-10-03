@@ -1,0 +1,10 @@
+/* The parts of the page that only the weather study has. The other rules are in ../feature-ideas-study/page.css and ../seasons-study/page.css. */
+.map-grid .belt { fill: none; stroke: #f6d9aa; stroke-opacity: .9; stroke-width: 1.5; stroke-dasharray: 5 4 }
+.live-controls .small { margin: 0 }
+.season-rows .season-row { margin-top: 0 }
+td .small { white-space: nowrap }
+.cloud-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2.2fr); gap: 32px; align-items: start; margin-top: 26px }
+.cloud-grid ul { margin: 0; padding-left: 18px; font-size: 13px; color: #aab5ca }
+.cloud-grid li { margin-bottom: 6px }
+.cloud-grid .table-wrap { margin-top: 0 }
+@media (max-width: 1000px) { .cloud-grid { grid-template-columns: 1fr } }

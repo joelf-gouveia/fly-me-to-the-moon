@@ -40,7 +40,7 @@ function kitOf(lab: Lab): Kit {
 }
 
 /** The note in the corner of a clip. It writes to the page only when its text changes. */
-function captionOf(lab: Lab) {
+export function captionOf(lab: Lab) {
   const element = document.createElement('p')
   element.className = 'season-caption'
   lab.overlay.append(element)
@@ -59,7 +59,7 @@ function seasonWord(latitude: number, year: number) {
 }
 
 /** A local direction at a latitude and a longitude, in degrees. */
-function directionAt(latitude: number, longitude: number) {
+export function directionAt(latitude: number, longitude: number) {
   const ring = Math.cos(latitude * RAD)
   return new THREE.Vector3(ring * Math.cos(longitude * RAD), Math.sin(latitude * RAD), ring * Math.sin(longitude * RAD))
 }
@@ -80,7 +80,7 @@ function plantsOf(world: World, only?: SpeciesId[]) {
  * A dry place at a latitude with gentle ground and some plants around it. The game has no fixed
  * places: Earth is new at each visit.
  */
-export function findSpot(world: World, latitude: number, toward = 1, turn = 28, back = 6) {
+export function findSpot(world: World, latitude: number, toward = 1, turn = 28, back = 6, accept?: (centre: THREE.Vector3) => boolean) {
   const close = (plant: THREE.Vector3) => Math.abs(Math.asin(plant.y) / RAD - latitude) < 14
   const plants = plantsOf(world).filter(close)
   // The leaf trees of Earth show the season best, so a place with them in the view gets more points.
@@ -89,7 +89,7 @@ export function findSpot(world: World, latitude: number, toward = 1, turn = 28, 
   let best = directionAt(latitude, 0), bestScore = -Infinity
   for (let longitude = 0; longitude < 360; longitude += 1.5) {
     const centre = directionAt(latitude, longitude), sample = world.sample(centre.x, centre.y, centre.z)
-    if (sample.height < 1 || sample.river > 0.05) continue
+    if (sample.height < 1 || sample.river > 0.05 || (accept && !accept(centre))) continue
     let score = -Math.abs(sample.height - 3) * 2
     for (const distance of [12, 26, 45]) for (let turnAt = 0; turnAt < 8; turnAt++) {
       const angle = turnAt / 8 * Math.PI * 2
@@ -126,7 +126,7 @@ type ViewOptions = { back?: number; eye?: number; ahead?: number; lookUp?: numbe
  * A camera on a tripod on the ground of a world, and the fairy on a slow circle in front of it.
  * `centre` and `heading` are in the frame of the world, so the view turns with the world.
  */
-function groundView(lab: Lab, world: World, centre: THREE.Vector3, heading: THREE.Vector3, options: ViewOptions = {}) {
+export function groundView(lab: Lab, world: World, centre: THREE.Vector3, heading: THREE.Vector3, options: ViewOptions = {}) {
   const { back = 6, eye = 3.8, ahead = 17, lookUp = 2.2, circle = 5.5, height = 3.4, fov = 58 } = options
   const right = new THREE.Vector3().crossVectors(heading, centre).normalize()
   const sample = world.sample(centre.x, centre.y, centre.z)
@@ -158,13 +158,13 @@ function groundView(lab: Lab, world: World, centre: THREE.Vector3, heading: THRE
   }
 }
 /** The local direction to the pole (`toward` 1) or to the equator (`toward` -1), turned by `turn` degrees. */
-function headingAt(centre: THREE.Vector3, toward: number, turn = 0) {
+export function headingAt(centre: THREE.Vector3, toward: number, turn = 0) {
   const pole = new THREE.Vector3(0, centre.y >= 0 ? 1 : -1, 0)
   return pole.addScaledVector(centre, -pole.dot(centre)).normalize().multiplyScalar(toward).applyAxisAngle(centre, turn * RAD)
 }
 
 /** The view of a whole world from space, from the side of the Sun. `lift` puts the camera to the north (+) or the south (-). */
-function spaceShot(lab: Lab, world: World, lift = 0.1): CameraShot {
+export function spaceShot(lab: Lab, world: World, lift = 0.1): CameraShot {
   const toSun = new THREE.Vector3(), north = new THREE.Vector3(), east = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0)
   return camera => {
     toSun.copy(lab.sun.group.position).sub(world.group.position).normalize()
