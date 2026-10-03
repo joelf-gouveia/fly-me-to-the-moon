@@ -40,14 +40,15 @@ A study can use code from `src/`. The code in `src/` does not use code from
 - Release the controls near a planet to cruise along its curvature.
 - Shift: faster flight; Q: hover; Space or the pause button: pause.
 - On a computer the screen has **Worlds** at the top left, with the sticker
-  count, and three round buttons at the bottom right: **Your fairy**, **Settings**
-  and pause. **Settings** has the sound, the sky switches, World speed and the keys.
+  count, and four round buttons at the bottom right: **Your fairy**, the camera
+  (**Postcard**), **Settings** and pause. **Settings** has the sound, the sky switches,
+  World speed and the keys. See [Postcard camera](#postcard-camera).
 - Open **Worlds**, tap a world, then **Fly there** for a guided journey. A new book
   opens Earth, Blossom Haven and the Moon; each new sticker opens the next world
   (see [Sticker book](#sticker-book)). Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
   a held **Boost** button and a **Hover / Fly** toggle. **Menu** holds the extra
-  controls and flight details. Switching apps pauses until **Keep flying** is tapped.
+  controls (**Your fairy**, **Postcard** and **Settings**) and flight details. Switching apps pauses until **Keep flying** is tapped.
 
 For phone/iPad play on home Wi-Fi, run `npm run play:lan` and open the printed
 Network URL on the device. See [Mobile play](docs/mobile-play.md) for controls,
@@ -221,9 +222,44 @@ locks, **Fly there** to the Moon, the Earth sticker after the return, the saved 
 and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
 
+## Postcard camera
+
+The camera button takes a picture of the flight (F5 of the
+[feature ideas study](#feature-ideas-study)). A soft white flash shows, then a postcard:
+the picture in a white border with a small tilt, the name of the nearest world in the
+display font, "A POSTCARD FROM YOUR JOURNEY", and the sticker picture of the world as a
+stamp. The picture is the 3D view only. The panels and the buttons of the screen are not
+in it.
+
+- On a computer the camera is the second round button of the toolbar. On a touch screen
+  it is **Postcard** in **Menu**, as the other extra controls of the screen study. The
+  top row of a phone has no space for a fourth button at 320 px.
+- **Save** downloads a PNG of the whole card, for example `fairy-postcard-earth.png`. The
+  card is 1280 pixels wide from a wide screen (1280 × 950 from a 16:10 screen), and
+  980 × 1400 pixels from a phone that is upright.
+- **Share** shows only when the device can share a picture file
+  (`navigator.canShare({ files })`). It opens the share sheet of the device.
+- Nothing leaves the device without a tap on **Save** or **Share**.
+- Flight waits while the postcard is open. Escape, the × button or a tap outside the card
+  closes it. The focus goes to **Save**, and then back to the camera button (to **Menu** on
+  a touch screen).
+- With reduced motion, the flash and the slide do not show. The card keeps its tilt.
+
+The renderer clears its picture after each frame, so the camera renders a new frame and
+copies the canvas in the same call. The game does not use `preserveDrawingBuffer`. The
+picture keeps the shape of the view from 3:4 to 16:9 and cuts the rest at the middle. The
+layout numbers, the file name and the drawing of the card are in `src/postcard.ts`; the
+button and the dialog are in `src/postcard-camera.ts`.
+
+Run `node scripts/postcard-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+button, the flash, a real picture, Save, Share, the wait of the flight, Escape, the focus,
+reduced motion, a postcard from the Moon and the phone Menu at 390 and 320 px. An optional
+second argument sets the server origin. Screenshots and the saved cards are written to
+`artifacts.local/postcard/`.
+
 ## Settings
 
-The gear button beside the fairy button opens **Settings**, a panel for
+The gear button beside the camera button opens **Settings**, a panel for
 grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
 open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts:
 
@@ -245,7 +281,7 @@ The reset also closes the worlds again: only Earth, Blossom Haven and the Moon s
 open. The fairy look and the home discovery stay.
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
-for the panel, the confirmation, the reset at the Moon, Escape, the three toolbar
+for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
 buttons, the sky switches, World speed, the sound, the saved switches and the phone menu.
 An optional second argument sets the server origin.
 

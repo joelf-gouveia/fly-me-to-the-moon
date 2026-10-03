@@ -145,6 +145,11 @@ burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes ba
 
 ### F5 · Postcard camera
 
+Status: in the game on 3 October 2026. See "Postcard camera" in `README.md`. The game
+flight waits while the postcard is open, as for Settings; the clip shows the flight behind
+the card. On a touch screen the camera is **Postcard** in **Menu**. **Save** downloads a PNG
+of the whole card; the note says "Saved to Downloads". `scripts/postcard-smoke.mjs` checks it.
+
 A camera button, a soft flash, and a postcard with the picture, a frame and the name of
 the world. **Save** keeps it on the device; **Share** sends it to Photos on an iPad.
 
