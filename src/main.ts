@@ -42,6 +42,8 @@ import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
 import { createSettings } from './settings'
+import { createPostcardCamera } from './postcard-camera'
+import { createSparkleRings, RING, RING_CHIME, ringGlowTexture } from './rings'
 import { view, watchView } from './viewport'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
@@ -268,6 +270,10 @@ const skyProfiles = new Map(worlds.map(world => [world, skyProfile(world)]))
 const fullDay = daylightAt(90)
 let daylight = fullDay
 const cottageWindow = (home.surface.getObjectByName('cottage-window') as THREE.Mesh).material as THREE.MeshStandardMaterial
+// Sparkle rings over the meadows of Earth, Blossom Haven and the Moon (src/rings.ts).
+const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture() })
+// The longer, brighter trail after a ring ends at this time of active flight.
+let sparkleUntil = -Infinity
 
 function loadFairyLook(): FairyLook {
   try {
@@ -299,15 +305,17 @@ const initialForward = new THREE.Vector3().crossVectors(earthOutward, new THREE.
 orientFlight(fairy.quaternion, initialForward, earthOutward)
 scene.add(fairy)
 
+// The trail shows its newest 72 points. After a sparkle ring it shows all 144: a trail twice as long.
 const trailCount = 72
-const trailPositions = new Float32Array(trailCount * 3)
-const trailColors = new Float32Array(trailCount * 3)
+const trailCapacity = trailCount * 2
+const trailPositions = new Float32Array(trailCapacity * 3)
+const trailColors = new Float32Array(trailCapacity * 3)
 const trailColor = new THREE.Color()
-for (let i = 0; i < trailCount; i += 1) {
+for (let i = 0; i < trailCapacity; i += 1) {
   trailPositions[i * 3] = fairy.position.x
   trailPositions[i * 3 + 1] = fairy.position.y
   trailPositions[i * 3 + 2] = fairy.position.z
-  trailColor.setHSL(0.1 + i / trailCount * 0.09, 0.75, 0.72)
+  trailColor.setHSL(0.1 + i / trailCapacity * 0.09, 0.75, 0.72)
   trailColors.set([trailColor.r, trailColor.g, trailColor.b], i * 3)
 }
 const trailGeometry = new THREE.BufferGeometry()
@@ -331,8 +339,8 @@ function applyFairyLook(look: FairyLook, persist = true) {
   fairyRig.applyLook(look)
   const { sparkle } = lookColors(look)
   fairyLight.color.setHex(sparkle).lerp(new THREE.Color(0xffffff), 0.35)
-  for (let i = 0; i < trailCount; i++) {
-    trailColor.setHex(sparkle).offsetHSL(0, 0, (i / trailCount - 0.5) * 0.12)
+  for (let i = 0; i < trailCapacity; i++) {
+    trailColor.setHex(sparkle).offsetHSL(0, 0, (i / trailCapacity - 0.5) * 0.12)
     trailColors.set([trailColor.r, trailColor.g, trailColor.b], i * 3)
   }
   trailGeometry.attributes.color.needsUpdate = true
@@ -407,6 +415,7 @@ let destination: World | null = null
 let arrivalUntil = 0
 let mapOpen = false
 let settingsOpen = false
+let postcardOpen = false
 let menuOpen = false
 let contextLost = false
 let homeFound = false
@@ -448,6 +457,14 @@ const settings = createSettings({
   orbits: show => { orbits.paths.visible = show },
   speed: factor => { orbitSpeedFactor = factor },
 })
+// The postcard camera, beside the fairy button. Flight waits while the postcard is open.
+const postcard = createPostcardCamera({
+  open: open => { postcardOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-postcard-open', open) },
+  // The renderer clears its picture after each frame, so render a new frame for the camera to read at once.
+  capture: () => { renderer.render(scene, camera); return renderer.domElement },
+  world: () => nearestWorld,
+  shutter: () => playChime([1318.51, 1975.53]),
+})
 
 function followHome() {
   if (!started) startFlight()
@@ -473,7 +490,7 @@ function moveHome() {
     camera.position.add(result.offset)
     cameraLook.add(result.offset)
     previousFlightPosition.add(result.offset)
-    for (let i = 0; i < trailCount; i++) {
+    for (let i = 0; i < trailCapacity; i++) {
       trailPositions[i * 3] += result.offset.x
       trailPositions[i * 3 + 1] += result.offset.y
       trailPositions[i * 3 + 2] += result.offset.z
@@ -515,7 +532,7 @@ function setKey(code: string, down: boolean) {
 }
 
 function toggleHover() {
-  if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen) return
+  if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen) return
   hoverHeld = !hoverHeld
   clearInput()
   document.getElementById('hover-toggle')!.setAttribute('aria-pressed', String(hoverHeld))
@@ -524,11 +541,11 @@ function toggleHover() {
 document.getElementById('hover-toggle')!.addEventListener('click', toggleHover)
 
 window.addEventListener('keydown', (event) => {
-  if (event.code === 'Escape' && customizer.classList.contains('is-open')) {
+  if (event.code === 'Escape' && customizer.classList.contains('is-open') && !postcardOpen) {
     setCustomizerOpen(false)
     return
   }
-  if (customizing || mapOpen || settingsOpen || menuOpen || event.target instanceof HTMLSelectElement) return
+  if (customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || event.target instanceof HTMLSelectElement) return
   if (!started || (paused && event.code !== 'Space')) return
   if (event.target instanceof HTMLButtonElement && ['Space', 'Enter'].includes(event.code)) return
   // Q toggles hover. Ctrl did before, but Ctrl+W closes the tab and Ctrl+D or Ctrl+S opens a browser dialog.
@@ -547,7 +564,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-key]').forEach((button) => {
   const release = (event: PointerEvent) => { keys.release(event.pointerId); button.classList.toggle('is-held', keys.has(code)) }
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault()
-    if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen || contextLost) return
+    if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || contextLost) return
     button.setPointerCapture(event.pointerId)
     keys.press(event.pointerId, code)
     button.classList.add('is-held')
@@ -693,6 +710,8 @@ function updateNearestWorld() {
     candidate.armed = transition.armed
     if (transition.regenerate) {
       regenerateWorld(candidate)
+      // A new landscape needs a new safe line of rings.
+      sparkleRings.rebuild(candidate)
       arrivalNote.textContent = `A new ${candidate.name} to explore`
       arrivalUntil = performance.now() + 4000
     }
@@ -717,6 +736,19 @@ const planetLocalOffset = new THREE.Vector3()
 const planetLocalOrientation = new THREE.Quaternion()
 const inversePlanetOrientation = new THREE.Quaternion()
 let elapsed = 0
+let trailShown = trailCount
+/** 1 for the 4 s after a sparkle ring, then 0. The last 0.75 s go down smoothly. */
+function sparkleLevel() { return THREE.MathUtils.clamp((sparkleUntil - elapsed) / 0.75, 0, 1) }
+
+/** Hide the points older than the length of the trail now: far away, out of the view. */
+function trimTrail() {
+  trailShown = Math.round(THREE.MathUtils.lerp(trailCount, trailCapacity, sparkleLevel()))
+  for (let age = trailShown; age < trailCapacity; age++) {
+    const index = ((trailCursor - 1 - age) % trailCapacity + trailCapacity) % trailCapacity
+    trailPositions[index * 3] = trailPositions[index * 3 + 1] = trailPositions[index * 3 + 2] = 1e6
+  }
+  trailGeometry.attributes.position.needsUpdate = true
+}
 
 function updateFairy(delta: number) {
   const yaw = Number(keys.has('KeyA') || keys.has('ArrowLeft')) - Number(keys.has('KeyD') || keys.has('ArrowRight'))
@@ -728,6 +760,7 @@ function updateFairy(delta: number) {
     forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
     speedValue.textContent = '0'
     fairyAnimation.update(delta, false)
+    trimTrail()
     return
   }
   boosted = keys.has('ShiftLeft') || keys.has('ShiftRight')
@@ -766,13 +799,13 @@ function updateFairy(delta: number) {
 
   fairyAnimation.update(delta, boosted)
   for (let i = 0; i < (boosted ? 3 : 1); i++) {
-    const index = trailCursor % trailCount
+    const index = trailCursor % trailCapacity
     trailPositions[index * 3] = fairy.position.x + (Math.random() - 0.5) * 0.34
     trailPositions[index * 3 + 1] = fairy.position.y + (Math.random() - 0.5) * 0.34
     trailPositions[index * 3 + 2] = fairy.position.z + (Math.random() - 0.5) * 0.34
     trailCursor++
   }
-  trailGeometry.attributes.position.needsUpdate = true
+  trimTrail()
 }
 
 function updateCamera(delta: number) {
@@ -873,7 +906,7 @@ function animate(timestamp?: number) {
   timer.update(timestamp)
   if (document.hidden || contextLost) { requestAnimationFrame(animate); return }
   const rawDelta = Math.min(timer.getDelta(), 0.05)
-  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !menuOpen
+  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
   if (touchDevice && mobileQuality.sample(timer.getDelta(), active)) renderer.setPixelRatio(renderRatio())
   const paintTime = timestamp ?? performance.now()
   if (!active && !customizing && !mapOpen && paintTime - lastPaint < 100) { requestAnimationFrame(animate); return }
@@ -910,6 +943,12 @@ function animate(timestamp?: number) {
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
   if (delta > 0) updateFairy(delta)
+  // A ring that the fairy flies through gives a burst, a chime and a longer, brighter trail.
+  const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
+  if (ringsTaken.length) {
+    playChime(RING_CHIME)
+    sparkleUntil = elapsed + RING.trailSeconds
+  }
   updateCamera(rawDelta)
   updateEnvironment()
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
@@ -921,9 +960,9 @@ function animate(timestamp?: number) {
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
-    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen,
+    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen,
   })
-  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !menuOpen)
+  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
   for (const world of worlds) {
     world.clouds.rotation.y += delta * 0.001
     world.creatures?.update(delta, camera.position)
@@ -931,9 +970,10 @@ function animate(timestamp?: number) {
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
   teleportGlow.update(delta, reducedMotion.matches)
-  trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12
-  // A longer, brighter trail in a comet tail, for 4 s after it.
-  trailMaterial.size = 0.2 + comet.glow * 0.18
+  const sparkle = sparkleLevel()
+  trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12 + sparkle * 0.22
+  // A longer, brighter trail after a sparkle ring, and in a comet tail for 4 s after it.
+  trailMaterial.size = 0.2 + Math.max(sparkle * 0.16, comet.glow * 0.18)
   // Space light, air rim, cloud puffs, the deck of Venus and Saturn's ring plane, from the camera.
   updatePlanetLooks(worlds, camera.position)
   sunShading.update(worlds)
@@ -945,7 +985,33 @@ function animate(timestamp?: number) {
 
 animate()
 
-// Diagnostics and test hooks for repeatable browser tests; absent from production builds.
+/**
+ * Test only: put the fairy `distance` m before ring `index` of a world, on its axis and facing along
+ * it, at `speed` m/s. The real flight and the real ring test then take the ring.
+ */
+function aimRing(kind: string, index = 0, distance = 8, speed = 11) {
+  const world = worlds.find(item => item.kind === kind)
+  const ring = world ? sparkleRings.placements(world)[index] : undefined
+  if (!world || !ring) return null
+  stopHome()
+  destination = null
+  if (hoverHeld) toggleHover()
+  const axis = ring.axis.clone().applyQuaternion(world.group.quaternion)
+  fairy.position.copy(ring.position).addScaledVector(ring.axis, -distance).applyQuaternion(world.group.quaternion).add(world.group.position)
+  const up = fairy.position.clone().sub(world.group.position).normalize()
+  orientFlight(fairy.quaternion, axis, up)
+  forward.copy(axis)
+  flight.speed = speed
+  camera.up.copy(up)
+  camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
+  previousFlightPosition.copy(fairy.position)
+  cameraLook.copy(fairy.position).addScaledVector(forward, 12)
+  // A jump is not a flight: the next ring test starts here.
+  sparkleRings.reset()
+  return { world: world.name, index, centre: ring.position.clone().applyQuaternion(world.group.quaternion).add(world.group.position).toArray() }
+}
+
+// Diagnostics and test hooks (aimRing, place, spin) for repeatable browser tests; absent from production builds.
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   // Test hooks: put the camera behind the fairy at once, as at the start.
   const snapCamera = () => {
@@ -957,6 +1023,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     camera.lookAt(cameraLook)
   }
   Object.defineProperty(window, '__fairyTest', { value: {
+  aimRing,
   /** Puts the fairy at `position`, heading to `target`, with no guide. */
   place: (position: number[], target: number[]) => {
     destination = null
@@ -984,9 +1051,10 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
+    postcard: postcard.state,
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },
     moon: {
       position: moon.group.position.toArray(), earth: earth.group.position.toArray(), orbitTime: orbits.elapsed,
@@ -1010,6 +1078,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     },
     candy: ['lollipop-crowns', 'candy-canes', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
     clouds: { puffs: (home.clouds.getObjectByName('cotton-candy-clouds') as THREE.InstancedMesh | undefined)?.count ?? 0, mist: mistTint.getHexString(), fogDensity: fog.density },
+    rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailShown, trailSize: trailMaterial.size },
     wildlife: worlds.filter(world => world.creatures).map(world => ({
       world: world.name, total: world.creatures!.residents.length,
       kinds: [...new Set(world.creatures!.residents.map(resident => resident.kind))],

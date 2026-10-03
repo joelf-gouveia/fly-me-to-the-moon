@@ -1,0 +1,49 @@
+/* The postcard of the camera button (src/postcard-camera.ts). The look of F5 in the feature ideas study. */
+.postcard [hidden] { display: none !important; }
+#postcard { width: max-content; max-width: calc(var(--view-width, 100vw) - 24px); max-height: calc(var(--view-height, 100dvh) - 24px); padding: 18px; overflow: visible; border: 0; background: transparent; color: #fff8df; font-family: 'Manrope', system-ui, sans-serif; }
+#postcard button { cursor: pointer; font: inherit; }
+/* The soft white flash of the camera fades into the dim sky behind the card. */
+#postcard::backdrop { background: #0a0b1e66; backdrop-filter: blur(7px) saturate(.9); animation: postcard-flash .7s ease-out both; }
+@keyframes postcard-flash { 0%, 12% { background: #fffdf6; backdrop-filter: none; } }
+
+.postcard-card { position: relative; width: max-content; margin: 0 auto; animation: postcard-in .8s .25s cubic-bezier(.2, 1.3, .4, 1) both; }
+@keyframes postcard-in { from { opacity: 0; transform: translateY(45vh) rotate(7deg); } }
+/* The card rests at a small tilt. */
+.postcard-figure { position: relative; margin: 0; padding: 14px 14px 0; border-radius: 6px; background: #fffaf2; box-shadow: 0 24px 60px #0a061a77, 0 2px 0 #e8dccb; rotate: -2.5deg; }
+/* The picture keeps the shape of the view, from 3:4 to 16:9 (postcardLayout() in src/postcard.ts). */
+.postcard-photo canvas { display: block; width: min(488px, calc(var(--view-width, 100vw) - 92px), calc((var(--view-height, 100dvh) - 250px) * var(--aspect, 1.78))); min-width: 160px; height: auto; border-radius: 2px; background: #3a3150; }
+/* "width: 0; min-width: 100%" keeps the caption as wide as the picture. */
+.postcard-figure figcaption { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 0; min-width: 100%; padding: 10px 2px 14px 4px; color: #59304c; }
+.postcard-figure figcaption > span { display: grid; gap: 6px; min-width: 0; }
+#postcard-title { font: 400 32px/1 'Italiana', Georgia, serif; letter-spacing: .02em; overflow-wrap: anywhere; }
+#postcard-line { font: 9px 'DM Mono', monospace; letter-spacing: .2em; color: #b57d9a; }
+/* The sticker picture of the world, as a stamp. */
+.postcard-stamp { display: grid; place-items: center; flex-shrink: 0; width: 62px; height: 62px; border: 3px solid #fff6ee; border-radius: 18px; background: linear-gradient(160deg, #fff7fb, #ffe6f1); box-shadow: 0 6px 16px #3a1f2e40; rotate: 8deg; }
+.postcard-stamp .planet-picture { margin: 0; width: 40px; height: 40px; font-size: 30px; }
+.postcard-stamp .planet-picture.moon { width: 30px; height: 30px; }
+.postcard-stamp .planet-picture.ceres, .postcard-stamp .planet-picture.vesta { width: 26px; height: 26px; }
+.postcard-stamp .planet-picture.saturn::after { width: 58px; height: 16px; border-width: 4px; }
+#close-postcard { position: absolute; top: -16px; right: -16px; width: 48px; height: 48px; border: 1px solid #ffffff55; border-radius: 50%; color: #fff; background: #1f2540f2; font-size: 26px; line-height: 1; box-shadow: 0 6px 18px #0006; }
+
+.postcard-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 24px; animation: postcard-fade .4s .7s both; }
+.postcard-actions button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-width: 112px; min-height: 48px; padding: 8px 20px; border-radius: 18px; font-size: 15px !important; }
+.postcard-actions svg { width: 18px; height: 18px; }
+#postcard-save { border: 1px solid #ffd0e0; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600; box-shadow: 0 6px 20px #0004; }
+#postcard-share { border: 1px solid #ffffff40; color: #fff6e7; background: #182335c9; backdrop-filter: blur(10px); }
+#postcard-status { display: flex; align-items: center; justify-content: center; gap: 7px; width: max-content; margin: 14px auto 0; padding: 7px 14px; border: 1px solid #efd2e38c; border-radius: 16px; background: #352741ed; color: #ffe8f2; font-size: 13px; }
+#postcard-status:empty { display: none; }
+#postcard-status svg { width: 15px; height: 15px; color: #9be3b8; }
+@keyframes postcard-fade { from { opacity: 0; } }
+#postcard button:focus-visible, #postcard-toggle:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+
+@media (max-width: 560px) {
+  #postcard { padding: 18px 12px; }
+  #postcard-title { font-size: 26px; }
+  #postcard-line { font-size: 8px; letter-spacing: .14em; }
+  .postcard-stamp { width: 52px; height: 52px; border-radius: 15px; }
+  .postcard-stamp .planet-picture { width: 32px; height: 32px; font-size: 24px; }
+}
+/* Reduced motion: no flash and no slide. The card keeps its small tilt. */
+@media (prefers-reduced-motion: reduce) {
+  #postcard::backdrop, .postcard-card, .postcard-actions { animation: none; }
+}

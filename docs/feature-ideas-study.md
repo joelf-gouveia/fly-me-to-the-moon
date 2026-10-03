@@ -131,6 +131,10 @@ plays. Each creature says hello again only after 8 s.
 
 ### F4 · Sparkle rings
 
+Status: in the game. Earth has five lines of rings, Blossom Haven and the Moon have three.
+The code is in `src/rings.ts`, and the check is `scripts/sparkle-rings-smoke.mjs`. See the
+Sparkle rings part of `README.md`.
+
 A short line of glowing rings floats over the meadow. The fairy flies through a ring: a
 burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes back after
 30 s. There is no score and no fail.
@@ -144,6 +148,11 @@ burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes ba
   colours. Each ring gives a burst, a chime and a longer trail.
 
 ### F5 · Postcard camera
+
+Status: in the game on 3 October 2026. See "Postcard camera" in `README.md`. The game
+flight waits while the postcard is open, as for Settings; the clip shows the flight behind
+the card. On a touch screen the camera is **Postcard** in **Menu**. **Save** downloads a PNG
+of the whole card; the note says "Saved to Downloads". `scripts/postcard-smoke.mjs` checks it.
 
 A camera button, a soft flash, and a postcard with the picture, a frame and the name of
 the world. **Save** keeps it on the device; **Share** sends it to Photos on an iPad.

@@ -21,6 +21,8 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 #flight-menu .menu-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
 #flight-menu .icon-button { width: 100%; height: auto; min-height: 58px; border-radius: 14px; display: flex; justify-content: center; align-items: center; gap: 9px; padding: 10px; font-size: 13px; color: #fff2de; }
 #flight-menu .mobile-action-label { display: inline; font-size: 13px; }
+/* Three buttons: the last button fills the second row. */
+#flight-menu .menu-actions > .icon-button:last-child:nth-child(odd) { grid-column: 1 / -1; }
 #flight-menu .destination, #flight-menu .flight-panel, #flight-menu .adventure-tools { position: static; width: auto; max-width: none; margin: 14px 0; }
 #flight-menu .destination { display: flex; }
 #flight-menu .flight-panel { display: flex; }
@@ -45,6 +47,7 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .touch-ui.is-paused .touch-controls, .touch-ui.is-paused .touch-actions,
 .touch-ui.is-map-open .touch-controls, .touch-ui.is-map-open .touch-actions,
 .touch-ui.is-settings-open .touch-controls, .touch-ui.is-settings-open .touch-actions,
+.touch-ui.is-postcard-open .touch-controls, .touch-ui.is-postcard-open .touch-actions,
 .touch-ui.is-menu-open .touch-controls, .touch-ui.is-menu-open .touch-actions,
 .touch-ui:not(.has-started) .touch-controls, .touch-ui:not(.has-started) .touch-actions,
 .touch-ui:not(.has-started) .mobile-top, .touch-ui:not(.has-started) .toolbar { visibility: hidden; }
