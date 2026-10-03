@@ -60,7 +60,7 @@ try {
     if (await evaluate('!!document.querySelector("#settings-toggle") && !!document.querySelector("#setting-orbits")').catch(() => false)) break
     await delay(250)
   }
-  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,settings-toggle,pause-toggle', 'The game toolbar is not the buttons of option C and the world book')
+  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,postcard-toggle,settings-toggle,pause-toggle', 'The game toolbar is not the buttons of option C, the world book and the postcard camera')
   assert(await evaluate('["#follow-home", "#show-stars", "#show-orbits", "#orbit-speed-toggle", "#sound-toggle", ".journey-picker", "#toggle-orbits"].every(selector => !document.querySelector(selector))'), 'A removed control is still in the game')
   assert(await evaluate('!document.querySelector(".solar-map").classList.contains("hide-orbit-paths")'), 'The Worlds map hides its paths')
   errors.length = 0
