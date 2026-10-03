@@ -52,6 +52,20 @@ How it differs from the prototype of this study:
   `/?test&weather=rain` on the dev server.
 - **Snow falls only under a snow cloud.** `fallAt()` of `src/seasons.ts` still gives the
   leaves and the petals; `updateEnvironment()` takes the snow from the weather.
+- **The weather of the game is calm.** In the first version of the game the fronts were
+  80 m across, as in this study, and a flight went through a new weather each few seconds.
+  Joel's review of 4 October 2026: the weather changed too fast, and a sky with no Sun
+  was too frequent. Now the planet has only one or two fronts at a time: a front is about
+  250 m across (`frontSize` 0.5), with one smooth edge (`frontDetail`). The limits for
+  cloud and rain are higher, and the wet air of a belt adds less (`wetPull`). About 87% of
+  the planet has Sun, a grey sky is on about 5%, and rain or snow is on about 8%. The jungle
+  has rain at 17% of its places, and the leaf forest at 6% to 9%. A shower passes a place
+  in about 3 minutes. The numbers of the sections below are those of the study, not of
+  the game.
+- **Fair weather has small clouds.** Groups of small heap clouds are in the clear sky
+  where the air is not dry (`fairSize`, `fairCover`). They do not hide the Sun.
+- **The mist is gone at 08:00**, the hour of the start of a flight (`mistHour`, `mistSpan`).
+- **The light changes in about 2 seconds** at the edge of a front, not in 1 second.
 - **Not in the game:** the name of the weather in the flight panel (decision 7), and
   step 5: the sound, the creatures and the sticker tasks.
 

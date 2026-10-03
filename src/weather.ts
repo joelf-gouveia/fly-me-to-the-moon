@@ -35,14 +35,26 @@ export const WEATHER = {
   beltReach: 0.6,
   /** The half width of the rain belt, in degrees. */
   beltWidth: 11,
-  /** The size of a front: a larger number gives smaller fronts. A front is about 80 m across. */
-  frontSize: 3.2,
-  /** A front goes around the planet in this time: 40 minutes. A shower passes a place in about 1 minute. */
+  /**
+   * The size of a front: a larger number gives smaller fronts. The planet is small, so it has only
+   * one or two fronts at a time: a front is about 250 m across, and a lap of the planet is 1,700 m.
+   */
+  frontSize: 0.5,
+  /** The fine part of a front. A small number gives a front one smooth edge, with no small showers around it. */
+  frontDetail: 0.07,
+  /** How much the wet air of a place adds to its weather. */
+  wetPull: 0.3,
+  /** Fair weather has small heap clouds in groups: the size of a group, and the most cover that they give. */
+  fairSize: 2.4, fairCover: 0.22,
+  /** A front goes around the planet in this time: 40 minutes. A shower passes a place in about 3 minutes. */
   frontRound: 2400,
   /** The shape of a front changes in this time: 15 minutes. */
   frontChange: 900,
-  /** Cloud starts at `low` and the sky is full at `high`. Rain and thunder the same. */
-  cloud: { low: 0.5, high: 0.8 }, rain: { low: 0.68, high: 0.88 }, storm: { low: 0.84, high: 0.98 },
+  /**
+   * Cloud starts at `low` and the sky is full at `high`. Rain and thunder the same. The limits are
+   * high: most of the planet has Sun, and a grey sky or rain is rare.
+   */
+  cloud: { low: 0.62, high: 0.9 }, rain: { low: 0.84, high: 0.96 }, storm: { low: 0.94, high: 1 },
   /**
    * Snow falls where the warmth of src/seasons.ts is below `high`. The snow on the ground of the game
    * is full below 0.58 and ends at 0.66, so snow falls a short distance in front of the snow line.
@@ -50,8 +62,8 @@ export const WEATHER = {
   snowFall: { low: 0.66, high: 0.74 },
   /** The hour of the heat showers of a warm afternoon. */
   heatHour: 15.5,
-  /** The hour of the morning mist. */
-  mistHour: 6.5,
+  /** The hour of the morning mist, and its span in hours. The mist is gone at 08:00, the hour of the start of a flight. */
+  mistHour: 6, mistSpan: 1.2,
   /** The ground is wet after this time in the rain, in seconds. It is dry again after `dry`. Snow melts after `melt`. */
   soak: 14, dry: 70, melt: 200,
   /** A rainbow is a circle of 42° around the point opposite to the Sun. */
@@ -124,11 +136,11 @@ export function snowShare(warm: number) { return 1 - smooth(warm, WEATHER.snowFa
 export type WeatherModel = ReturnType<typeof createWeatherModel>
 /** The weather of one Earth. `seed` is the seed of the landscape, so each new Earth has new weather. */
 export function createWeatherModel(seed: number) {
-  const west = createNoise3D(seededRandom(seed + 9100)), east = createNoise3D(seededRandom(seed + 9101))
+  const west = createNoise3D(seededRandom(seed + 9100)), east = createNoise3D(seededRandom(seed + 9101)), fairField = createNoise3D(seededRandom(seed + 9102))
   const size = WEATHER.frontSize
   const field = (noise: typeof west, x: number, y: number, z: number, turn: number, lift: number) => {
     const c = Math.cos(turn), s = Math.sin(turn), px = x * c - z * s, pz = x * s + z * c
-    return noise(px * size, y * size + lift, pz * size) * 0.68 + noise(px * size * 2.3 + 11, y * size * 2.3 - lift, pz * size * 2.3) * 0.32
+    return noise(px * size, y * size + lift, pz * size) * (1 - WEATHER.frontDetail) + noise(px * size * 2.3 + 11, y * size * 2.3 - lift, pz * size * 2.3) * WEATHER.frontDetail
   }
   /**
    * The fronts at a place, from 0 to 1. In the middle latitudes the weather goes from the west to
@@ -147,15 +159,19 @@ export function createWeatherModel(seed: number) {
     const latitude = latitudeOf(place)
     const wet = wetness(latitude, place.moist, moment.year), warm = warmthAt(latitude, moment.year, place.height)
     // A warm, wet afternoon makes heat showers.
-    const hot = smooth(warm, 0.72, 0.9), heat = Math.exp(-(((moment.hour - WEATHER.heatHour) / 3) ** 2)) * hot * wet * 0.28
-    const value = front(place.x, place.y, place.z, moment.time) + (wet - 0.5) * 0.62 + heat
-    const cover = smooth(value, WEATHER.cloud.low, WEATHER.cloud.high), rain = smooth(value, WEATHER.rain.low, WEATHER.rain.high)
+    const hot = smooth(warm, 0.72, 0.9), heat = Math.exp(-(((moment.hour - WEATHER.heatHour) / 3) ** 2)) * hot * wet * 0.18
+    const value = front(place.x, place.y, place.z, moment.time) + (wet - 0.5) * WEATHER.wetPull + heat
+    const rain = smooth(value, WEATHER.rain.low, WEATHER.rain.high)
+    // Fair weather has groups of small clouds where the air is not dry. They move with the fronts.
+    const turn = moment.time / WEATHER.frontRound * TAU, c = Math.cos(turn), s = Math.sin(turn), fairSize = WEATHER.fairSize
+    const fair = smooth(0.5 + fairField((place.x * c - place.z * s) * fairSize + 50, place.y * fairSize, (place.x * s + place.z * c) * fairSize) * 0.5, 0.45, 0.75)
+    const cover = Math.max(smooth(value, WEATHER.cloud.low, WEATHER.cloud.high), fair * WEATHER.fairCover * smooth(wet, 0.1, 0.4))
     const storm = smooth(value, WEATHER.storm.low, WEATHER.storm.high) * hot
     const snow = snowShare(warm)
     const phase = lookPhase(latitude, moment.year), strength = seasonStrength(latitude)
     const wind = 0.75 + cover * 0.45 + rain * 0.9 + storm * 0.5 + ramp(phase, [0.1, 0, 0.35, 0.3]) * strength + Math.min(0.4, Math.max(0, place.height) * 0.03)
     // Mist comes at dawn on low, wet ground under a calm, clear sky. Autumn has the most.
-    const dawn = Math.exp(-(((moment.hour - WEATHER.mistHour) / 2.2) ** 2))
+    const dawn = Math.exp(-(((moment.hour - WEATHER.mistHour) / WEATHER.mistSpan) ** 2))
     const low = Math.max(1 - smooth(place.height, 1.5, 4), smooth(place.river, 0.1, 0.4))
     const mist = dawn * low * (1 - smooth(cover, 0.3, 0.8)) * smooth(wet, 0.25, 0.5) * mix(0.7, ramp(phase, [0.7, 0.45, 1, 0.8]), strength)
     return { cover, rain, snow, storm, mist, wind, warm, kind: kindOf({ cover, rain, snow, storm, mist }) }

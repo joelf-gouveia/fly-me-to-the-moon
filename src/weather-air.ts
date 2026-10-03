@@ -174,7 +174,8 @@ export function createWeatherAir(scene: THREE.Scene, world: World, sun: THREE.Ve
       const altitude = camera.distanceTo(world.group.position) - world.radius
       const air = near ? 1 - THREE.MathUtils.smoothstep(altitude, world.atmosphere * 0.25, world.atmosphere * 1.08) : 0
       const below = air * (1 - THREE.MathUtils.smoothstep(altitude, world.cloudHeight - 6, world.cloudHeight + 6))
-      const ease = 1 - Math.exp(-Math.max(delta, 0.016) * 2.5)
+      // The light and the fog change slowly: about 2 seconds for a new weather.
+      const ease = 1 - Math.exp(-Math.max(delta, 0.016) * 1.2)
       const lerp = THREE.MathUtils.lerp
       if (air <= 0) {
         // Away from the air of Earth: no weather at the camera.

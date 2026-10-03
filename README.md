@@ -278,8 +278,10 @@ the dev server, `/?test&magic=0.5` starts in Lantern time.
 Earth has weather. Four things make the weather of a place: the place (the moisture of
 its climate belt), the season, the hour and the fronts that move around the planet. So the
 jungle has warm rain, the desert has a clear sky, the rain belt of the tropics follows
-the Sun, and the rain is snow where the air is cold. A front goes around the planet in 40
-minutes, and a shower passes a place in about 1 minute. Each new Earth has new weather.
+the Sun, and the rain is snow where the air is cold. The weather is calm: the planet has
+only one or two fronts at a time, and about 87% of it has Sun, with groups of small clouds
+in the clear sky. A front goes around the planet in 40 minutes, and a shower passes a
+place in about 3 minutes. Each new Earth has new weather.
 
 One small weather map (128 × 64, and 64 × 32 on a phone) holds the cloud, the rain, the
 snow and the wet ground of each place. The game calculates one sixteenth of it on each
