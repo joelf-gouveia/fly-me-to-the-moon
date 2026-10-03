@@ -45,7 +45,7 @@ export function createSettings(actions: Actions) {
       <header><div><p class="eyebrow">FOR GROWN-UPS</p><h2 id="settings-title">Settings</h2></div><button id="close-settings" type="button" aria-label="Close settings">×</button></header>
       <section class="setting" aria-labelledby="sound-title">
         <h3 id="sound-title">Sound</h3>
-        ${toggle('setting-sound', 'Music and chimes', 'A soft hum while she flies. The chime of a new sticker plays only with the sound on.')}
+        ${toggle('setting-sound', 'Music, chimes and voice', 'A soft hum while she flies. With the sound on, a new sticker plays a chime, and a voice says its name and its fact.')}
         <p id="sound-status" role="status"></p>
       </section>
       <section class="setting" aria-labelledby="sky-title">

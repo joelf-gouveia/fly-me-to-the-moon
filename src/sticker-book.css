@@ -16,10 +16,26 @@
 #sticker-toast p { margin: 0; font-size: 12px; line-height: 1.5; }
 #sticker-toast .sticker-toast-next { margin-top: 4px; font-weight: 600; }
 #sticker-toast .sticker-toast-next:empty { display: none; }
+/* Spoken facts: the speaker mark moves while the voice says a word, and that word lights up.
+   With the sound off, the note has no mark and no light. */
+.sticker-toast-head { display: flex; align-items: center; gap: 8px; }
+.sticker-voice { display: inline-flex; align-items: center; gap: 2px; height: 16px; padding: 0 7px 0 5px; border-radius: 9px; color: #fff; background: #c49ab3; }
+.sticker-voice svg { width: 11px; height: 11px; margin-right: 1px; }
+.sticker-voice i { display: block; width: 2px; height: 10px; border-radius: 1px; background: currentColor; transform: scaleY(.3); }
+.sticker-voice.is-talking { background: #d0679c; }
+.sticker-voice.is-talking i { animation: sticker-talk .32s ease-in-out infinite alternate; }
+.sticker-voice.is-talking i:nth-of-type(2) { animation-duration: .27s; animation-delay: -.1s; }
+.sticker-voice.is-talking i:nth-of-type(3) { animation-duration: .36s; animation-delay: -.2s; }
+.sticker-voice.is-talking i:nth-of-type(4) { animation-duration: .3s; animation-delay: -.05s; }
+@keyframes sticker-talk { from { transform: scaleY(.3); } to { transform: scaleY(1); } }
+#sticker-toast .sticker-word { border-radius: 6px; transition: opacity .15s, background-color .15s; }
+#sticker-toast.is-speaking .sticker-word.is-later { opacity: .5; }
+#sticker-toast.is-speaking .sticker-word.is-now { color: #3d1530; background: #ffb6d6; box-shadow: 0 0 0 2px #ffb6d6; }
 .touch-ui #sticker-toast { top: calc(var(--edge-top, 16px) + 64px); right: var(--edge-right, 16px); bottom: auto; max-width: calc(var(--view-width, 100vw) - 32px); transform-origin: 90% 0; }
 @keyframes sticker-on { from { transform: scale(1.4) rotate(-8deg); opacity: 0; } }
 
 .is-map-open #sticker-toast, .is-settings-open #sticker-toast { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   #sticker-toast { animation: none; }
+  .sticker-voice.is-talking i { animation: none; transform: scaleY(.8); }
 }

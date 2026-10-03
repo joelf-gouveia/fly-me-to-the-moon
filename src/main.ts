@@ -39,6 +39,7 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { createSpokenFacts } from './spoken-facts'
 import { createSettings } from './settings'
 import { view, watchView } from './viewport'
 
@@ -422,9 +423,13 @@ function travelTo(world: World) {
   if (!started) document.querySelector<HTMLButtonElement>('#begin-button')!.click()
   renderer.domElement.focus()
 }
+// The voice says the name and the fact of each new sticker. It speaks only with the sound on,
+// with no pause and with the page in view.
+const spokenFacts = createSpokenFacts(import.meta.env.BASE_URL, () => soundOn && !paused && !document.hidden)
 // One sticker for each world, the first time the fairy arrives. The stickers are in Worlds.
 const stickerBook = createStickerBook(worlds, {
   chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
+  voice: spokenFacts,
 })
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
@@ -581,6 +586,8 @@ function setPaused(value: boolean) {
   pauseButton.classList.toggle('is-active', paused)
   pauseButton.ariaLabel = paused ? 'Resume flight' : 'Pause flight'
   mountIcon(pauseButton.querySelector('i'), paused ? Play : Pause)
+  // The voice does not continue after a pause. The note then shows only the words.
+  if (paused) spokenFacts.stop()
   if (audioContext && audioGain) {
     audioGain.gain.cancelScheduledValues(audioContext.currentTime)
     audioGain.gain.setTargetAtTime(soundOn && !paused && !document.hidden ? 0.62 : 0, audioContext.currentTime, 0.05)
@@ -593,6 +600,7 @@ document.addEventListener('visibilitychange', () => {
   clearInput()
   if (document.hidden) {
     if (started) setPaused(true)
+    spokenFacts.stop()
     if (audioContext) void audioContext.suspend().catch(() => {})
   }
 })
@@ -615,6 +623,9 @@ function createAmbience() {
 
 /** The Sound switch of Settings. The switch is a tap, so the browser lets the sound start. */
 async function setSound(on: boolean) {
+  // The tap lets a phone play the voice later. This must come before the first await.
+  if (on) spokenFacts.unlock()
+  else spokenFacts.stop()
   try {
     if (!audioContext) createAmbience()
     await audioContext!.resume()
@@ -623,6 +634,7 @@ async function setSound(on: boolean) {
     audioGain!.gain.linearRampToValueAtTime(soundOn && !paused && !document.hidden ? 0.62 : 0, audioContext!.currentTime + 0.45)
   } catch {
     soundOn = false
+    spokenFacts.stop()
     settings.soundNote('The browser does not allow sound now. Try the switch again.')
   }
   return soundOn
@@ -914,6 +926,7 @@ function animate(timestamp?: number) {
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
   teleportGlow.update(delta, reducedMotion.matches)
+  stickerBook.update()
   trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12
   // Space light, air rim, cloud puffs, the deck of Venus and Saturn's ring plane, from the camera.
   updatePlanetLooks(worlds, camera.position)
@@ -932,7 +945,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     home: home.group.position.toArray(), radius: home.radius, atmosphere: home.atmosphere,
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
-    destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
+    destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, voice: spokenFacts.line, earthVisit: earth.visit,
     found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
