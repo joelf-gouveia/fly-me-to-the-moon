@@ -96,6 +96,34 @@ when it is low. The blue sky hides the corona and the loops, as in the real sky.
 use a lighter shader, and reduced motion stops the Sun. The numbers are in
 `src/sun-look.ts`; the shaders are in `src/sun-paint.ts`.
 
+## Sparkle rings
+
+Short lines of glowing rings in candy colours float 5 to 12 m over the ground of Earth,
+Blossom Haven and the Moon. Fly through a ring: a burst of sparkles, a two-note chime
+(when Sound is on), and a trail that is twice as long and brighter for 4 s. A taken ring
+fades and comes back after 30 s of flight. There is no score, no fail and no counter.
+
+- Each line has 5 to 7 rings on a smooth, gentle curve. Earth has five lines, Blossom
+  Haven and the Moon have three. The first line of Earth starts near the first meadow,
+  ahead of the fairy. The first line of Blossom Haven is behind the cottage. The first
+  line of the Moon is on its near side.
+- Each ring is clear of the ground, the trees, the candy, the cottage and the water edge.
+  The rings of Blossom Haven are higher (9 to 11 m), over the candy canes.
+- The rings are in the group of their world, so they turn and move with it, also when
+  Blossom Haven moves. A new Earth landscape gets new lines. The same seed gives the same
+  lines.
+- The ring test uses the path of the fairy between two frames, so a fast fairy cannot skip
+  a ring.
+- One torus, one glow quad and three materials serve all rings: two draw calls for each
+  world. A phone gets 24 sparkles in a burst instead of 48.
+
+The placement and the ring test are in `src/rings.ts`; the tests are in
+`tests/rings.test.ts`. Run `node scripts/sparkle-rings-smoke.mjs "path/to/chrome.exe"`
+against the dev server for the rings on each world, a pass with the chime, the burst and
+the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
+Blossom Haven, new rings after a new Earth landscape, and the phone layout. An optional
+second argument sets the server origin.
+
 ## Asteroid belt
 
 The asteroid belt fills the space between Mars and Jupiter, 12,125 to 13,875 m from

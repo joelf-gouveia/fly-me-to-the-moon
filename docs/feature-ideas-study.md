@@ -131,6 +131,10 @@ plays. Each creature says hello again only after 8 s.
 
 ### F4 · Sparkle rings
 
+Status: in the game. Earth has five lines of rings, Blossom Haven and the Moon have three.
+The code is in `src/rings.ts`, and the check is `scripts/sparkle-rings-smoke.mjs`. See the
+Sparkle rings part of `README.md`.
+
 A short line of glowing rings floats over the meadow. The fairy flies through a ring: a
 burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes back after
 30 s. There is no score and no fail.
