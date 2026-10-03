@@ -208,7 +208,30 @@ gets its sticker, and that world opens too. The note at the top of **Worlds** al
 says what is next. Earth and Blossom Haven are always open: the way home, and the flower
 guide. The Sun is on the map from the start, but it opens in its turn.
 
-The book is saved in this browser as `fairy-sticker-book`. Every player earns the
+Each world also has one search star (F1 of the [feature ideas study](docs/feature-ideas-study.md),
+option B of the sticker book study). The note of a new sticker gives one small task on that
+world, for example "Find a duck on the water." In **Worlds**, the card of the world gives the
+task as its hint, and a dashed star shows on its picture. When the fairy does the task, a gold
+star pops up in the world with sparkles, the note says "SEARCH STAR" and the found line, a gold
+star goes on the sticker picture, and a brighter chime plays when the sound is on. There is no
+score, no timer and no fail. A search counts only after the hello sticker of that world, and it
+waits until the last note is gone. The tasks:
+
+| Check | Worlds | The fairy |
+|---|---|---|
+| altitude | Sun | Is less than 40 m above the Sun |
+| altitude | Venus, Jupiter, Uranus, Neptune | Flies below the cloud height of the world |
+| altitude | Mars | Is less than 8 m above the ground |
+| place | Vesta | Is near Vesta, over its south pole |
+| place | Ceres | Is near Ceres, within 0.12 rad of Occator crater (the salt spots) |
+| place | Saturn | Is 1.3 to 2.02 radii from the centre, less than 40 m from the ring plane |
+| creature | Earth, Blossom Haven | Is within 12 m of a duck, or of a unicorn |
+| terrain | Mercury, the Moon | Is less than 20 m above a deep crater, or above a dark sea |
+
+The checks are `searchDone()` in `src/stickers.ts`. `searchProbe()` and the gold star are in
+`src/search-stars.ts`. The crater term and the Occator direction are exports of `src/terrain.ts`.
+
+The book is saved in this browser as `fairy-sticker-book`, with the search stars. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
 stickers, their facts and the rule of the open worlds are in `src/stickers.ts`; the book
 is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). This is option A of
@@ -220,6 +243,12 @@ server for no sticker at the start, the book in **Worlds**, the next door and th
 locks, **Fly there** to the Moon, the Earth sticker after the return, the saved book
 and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
+
+Run `node scripts/search-stars-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+search stars: no star before the hello sticker, the task in the note and in **Worlds**, a find
+on seven worlds, the gold star in the world and on the sticker, the saved book, the reset and
+the phone layout. A test move puts the fairy at each place. An optional second argument sets
+the server origin.
 
 ## Settings
 
@@ -239,7 +268,8 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
 
 **Reset sticker book** shows how many stickers the book has, then asks for a
 confirmation before it removes them: "Remove all 5 stickers? This cannot be
-undone." **Keep the stickers** has the focus, so an extra Enter changes nothing.
+undone." The reset removes the search stars too: "Remove all 5 stickers and 2 search
+stars?" **Keep the stickers** has the focus, so an extra Enter changes nothing.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
 The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
 open. The fairy look and the home discovery stay.
