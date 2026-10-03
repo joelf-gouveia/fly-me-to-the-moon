@@ -1,9 +1,10 @@
 import { DWARF_WORLDS } from './belt'
 import { MOON } from './moon'
-import type { PlanetKind } from './terrain'
+import { OCCATOR } from './terrain'
+import type { PlanetKind, TerrainSample } from './terrain'
 
 // The sticker book: one sticker for each world, the first time the fairy arrives.
-// Design and options: docs/sticker-book-study.md. The study adds search stars and a poster.
+// Design and options: docs/sticker-book-study.md. The game has the search stars of option B; the study adds a poster.
 export type StickerId = PlanetKind | 'sun'
 /** How the game can tell that a search task is done. */
 export type SearchCheck = 'altitude' | 'place' | 'creature' | 'terrain'
@@ -87,6 +88,83 @@ export const emptyBook = (): Book => ({ arrived: [], found: [], placed: [] })
 export function arrive(book: Book, id: StickerId): { book: Book; earned: Earned[] } {
   if (book.arrived.includes(id)) return { book, earned: [] }
   return { book: { ...book, arrived: [...book.arrived, id] }, earned: [{ id, kind: 'hello' }] }
+}
+
+/** A search star (option B of docs/sticker-book-study.md) counts once, and only after the hello sticker of the world. */
+export function find(book: Book, id: StickerId): { book: Book; earned: Earned[] } {
+  if (!searching(book, id)) return { book, earned: [] }
+  return { book: { ...book, found: [...book.found, id] }, earned: [{ id, kind: 'search' }] }
+}
+/** The world has its hello sticker and waits for its search star. */
+export const searching = (book: Book, id: StickerId) => book.arrived.includes(id) && !book.found.includes(id)
+
+/**
+ * What the flight loop measures at the place of the fairy for the search checks.
+ * searchProbe() in src/search-stars.ts fills it from the nearest world.
+ */
+export type SearchProbe = {
+  /** The flight panel says that the world is near (arrivalDistance()). */
+  near: boolean
+  /** Metres above the base radius of the world. It is below 0 in the deep clouds of a giant. */
+  altitude: number
+  /** Metres above the ground under the fairy. */
+  clearance: number
+  /** The radius and the cloud height of the world, in game metres. */
+  radius: number
+  cloudHeight: number
+  /** The unit direction of the fairy from the centre, in the local frame of the world (without its spin and tilt). */
+  up: { x: number; y: number; z: number }
+  /** The terrain under the fairy. */
+  ground: TerrainSample
+  /** The distance in metres to the nearest creature of each kind that shows, for example `duck` or `unicorn`. */
+  creatures: Partial<Record<string, number>>
+}
+
+/** The numbers of the search checks. Each one comes from the `rule` text of its sticker. */
+export const SEARCH = {
+  /** A creature counts within 12 m. */
+  creature: 12,
+  /** The Sun: less than 40 m above it. */
+  sun: 40,
+  /** Mars: less than 8 m above the ground. */
+  dust: 8,
+  /** Mercury and the Moon: "low" is less than 20 m above the ground. */
+  low: 20,
+  /** A deep crater (`TerrainSample.crater`) and a dark sea (`TerrainSample.mare`). */
+  crater: 0.5,
+  mare: 0.5,
+  /** Vesta: over the south pole, local y below -0.8. */
+  pole: -0.8,
+  /** Ceres: within 0.12 rad of the Occator direction. */
+  occator: 0.12,
+  /** Saturn: 1.3 to 2.02 radii from the centre, and less than 40 m from the ring plane. */
+  ringFrom: 1.3,
+  ringTo: 2.02,
+  ringPlane: 40,
+} as const
+
+/** The creature that the search of a living world asks for. Blossom Haven names its creatures as fairytales. */
+export const SEARCH_CREATURE: Partial<Record<StickerId, string>> = { earth: 'duck', fairy: 'unicorn' }
+
+/** True when the fairy does the search task of the world (`search.rule` of its sticker). */
+export function searchDone(id: StickerId, probe: SearchProbe) {
+  const { up } = probe
+  switch (id) {
+    case 'sun': return probe.altitude < SEARCH.sun
+    case 'venus': case 'jupiter': case 'uranus': case 'neptune': return probe.altitude < probe.cloudHeight
+    case 'mars': return probe.clearance < SEARCH.dust
+    case 'earth': case 'fairy': return (probe.creatures[SEARCH_CREATURE[id]!] ?? Infinity) <= SEARCH.creature
+    case 'vesta': return probe.near && up.y < SEARCH.pole
+    case 'ceres': return probe.near && Math.acos(Math.min(1, up.x * OCCATOR[0] + up.y * OCCATOR[1] + up.z * OCCATOR[2])) < SEARCH.occator
+    case 'saturn': {
+      // The rings are in the equator plane of the world: local y is 0.
+      const distance = probe.radius + probe.altitude
+      const across = Math.hypot(up.x, up.z) * distance / probe.radius
+      return Math.abs(up.y * distance) < SEARCH.ringPlane && across >= SEARCH.ringFrom && across <= SEARCH.ringTo
+    }
+    case 'mercury': return probe.clearance < SEARCH.low && (probe.ground.crater ?? 0) > SEARCH.crater
+    case 'moon': return probe.clearance < SEARCH.low && (probe.ground.mare ?? 0) > SEARCH.mare
+  }
 }
 
 /** A bigger celebration after every fourth sticker. */

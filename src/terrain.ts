@@ -16,8 +16,14 @@ export function seededRandom(seed: number) {
   }
 }
 
-/** `mare` is the Moon only: 1 on a dark lava plain, 0 on the highlands. */
-export type TerrainSample = { height: number; land: number; river: number; detail: number; mare?: number }
+/**
+ * `mare` is the Moon only: 1 on a dark lava plain, 0 on the highlands. `crater` is the cratered
+ * worlds only (Mercury, the Moon, Ceres and Vesta): 1 at the bottom of a crater, 0 on flat ground.
+ */
+export type TerrainSample = { height: number; land: number; river: number; detail: number; mare?: number; crater?: number }
+
+/** The direction of Occator crater on Ceres, in the local frame of the world. Its bright salt spots are there. */
+export const OCCATOR = (([x, y, z]) => [x / Math.hypot(x, y, z), y / Math.hypot(x, y, z), z / Math.hypot(x, y, z)] as const)([0.35, 0.45, 0.82])
 
 // The same spherical field drives the mesh, vegetation and collision height.
 // Sampling a 3D direction also avoids a seam at the longitude wrap.
@@ -52,8 +58,8 @@ export function createTerrain(kind: PlanetKind, seed: number) {
     if (isGasWorld(kind)) return { height: -12, land: 0, river: 0, detail }
     const craters = Math.abs(noise(x * 11 + 91, y * 11, z * 11))
     const cratered = kind === 'mercury' || kind === 'moon' || kind === 'ceres' || kind === 'vesta'
-    const crater = cratered ? -Math.pow(Math.max(0, 1 - craters / 0.2), 2) * 3 : 0
-    let height = broad * 5 + hills * 3 + detail * 0.45 + crater
+    const crater = cratered ? Math.pow(Math.max(0, 1 - craters / 0.2), 2) : 0
+    let height = broad * 5 + hills * 3 + detail * 0.45 - crater * 3
     // Dwarf worlds are small: gentle relief keeps Ceres round. Vesta is lumpier,
     // with its giant Rheasilvia basin at the south pole.
     if (kind === 'ceres') height *= 0.13
@@ -63,9 +69,9 @@ export function createTerrain(kind: PlanetKind, seed: number) {
       const t = Math.min(1, Math.max(0, (plains(x * 1.7, y * 1.7, z * 1.7) * 0.6 + x * 0.3 - 0.36) / 0.1))
       const mare = t * t * (3 - 2 * t)
       height = height * 0.3 + (-1.1 + detail * 0.1 - height * 0.3) * mare * 0.85
-      return { height, land, river: 0, detail, mare }
+      return { height, land, river: 0, detail, mare, crater }
     }
-    return { height, land, river: 0, detail }
+    return cratered ? { height, land, river: 0, detail, crater } : { height, land, river: 0, detail }
   }
 }
 

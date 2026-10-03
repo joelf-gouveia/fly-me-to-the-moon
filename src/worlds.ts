@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { createNoise3D } from 'simplex-noise'
-import { createTerrain, groundHeight, HOME_CLEARING_HEIGHT, HOME_SEED, isGasWorld, seededRandom } from './terrain'
+import { createTerrain, groundHeight, HOME_CLEARING_HEIGHT, HOME_SEED, isGasWorld, OCCATOR, seededRandom } from './terrain'
 import type { PlanetKind } from './terrain'
 import { buildCandyEcosystem } from './candy'
 import { buildCottonCandyClouds } from './cotton-candy'
@@ -285,7 +285,7 @@ function buildGround(world: World) {
   const stone = new THREE.Color(fairy ? 0xbca6d6 : 0x85817a), snow = new THREE.Color(0xdfe7e5)
   const color = new THREE.Color()
   // The bright salt spots of Occator crater on Ceres.
-  const occator = new THREE.Vector3(0.35, 0.45, 0.82).normalize()
+  const occator = new THREE.Vector3(...OCCATOR)
   const painter = world.look && (world.kind === 'mars' || world.kind === 'mercury') ? createGroundPainter(world.kind, world.seed) : null
   for (let i = 0; i < positions.count; i++) {
     direction.fromBufferAttribute(positions, i).normalize()
