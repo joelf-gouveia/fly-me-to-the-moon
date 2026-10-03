@@ -362,6 +362,33 @@ Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
 the actual game, including movement, pause, both populations, the fairytale
 residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
 
+### Creature hello
+
+The creatures say hello to the fairy. Fly low near an animal on Earth or a
+fairytale creature on Blossom Haven. When the fairy is 4.5 m or nearer, the
+creature turns to her and hops two times on its ground. Ducks and Frog Princes
+bob on the water. Two or three small pink hearts float up from the head, sway
+and fade. A soft two-note chime plays when Sound is on. Hellos that come close
+together share one chime. Each creature says hello again only after 8 s. The
+pegasus foals in the air do not say hello.
+
+- `greet()` of the population (`src/creatures/population.ts`) runs after
+  `update()`, because `update()` puts each model back on its route. The hop goes
+  along the ground normal in the frame of the world. Thus the creature stays on
+  its ground when the world turns and when Blossom Haven moves.
+- The rules and the hearts are in `src/creatures/hello.ts`. All the hearts of a
+  world are one point cloud with one shared texture: one draw call. A phone
+  shows half the hearts (1 or 2 for each hello, 12 in the pool instead of 24).
+- Pause stops the hellos, as it stops the creatures.
+- The test snapshot gives `hellos` (the total) and, for each world in
+  `wildlife`, `hellos` with the count, the hearts and the active hellos.
+
+Run `node scripts/creature-hello-smoke.mjs "path/to/chrome.exe" [origin]` against
+the dev server to check the hello in the game: a low pass on Earth, the hop, the
+hearts, the chime, the pause, the rest time, a fairytale creature on Blossom
+Haven, a Frog Prince bob when one is near, and a phone at 390 px. The
+screenshots go to `artifacts.local/creature-hello/`.
+
 ## Fairytale creature study
 
 Visit `/studies/fairytale-creature-study.html` for **Once upon a meadow**, the study that
