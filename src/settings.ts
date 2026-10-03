@@ -5,7 +5,7 @@ import './settings.css'
 
 type Actions = {
   open: (open: boolean) => void
-  stickers: { readonly count: number; reset: () => void }
+  stickers: { readonly count: number; readonly stars: number; reset: () => void }
   /** Turns the sound on or off. It gives the state that the browser allows. */
   sound: (on: boolean) => Promise<boolean>
   stars: (show: boolean) => void
@@ -120,9 +120,11 @@ export function createSettings(actions: Actions) {
   })
 
   const plural = (count: number) => `${count} sticker${count === 1 ? '' : 's'}`
+  // The search stars (F1) count only when the book has one.
+  const starText = (stars: number) => stars ? ` and ${stars} search star${stars === 1 ? '' : 's'}` : ''
   function render() {
     const count = actions.stickers.count
-    get('sticker-summary').textContent = count ? `The book has ${count} of ${STICKERS.length} stickers.` : 'The book is empty.'
+    get('sticker-summary').textContent = count ? `The book has ${count} of ${STICKERS.length} stickers${starText(actions.stickers.stars)}.` : 'The book is empty.'
     reset.disabled = count === 0
   }
   function ask(show: boolean) {
@@ -130,7 +132,8 @@ export function createSettings(actions: Actions) {
     reset.hidden = show
     if (show) {
       const count = actions.stickers.count
-      get('reset-question').textContent = count === 1 ? 'Remove the sticker?' : `Remove all ${count} stickers?`
+      const stars = starText(actions.stickers.stars)
+      get('reset-question').textContent = count === 1 ? `Remove the sticker${stars}?` : `Remove all ${count} stickers${stars}?`
       // The safe answer has the focus, so an extra Enter keeps the stickers.
       get('reset-cancel').focus()
     }
@@ -160,10 +163,10 @@ export function createSettings(actions: Actions) {
   reset.addEventListener('click', () => ask(true))
   get('reset-cancel').addEventListener('click', () => { ask(false); reset.focus() })
   get('reset-yes').addEventListener('click', () => {
-    const count = actions.stickers.count
+    const count = actions.stickers.count, stars = starText(actions.stickers.stars)
     actions.stickers.reset()
     ask(false); render()
-    get('reset-status').textContent = `${plural(count)} removed. The next world the fairy visits gives the first sticker.`
+    get('reset-status').textContent = `${plural(count)}${stars} removed. The next world the fairy visits gives the first sticker.`
     get('close-settings').focus()
   })
   // A press that starts and ends outside the dialog closes it, as the flight menu does.

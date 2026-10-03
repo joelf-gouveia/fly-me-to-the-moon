@@ -39,6 +39,8 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
+import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
 import { view, watchView } from './viewport'
 
@@ -425,7 +427,12 @@ function travelTo(world: World) {
 // One sticker for each world, the first time the fairy arrives. The stickers are in Worlds.
 const stickerBook = createStickerBook(worlds, {
   chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
+  // A rising chime, brighter than the sticker chime: the search star.
+  searchChime: () => playChime([783.99, 987.77, 1174.66, 1567.98]),
 })
+// The gold star of a find (F1). After a reset of the book, a star in the sky goes too.
+const searchStar = createSearchStar(scene, makeSoftDiscTexture('rgba(255,255,255,1)'), touchDevice)
+stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
@@ -662,6 +669,13 @@ function updateNearestWorld() {
   const near = nearestDistance < Math.max(85, world.atmosphere * 1.5)
   // The flight panel's "near" test earns the sticker (arrivalDistance() in src/stickers.ts).
   if (started) stickerBook.arrive(world, near)
+  // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
+  // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
+  const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !menuOpen
+  if (flying && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near)) && stickerBook.find(world.kind)) {
+    const creature = SEARCH_CREATURE[world.kind]
+    searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
+  }
   planetDistance.textContent = near
     ? `${Math.round(Math.max(0, clearance))} m above ${world.gas ? 'deep clouds' : 'surface'}`
     : `${(nearestDistance / 1000).toFixed(1)} km away`
@@ -914,6 +928,7 @@ function animate(timestamp?: number) {
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
   teleportGlow.update(delta, reducedMotion.matches)
+  searchStar.update(delta, fairy, camera, reducedMotion.matches)
   trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12
   // Space light, air rim, cloud puffs, the deck of Venus and Saturn's ring plane, from the camera.
   updatePlanetLooks(worlds, camera.position)
@@ -926,14 +941,30 @@ function animate(timestamp?: number) {
 
 animate()
 
-// Read-only diagnostics for repeatable browser tests; absent from production builds.
+// Diagnostics for repeatable browser tests; absent from production builds. Only place() changes the game.
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
-  Object.defineProperty(window, '__fairyTest', { value: { snapshot: () => ({
+  Object.defineProperty(window, '__fairyTest', { value: {
+    /** A world object, to read its terrain (`sample`) and its creatures in a browser check. */
+    world: (kind: string) => worlds.find(world => world.kind === kind),
+    /** Moves the fairy to `height` metres above the ground of a world, over a local direction. The camera moves with her. */
+    place: (kind: string, direction: [number, number, number], height: number) => {
+      const world = worlds.find(item => item.kind === kind)!
+      const normal = new THREE.Vector3(...direction).normalize().applyQuaternion(world.group.quaternion)
+      const shift = fairy.position.clone()
+      fairy.position.copy(world.group.position).addScaledVector(normal, surfaceRadius(world, normal) + height)
+      shift.subVectors(fairy.position, shift)
+      orientFlight(fairy.quaternion, new THREE.Vector3().crossVectors(normal, Math.abs(normal.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).normalize(), normal)
+      camera.position.add(shift); cameraLook.add(shift); previousFlightPosition.copy(fairy.position)
+      for (let i = 0; i < trailCount; i++) trailPositions.set(fairy.position.toArray(), i * 3)
+      trailGeometry.attributes.position.needsUpdate = true
+      destination = null; flight.speed = 11
+    },
+    snapshot: () => ({
     home: home.group.position.toArray(), radius: home.radius, atmosphere: home.atmosphere,
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },

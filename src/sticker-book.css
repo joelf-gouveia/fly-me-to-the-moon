@@ -16,10 +16,20 @@
 #sticker-toast p { margin: 0; font-size: 12px; line-height: 1.5; }
 #sticker-toast .sticker-toast-next { margin-top: 4px; font-weight: 600; }
 #sticker-toast .sticker-toast-next:empty { display: none; }
+#sticker-toast .sticker-toast-task { margin-top: 4px; font-weight: 600; color: #8a4a12; }
+#sticker-toast .sticker-toast-task:empty { display: none; }
+
+/* The search star (F1) on a sticker picture: in the note and on the cards of Worlds. */
+.search-badge { position: absolute; right: -8px; top: -8px; width: 24px; height: 24px; line-height: 0; pointer-events: none; }
+.search-badge svg { display: block; width: 100%; height: 100%; }
+.search-badge.is-found { filter: drop-shadow(0 2px 3px #a2650066) drop-shadow(0 0 6px #ffd96acc); }
+#sticker-toast .search-badge { width: 30px; height: 30px; animation: search-badge-on .5s .35s cubic-bezier(.2, 1.4, .4, 1) both; }
+#sticker-toast.is-search { border-color: #ffd96acc; background: #fff2d6f2; }
+@keyframes search-badge-on { from { transform: scale(0) rotate(-40deg); } }
 .touch-ui #sticker-toast { top: calc(var(--edge-top, 16px) + 64px); right: var(--edge-right, 16px); bottom: auto; max-width: calc(var(--view-width, 100vw) - 32px); transform-origin: 90% 0; }
 @keyframes sticker-on { from { transform: scale(1.4) rotate(-8deg); opacity: 0; } }
 
 .is-map-open #sticker-toast, .is-settings-open #sticker-toast { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
-  #sticker-toast { animation: none; }
+  #sticker-toast, #sticker-toast .search-badge { animation: none; }
 }
