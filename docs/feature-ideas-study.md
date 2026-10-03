@@ -204,6 +204,10 @@ The left stick steers, A boosts, B pauses and X toggles hover.
 A comet with a tail that always points away from the Sun, and shooting stars in the
 night sky of Earth.
 
+Status: in the game on 3 October 2026. One pass of the comet takes 600 s at 1× World
+speed. The comet is not a sticker. Shooting stars show in the air of each world with air.
+See the Comet and shooting stars section of `README.md`.
+
 - Change: a new `src/comet.ts`, updated next to `orbits.update()`. The shooting stars use
   `skyVisibility` of `updateEnvironment()`, so they show only in a dark sky.
 - Limit: a comet on a long orbit crosses the paths of the planets. Relocation must keep

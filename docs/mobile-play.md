@@ -54,6 +54,8 @@ candy objects, simpler candy curves, and at most 14 visible wildlife models
 instead of 28. Residents still exist when not drawn. Ground geometry, terrain
 sampling, collision rules, cottage placement and day/night mechanics retain
 their existing precision. The mobile scenery budget survives planet regeneration.
+The comet draws half of its tail particles (2,600 dust and 1,100 ion) and half of
+its sparkles (96) on a phone.
 Paused/welcome/menu rendering is limited to roughly 10 fps; hidden tabs skip
 scene work. Customization and the moving Worlds map remain animated.
 
