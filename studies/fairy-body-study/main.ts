@@ -83,7 +83,7 @@ document.querySelector('#body-study')!.innerHTML = `
         ${swatches('hairColor', 'Hair color', hairColorOptions)}
         ${swatches('dress', 'Dress', dressOptions)}
         ${swatches('skin', 'Skin', skinOptions)}
-        <fieldset><legend>Wings</legend><div class="segmented small wide" role="group" aria-label="Wing shape">${wingOptions.map(({ id, label }) => `<button data-wings="${id}" aria-pressed="${id === 'petal'}">${label}</button>`).join('')}</div></fieldset>
+        <fieldset><legend>Wings</legend><div class="segmented small wide" role="group" aria-label="Wing shape">${wingOptions.map(({ id, label }) => `<button data-wings="${id}" aria-pressed="${id === defaultFairyLook.wings}">${label}</button>`).join('')}</div></fieldset>
       </aside>
     </section>
 

@@ -324,8 +324,9 @@ An optional second argument sets the server origin.
 
 Choose **Choose your look** on the welcome card, or the palette button during
 flight. Pick one of nine hair styles (Bun, Bob, Tails, Space buns, Cloud curls,
-Ponytail, Long braid, Twin braids, Long waves) and one wing shape (Petal, Luna,
-Flutter). Then pick one of ten colors each for the hair, dress, wings and skin.
+Ponytail, Long braid, Twin braids, Long waves) and one of twelve wings (Dew glass,
+Glitter vein, Leaf glass, Silk pleats, Rainbow cells, Swirl and gems, Monarch,
+Swallowtail, Frost, Starlight, Autumn leaf, Aurora). Then pick one of ten colors each for the hair, dress, wings and skin.
 Each choice applies instantly and is saved in this browser. The camera moves
 closer and flight waits while the panel is open; close it or press Escape to return.
 
@@ -339,8 +340,12 @@ The leggings and shoes use a deep shade of the dress color. Each wing color
 has a matching sparkle for the glow and trail. Option names, colors and
 defaults live in `src/customization.ts`. Looks saved with the old Rose, Moon
 and Fern palettes convert to the matching colors on load.
-The body, hair and wing geometry is built once in `createFairyRig` in `src/fairy.ts`; switching
-styles changes visibility, and switching colors updates shared materials. The hair
+The body and hair geometry is built once in `createFairyRig` in `src/fairy.ts`; switching
+styles changes visibility, and switching colors updates shared materials. The wings are
+in `src/fairy-wings/` (see the [fairy wing study](#fairy-wing-study)): each wing is a set
+of painted panels with a shader for the colour shift, the glitter and the light through
+the wing. Each wing takes the wing color, but Autumn leaf has fixed colors. A look saved
+with Petal, Luna or Flutter gets Dew glass, Glitter vein or Swirl and gems. The hair
 styles are in `src/fairy-hair.ts`. The Ponytail, Long braid, Twin braids and Long
 waves swing gently with the flight and straighten along her body in boost. The six
 newer styles stay clear of the wings and the pointed ears in every wing shape.
@@ -860,6 +865,29 @@ landmark, the cost and the photo credits. The clips are in
 `public/studies/earth-landmarks/`. Run
 `node studies/earth-landmarks-study/earth-landmarks-study-capture.mjs "path/to/chrome.exe" L1,L2`
 against port 5174 to record the clips of L1 and L2 again.
+
+## Fairy wing study
+
+Visit `/studies/fairy-wing-study.html` for **Wings that catch the light**, a study of
+twenty new wings for the fairy and of six changes to how the game draws a wing. Before the
+study, the game had three wings (Petal, Luna and Flutter), each a flat shape of one pale
+colour; the study shows them as **Before**. The twenty wings are in five families: glass (Dew glass,
+Glitter vein, Leaf glass, Dragonfly), butterfly (Rainbow cells, Swirl and gems, Monarch,
+Peacock eye, Moon moth, Swallowtail), fabric (Silk pleats, Feather), nature (Frost, Petal
+bloom, Autumn leaf) and magic (Stained glass, Starlight, Soap bubble, Candy swirl,
+Aurora). Each wing has a clip from the engine of the game. **See it live** runs a wing in
+live 3D, with the ten wing colours of the menu, day and night, and a switch for each of
+the six changes: painted membrane, veins and edges, colour shift, glitter, light through
+the wing and soft wing beat. Its controls do not change the game.
+
+Twelve wings are selected for the game: Dew glass, Glitter vein, Leaf glass, Silk pleats,
+Rainbow cells, Swirl and gems, Monarch, Swallowtail, Frost, Starlight, Autumn leaf and
+Aurora. The game now has these twelve wings with the new rendering, in place of the three
+wings from before. The other eight wings stay in the study. The
+[technical study](docs/fairy-wing-study.md) gives the findings, each wing, the method,
+the cost and the limits. The clips are in `public/studies/fairy-wings/`. Run
+`node studies/fairy-wing-study/fairy-wing-study-capture.mjs "path/to/chrome.exe" dew,glitter http://localhost:5174`
+to record the clips of Dew glass and Glitter vein again.
 
 ## Browser checks
 
