@@ -1,0 +1,19 @@
+/* The rules of this page. The dark look comes from page.css of the feature ideas study; page.ts loads both. */
+.pair-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px }
+.pair-card { border: 1px solid #36405a; border-radius: 10px; overflow: hidden; background: #0d1326 }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; width: 100%; padding: 0; border: 0; border-radius: 0; background: #02030f }
+.pair img { width: 100%; height: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block }
+.pair[aria-pressed=true] { outline: 2px solid #e5c28e; outline-offset: -2px }
+.pair-text { display: flex; flex-direction: column; gap: 7px; padding: 12px 14px 14px }
+.pair-text .small a, .real figcaption a { color: #c1cadb }
+.real { margin: 16px 0 0 }
+.real img { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; display: block; border-radius: 8px }
+.real figcaption { font-size: 11px; color: #97a3bb; margin-top: 6px }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 26px }
+.compare figure { margin: 0 }
+.compare img { width: 100%; height: auto; display: block; border: 1px solid #36405a; border-radius: 10px }
+.compare figcaption { font-size: 12px; color: #aab5ca; margin-top: 8px }
+.compare figcaption b { color: #f6d9aa; font-weight: 600 }
+.code-grid b { color: #f6d9aa; font-weight: 600 }
+.controls { max-height: none }
+@media (max-width: 900px) { .pair-cards, .compare { grid-template-columns: 1fr } }
