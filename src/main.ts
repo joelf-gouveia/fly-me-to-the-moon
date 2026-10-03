@@ -40,6 +40,7 @@ import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
 import { createSettings } from './settings'
+import { createPostcardCamera } from './postcard-camera'
 import { view, watchView } from './viewport'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
@@ -402,6 +403,7 @@ let destination: World | null = null
 let arrivalUntil = 0
 let mapOpen = false
 let settingsOpen = false
+let postcardOpen = false
 let menuOpen = false
 let contextLost = false
 let homeFound = false
@@ -442,6 +444,14 @@ const settings = createSettings({
   // The switch shows the paths in the sky only. The Worlds map always shows them.
   orbits: show => { orbits.paths.visible = show },
   speed: factor => { orbitSpeedFactor = factor },
+})
+// The postcard camera, beside the fairy button. Flight waits while the postcard is open.
+const postcard = createPostcardCamera({
+  open: open => { postcardOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-postcard-open', open) },
+  // The renderer clears its picture after each frame, so render a new frame for the camera to read at once.
+  capture: () => { renderer.render(scene, camera); return renderer.domElement },
+  world: () => nearestWorld,
+  shutter: () => playChime([1318.51, 1975.53]),
 })
 
 function followHome() {
@@ -510,7 +520,7 @@ function setKey(code: string, down: boolean) {
 }
 
 function toggleHover() {
-  if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen) return
+  if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen) return
   hoverHeld = !hoverHeld
   clearInput()
   document.getElementById('hover-toggle')!.setAttribute('aria-pressed', String(hoverHeld))
@@ -519,11 +529,11 @@ function toggleHover() {
 document.getElementById('hover-toggle')!.addEventListener('click', toggleHover)
 
 window.addEventListener('keydown', (event) => {
-  if (event.code === 'Escape' && customizer.classList.contains('is-open')) {
+  if (event.code === 'Escape' && customizer.classList.contains('is-open') && !postcardOpen) {
     setCustomizerOpen(false)
     return
   }
-  if (customizing || mapOpen || settingsOpen || menuOpen || event.target instanceof HTMLSelectElement) return
+  if (customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || event.target instanceof HTMLSelectElement) return
   if (!started || (paused && event.code !== 'Space')) return
   if (event.target instanceof HTMLButtonElement && ['Space', 'Enter'].includes(event.code)) return
   // Q toggles hover. Ctrl did before, but Ctrl+W closes the tab and Ctrl+D or Ctrl+S opens a browser dialog.
@@ -542,7 +552,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-key]').forEach((button) => {
   const release = (event: PointerEvent) => { keys.release(event.pointerId); button.classList.toggle('is-held', keys.has(code)) }
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault()
-    if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen || contextLost) return
+    if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || contextLost) return
     button.setPointerCapture(event.pointerId)
     keys.press(event.pointerId, code)
     button.classList.add('is-held')
@@ -861,7 +871,7 @@ function animate(timestamp?: number) {
   timer.update(timestamp)
   if (document.hidden || contextLost) { requestAnimationFrame(animate); return }
   const rawDelta = Math.min(timer.getDelta(), 0.05)
-  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !menuOpen
+  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
   if (touchDevice && mobileQuality.sample(timer.getDelta(), active)) renderer.setPixelRatio(renderRatio())
   const paintTime = timestamp ?? performance.now()
   if (!active && !customizing && !mapOpen && paintTime - lastPaint < 100) { requestAnimationFrame(animate); return }
@@ -904,9 +914,9 @@ function animate(timestamp?: number) {
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
-    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen,
+    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen,
   })
-  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !menuOpen)
+  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
   for (const world of worlds) {
     world.clouds.rotation.y += delta * 0.001
     world.creatures?.update(delta, camera.position)
@@ -933,9 +943,10 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
+    postcard: postcard.state,
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },
     moon: {
       position: moon.group.position.toArray(), earth: earth.group.position.toArray(), orbitTime: orbits.elapsed,
