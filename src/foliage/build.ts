@@ -7,6 +7,7 @@ import { plan } from './planting'
 import type { Batch, Site } from './planting'
 import { createFields, zoneAt } from './zones'
 import type { Fields, OptionId } from './zones'
+import { plantSeason, seasonPlant } from '../seasons'
 
 /**
  * The plants of Earth and of Blossom Haven, from the foliage study (docs/foliage-study.md).
@@ -59,9 +60,19 @@ export function siteOf(world: World): Site {
 
 /** Adds one instanced mesh for each batch of a plan to `world.surface`. Returns the meshes. */
 export function addFoliage(world: World, batches: Batch[], uniforms: FoliageUniforms) {
-  const gloss = foliageMaterial(true, uniforms), matt = foliageMaterial(false, uniforms)
+  // A world with seasons (Earth) has one material for each way that a plant changes with the season.
+  const materials = new Map<string, THREE.Material>()
+  const materialOf = (gloss: boolean, species: SpeciesId) => {
+    const season = world.season ? plantSeason(species) : ''
+    const key = `${gloss}-${season}`
+    if (!materials.has(key)) {
+      const material = foliageMaterial(gloss, uniforms)
+      materials.set(key, world.season && season ? seasonPlant(material, world.season, season) : material)
+    }
+    return materials.get(key)!
+  }
   return batches.map(batch => {
-    const mesh = new THREE.InstancedMesh(speciesGeometry(batch.species), SPECIES[batch.species].gloss ? gloss : matt, batch.count)
+    const mesh = new THREE.InstancedMesh(speciesGeometry(batch.species), materialOf(SPECIES[batch.species].gloss, batch.species), batch.count)
     mesh.name = `foliage-${batch.species}`
     mesh.instanceMatrix.array.set(batch.matrices)
     mesh.instanceColor = new THREE.InstancedBufferAttribute(batch.colours, 3)
