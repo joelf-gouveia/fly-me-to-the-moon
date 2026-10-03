@@ -101,6 +101,8 @@ export function sceneryObstacles(world: World): RingObstacle[] {
       object.getMatrixAt(i, matrix)
       matrix.decompose(position, rotation, scale)
       const size = Math.max(scale.x, scale.y, scale.z)
+      // A small plant of a tall kind (a bush, a rock, a small toadstool) also stays under the rings.
+      if (box.max.y * size < 1.5) continue
       obstacles.push({ normal: position.clone().normalize(), radius: reach * size, top: position.length() + box.max.y * size })
     }
   }

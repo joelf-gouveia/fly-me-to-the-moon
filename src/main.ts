@@ -10,6 +10,7 @@ import { createRelocationClock, createRelocationGlow, findHomePosition, HOME_CAR
 import { createPlanetaryOrbits } from './orbits'
 import { createAsteroidBelt } from './asteroid-belt'
 import { CANDY_MIST, flossTime } from './cotton-candy'
+import { foliageWind, zoneNameAt } from './foliage/build'
 import { touchesBelt } from './belt'
 import { earthshineAt, MOON, moonlightAt } from './moon'
 import { PROPORTIONS } from './proportions'
@@ -691,8 +692,9 @@ function updateNearestWorld() {
     : nearestDistance > world.atmosphere ? 'Edge of space'
     : world.cloudHeight && nearestDistance > world.cloudHeight + 12 ? 'Above the clouds'
     : world.cloudHeight && Math.abs(nearestDistance - world.cloudHeight - 4) < 9 ? 'Through the clouds'
-    : world.kind === 'fairy' ? 'Candy groves · sparkling soda rivers'
-    : world.kind === 'earth' ? 'Below the clouds'
+    // The climate belt of Earth or the garden of Blossom Haven below the fairy (src/foliage/zones.ts).
+    : world.kind === 'fairy' ? `${zoneNameAt(world, fairy.position) ?? 'Candy gardens'} · sparkling soda rivers`
+    : world.kind === 'earth' ? zoneNameAt(world, fairy.position) ?? 'Below the clouds'
     : world.kind === 'mars' ? 'Thin, dusty air'
     : world.kind === 'venus' ? 'Dense golden haze' : 'Drifting through cloud bands'
 
@@ -870,6 +872,8 @@ function updateEnvironment() {
   const moonlight = world === earth ? moonlightAt(fairy.position, normal, moon.group.position, sun.group.position) : null
   nightFill.intensity = 0.45 * light.night * density * (moonlight?.strength ?? 1)
   nightFill.target.position.copy(fairy.position)
+  // The toadstools, the crystals and the flowers of Blossom Haven glow at night.
+  if (home.foliage) home.foliage.glow.value = world === home ? light.night * 1.5 : 0
   fillDirection.copy(normal).multiplyScalar(300).add(fillOffset).normalize()
   if (moonlight) fillDirection.lerp(moonlight.direction, moonlight.above).normalize()
   nightFill.position.copy(fairy.position).addScaledVector(fillDirection, 300)
@@ -952,6 +956,7 @@ function animate(timestamp?: number) {
     world.animate?.(reducedMotion.matches ? 0 : elapsed)
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
+  foliageWind.value.x = reducedMotion.matches ? 0 : elapsed
   teleportGlow.update(delta, reducedMotion.matches)
   const sparkle = sparkleLevel()
   trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12 + sparkle * 0.22
@@ -1018,7 +1023,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       webb: stars.placements.map(({ image }) => ({ id: image.id, loaded: !!stars.group.getObjectByName(image.id)?.visible })),
       caption: document.querySelector<HTMLElement>('.sky-caption:not([hidden]) h2')?.textContent ?? null,
     },
-    candy: ['lollipop-crowns', 'candy-canes', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
+    candy: ['foliage-lollipop', 'foliage-cane', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
     clouds: { puffs: (home.clouds.getObjectByName('cotton-candy-clouds') as THREE.InstancedMesh | undefined)?.count ?? 0, mist: mistTint.getHexString(), fogDensity: fog.density },
     rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailShown, trailSize: trailMaterial.size },
     wildlife: worlds.filter(world => world.creatures).map(world => ({

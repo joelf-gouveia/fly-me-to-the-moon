@@ -3,13 +3,16 @@ import { createNoise3D } from 'simplex-noise'
 import { createTerrain, groundHeight, HOME_CLEARING_HEIGHT, HOME_SEED, isGasWorld, seededRandom } from './terrain'
 import type { PlanetKind } from './terrain'
 import { buildCandyEcosystem } from './candy'
+import { buildFoliage, GAME_LOOK } from './foliage/build'
+import type { FoliageUniforms } from './foliage/build'
+import { createFields, groundColour } from './foliage/zones'
 import { buildCottonCandyClouds } from './cotton-candy'
 import { createPopulation } from './creatures/population'
 import type { CreaturePopulation } from './creatures/population'
 import { CreatureObstacles } from './creatures/spherical'
 import { DAYLIGHT, skyProfile } from './daylight'
 import { auToGame, BELT_BASE, DWARF_WORLDS } from './belt'
-import { LIFE_SCALE, PROPORTIONS } from './proportions'
+import { PROPORTIONS } from './proportions'
 import { createMoonMaterial, MOON, moonGroundColor, moonOffset } from './moon'
 import { HALO_THIN, isLookedPlanet, PLANET_LOOKS, ROCKY_RELIEF } from './planet-look'
 import { createGroundPainter, createLookState, lookMaterial, paintedMap, planetRings, setPlanetPainter, venusDeck } from './planet-paint'
@@ -36,6 +39,8 @@ export type World = {
   mobile?: boolean
   animate?: (time: number) => void
   creatures?: CreaturePopulation
+  /** Earth and Blossom Haven only: the wind and the night glow of the plants (src/foliage/build.ts). */
+  foliage?: FoliageUniforms
   /** The Moon only: the part of the hemisphere light on its ground. */
   earthshine?: THREE.IUniform<number>
   /** The seven planets only: the painted look of src/planet-paint.ts. */
@@ -281,7 +286,9 @@ function buildGround(world: World) {
   const positions = geometry.attributes.position
   const colors = new Float32Array(positions.count * 3)
   const direction = new THREE.Vector3()
-  const grass = new THREE.Color(fairy ? 0xe7a0ba : 0x679a43), sand = new THREE.Color(fairy ? 0xf6d6c1 : 0xd5c395)
+  const sand = new THREE.Color(fairy ? 0xf6d6c1 : 0xd5c395)
+  // The grass has the colour of its zone: a climate belt of Earth or a garden of Blossom Haven.
+  const fields = living ? createFields(world.seed) : null
   const stone = new THREE.Color(fairy ? 0xbca6d6 : 0x85817a), snow = new THREE.Color(0xdfe7e5)
   const color = new THREE.Color()
   // The bright salt spots of Occator crater on Ceres.
@@ -292,7 +299,9 @@ function buildGround(world: World) {
     const sample = world.sample(direction.x, direction.y, direction.z)
     positions.setXYZ(i, direction.x * (world.radius + sample.height), direction.y * (world.radius + sample.height), direction.z * (world.radius + sample.height))
     if (living) {
-      color.copy(sample.height < 0.7 ? sand : sample.height > (fairy ? 5.5 : 8.5) ? stone : grass)
+      if (sample.height < 0.7) color.copy(sand)
+      else if (sample.height > (fairy ? 5.5 : 8.5)) color.copy(stone)
+      else groundColour(GAME_LOOK[fairy ? 'fairy' : 'earth'], direction.x, direction.y, direction.z, sample, fields!, color)
       if (earth && (Math.abs(direction.y) > 0.9 || sample.height > 12)) color.copy(snow)
       color.multiplyScalar(0.87 + sample.detail * 0.22 + Math.max(0, sample.height) * 0.014)
     } else if (moon) moonGroundColor(direction, sample, color)
@@ -326,78 +335,17 @@ function buildGround(world: World) {
     }
     const waterGeometry = new THREE.SphereGeometry(world.radius, 256, 160)
     world.surface.add(new THREE.Mesh(waterGeometry, material))
-    let obstacles: CreatureObstacles
+    const obstacles = new CreatureObstacles()
+    buildFoliage(world, obstacles)
     if (fairy) {
       world.animate = buildCandyEcosystem(world)
       buildFlowerCottage(world)
-      obstacles = candyObstacles(world)
       obstacles.add(homeCottageNormal(), world.radius, 12)
-    } else obstacles = buildVegetation(world)
+    }
     const anchor = fairy ? new THREE.Vector3(0, -1, -0.12).normalize() : meadowNormal(world)
     const populationSeed = fairy ? (Math.random() * 0xffffffff) >>> 0 : world.seed ^ 0x71ac
     world.creatures = createPopulation(world.group, geometry, waterGeometry, world.radius, fairy, obstacles, populationSeed, anchor, world.mobile ? 14 : 28)
   }
-}
-
-function buildVegetation(world: World) {
-  const obstacles = new CreatureObstacles()
-  const random = seededRandom(world.seed + 42)
-  const fairy = world.kind === 'fairy'
-  // Counts grow with the planet's area, so trees keep their base density.
-  const count = Math.round((fairy ? 1800 : 3400) * LIFE_SCALE * (world.mobile ? 0.5 : 1))
-  const trees = new THREE.InstancedMesh(fairy ? new THREE.IcosahedronGeometry(1.8, 1) : new THREE.ConeGeometry(1.2, 3.8, 6), new THREE.MeshStandardMaterial({ color: fairy ? 0xffb4d8 : 0x386d48, roughness: 1 }), count)
-  const trunks = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.16, 0.23, fairy ? 2.3 : 1.4, 5), new THREE.MeshStandardMaterial({ color: fairy ? 0x93708a : 0x715c40, roughness: 1 }), count)
-  const blades: number[] = []
-  for (let i = 0; i < 3; i++) {
-    const angle = i * Math.PI / 3
-    const x = Math.cos(angle) * 0.2, z = Math.sin(angle) * 0.2
-    blades.push(-x, 0, -z, x, 0, z, x * 0.6, 0.7 - i * 0.1, z * 0.6)
-  }
-  const grassGeometry = new THREE.BufferGeometry()
-  grassGeometry.setAttribute('position', new THREE.Float32BufferAttribute(blades, 3))
-  grassGeometry.computeVertexNormals()
-  const grass = new THREE.InstancedMesh(grassGeometry, new THREE.MeshStandardMaterial({ color: fairy ? 0xcf9abc : 0x88aa50, roughness: 1, side: THREE.DoubleSide }), count * 4)
-  const normal = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0)
-  const dummy = new THREE.Object3D()
-  let treeCount = 0, grassCount = 0
-  for (let i = 0; i < 55000 * LIFE_SCALE && (treeCount < count || grassCount < count * 4); i++) {
-    const y = fairy ? random() * 2 - 1 : random() * 1.7 - 0.85
-    const angle = random() * Math.PI * 2
-    normal.set(Math.sqrt(1-y*y) * Math.cos(angle), y, Math.sqrt(1-y*y) * Math.sin(angle))
-    const sample = world.sample(normal.x, normal.y, normal.z)
-    if (fairy && y < 0 && Math.hypot(normal.x, normal.z) < 0.18) continue
-    if (sample.height < 1.1 || sample.height > 8.5 || sample.river > 0.1) continue
-    dummy.quaternion.setFromUnitVectors(up, normal)
-    const scale = 0.7 + random() * 0.8
-    dummy.scale.setScalar(scale)
-    if (treeCount < count && random() > 0.62) {
-      obstacles.add(normal, world.radius, (fairy ? 2.2 : 1.5) * scale)
-      dummy.position.copy(normal).multiplyScalar(world.radius + sample.height + (fairy ? 3 : 2.4) * scale)
-      dummy.updateMatrix(); trees.setMatrixAt(treeCount, dummy.matrix)
-      dummy.position.copy(normal).multiplyScalar(world.radius + sample.height + (fairy ? 1.1 : 0.6) * scale)
-      dummy.updateMatrix(); trunks.setMatrixAt(treeCount++, dummy.matrix)
-    } else if (grassCount < count * 4) {
-      dummy.position.copy(normal).multiplyScalar(world.radius + sample.height + 0.22)
-      dummy.updateMatrix(); grass.setMatrixAt(grassCount++, dummy.matrix)
-    }
-  }
-  trees.count = trunks.count = treeCount; grass.count = grassCount
-  world.surface.add(trees, trunks, grass)
-  return obstacles
-}
-
-function candyObstacles(world: World) {
-  const obstacles = new CreatureObstacles(), matrix = new THREE.Matrix4(), normal = new THREE.Vector3()
-  const footprints: Record<string, number> = { 'lollipop-stems': 2, 'candy-canes': 2.5, 'marshmallow-stones': 1.1, 'gumdrop-flowers': 0.65 }
-  for (const object of world.surface.children) {
-    if (!(object instanceof THREE.InstancedMesh) || !footprints[object.name]) continue
-    for (let i = 0; i < object.count; i++) {
-      object.getMatrixAt(i, matrix)
-      normal.setFromMatrixPosition(matrix).normalize()
-      obstacles.add(normal, world.radius, footprints[object.name] * matrix.getMaxScaleOnAxis())
-    }
-  }
-  return obstacles
 }
 
 function buildFlowerCottage(world: World) {

@@ -69,7 +69,7 @@ describe('Blossom Haven', () => {
     const cottage = world.surface.getObjectByName('flower-cottage')
     expect(cottage).toBeDefined()
     expect(cottage!.position.toArray()).toEqual([0, -140.5, 0])
-    for (const name of ['lollipop-crowns', 'candy-canes', 'soda-bubbles']) {
+    for (const name of ['foliage-lollipop', 'foliage-cane', 'foliage-cottonTree', 'foliage-toadstool', 'foliage-crystal', 'soda-bubbles']) {
       const mesh = world.surface.getObjectByName(name) as THREE.InstancedMesh
       expect(mesh).toBeDefined()
       expect(mesh.count).toBeGreaterThan(0)
