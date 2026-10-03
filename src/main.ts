@@ -9,6 +9,8 @@ import { createHomeGuide, homeApproachPoint, homeMarkerPosition, journeyHeading 
 import { createRelocationClock, createRelocationGlow, findHomePosition, HOME_CARRY_MARGIN, relocateHome } from './relocation'
 import { createPlanetaryOrbits } from './orbits'
 import { createAsteroidBelt } from './asteroid-belt'
+import { createComet } from './comet-sky'
+import { createShootingStars, shootingStarDark } from './shooting-stars'
 import { CANDY_MIST, flossTime } from './cotton-candy'
 import { touchesBelt } from './belt'
 import { earthshineAt, MOON, moonlightAt } from './moon'
@@ -243,6 +245,9 @@ const skyLabels = createSkyLabels(document.querySelector<HTMLElement>('.game-she
 const worlds = createWorlds(scene, touchDevice, renderer)
 const orbits = createPlanetaryOrbits(scene, worlds)
 const belt = createAsteroidBelt(scene, touchDevice)
+// F8: a comet on a long orbit, and shooting stars in a dark sky inside the air.
+const comet = createComet(scene, touchDevice)
+const shootingStars = createShootingStars(scene)
 // Gentle, deliberately storybook-speed axial turns (seconds per full rotation).
 // The Moon has no period: src/orbits.ts keeps its near side toward Earth.
 const axialSpinPeriods: Record<Exclude<World['kind'], 'sun' | 'moon'>, number> = {
@@ -665,7 +670,8 @@ function updateNearestWorld() {
   planetDistance.textContent = near
     ? `${Math.round(Math.max(0, clearance))} m above ${world.gas ? 'deep clouds' : 'surface'}`
     : `${(nearestDistance / 1000).toFixed(1)} km away`
-  regionLabel.textContent = !near ? touchesBelt(fairy.position) ? 'Asteroid belt' : 'Open space'
+  regionLabel.textContent = comet.inTail ? 'Comet tail'
+    : !near ? touchesBelt(fairy.position) ? 'Asteroid belt' : 'Open space'
     : world.kind === 'mercury' ? 'Airless rocky landscape'
     : world.kind === 'ceres' ? 'Dwarf planet · bright salt spots'
     : world.kind === 'vesta' ? 'Airless · giant south-pole crater'
@@ -798,8 +804,10 @@ function updateCamera(delta: number) {
   camera.updateProjectionMatrix()
 }
 
-// Stars and the asteroid belt fade together inside an atmosphere and in daylight.
+// Stars, the asteroid belt and the comet fade together inside an atmosphere and in daylight.
 let skyVisibility = 1
+// Shooting stars come only in a dark sky inside the air (src/shooting-stars.ts).
+let meteorDark = 0
 function updateEnvironment() {
   const world = nearestWorld
   const altitude = camera.position.distanceTo(world.group.position) - world.radius
@@ -819,6 +827,10 @@ function updateEnvironment() {
   ;(scene.background as THREE.Color).copy(spaceColor).lerp(skyTint, density * 0.78)
   skyVisibility = 1 - density * (1 - light.stars * profile.starClarity)
   stars.update(camera.position, skyVisibility, renderer.getPixelRatio())
+  meteorDark = shootingStarDark({
+    air: world.atmosphere, altitude, night: light.stars, visibility: skyVisibility,
+    clarity: profile.starClarity, reducedMotion: reducedMotion.matches,
+  })
   sunlight.color.copy(sunColor).lerp(lowSunColor, light.twilight * density)
   // Through the air the Sun has the colour of its light there, and a low Sun is dimmer (docs/sun-study.md).
   // The corona and the prominences fade in the air, as in the real sky.
@@ -901,6 +913,11 @@ function animate(timestamp?: number) {
   updateCamera(rawDelta)
   updateEnvironment()
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
+  // The comet follows the orbit time, so World speed makes it faster. Reduced motion stills the tail.
+  comet.update(orbits.elapsed, sun.group.position, camera, fairy.position, forward, reducedMotion.matches ? 0 : elapsed, delta,
+    renderer.domElement.height, skyVisibility, reducedMotion.matches)
+  if (comet.entered) playChime([783.99, 1174.66])
+  shootingStars.update(elapsed, camera, nearestWorld.group.position, meteorDark)
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
@@ -915,6 +932,8 @@ function animate(timestamp?: number) {
   flossTime.value = reducedMotion.matches ? 0 : elapsed
   teleportGlow.update(delta, reducedMotion.matches)
   trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12
+  // A longer, brighter trail in a comet tail, for 4 s after it.
+  trailMaterial.size = 0.2 + comet.glow * 0.18
   // Space light, air rim, cloud puffs, the deck of Venus and Saturn's ring plane, from the camera.
   updatePlanetLooks(worlds, camera.position)
   sunShading.update(worlds)
@@ -926,9 +945,41 @@ function animate(timestamp?: number) {
 
 animate()
 
-// Read-only diagnostics for repeatable browser tests; absent from production builds.
+// Diagnostics and test hooks for repeatable browser tests; absent from production builds.
 if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
-  Object.defineProperty(window, '__fairyTest', { value: { snapshot: () => ({
+  // Test hooks: put the camera behind the fairy at once, as at the start.
+  const snapCamera = () => {
+    forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
+    camera.up.set(0, 1, 0).applyQuaternion(fairy.quaternion)
+    camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
+    cameraLook.copy(fairy.position).addScaledVector(forward, 12)
+    previousFlightPosition.copy(fairy.position)
+    camera.lookAt(cameraLook)
+  }
+  Object.defineProperty(window, '__fairyTest', { value: {
+  /** Puts the fairy at `position`, heading to `target`, with no guide. */
+  place: (position: number[], target: number[]) => {
+    destination = null
+    fairy.position.fromArray(position)
+    const heading = new THREE.Vector3().fromArray(target).sub(fairy.position).normalize()
+    const up = Math.abs(heading.y) > 0.95 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)
+    orientFlight(fairy.quaternion, heading, up.addScaledVector(heading, -up.dot(heading)).normalize())
+    snapCamera()
+  },
+  /** Turns the nearest world by `seconds` of its spin and carries the fairy with it: a later time of day. */
+  spin: (seconds: number) => {
+    const world = nearestWorld
+    if (world.kind === 'sun' || world.kind === 'moon') return
+    const inverse = world.group.quaternion.clone().invert()
+    const offset = fairy.position.clone().sub(world.group.position).applyQuaternion(inverse)
+    const turn = inverse.multiply(fairy.quaternion)
+    world.group.rotation.y += seconds * Math.PI * 2 / axialSpinPeriods[world.kind]
+    world.group.updateMatrixWorld()
+    fairy.position.copy(offset).applyQuaternion(world.group.quaternion).add(world.group.position)
+    fairy.quaternion.copy(world.group.quaternion).multiply(turn)
+    snapCamera()
+  },
+  snapshot: () => ({
     home: home.group.position.toArray(), radius: home.radius, atmosphere: home.atmosphere,
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
@@ -943,6 +994,13 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       fog: ((moon.surface.children[0] as THREE.Mesh).material as THREE.MeshStandardMaterial).fog,
     },
     daylight: { world: nearestWorld.name, elevation: daylight.elevation, day: daylight.day, stars: daylight.stars },
+    comet: {
+      position: [comet.state.position.x, comet.state.position.y, comet.state.position.z],
+      away: [comet.state.away.x, comet.state.away.y, comet.state.away.z], distance: comet.state.distance,
+      dustLength: comet.state.dust.length, ionLength: comet.state.ion.length, inTail: comet.inTail, glow: comet.glow,
+      visible: comet.group.visible, trailSize: trailMaterial.size, ...comet.stats,
+    },
+    shootingStars: { ...shootingStars.stats, dark: meteorDark },
     sun: { look: sun.sunLook!.root.name, tint: sunTint.getHexString(), turn: sun.sunLook!.prominences?.rotation.y ?? 0, position: sun.group.position.toArray() },
     sky: {
       visibility: stars.visibility, pictures: stars.picturesShown,

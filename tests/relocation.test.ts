@@ -56,7 +56,9 @@ describe('five-minute magical relocation', () => {
     const beltMiddle = (BELT.inner + BELT.outer) / 2
     expect(clearHomePosition(new THREE.Vector3(-beltMiddle, 0, 0), home, worlds, fairy, false)).toBe(false)
     expect(clearHomePosition(new THREE.Vector3(-beltMiddle, BELT.halfHeight + 200, 0), home, worlds, fairy, false)).toBe(false)
-    expect(clearHomePosition(new THREE.Vector3(-beltMiddle, BELT.halfHeight + 500, 0), home, worlds, fairy, false)).toBe(true)
+    // 500 m above the belt is in the path of the comet (src/comet.ts). 2,600 m above it is clear of both.
+    expect(clearHomePosition(new THREE.Vector3(-beltMiddle, BELT.halfHeight + 500, 0), home, worlds, fairy, false)).toBe(false)
+    expect(clearHomePosition(new THREE.Vector3(-beltMiddle, BELT.halfHeight + 2600, 0), home, worlds, fairy, false)).toBe(true)
     const blocked = fixture('sun', 100000, [0, 0, 0])
     expect(findHomePosition(home, [home, blocked], fairy, false, random)).toBeNull()
   })

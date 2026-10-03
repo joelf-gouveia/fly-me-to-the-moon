@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import type { World } from './worlds'
 import { touchesBelt } from './belt'
 import { touchesMoonPath } from './moon'
+import { touchesCometPath } from './comet'
 import { PROPORTIONS } from './proportions'
 
 export const HOME_MOVE_SECONDS = 5 * 60
@@ -18,6 +19,8 @@ export function clearHomePosition(position: THREE.Vector3, home: World, worlds: 
   if (!carrying && position.distanceTo(fairy) < extent + 250) return false
   // The asteroid belt turns with the planets, so a home clear of it stays clear.
   if (touchesBelt(position, extent + 250)) return false
+  // The comet does not turn with the planets. A home clear of its whole path and tails stays clear.
+  if (touchesCometPath(position, extent + 250)) return false
   // The Moon turns around Earth, so a home clear of the Moon now can be in its path later.
   const earth = worlds.find(world => world.kind === 'earth')
   if (earth && worlds.some(world => world.kind === 'moon') && touchesMoonPath(position, earth.group.position, extent + 250)) return false
