@@ -54,8 +54,12 @@ For phone/iPad play on home Wi-Fi, run `npm run play:lan` and open the printed
 Network URL on the device. See [Mobile play](docs/mobile-play.md) for controls,
 performance settings and the remaining physical-device validation.
 
-Earth has raised terrain, meadows, trees, sea-level rivers and oceans, and a
-cloud layer. Leaving well beyond the atmosphere arms a new visit; descending
+Earth has raised terrain, meadows, sea-level rivers and oceans, and a cloud layer. Its
+plants follow the climate (look B of the [foliage study](#foliage-study)): palm beaches,
+jungle, savanna and desert near the equator, then leaf forest, pine forest, and snow pines
+near the snow. The trees stand in woods with glades between them, the grass has the
+colour of its belt, and the plants move in the wind. The flight panel names the belt
+below the fairy. The plants are in `src/foliage/`. Leaving well beyond the atmosphere arms a new visit; descending
 back into the upper atmosphere regenerates the landscape once. Flying through
 clouds alone does not change it. Other natural planets also regenerate on arrival;
 Blossom Haven keeps the same familiar landscape.
@@ -218,8 +222,11 @@ limits are in [Star scenery data](docs/star-data.md).
 ## Blossom Haven
 
 The flower button leads to a candy home with half Earth's diameter (radius 137.5,
-diameter 275 game metres): spiral lollipops, striped candy canes, marshmallow
-stones, mint-blue soda water and bubbles, and a flower cottage. Fairytale
+diameter 275 game metres), with mint-blue soda water and bubbles, and a flower cottage.
+It has four gardens (look B of the [foliage study](#foliage-study)): a lollipop grove
+with spiral lollipops and candy canes, also around the cottage; a cotton candy orchard
+with ice cream trees; a mushroom glade with toadstools as tall as trees; and crystal
+peaks on the high ground. The toadstools and the crystals glow at night. Fairytale
 creatures live there: unicorns, dragonlings, kitsune kits, Frog Princes on lily
 pads, and five pegasus foals that circle over the cottage garden.
 
@@ -463,6 +470,33 @@ Run `node studies/creature-study/creature-smoke.mjs "path/to/chrome.exe"` for it
 Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
 the actual game, including movement, pause, both populations, the fairytale
 residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
+
+### Creature hello
+
+The creatures say hello to the fairy. Fly low near an animal on Earth or a
+fairytale creature on Blossom Haven. When the fairy is 6 m or nearer, or comes that near in the next second, the
+creature turns to her and hops two times on its ground. Ducks and Frog Princes
+bob on the water. Two or three small pink hearts float up from the head, sway
+and fade. A soft two-note chime plays when Sound is on. Hellos that come close
+together share one chime. Each creature says hello again only after 8 s. The
+pegasus foals in the air do not say hello.
+
+- `greet()` of the population (`src/creatures/population.ts`) runs after
+  `update()`, because `update()` puts each model back on its route. The hop goes
+  along the ground normal in the frame of the world. Thus the creature stays on
+  its ground when the world turns and when Blossom Haven moves.
+- The rules and the hearts are in `src/creatures/hello.ts`. All the hearts of a
+  world are one point cloud with one shared texture: one draw call. A phone
+  shows half the hearts (1 or 2 for each hello, 12 in the pool instead of 24).
+- Pause stops the hellos, as it stops the creatures.
+- The test snapshot gives `hellos` (the total) and, for each world in
+  `wildlife`, `hellos` with the count, the hearts and the active hellos.
+
+Run `node scripts/creature-hello-smoke.mjs "path/to/chrome.exe" [origin]` against
+the dev server to check the hello in the game: a low pass on Earth, the hop, the
+hearts, the chime, the pause, the rest time, a fairytale creature on Blossom
+Haven, a Frog Prince bob when one is near, and a phone at 390 px. The
+screenshots go to `artifacts.local/creature-hello/`.
 
 ## Fairytale creature study
 
@@ -802,6 +836,68 @@ gives the findings, the place of each change, the limits and how the clips were 
 clips are in `public/studies/feature-ideas/`. Run
 `node studies/feature-ideas-study/feature-ideas-study-capture.mjs "path/to/chrome.exe" F1,F2`
 against port 5174 to record the clips of F1 and F2 again.
+
+## Seasons study
+
+Visit `/studies/seasons-study.html` for **A year on two worlds**, a study of seasons on
+Earth and on Blossom Haven. Earth gets the seasons of the real world, and the place
+changes the season: the north has summer while the south has winter, the equator has no
+season, and the poles have one long day and one long night. Blossom Haven gets four magic
+seasons of its own, each with its own plants: **Blossom time** (blossom trees and giant
+flowers), **Bubble time** (bubble blooms), **Lantern time** (giant toadstools that glow)
+and **Crystal time** (sugar crystals). A magic season starts at the cottage and goes out
+over the planet in a ring. Eight clips from the engine of the game show the two worlds
+from space and from one place. **Try it live** gives you the world, the place, the year
+and free flight. Its controls do not change the game.
+
+For Earth the study compares **A — Real tilt** (the axis leans 23.4° and the orbit makes
+the year) with **B — Painted year** (no tilt; a season clock paints each latitude). The
+recommendation is A, with the year started at the real date. For Blossom Haven the
+recommendation is the four magic seasons with no tilt, and the next season at each hop of
+the planet. The [technical study](docs/seasons-study.md) gives the findings, the model,
+the change for each part and the limits. The clips are in `public/studies/seasons/`. Run
+`node studies/seasons-study/seasons-study-capture.mjs "path/to/chrome.exe" E1,E2` against
+port 5174 to record the clips of E1 and E2 again.
+
+## Foliage study
+
+Visit `/studies/foliage-study.html` for **Each plant, a place to grow**, a study of the
+trees and the small plants of Earth and of Blossom Haven. Before the study, Earth had one
+cone tree, and Blossom Haven had one mix of candy. The study has 25 kinds of plants and three looks
+for each world. Earth: **A — Mixed wood**, **B — Climate belts** (jungle, savanna, desert,
+leaf forest, pine forest, snow line) and **C — Four seasons**. Blossom Haven:
+**A — Sweet shop**, **B — Four gardens** (lollipop grove, cotton candy orchard, mushroom
+glade, crystal peaks) and **C — Blossom orchard**. Each look has a clip from the engine of
+the game, on the real terrain, next to the plants from before on the same flight path.
+**Fly it live** runs a look in live 3D, with a switch for each of the five levers: woods
+and glades, size and colour, wind, ground colours and night. Its controls do not change
+the game.
+
+The game now uses B for both worlds, with all the levers. The study keeps the plants
+from before as **Before**. The [technical study](docs/foliage-study.md) gives the
+findings, each plant, the rule of each zone, the cost and what changed in the game. The clips are in
+`public/studies/foliage/`. Run
+`node studies/foliage-study/foliage-study-capture.mjs "path/to/chrome.exe" E2,H2` against
+port 5174 to record the clips of E2 and H2 again.
+
+## Earth landmarks study
+
+Visit `/studies/earth-landmarks-study.html` for **Twelve wonders, on one small Earth**, a
+study of famous landscapes of the real Earth on the Earth of the game: the Grand Canyon,
+Mount Fuji, the dunes of the Sahara, Ha Long Bay, a coral atoll, the ice of Antarctica,
+Angel Falls, Monument Valley, the Giant's Causeway, a fjord, a rainbow hot spring and the
+rainbow mountains. Each landmark has a clip from the engine of the game, next to a photo
+of the real place. **Fly it live** runs the Earth of the study in live 3D. Each landmark
+is a patch of fine ground at a place that a search finds, with objects on it: trees, stone
+columns, penguins, a lagoon, waterfalls, steam and a geyser. Its controls do not change
+the game.
+
+The recommendation is the patch method first, then eight landmarks. The
+[technical study](docs/earth-landmarks-study.md) gives the findings, the method, each
+landmark, the cost and the photo credits. The clips are in
+`public/studies/earth-landmarks/`. Run
+`node studies/earth-landmarks-study/earth-landmarks-study-capture.mjs "path/to/chrome.exe" L1,L2`
+against port 5174 to record the clips of L1 and L2 again.
 
 ## Browser checks
 

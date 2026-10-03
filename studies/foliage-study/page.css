@@ -1,0 +1,27 @@
+/* The additions of the foliage study to the page look of the studies (feature-ideas-study/page.css). */
+.stage-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px }
+.world-switch button { font-size: 13px; padding: 7px 16px }
+.levers { display: flex; flex-wrap: wrap; gap: 4px 16px }
+.cost { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 6px 0 0 }
+.cost div { border-top: 1px solid #2b3350; padding-top: 7px }
+.cost dt { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #97a3bb }
+.cost dd { margin: 0; font-family: Georgia, serif; font-size: 20px; color: #f0d6a8 }
+.zone-list { margin: 0; padding: 0; list-style: none }
+.zone-list li { display: flex; gap: 9px; align-items: baseline; font-size: 12px; color: #c1cadb; padding: 4px 0 }
+.zone-list i { flex: 0 0 11px; height: 11px; border-radius: 50%; border: 1px solid #ffffff40; transform: translateY(1px) }
+.zone-list b { color: #eef1f7; font-weight: 550; white-space: nowrap }
+.sheets { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px }
+.sheets figure, .lever-shots figure { margin: 0; border: 1px solid #2b3350; border-radius: 10px; overflow: hidden; background: #0d1326 }
+.sheets img, .lever-shots img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #02030f }
+.sheets figcaption, .lever-shots figcaption { padding: 10px 14px; font-size: 12px; color: #aab5ca }
+.sheets figcaption b, .lever-shots figcaption b { color: #f0d6a8; font-weight: 600 }
+.idea-cards.options { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.lever-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px }
+.lever-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; margin: 26px 0 0; padding: 0; list-style: none; border-top: 1px solid #2b3350 }
+.lever-list li { padding: 18px 18px 0 0; min-width: 0 }
+.lever-list li + li { padding-left: 18px; border-left: 1px solid #2b3350 }
+.lever-list p { font-size: 12px; color: #aab5ca; margin-bottom: 0 }
+@media (max-width: 1250px) { .idea-cards.options { grid-template-columns: repeat(2, minmax(0, 1fr)) } .lever-list { grid-template-columns: 1fr 1fr } .lever-list li, .lever-list li + li { padding: 16px 16px 16px 0; border-left: 0; border-bottom: 1px solid #2b3350 } }
+@media (max-width: 1000px) { .sheets, .lever-shots { grid-template-columns: 1fr } }
+@media (max-width: 740px) { .lever-list { grid-template-columns: 1fr } }
+@media (max-width: 420px) { .idea-cards.options { grid-template-columns: 1fr } }

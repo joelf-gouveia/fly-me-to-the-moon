@@ -1,0 +1,39 @@
+/* The parts of the page that only the seasons study has. The other rules are in ../feature-ideas-study/page.css. */
+.live-controls { display: grid; gap: 14px; margin-top: 16px }
+.live-controls .field > span { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #a9b5cc; margin-bottom: 6px }
+.live-controls .field > span b { color: #f6d9aa; font-weight: 600; letter-spacing: 0; text-transform: none }
+.live-controls input[type=range] { width: 100%; accent-color: #e9c592; min-height: 28px }
+.live-controls .chips button { min-height: 34px }
+.map-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 20px }
+.map-grid figure { margin: 0 }
+.map-grid svg { width: 100%; height: auto; display: block; border: 1px solid #2b3350; border-radius: 10px; background: #0d1326 }
+.map-grid figcaption { font-size: 12px; color: #aab5ca; margin-top: 8px }
+.map-grid text { fill: #a9b5cc; font-size: 11px; font-family: Inter, "Segoe UI", sans-serif }
+.map-grid .band { stroke: #070b18; stroke-opacity: .55; stroke-dasharray: 4 4 }
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin-top: 26px; border-top: 1px solid #2b3350; border-bottom: 1px solid #2b3350 }
+.rules article { padding: 20px 22px 20px 0; min-width: 0 }
+.rules article + article { border-left: 1px solid #2b3350; padding-left: 22px }
+.rules p { font-size: 13px; color: #aab5ca; margin-bottom: 0 }
+.rules .eyebrow { color: #d7b982 }
+.season-rows { display: grid; gap: 22px; margin-top: 18px }
+.season-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px }
+.season-row figure { margin: 0; border: 1px solid #323b58; border-radius: 10px; overflow: hidden; background: #0d1326 }
+.season-row img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #02030f }
+.season-row figcaption { padding: 9px 12px 11px; font-size: 12px; color: #aab5ca }
+.season-row figcaption b { display: block; color: #f6d9aa; font-weight: 600; font-size: 13px }
+.season-row-title { font-size: 13px; color: #c1cadb; margin: 0 0 -10px }
+.idea-cards.clips { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.option-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; margin-top: 18px }
+.option-card { border: 1px solid #323b58; border-radius: 12px; padding: 22px; background: #0d1326; min-width: 0 }
+.option-card h3 { font-family: Georgia, serif; font-size: 24px; font-weight: 400; margin-bottom: 4px }
+.option-card h3 b { color: #edc68d; font-weight: 400; margin-right: 6px }
+.option-card > p { font-size: 13px; color: #c1cadb }
+.option-card h4 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: #a9b5cc; margin: 16px 0 6px; font-weight: 600 }
+.option-card ul { margin: 0; padding-left: 18px; font-size: 13px; color: #aab5ca }
+.option-card li { margin-bottom: 4px }
+@media (max-width: 1250px) { .idea-cards.clips { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 1000px) { .map-grid, .option-grid, .rules { grid-template-columns: 1fr } .rules article + article { border-left: 0; padding-left: 0; border-top: 1px solid #2b3350 } }
+@media (max-width: 740px) { .season-row { grid-template-columns: 1fr 1fr } .idea-cards.clips { grid-template-columns: 1fr } }
+.rules.magic-rules { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.rules b { color: #dfe5f0; font-weight: 600 }
+@media (max-width: 1000px) { .rules.magic-rules { grid-template-columns: 1fr } }
