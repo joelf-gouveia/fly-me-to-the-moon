@@ -241,7 +241,9 @@ try {
   assert(state.graphics.mobile, 'The phone check does not run as a phone')
   const pet = nearest(state, 'Earth', ['rabbit', 'sheep', 'cow'])
   const phoneHearts = await picture('Earth', pet, 'phone-hello')
-  assert(phoneHearts >= 1 && phoneHearts <= 2, `A phone hello must show 1 or 2 hearts: ${phoneHearts}`)
+  // A hello now starts before the fairy arrives, so more than one creature can say hello at the same time.
+  const phoneHellos = Math.max(1, population(await snapshot(), 'Earth').hellos.active.length)
+  assert(phoneHearts >= 1 && phoneHearts <= 2 * phoneHellos, `A phone hello must show 1 or 2 hearts: ${phoneHearts} hearts for ${phoneHellos} hellos`)
   state = await snapshot()
   const overflow = await evaluate('document.documentElement.scrollWidth - window.innerWidth')
   assert(overflow <= 0, `The page scrolls sideways on a phone: ${overflow}`)

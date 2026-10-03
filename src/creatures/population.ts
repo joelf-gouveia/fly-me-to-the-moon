@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { replacements } from './fairytale'
 import { createFairytaleCreature } from './fairytale-models'
 import type { Species } from './habitat'
-import { canSayHello, createHeartPool, heartCount, heartPool, heartPose, helloLength, helloLift, helloTurn } from './hello'
+import { canSayHello, createHeartPool, heartCount, heartPool, heartPose, helloLength, helloLift, helloPoint, helloTurn } from './hello'
 import type { HeartPose } from './hello'
 import { createCreature } from './models'
 import { CreatureObstacles, populateSphere, sampleResident, SphericalHabitat } from './spherical'
@@ -60,7 +60,8 @@ export function createPopulation(
   const localFairy = new THREE.Vector3(), toFairy = new THREE.Vector3(), side = new THREE.Vector3()
   const feet = new THREE.Vector3(), point = new THREE.Vector3()
   const facing = new THREE.Quaternion(), pose: HeartPose = { rise: 0, sway: 0, size: 0, alpha: 0, spin: 0 }
-  let helloCount = 0
+  const lastFairy = new THREE.Vector3(), velocity = new THREE.Vector3(), ahead = new THREE.Vector3()
+  let helloCount = 0, hasLastFairy = false
 
   function update(delta: number, cameraPosition: THREE.Vector3) {
     if (disposed) return
@@ -106,10 +107,17 @@ export function createPopulation(
     inverseParentRotation.copy(parent.quaternion).invert()
     localFairy.copy(fairyPosition).sub(parent.position).applyQuaternion(inverseParentRotation)
     let started = 0
+    // The speed of the fairy in the frame of the world. A jump (a new place, a move of the home) gives no speed.
+    if (delta > 0 && hasLastFairy && localFairy.distanceTo(lastFairy) < 8) velocity.copy(localFairy).sub(lastFairy).divideScalar(delta)
+    else velocity.set(0, 0, 0)
+    if (delta > 0) { lastFairy.copy(localFairy); hasLastFairy = true }
+    helloPoint(localFairy, velocity, ahead)
     if (delta > 0) {
       for (const [index, model] of models) {
         if (!model.root.visible || hellos.has(index)) continue
-        if (!canSayHello(model.root.position.distanceTo(localFairy), time, lastHello.get(index))) continue
+        // The nearer of the fairy and the point ahead of her: the hello starts before she arrives.
+        const near = Math.min(model.root.position.distanceTo(localFairy), model.root.position.distanceTo(ahead))
+        if (!canSayHello(near, time, lastHello.get(index))) continue
         lastHello.set(index, time)
         // The hearts sway at right angles to the line from the creature to the fairy.
         normal.copy(model.root.position).normalize()

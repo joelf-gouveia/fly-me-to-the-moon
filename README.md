@@ -365,7 +365,7 @@ residents and pegasus foals after arrival at Blossom Haven, and mobile rendering
 ### Creature hello
 
 The creatures say hello to the fairy. Fly low near an animal on Earth or a
-fairytale creature on Blossom Haven. When the fairy is 4.5 m or nearer, the
+fairytale creature on Blossom Haven. When the fairy is 6 m or nearer, or comes that near in the next second, the
 creature turns to her and hops two times on its ground. Ducks and Frog Princes
 bob on the water. Two or three small pink hearts float up from the head, sway
 and fade. A soft two-note chime plays when Sound is on. Hellos that come close

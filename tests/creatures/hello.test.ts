@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { describe, expect, it } from 'vitest'
-import { canSayHello, HELLO, heartCount, heartPool, heartPose, helloLength, helloLift, helloTurn } from '../../src/creatures/hello'
+import { canSayHello, HELLO, heartCount, heartPool, heartPose, helloLength, helloLift, helloPoint, helloTurn } from '../../src/creatures/hello'
 import type { HeartPose } from '../../src/creatures/hello'
 import { createPopulation } from '../../src/creatures/population'
 import { CreatureObstacles } from '../../src/creatures/spherical'
@@ -8,14 +8,29 @@ import { CreatureObstacles } from '../../src/creatures/spherical'
 const pose: HeartPose = { rise: 0, sway: 0, size: 0, alpha: 0, spin: 0 }
 
 describe('creature hello rules', () => {
-  it('says hello within 4.5 m and only after 8 s of rest', () => {
-    expect(canSayHello(4.4, 0)).toBe(true)
-    expect(canSayHello(4.5, 0)).toBe(true)
-    expect(canSayHello(4.6, 0)).toBe(false)
+  it('says hello within 6 m and only after 8 s of rest', () => {
+    expect(canSayHello(5.9, 0)).toBe(true)
+    expect(canSayHello(6, 0)).toBe(true)
+    expect(canSayHello(6.1, 0)).toBe(false)
     expect(canSayHello(2, 10, 3)).toBe(false)
     expect(canSayHello(2, 10.9, 3)).toBe(false)
     expect(canSayHello(2, 11, 3)).toBe(true)
     expect(canSayHello(9, 30, 3)).toBe(false)
+  })
+
+  it('looks ahead on the path of the fairy, so the hello starts before she arrives', () => {
+    const out = new THREE.Vector3()
+    // Cruise at 11 m/s: the point is 1.1 s ahead.
+    helloPoint(new THREE.Vector3(0, 100, 0), new THREE.Vector3(11, 0, 0), out)
+    expect(out.x).toBeCloseTo(11 * HELLO.lead)
+    expect(out.y).toBe(100)
+    // A creature 15 m ahead is out of reach of the fairy, but in reach of the point ahead.
+    const creature = new THREE.Vector3(15, 98, 0)
+    expect(canSayHello(creature.distanceTo(new THREE.Vector3(0, 100, 0)), 0)).toBe(false)
+    expect(canSayHello(creature.distanceTo(out), 0)).toBe(true)
+    // A boost does not look farther than the limit, and a fairy that stands still looks at her own place.
+    expect(helloPoint(new THREE.Vector3(), new THREE.Vector3(40, 0, 0), out).x).toBeCloseTo(HELLO.leadLimit)
+    expect(helloPoint(new THREE.Vector3(1, 2, 3), new THREE.Vector3(), out).toArray()).toEqual([1, 2, 3])
   })
 
   it('hops two times on land and bobs lower on the water', () => {

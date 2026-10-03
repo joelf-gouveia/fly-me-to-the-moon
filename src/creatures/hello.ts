@@ -5,8 +5,12 @@ import * as THREE from 'three'
  * creature turns to her, hops (or bobs on the water), and small pink hearts float up.
  */
 export const HELLO = {
-  /** The fairy is this near to the feet of the creature, in metres. */
-  distance: 4.5,
+  /** The fairy, or the point where she is after the lead time, is this near to the feet of the creature, in metres. */
+  distance: 6,
+  /** The creature looks this far ahead on the path of the fairy, in seconds, so the hello starts before she arrives. */
+  lead: 1.1,
+  /** The longest look ahead, in metres. A boost does not start a hello from far away. */
+  leadLimit: 16,
   /** The rest time of each creature between two hellos, in seconds of the creature clock. */
   rest: 8,
   /** The life of one heart, in seconds. */
@@ -22,6 +26,16 @@ export const HELLO = {
 /** True when the fairy is near and the creature has rested since its last hello. */
 export function canSayHello(distance: number, time: number, last?: number) {
   return distance <= HELLO.distance && (last === undefined || time - last >= HELLO.rest)
+}
+
+/**
+ * The point where the fairy is after the lead time, at her speed now. A creature near this
+ * point says hello while she comes, not after she is past. It writes into `out`.
+ */
+export function helloPoint(position: THREE.Vector3, velocity: THREE.Vector3, out: THREE.Vector3) {
+  out.copy(velocity).multiplyScalar(HELLO.lead)
+  if (out.length() > HELLO.leadLimit) out.setLength(HELLO.leadLimit)
+  return out.add(position)
 }
 
 /** The number of hearts of one hello: 2 or 3 on a computer, 1 or 2 on a phone. */
@@ -128,7 +142,8 @@ export function createHeartPool(limit: number) {
       }`,
     fragmentShader: `uniform sampler2D uMap; varying float vAlpha; varying float vSpin;
       void main() {
-        vec2 p = gl_PointCoord - 0.5;
+        // A point has y down, and the texture has y up: turn y, so the heart is the right way up.
+        vec2 p = vec2(gl_PointCoord.x, 1.0 - gl_PointCoord.y) - 0.5;
         float c = cos(vSpin), s = sin(vSpin);
         vec4 heart = texture2D(uMap, vec2(c * p.x - s * p.y, s * p.x + c * p.y) + 0.5);
         if (heart.a * vAlpha < 0.01) discard;
