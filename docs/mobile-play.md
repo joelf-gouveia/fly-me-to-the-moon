@@ -10,7 +10,7 @@ browser use, existing local saves, and explicit resume after backgrounding.
 On touch devices the arrows sit on the left. Hold **Boost** on the right to fly
 faster; releasing it returns to normal speed. **Hover** stops flight; its label
 changes to **Fly** so you can start moving again. **Worlds**, **Menu**, and pause
-stay at the top. Menu contains appearance, stickers, **Settings** (sound, star
+stay at the top. Menu contains appearance, **Settings** (sound, star
 pictures, orbit paths and world speed), **Stop following** while the flower guide is
 on, and flight details. Opening the menu pauses
 flight and the home relocation clock; closing it returns to the preceding pause

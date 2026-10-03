@@ -29,7 +29,7 @@ A study can use code from `src/`. The code in `src/` does not use code from
 ## Flight
 
 - **Begin your adventure** starts the flight. There is one mode.
-- The ✿ Blossom Haven picture in **Worlds** starts the flower guide. It shows
+- The ✿ Blossom Haven card in **Worlds**, then **Fly there**, starts the flower guide. It shows
   the flower marker and the guiding fireflies to Blossom Haven. While the guide
   is on, **Stop following** shows under **Worlds** and returns to free flight.
 - The flower cottage is always on Blossom Haven, with or without the guide.
@@ -39,10 +39,12 @@ A study can use code from `src/`. The code in `src/` does not use code from
 - A / Left and D / Right: turn.
 - Release the controls near a planet to cruise along its curvature.
 - Shift: faster flight; Q: hover; Space or the pause button: pause.
-- On a computer the screen has **Worlds** at the top left and four round
-  buttons at the bottom right: **Your fairy**, **Stickers**, **Settings** and
-  pause. **Settings** has the sound, the sky switches, World speed and the keys.
-- Open **Worlds** and choose a picture for a guided journey. Steering takes
+- On a computer the screen has **Worlds** at the top left, with the sticker
+  count, and three round buttons at the bottom right: **Your fairy**, **Settings**
+  and pause. **Settings** has the sound, the sky switches, World speed and the keys.
+- Open **Worlds**, tap a world, then **Fly there** for a guided journey. A new book
+  opens Earth, Blossom Haven and the Moon; each new sticker opens the next world
+  (see [Sticker book](#sticker-book)). Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
   a held **Boost** button and a **Hover / Fly** toggle. **Menu** holds the extra
   controls and flight details. Switching apps pauses until **Keep flying** is tapped.
@@ -192,27 +194,36 @@ Earth sticker comes when she flies out to space and comes back: the same new
 visit that makes a new landscape. A note shows the new sticker and one short fact, and the chime plays
 when the sound is on. Every fourth sticker has a bigger note.
 
-The sticker button beside the palette opens **My space stickers**. Flight waits
-while the book is open, and Escape closes it. Tap a sticker to read its fact. Tap
-an empty space to see where to fly, and **Fly there** starts the guided flight of
-**Worlds**. The book always suggests the nearest empty space. **Worlds** marks each
-world that has its sticker with a star. On a touch screen, **Stickers** is in Menu.
-The book suggests Earth last. Its empty space says: fly out to space, then come back.
+The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
+for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
+card to read its fact or a hint, then **Fly there** for a guided flight. A card with its
+sticker looks like a sticker.
+
+The worlds open one at a time. A new book opens Earth, Blossom Haven and the Moon. The
+other worlds are mysteries: a grey "?" on the map and in the book, with no path. Each
+new sticker opens the next door: the nearest empty space on the poster (`nextDoor()` in
+`src/stickers.ts`). The order is the Moon, Venus, Mercury, the Sun, Mars, Vesta, Ceres,
+Jupiter, Saturn, Uranus, Neptune, then Earth. A fairy who finds a world in free flight
+gets its sticker, and that world opens too. The note at the top of **Worlds** always
+says what is next. Earth and Blossom Haven are always open: the way home, and the flower
+guide. The Sun is on the map from the start, but it opens in its turn.
 
 The book is saved in this browser as `fairy-sticker-book`. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
-stickers and their facts are in `src/stickers.ts`; the book is `src/sticker-book.ts`.
-This is option A of the sticker book study below, without the voice.
+stickers, their facts and the rule of the open worlds are in `src/stickers.ts`; the book
+is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). This is option A of
+the sticker book study below, without the voice, in the one book of option D of the world
+book study.
 
 Run `node scripts/sticker-book-smoke.mjs "path/to/chrome.exe"` against the dev
-server for no sticker at the start, the book, **Fly there** to Mars, the Earth
-sticker after the return, the marks in **Worlds**, the saved book and the phone
-menu. An optional second argument sets the server origin, for example a server
+server for no sticker at the start, the book in **Worlds**, the next door and the
+locks, **Fly there** to the Moon, the Earth sticker after the return, the saved book
+and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
 
 ## Settings
 
-The gear button beside the sticker button opens **Settings**, a panel for
+The gear button beside the fairy button opens **Settings**, a panel for
 grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
 open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts:
 
@@ -230,10 +241,11 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
 confirmation before it removes them: "Remove all 5 stickers? This cannot be
 undone." **Keep the stickers** has the focus, so an extra Enter changes nothing.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
-The reset changes only the sticker book: the fairy look and the home discovery stay.
+The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
+open. The fairy look and the home discovery stay.
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
-for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
+for the panel, the confirmation, the reset at the Moon, Escape, the three toolbar
 buttons, the sky switches, World speed, the sound, the saved switches and the phone menu.
 An optional second argument sets the server origin.
 
@@ -651,6 +663,43 @@ the findings, the options and what changed.
 
 Run `node studies/ui-simplify-study/ui-study-smoke.mjs "path/to/chrome.exe"` against port 5174 to check the
 game controls, each option of the study, export, and 390/320 px layouts.
+
+## World book study
+
+Visit `/studies/world-book-study.html` for **Every world, one book**, a study that merges
+**Worlds** and **My space stickers** into one book, and opens the solar system as the fairy
+discovers it. A working drawing of the dialog compares **Today** (two dialogs),
+**A — One book** (the merge), **B — The map fills in** (mystery worlds until the first
+arrival), **C — Earn the way** ("Fly here" only for a world with its sticker, and for Earth
+and Blossom Haven) and **D — Next door** (C, plus one open mystery: the next door of the
+book). Pretend flights fill the book; pretend free flights find a world with no guide.
+Its controls do not change the game.
+
+From Earth most worlds are 1° to 3° wide in the view, but Ceres and Vesta are 0.18°. C
+asks for eleven free flights, and a child who cannot find a small world cannot go on. The
+recommendation is D, and the game now uses it; see [Sticker book](#sticker-book). The
+[technical study](docs/world-book-study.md) gives the distances, the options and what
+changed.
+
+Run `node studies/world-book-study/world-book-study-smoke.mjs "path/to/chrome.exe"` against
+port 5174 to check each option, the pretend flights, export, and 390/320 px layouts.
+
+## Feature ideas study
+
+Visit `/studies/feature-ideas-study.html` for **Ten ideas, seen in flight**, a study of ten
+features that the game does not have: search stars, spoken facts, creature hello, sparkle
+rings, a postcard camera, a song for each world, a game controller, comets and shooting
+stars, a bedtime timer, and install and fly offline. Each idea has a clip from the engine
+of the game: the real worlds, the fairy and the screen of the game, with the idea added by
+study code. **Sound** plays the chimes, the voice and the songs in step with the clip, and
+**Fly it live** runs the idea in live 3D. Pick the ideas at the end of the page. Its
+controls do not change the game.
+
+The recommendation is F1, F2, F3 and F5 first. The [technical study](docs/feature-ideas-study.md)
+gives the findings, the place of each change, the limits and how the clips were made. The
+clips are in `public/studies/feature-ideas/`. Run
+`node studies/feature-ideas-study/feature-ideas-study-capture.mjs "path/to/chrome.exe" F1,F2`
+against port 5174 to record the clips of F1 and F2 again.
 
 ## Browser checks
 

@@ -1,0 +1,16 @@
+/* F1 · Search stars: the task hint, the gold star on the sticker picture, and the found note.
+   The note is the real #sticker-toast of src/sticker-book.css. The lab drives each motion from the clip time. */
+.f1-note { font-family: 'Manrope', system-ui, sans-serif; }
+.f1-note #sticker-toast { animation: none; transition: none; }
+.f1-note .sticker-toast-art { position: relative; display: block; }
+.f1-badge { position: absolute; right: -6px; top: -8px; width: 30px; height: 30px; filter: drop-shadow(0 2px 4px #a2650066) drop-shadow(0 0 8px #ffd96acc); }
+.f1-badge svg { display: block; width: 100%; height: 100%; }
+
+/* The task hint: a smaller card in the look of the sticker note, at the same place. */
+.f1-hint { position: absolute; z-index: 4; right: 40px; bottom: 96px; display: flex; align-items: center; gap: 12px; padding: 10px 18px 10px 10px; border: 1px dashed #ffcfdfcc; border-radius: 20px; color: #59304c; background: #ffe1eee6; box-shadow: 0 10px 40px #6f3c6230; pointer-events: none; transform-origin: 90% 100%; }
+.f1-hint .f1-hint-art { position: relative; display: grid; place-items: center; width: 40px; height: 40px; }
+.f1-hint .planet-picture { width: 34px; height: 34px; margin: 0; font-size: 24px; }
+.f1-hint .f1-badge { right: -9px; top: -9px; width: 24px; height: 24px; filter: none; }
+.f1-hint small { display: block; font: 9px 'DM Mono', monospace; letter-spacing: .2em; }
+.f1-hint p { margin: 3px 0 0; font-size: 14px; font-weight: 600; }
+.touch-ui .f1-hint { top: calc(var(--edge-top, 16px) + 64px); right: var(--edge-right, 16px); bottom: auto; }

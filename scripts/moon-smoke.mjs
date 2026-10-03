@@ -101,7 +101,7 @@ try {
   assert(mapRing[1] === 12 && mapRingLater !== 300, `The Moon path on the map is not around Earth: ${mapRing} ${mapRingLater}`)
   await screenshot('worlds-dialog')
 
-  step('to the Moon'); await evaluate('document.querySelector("[data-world=moon]").click()')
+  step('to the Moon'); await evaluate('document.querySelector("[data-world=moon]").click(); document.querySelector("#world-fly").click()')
   let seconds = 0
   for (let tick = 0; tick < 240; tick++) {
     await evaluate('advanceFlight(0.5)'); seconds += 0.5

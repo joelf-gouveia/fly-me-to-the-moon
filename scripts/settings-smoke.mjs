@@ -75,7 +75,7 @@ try {
     } else await send('Emulation.setDeviceMetricsOverride', { width: 960, height: 600, deviceScaleFactor: 1, mobile: false })
     await send('Page.navigate', { url: `${origin}/?test` })
     for (let i = 0; i < 160; i++) {
-      if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#stickers-toggle")').catch(() => false)) return
+      if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#settings-toggle")').catch(() => false)) return
       await delay(250)
     }
     throw new Error(`The game did not load. Errors: ${JSON.stringify(errors).slice(0, 800)}`)
@@ -95,7 +95,7 @@ try {
   step('to the Moon')
   await click('#open-map')
   await evaluate('advanceFlight(0.2)')
-  await click('[data-world="moon"]')
+  await click('[data-world="moon"]'); await click('#world-fly')
   let state = await snapshot()
   for (let tick = 0; tick < 200 && !state.stickers.includes('moon'); tick++) {
     await evaluate('advanceFlight(0.5)')
@@ -125,6 +125,7 @@ try {
   await click('#reset-yes')
   state = await snapshot()
   assert(state.stickers.length === 0, `The reset keeps stickers: ${state.stickers}`)
+  assert(state.openWorlds.join() === 'earth,moon,fairy', `The reset does not close the worlds again: ${state.openWorlds}`)
   assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).arrived.length === 0, 'The saved book is not empty')
   assert((await text('#reset-status')).startsWith('1 sticker removed.') && await evaluate('document.querySelector("#reset-stickers").disabled'), 'No status after the reset')
   assert((await text('#sticker-summary')) === 'The book is empty.', 'The summary does not show the empty book')
@@ -143,13 +144,14 @@ try {
   await delay(100)
   assert(!(await snapshot()).settingsOpen && !(await evaluate('document.querySelector("#settings").open')), 'Escape does not close Settings')
 
-  // Option C of docs/ui-simplify-study.md: four toolbar buttons, and the grown-up controls in Settings.
+  // Option C of docs/ui-simplify-study.md, and the book in Worlds (docs/world-book-study.md): three toolbar buttons, and the grown-up controls in Settings.
   step('option C')
-  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,stickers-toggle,settings-toggle,pause-toggle', `The toolbar is not the four buttons: ${await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()')}`)
+  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,settings-toggle,pause-toggle', `The toolbar is not the three buttons: ${await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()')}`)
   assert(await evaluate('["#follow-home", "#show-stars", "#show-orbits", "#sound-toggle", "#orbit-speed-toggle", ".journey-picker", ".controls-copy"].every(s => !document.querySelector(s))'), 'A removed control is still in the game')
   assert(await evaluate('document.querySelector("#home-help").hidden'), 'The guide help shows with no guide')
   assert(!(await text('#flight-region')).includes('landscape'), 'The world panel still shows the landscape number')
-  const mapPaths = () => evaluate('[...document.querySelectorAll(".solar-orbit")].every(path => getComputedStyle(path).display !== "none")')
+  // The map shows the path of each known world; a mystery world has no path until the first arrival.
+  const mapPaths = () => evaluate('(() => { const known = [...document.querySelectorAll(".solar-orbit:not(.is-mystery)")]; return known.length >= 2 && known.every(path => getComputedStyle(path).display !== "none") })()')
   await click('#open-map'); await evaluate('advanceFlight(0.1)')
   assert(await mapPaths(), 'The Worlds map hides its paths with the switch off')
   await click('#close-map')
@@ -192,7 +194,7 @@ try {
     await evaluate('advanceFlight(0.2)')
     state = await snapshot()
     assert(state.settingsOpen && !state.menuOpen, 'The Settings button does not swap the menu for Settings')
-    assert(await evaluate('[...document.querySelectorAll(".menu-actions button")].map(b => b.id).join()') === 'customize-toggle,stickers-toggle,settings-toggle', 'The phone menu is not the three buttons')
+    assert(await evaluate('[...document.querySelectorAll(".menu-actions button")].map(b => b.id).join()') === 'customize-toggle,settings-toggle', 'The phone menu is not the two buttons')
     assert(await evaluate('getComputedStyle(document.querySelector(".how-touch")).display !== "none" && getComputedStyle(document.querySelector(".how-keys")).display === "none"'), 'How to fly does not show the touch help on a phone')
     assert(!(await evaluate('document.documentElement.scrollWidth > innerWidth')), `Overflow at ${width}px`)
     assert(await evaluate('(() => { const d = document.querySelector("#settings").getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth })()'), `Settings is wider than the screen at ${width}px`)
@@ -202,7 +204,7 @@ try {
   }
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, the four toolbar buttons, the removed controls, the map paths, the sky switches, World speed, the sound, the saved switches after a reload, How to fly, and the 390/320 px phone menu. No browser errors.')
+  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, the three toolbar buttons, the removed controls, the map paths, the sky switches, World speed, the sound, the saved switches after a reload, How to fly, and the 390/320 px phone menu. No browser errors.')
 } finally {
   ws?.close(); browser.kill()
 }

@@ -1,0 +1,13 @@
+/* F2 · Spoken facts: the speaker mark and the word highlight on the real sticker note.
+   The lab drives each motion from the clip time, so nothing here has a CSS animation. */
+.f2-note { font-family: 'Manrope', system-ui, sans-serif; }
+.f2-note #sticker-toast { animation: none; transition: none; max-width: 380px; }
+.f2-head { display: flex; align-items: center; gap: 8px; }
+.f2-speaker { display: inline-flex; align-items: center; gap: 2px; height: 16px; padding: 0 7px 0 5px; border-radius: 9px; color: #fff; background: #d0679c; }
+.f2-speaker svg { width: 11px; height: 11px; margin-right: 1px; }
+.f2-speaker i { display: block; width: 2px; height: 10px; border-radius: 1px; background: currentColor; transform-origin: 50% 50%; }
+.f2-speaker.is-quiet { background: #c49ab3; }
+.f2-note #sticker-toast h2 span, .f2-note #sticker-toast .f2-fact span { border-radius: 6px; }
+.f2-note #sticker-toast .f2-fact { font-size: 13px; }
+.f2-note .f2-later { opacity: .5; }
+.f2-note .f2-now { color: #3d1530; background: #ffb6d6; box-shadow: 0 0 0 2px #ffb6d6; }

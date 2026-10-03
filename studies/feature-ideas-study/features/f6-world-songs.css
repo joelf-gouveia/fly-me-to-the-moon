@@ -1,0 +1,77 @@
+/* F6 · The world song card: dark glass like the panels of the game, under the nearest-world panel. */
+.f6-song {
+  --f6-colour: #83c5e8;
+  --f6-before: #83c5e8;
+  --f6-mix: 1;
+  --f6-pulse: 0.5;
+  position: absolute;
+  top: 152px;
+  right: 40px;
+  width: 206px;
+  padding: 13px 16px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(18, 25, 56, 0.6), rgba(5, 8, 26, 0.34));
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+  backdrop-filter: blur(14px);
+  color: #fff8df;
+  font-family: 'Manrope', system-ui, sans-serif;
+}
+.f6-eyebrow {
+  margin: 0 0 5px;
+  color: rgba(255, 250, 230, 0.48);
+  font-family: 'DM Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.24em;
+}
+.f6-title { position: relative; height: 24px; }
+.f6-label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: 'Italiana', Georgia, serif;
+  font-size: 20px;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+.f6-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  height: 74px;
+  margin: 10px 4px 0;
+}
+.f6-bar {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.f6-bar i {
+  position: absolute;
+  inset: 0;
+  border-radius: 9px;
+  transform-origin: bottom;
+  background: linear-gradient(to top, color-mix(in srgb, var(--f6-colour) 70%, transparent), color-mix(in srgb, #fff8df 85%, var(--f6-colour)));
+  box-shadow: 0 0 calc(10px + 8px * var(--f6-pulse)) color-mix(in srgb, var(--f6-colour) 75%, transparent);
+  opacity: 0.88;
+}
+.f6-bar b {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -19px;
+  color: rgba(255, 248, 223, 0.8);
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  font-weight: 400;
+  text-align: center;
+}
+.f6-mood {
+  margin: 26px 0 0;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 10px;
+  font-weight: 300;
+}

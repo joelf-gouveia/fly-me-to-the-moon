@@ -46,6 +46,8 @@ try {
       } finally { gl.drawElements=draw;gl.drawElementsInstanced=instanced }
     };
   `})
+  // Worlds opens a world with its sticker, and a new book opens only Earth, Blossom Haven and the Moon.
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: `localStorage.setItem('fairy-sticker-book', JSON.stringify({ arrived: ['mars'] }))` })
   await send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:5})
   await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:2,mobile:true})
   await send('Page.navigate',{url:new URL('?test',base).href})
@@ -103,7 +105,7 @@ try {
   await assert('!document.querySelector("#flight-menu").open && document.querySelector("#customizer").classList.contains("is-open")','Customization did not open from menu')
   await evaluate(`document.querySelector('[data-custom="hair"][data-value="bob"]').click();document.querySelector('#customizer-close').click();document.querySelector('#open-map').click();pump()`)
   await assert('document.querySelector("#world-map").open','Worlds did not open from HUD')
-  await evaluate(`document.querySelector('[data-world="mars"]').click()`);await delay(50)
+  await evaluate(`document.querySelector('[data-world="mars"]').click();document.querySelector('#world-fly').click()`);await delay(50)
   await evaluate('pump()')
   await assert('!window.__fairyTest.snapshot().mapOpen','World travel did not close map')
   await evaluate(`Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'));pump();Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'));pump()`)

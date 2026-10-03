@@ -17,7 +17,7 @@ export function createMobileUI(onMenu: (open: boolean) => void, clearInput: () =
   const toggle = document.querySelector<HTMLButtonElement>('#menu-toggle')!
   const moves = [
     ['#open-map', '.mobile-top'],
-    ['#customize-toggle', '.menu-actions'], ['#stickers-toggle', '.menu-actions'], ['#settings-toggle', '.menu-actions'],
+    ['#customize-toggle', '.menu-actions'], ['#settings-toggle', '.menu-actions'],
     ['.adventure-tools', '.menu-adventure'],
     ['.destination', '.menu-details'], ['.flight-panel', '.menu-details'],
   ].map(([selector, target]) => {
@@ -26,7 +26,7 @@ export function createMobileUI(onMenu: (open: boolean) => void, clearInput: () =
     node.before(marker)
     return { node, marker, target: document.querySelector<HTMLElement>(target)! }
   })
-  for (const [id, label] of [['customize-toggle', 'Your fairy'], ['stickers-toggle', 'Stickers'], ['settings-toggle', 'Settings']]) {
+  for (const [id, label] of [['customize-toggle', 'Your fairy'], ['settings-toggle', 'Settings']]) {
     const text = document.createElement('span'); text.className = 'mobile-action-label'; text.textContent = label
     document.getElementById(id)!.append(text)
   }
@@ -76,7 +76,7 @@ export function createMobileUI(onMenu: (open: boolean) => void, clearInput: () =
     backdropPress = false
   })
   // Close before another panel opens, retaining the original buttons/listeners.
-  for (const id of ['customize-toggle', 'stickers-toggle', 'settings-toggle', 'stop-home']) document.getElementById(id)!.addEventListener('click', close, true)
+  for (const id of ['customize-toggle', 'settings-toggle', 'stop-home']) document.getElementById(id)!.addEventListener('click', close, true)
   touchLayout.addEventListener('change', () => { if (touchLayout.matches !== touch) setTouch(touchLayout.matches) })
   setTouch(touch)
   return { close, get touch() { return touch } }

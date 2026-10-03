@@ -1,7 +1,7 @@
-// Checks the sticker book in the real game: no sticker at the start, the book
-// (flight waits), the empty-space notes and "Fly there", a guided trip that earns
-// the Mars sticker, the Earth sticker after a return from space, the marks in
-// Worlds, the saved book, no sticker for an old home discovery, and the phone menu. Run against the dev server on port 5174:
+// Checks the sticker book in the real game, in Worlds: no sticker at the start, the book
+// (flight waits), the next door and the locks, the mystery map, a guided trip that earns
+// the Moon sticker and opens Venus, the Earth sticker after a return from space, the saved
+// book, no sticker for an old home discovery, and the phone layout. Run against the dev server on port 5174:
 //   node scripts/sticker-book-smoke.mjs "path/to/chrome.exe" [origin]
 import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
@@ -58,6 +58,7 @@ try {
   const snapshot = () => evaluate('__fairyTest.snapshot()')
   const text = selector => evaluate(`document.querySelector(${JSON.stringify(selector)})?.textContent ?? null`)
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
+  const count = selector => evaluate(`document.querySelectorAll(${JSON.stringify(selector)}).length`)
   const started = Date.now(), step = label => process.stderr.write(`· ${label} (${Math.round((Date.now() - started) / 1000)} s)\n`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `
@@ -75,7 +76,7 @@ try {
     } else await send('Emulation.setDeviceMetricsOverride', { width: 960, height: 600, deviceScaleFactor: 1, mobile: false })
     await send('Page.navigate', { url: `${origin}/?test` })
     for (let i = 0; i < 160; i++) {
-      if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#stickers-toggle")').catch(() => false)) return
+      if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#open-map")').catch(() => false)) return
       await delay(250)
     }
     throw new Error(`The game did not load. Errors: ${JSON.stringify(errors).slice(0, 800)}`)
@@ -97,41 +98,53 @@ try {
   state = await snapshot()
   assert(state.stickers.length === 0 && await evaluate('document.querySelector("#sticker-toast").hidden'), `The start gives a sticker: ${state.stickers}`)
 
-  // The book: flight waits, the next empty space, and the notes.
-  await click('#stickers-toggle')
-  // The planets still orbit behind the book, as behind Worlds, so the flight clock shows the wait.
+  // The book of worlds (option D of docs/world-book-study.md): flight waits, the count, the next door, and the notes.
+  const has = (selector, name) => evaluate(`document.querySelector(${JSON.stringify(selector)}).classList.contains(${JSON.stringify(name)})`)
+  const flyHidden = () => evaluate('document.querySelector("#world-fly").hidden')
+  await click('#open-map')
+  // The planets still orbit behind Worlds, so the flight clock shows the wait.
   const before = (await snapshot()).elapsed
   await evaluate('advanceFlight(1)')
   state = await snapshot()
-  assert(state.bookOpen && await evaluate('document.querySelector("#sticker-book").open'), 'The book does not open')
-  assert(state.elapsed === before, `The flight clock runs while the book is open: ${before} to ${state.elapsed}`)
-  assert((await text('#sticker-count')) === '0 of 13 stickers', `Wrong count: ${await text('#sticker-count')}`)
-  assert((await text('#sticker-note-text')).startsWith('Next: the Moon is waiting.') && await evaluate('!document.querySelector("#sticker-fly").hidden'), `Wrong Next note: ${await text('#sticker-note-text')}`)
+  assert(state.mapOpen && await evaluate('document.querySelector("#world-map").open'), 'Worlds does not open')
+  assert(state.elapsed === before, `The flight clock runs while Worlds is open: ${before} to ${state.elapsed}`)
+  assert((await text('#sticker-count')) === '0 of 13 stickers' && (await text('#open-map .world-count')) === '0/13', `Wrong count: ${await text('#sticker-count')}`)
+  assert(await count('.book-card') === 13 && !(await evaluate('!!document.querySelector("#stickers-toggle, #sticker-book")')), 'The book is not one dialog of 13 cards')
+  assert(state.openWorlds.join() === 'earth,moon,fairy', `Wrong open worlds at the start: ${state.openWorlds}`)
+  assert((await text('#world-note-text')).startsWith('Next: a mystery world is waiting.') && !(await flyHidden()), `Wrong Next note: ${await text('#world-note-text')}`)
+  assert(await has('[data-world="moon"]', 'is-mystery-open') && await has('[data-world="mars"]', 'is-mystery-closed') && await has('[data-world="sun"]', 'is-closed'), 'Wrong card states at the start')
+  assert((await text('[data-orbit-marker="mars"] text')) === '?' && await evaluate('document.querySelector(\'[data-orbit="mars"]\').classList.contains("is-mystery")'), 'The map names a mystery world')
   await screenshot('book')
-  await click('[data-sticker="earth"]')
-  assert((await text('#sticker-note-text')) === 'Fly out to space, then come back to Earth to get this sticker.' && await evaluate('document.querySelector("#sticker-fly").hidden'), `Wrong Earth note: ${await text('#sticker-note-text')}`)
-  await click('[data-sticker="mars"]')
-  assert((await text('#sticker-note-text')) === 'Fly to Mars to get this sticker.', `Wrong empty-space note: ${await text('#sticker-note-text')}`)
+  await click('[data-world="earth"]')
+  assert((await text('#world-note-text')) === 'Fly out to space, then come back to Earth to get this sticker.' && await flyHidden(), `Wrong Earth note: ${await text('#world-note-text')}`)
+  await click('[data-world="mars"]')
+  assert((await text('#world-note-text')).startsWith('This world opens later.') && await flyHidden(), `Mars is open: ${await text('#world-note-text')}`)
 
-  step('Fly there: Mars')
-  await click('#sticker-fly')
+  step('Fly there: the Moon')
+  await click('[data-world="moon"]')
+  await click('#world-fly')
   state = await snapshot()
-  assert(!state.bookOpen && !(await evaluate('document.querySelector("#sticker-book").open')), '"Fly there" does not close the book')
-  for (let tick = 0; tick < 300 && !state.stickers.includes('mars'); tick++) {
+  assert(!state.mapOpen && state.destination === 'Moon', '"Fly there" does not start the flight to the Moon')
+  for (let tick = 0; tick < 300 && !state.stickers.includes('moon'); tick++) {
     await evaluate('advanceFlight(0.5)')
     state = await snapshot()
     if (tick % 40 === 0) step(`${state.belt.nearest} · ${state.stickers.join(', ')}`)
   }
-  assert(state.stickers.includes('mars') && !state.stickers.includes('earth'), `The guided flight does not earn the Mars sticker alone: ${state.stickers}`)
-  assert((await text('#sticker-toast h2')) === 'Mars', 'No note for the Mars sticker')
+  assert(state.stickers.join() === 'moon', `The guided flight does not earn the Moon sticker alone: ${state.stickers}`)
+  assert((await text('#sticker-toast h2')) === 'Moon' && (await text('#sticker-toast .sticker-toast-next')) === 'A new world is waiting in Worlds!', 'No note for the Moon sticker')
+  assert(state.openWorlds.join() === 'venus,earth,moon,fairy', `The Moon does not open Venus: ${state.openWorlds}`)
   // The stubbed frame clock holds CSS animations at their start, so the screenshot skips the entry animation.
   await evaluate('document.querySelector("#sticker-toast").style.animation = "none"')
-  await screenshot('mars-note')
+  await screenshot('moon-note')
 
   step('back to Earth')
   await click('#open-map')
   await evaluate('advanceFlight(0.2)')
+  assert(await has('[data-world="moon"]', 'is-sticker') && await has('[data-world="venus"]', 'is-mystery-open') && (await text('[data-orbit-marker="moon"] text')) === 'Moon', 'The book and the map do not show the Moon')
+  await screenshot('book-moon')
   await click('[data-world="earth"]')
+  assert((await text('#world-note-text')) === 'Fly back home to Earth to get its sticker.' && !(await flyHidden()), `Wrong Earth note after the Moon: ${await text('#world-note-text')}`)
+  await click('#world-fly')
   for (let tick = 0; tick < 300 && !state.stickers.includes('earth'); tick++) {
     await evaluate('advanceFlight(0.5)')
     state = await snapshot()
@@ -141,19 +154,11 @@ try {
   await evaluate('document.querySelector("#sticker-toast").style.animation = "none"')
   await screenshot('earth-note')
 
-  // Worlds marks each world that has a sticker.
-  await click('#open-map')
-  await evaluate('advanceFlight(0.2)')
-  const marks = await evaluate('[...document.querySelectorAll(".world-picture.has-sticker")].map(b => b.dataset.world)')
-  assert(marks.includes('earth') && marks.includes('mars') && !marks.includes('saturn'), `Wrong marks in Worlds: ${marks}`)
-  await screenshot('worlds-marks')
-  await click('#close-map')
-
-  // The book is saved. A home found before the book gives no sticker: every player visits.
+  // The book is saved, and so are the open worlds. A home found before the book gives no sticker: every player visits.
   const saved = state.stickers
   await load(false)
   state = await snapshot()
-  assert(JSON.stringify(state.stickers) === JSON.stringify(saved), `The book differs after a reload: ${state.stickers}`)
+  assert(JSON.stringify(state.stickers) === JSON.stringify(saved) && state.openWorlds.includes('venus') && !state.openWorlds.includes('mars'), `The book differs after a reload: ${state.stickers} / ${state.openWorlds}`)
   await evaluate('localStorage.removeItem("fairy-sticker-book"); localStorage.setItem("fairy-home-found", "true")')
   await load(false)
   state = await snapshot()
@@ -164,20 +169,22 @@ try {
     await click('#begin-button')
     await evaluate('advanceFlight(1)')
     await click('#menu-toggle')
-    assert(await evaluate('!!document.querySelector(".menu-actions #stickers-toggle")') && (await text('#stickers-toggle .mobile-action-label')) === 'Stickers', 'The phone menu has no Stickers button')
-    await click('#stickers-toggle')
+    assert(!(await evaluate('!!document.querySelector("#stickers-toggle")')), 'The phone menu still has a Stickers button')
+    await click('#menu-close')
+    assert((await text('.mobile-top #open-map .world-count')) === '0/13', 'The Worlds button at the top has no count')
+    await click('#open-map')
     await evaluate('advanceFlight(0.2)')
     state = await snapshot()
-    assert(state.bookOpen && !state.menuOpen, 'The Stickers button does not swap the menu for the book')
+    assert(state.mapOpen, 'Worlds does not open on a phone')
     assert(!(await evaluate('document.documentElement.scrollWidth > innerWidth')), `Overflow at ${width}px`)
-    assert(await evaluate('(() => { const d = document.querySelector("#sticker-book").getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth })()'), `The book is wider than the screen at ${width}px`)
-    const smallest = await evaluate('Math.min(...[...document.querySelectorAll("#sticker-book button")].filter(b => b.offsetParent).map(b => Math.min(b.offsetWidth, b.offsetHeight)))')
-    assert(smallest >= 44, `A book button is smaller than 44 px at ${width}px: ${smallest}`)
+    assert(await evaluate('(() => { const d = document.querySelector("#world-map").getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth })()'), `Worlds is wider than the screen at ${width}px`)
+    const smallest = await evaluate('Math.min(...[...document.querySelectorAll("#world-map button")].filter(b => b.offsetParent).map(b => Math.min(b.offsetWidth, b.offsetHeight)))')
+    assert(smallest >= 44, `A Worlds button is smaller than 44 px at ${width}px: ${smallest}`)
     await screenshot(`book-${width}`)
   }
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log(`Verified no sticker at the start, the book (flight waits, counts, notes), "Fly there" and the Mars sticker, the Earth sticker after a return (${saved.join(', ')}), the marks in Worlds, the saved book, no sticker for an old home discovery, and the 390/320 px phone menu. No browser errors.`)
+  console.log(`Verified no sticker at the start, the book in Worlds (flight waits, the count, the next door, the locks, the mystery map), "Fly there" and the Moon sticker that opens Venus, the Earth sticker after a return (${saved.join(', ')}), the saved book and open worlds, no sticker for an old home discovery, and the 390/320 px phone layout. No browser errors.`)
 } finally {
   ws?.close(); browser.kill()
 }

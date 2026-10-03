@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Italiana&family=Manrope:wght@300;400;500;600&display=swap');
+
+/* F5 · Postcard camera. The layer is 1280 × 720 and scales to the stage. */
+.f5-root { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; font-family: 'Manrope', system-ui, sans-serif; color: #fff8df; }
+.f5-root button { font: inherit; }
+.f5-scrim { position: absolute; inset: 0; opacity: 0; background: #0a0b1e55; backdrop-filter: blur(7px) saturate(.9); }
+.f5-flash { position: absolute; inset: 0; opacity: 0; background: #fffdf6; }
+
+/* The look of .icon-button in src/style.css, beside the toolbar of the game. */
+.f5-camera { position: absolute; left: 1040px; top: 641px; display: grid; width: 44px; height: 44px; place-items: center; padding: 0; color: rgba(255,255,255,.62); border: 1px solid rgba(255,255,255,.16); border-radius: 50%; background: rgba(6, 9, 27, .43); backdrop-filter: blur(12px); box-shadow: 0 0 0 calc(var(--pulse, 0) * 5px) #f8dca233, 0 0 calc(var(--pulse, 0) * 18px) #f8dca266; }
+.f5-camera svg { width: 22px; height: 22px; }
+.f5-camera.is-active { color: #ffe2a9; background: rgba(114, 91, 72, .28); border-color: rgba(255,255,255,.4); }
+
+.f5-card { position: absolute; left: 380px; top: 112px; width: 520px; visibility: hidden; transform-origin: 50% 50%; }
+.f5-postcard { position: relative; margin: 0; padding: 16px 16px 0; border-radius: 6px; background: #fffaf2; box-shadow: 0 24px 60px #0a061a77, 0 2px 0 #e8dccb; }
+.f5-postcard img { display: block; width: 488px; height: 274.5px; object-fit: cover; border-radius: 2px; background: #3a3150; }
+.f5-postcard figcaption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 14px 6px 18px; color: #59304c; }
+.f5-postcard figcaption span { font: 34px/1 'Italiana', Georgia, serif; letter-spacing: .02em; }
+.f5-postcard figcaption small { font: 9px 'DM Mono', monospace; letter-spacing: .2em; color: #b57d9a; }
+/* The sticker of the world, as a stamp on the corner of the card. */
+.f5-stamp { position: absolute; right: -18px; top: -22px; display: grid; place-items: center; width: 76px; height: 76px; border: 3px solid #fff6ee; border-radius: 22px; background: linear-gradient(160deg, #fff7fb, #ffe6f1); box-shadow: 0 8px 22px #0005; rotate: 9deg; }
+.f5-stamp .planet-picture { width: 48px; height: 48px; margin: 0; display: grid; place-items: center; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), #e68db6; box-shadow: inset -8px -4px 10px #0004; font-size: 36px; color: #ffefc4; }
+
+.f5-actions { display: flex; justify-content: center; gap: 10px; margin-top: 26px; }
+.f5-actions button { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 20px; border-radius: 18px; font-size: 14px; }
+.f5-actions svg { width: 17px; height: 17px; }
+.f5-save { border: 1px solid #ffd0e0; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600; box-shadow: 0 6px 20px #0004; }
+.f5-save.is-done { background: linear-gradient(120deg, #fff1d6, #f8dca2); border-color: #fff0c8; }
+.f5-share { border: 1px solid #ffffff40; color: #fff6e7; background: #182335c9; backdrop-filter: blur(10px); }
+.f5-save-icon { display: inline-grid; }
+.f5-saved { display: flex; align-items: center; justify-content: center; gap: 7px; width: max-content; margin: 14px auto 0; padding: 7px 14px; border: 1px solid #efd2e38c; border-radius: 16px; background: #352741ed; color: #ffe8f2; font-size: 12px; opacity: 0; }
+.f5-saved svg { width: 15px; height: 15px; color: #9be3b8; }
+
+/* A finger tap: a soft dot and a ring. */
+.f5-touch { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: #ffffff66; box-shadow: 0 0 0 2px #ffffffaa; transform: scale(var(--press, 1)); visibility: hidden; }
+.f5-touch::after { content: ''; position: absolute; inset: 0; border: 2px solid #ffffffcc; border-radius: 50%; transform: scale(var(--ring, 1)); opacity: calc(2 - var(--ring, 1)); }

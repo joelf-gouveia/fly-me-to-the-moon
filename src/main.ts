@@ -401,7 +401,6 @@ const flight = { position: fairy.position, quaternion: fairy.quaternion, speed: 
 let destination: World | null = null
 let arrivalUntil = 0
 let mapOpen = false
-let bookOpen = false
 let settingsOpen = false
 let menuOpen = false
 let contextLost = false
@@ -415,26 +414,26 @@ let homeSuspended = false
 const guideTarget = homeApproachPoint(home)
 const updateFireflies = createGuideFireflies(scene, makeSoftDiscTexture('rgba(255,255,255,1)'))
 function travelTo(world: World) {
+  // The book opens the worlds one next door at a time (canFly() in src/stickers.ts).
+  if (!stickerBook.canFly(world.kind)) return
   if (world === home) { followHome(); return }
   stopHome()
   destination = world
   if (!started) document.querySelector<HTMLButtonElement>('#begin-button')!.click()
   renderer.domElement.focus()
 }
-const adventure = createAdventure(worlds, {
+// One sticker for each world, the first time the fairy arrives. The stickers are in Worlds.
+const stickerBook = createStickerBook(worlds, {
+  chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
+})
+// Worlds: the map and the book of stickers. Flight waits while it is open.
+const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
   stop: stopHome,
   travel: travelTo,
   map: open => { mapOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-map-open', open) },
 })
-adventure.setFound(homeFound)
-// One sticker for each world, the first time the fairy arrives. Flight waits while the book is open.
-const stickerBook = createStickerBook(worlds, {
-  open: open => { bookOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-book-open', open) },
-  travel: travelTo,
-  chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
-})
-// Settings for grown-ups, beside the book button. Flight waits while it is open.
+// Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
   stickers: stickerBook,
@@ -486,7 +485,6 @@ function moveHome() {
 function discoverHome() {
   if (homeFound) return
   homeFound = true
-  adventure.setFound(true)
   adventure.celebrate()
   try { localStorage.setItem('fairy-home-found', 'true') } catch { /* Keep discovery for this visit. */ }
   playChime([523.25, 659.25, 783.99])
@@ -512,7 +510,7 @@ function setKey(code: string, down: boolean) {
 }
 
 function toggleHover() {
-  if (!started || paused || customizing || mapOpen || bookOpen || settingsOpen || menuOpen) return
+  if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen) return
   hoverHeld = !hoverHeld
   clearInput()
   document.getElementById('hover-toggle')!.setAttribute('aria-pressed', String(hoverHeld))
@@ -525,7 +523,7 @@ window.addEventListener('keydown', (event) => {
     setCustomizerOpen(false)
     return
   }
-  if (customizing || mapOpen || bookOpen || settingsOpen || menuOpen || event.target instanceof HTMLSelectElement) return
+  if (customizing || mapOpen || settingsOpen || menuOpen || event.target instanceof HTMLSelectElement) return
   if (!started || (paused && event.code !== 'Space')) return
   if (event.target instanceof HTMLButtonElement && ['Space', 'Enter'].includes(event.code)) return
   // Q toggles hover. Ctrl did before, but Ctrl+W closes the tab and Ctrl+D or Ctrl+S opens a browser dialog.
@@ -544,7 +542,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-key]').forEach((button) => {
   const release = (event: PointerEvent) => { keys.release(event.pointerId); button.classList.toggle('is-held', keys.has(code)) }
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault()
-    if (!started || paused || customizing || mapOpen || bookOpen || settingsOpen || menuOpen || contextLost) return
+    if (!started || paused || customizing || mapOpen || settingsOpen || menuOpen || contextLost) return
     button.setPointerCapture(event.pointerId)
     keys.press(event.pointerId, code)
     button.classList.add('is-held')
@@ -863,7 +861,7 @@ function animate(timestamp?: number) {
   timer.update(timestamp)
   if (document.hidden || contextLost) { requestAnimationFrame(animate); return }
   const rawDelta = Math.min(timer.getDelta(), 0.05)
-  const active = started && !paused && !customizing && !mapOpen && !bookOpen && !settingsOpen && !menuOpen
+  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !menuOpen
   if (touchDevice && mobileQuality.sample(timer.getDelta(), active)) renderer.setPixelRatio(renderRatio())
   const paintTime = timestamp ?? performance.now()
   if (!active && !customizing && !mapOpen && paintTime - lastPaint < 100) { requestAnimationFrame(animate); return }
@@ -906,9 +904,9 @@ function animate(timestamp?: number) {
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
-    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || bookOpen || settingsOpen,
+    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen,
   })
-  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !bookOpen && !settingsOpen && !menuOpen)
+  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !menuOpen)
   for (const world of worlds) {
     world.clouds.rotation.y += delta * 0.001
     world.creatures?.update(delta, camera.position)
@@ -935,7 +933,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, bookOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },

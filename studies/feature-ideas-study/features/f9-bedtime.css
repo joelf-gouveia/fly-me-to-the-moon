@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Italiana&family=Manrope:wght@300;400;500;600&display=swap');
+
+/* F9 · Bedtime timer. The layer is 1280 × 720 and scales to the stage. */
+.f9-root { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; font-family: 'Manrope', system-ui, sans-serif; color: #fff0de; }
+.f9-root button { font: inherit; }
+
+/* One part of Settings (src/settings.css), on the colours of the Settings panel. */
+.f9-setting.setting { position: absolute; left: 40px; top: 196px; width: 360px; gap: 12px; border-color: #a6afc855; background: linear-gradient(140deg, #28314df2, #161929f2); box-shadow: 0 20px 60px #0007; opacity: 0; }
+.f9-setting .eyebrow { margin: 0; font: 10px 'DM Mono', monospace; letter-spacing: .16em; color: #d5bed4; }
+.f9-setting .setting-row { cursor: default; }
+.f9-setting .speed-steps button { min-height: 40px; }
+
+/* The look of #home-move-note in src/adventure.css: a flower and one line. */
+.f9-note { position: absolute; left: 50%; bottom: 112px; display: flex; align-items: center; gap: 12px; width: max-content; padding: 13px 22px; border: 1px solid #efd2e38c; border-radius: 24px; background: #352741ed; color: #ffe8f2; box-shadow: 0 5px 24px #11082220; opacity: 0; }
+.f9-note > span { font-size: 32px; line-height: 1; color: #f2b4d6; }
+.f9-note p { margin: 0; font-size: 15px; line-height: 1.6; }
+
+.f9-dim { position: absolute; inset: 0; background: linear-gradient(180deg, #03041af2 0%, #050620b0 48%, #0506206e 100%); opacity: 0; }
+
+.f9-card { position: absolute; left: 50%; top: 64px; width: 560px; padding: 0 0 26px; text-align: center; opacity: 0; }
+.f9-sky { position: relative; height: 128px; }
+.f9-sky b { position: absolute; color: #fff1c9; font-weight: 400; text-shadow: 0 0 10px #ffe7a8; translate: -50% -50%; }
+/* A crescent moon: a gold disc and a shadow that bites it. */
+.f9-moon { position: absolute; left: 50%; top: 14px; width: 92px; height: 92px; margin-left: -46px; border-radius: 50%; box-shadow: inset -24px 10px 0 0 #ffe3a3, 0 0 0 0 transparent; filter: drop-shadow(0 0 18px #ffd88a99); rotate: -18deg; }
+.f9-card h2 { margin: 6px 0 10px; font: 48px/1.1 'Italiana', Georgia, serif; letter-spacing: .02em; color: #fff4dc; text-shadow: 0 2px 24px #000a; }
+.f9-card p { margin: 0; font-size: 16px; line-height: 1.6; color: #e6dcf0; text-shadow: 0 1px 12px #000a; }

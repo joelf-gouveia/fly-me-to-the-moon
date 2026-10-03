@@ -3,6 +3,10 @@ import type { World } from './worlds'
 import { MOON } from './moon'
 import { PROPORTIONS } from './proportions'
 import { view } from './viewport'
+import { BOOK_ORDER, isKnown, MILESTONE, nextDoor, stickerById, STICKERS } from './stickers'
+import type { Book, StickerId } from './stickers'
+import { worldPicture } from './sticker-book'
+import type { StickerBook } from './sticker-book'
 
 /** Game metres at the edge of the solar map: the base system at the spacing of the game. */
 const MAP_REACH = 14500 * PROPORTIONS.spacing
@@ -11,27 +15,39 @@ const MOON_RING = Math.max(12, MOON.orbit / MAP_REACH * 216)
 import './adventure.css'
 
 type Actions = { home: () => void; stop: () => void; travel: (world: World) => void; map: (open: boolean) => void }
-export function createAdventure(worlds: World[], actions: Actions) {
+/** The state of a card in the book: its sticker, open, closed until later, or a mystery. */
+type CardState = 'sticker' | 'open' | 'closed' | 'mystery-open' | 'mystery-closed'
+const EARTH_NOTE = 'Fly out to space, then come back to Earth to get this sticker.'
+const called = (id: StickerId) => stickerById(id).the ? `the ${stickerById(id).name}` : stickerById(id).name
+const capital = (text: string) => text[0].toUpperCase() + text.slice(1)
+
+/**
+ * The flight buttons, the flower marker, and Worlds: the book of worlds of option D in
+ * docs/world-book-study.md. The map, the stickers and "Fly there" are in one dialog. A world
+ * opens with its sticker, and one more world is always open: the next door.
+ */
+export function createAdventure(worlds: World[], stickers: StickerBook, actions: Actions) {
   const host = document.createElement('div')
   host.className = 'adventure'
   host.innerHTML = `
     <nav class="adventure-tools" aria-label="Your adventure" hidden>
-      <div class="explore-tools"><button id="open-map" type="button" aria-haspopup="dialog"><span aria-hidden="true">◉</span> Worlds</button></div>
+      <div class="explore-tools"><button id="open-map" type="button" aria-haspopup="dialog"><span aria-hidden="true">◉</span> Worlds <span class="world-count" aria-hidden="true"></span></button></div>
       <div class="home-controls"><button id="stop-home" type="button" aria-label="Stop following; fly freely" hidden>■ <span>Stop following</span></button></div>
       <p id="home-help" role="status" hidden></p>
     </nav>
     <button id="home-beacon" type="button" aria-label="Follow the flower to your fairy home" hidden><span aria-hidden="true">✿</span><small aria-hidden="true">↑</small></button>
     <dialog id="world-map" aria-labelledby="map-title">
       <header><div><p class="eyebrow">A LITTLE BOOK OF WORLDS</p><h2 id="map-title">Where shall we fly?</h2></div><button id="close-map" type="button" aria-label="Close world map">×</button></header>
-      <p class="map-caption">Choose a picture and we’ll fly there together.</p>
-      <section class="solar-map" aria-label="Live planet positions and orbital paths"><p><span aria-hidden="true">◎</span> The planets follow their coloured paths. One full lap takes about an hour.</p><svg viewBox="0 0 600 500" role="img" aria-labelledby="solar-title solar-description"><title id="solar-title">Live map of planets orbiting the Sun</title><desc id="solar-description">A storybook map with a circular path for every planet; the planets move slowly along their paths.</desc><circle class="solar-sun" cx="300" cy="250" r="13"/><text class="solar-sun-label" x="300" y="280">SUN</text>${worlds.filter(world => world.kind !== 'sun').map(world => {
+      <div class="sticker-progress"><div class="sticker-dots" role="img"></div><p id="sticker-count"></p></div>
+      <div class="world-note" aria-live="polite"><p id="world-note-text"></p><button id="world-fly" type="button" hidden>Fly there ↗</button></div>
+      <section class="solar-map" aria-label="Live planet positions and orbital paths"><p><span aria-hidden="true">◎</span> Each new world you visit comes onto the map. One full lap takes about an hour.</p><svg viewBox="0 0 600 500" role="img" aria-labelledby="solar-title solar-description"><title id="solar-title">Live map of planets orbiting the Sun</title><desc id="solar-description">A storybook map with a circular path for every planet; the planets move slowly along their paths.</desc><circle class="solar-sun" cx="300" cy="250" r="13"/><text class="solar-sun-label" x="300" y="280">SUN</text>${worlds.filter(world => world.kind !== 'sun').map(world => {
         const initialRadius = Math.hypot(world.group.position.x, world.group.position.z)
         // The Moon's path is a small circle around Earth's marker; its name is above it.
         const moon = world.kind === 'moon'
         const mapRadius = moon ? MOON_RING : Math.max(22, Math.min(216, initialRadius / MAP_REACH * 216))
         return `<circle class="solar-orbit" data-orbit="${world.kind}" cx="300" cy="250" r="${mapRadius}" stroke="#${new THREE.Color(world.color).getHexString()}"/><g data-orbit-marker="${world.kind}"><circle class="solar-planet" r="${moon ? 4 : 6}" fill="#${new THREE.Color(world.color).getHexString()}"/><text y="${moon ? -9 : 18}">${world.name}</text></g>`
       }).join('')}</svg></section>
-      <div class="picture-worlds">${worlds.map(world => `<button type="button" data-world="${world.kind}" class="world-picture ${world.kind === 'fairy' ? 'home-picture' : ''}" style="--planet-color:#${new THREE.Color(world.color).getHexString()}"><span class="planet-picture ${world.kind}" aria-hidden="true">${world.kind === 'fairy' ? '✿' : world.kind === 'earth' ? '≈' : ''}</span><strong>${world.name}</strong><small class="map-location"></small></button>`).join('')}</div>
+      <div class="book-cards">${BOOK_ORDER.map((id, index) => `<button type="button" data-world="${id}" class="book-card" style="--tilt:${(index * 37 % 9) - 4}deg"></button>`).join('')}</div>
       <p class="map-footnote">Blossom Haven wanders every five minutes. Choose its flower to keep it still while we fly there. Pictures are not to scale.</p>
     </dialog>
     <div id="home-celebration" role="status" hidden><span aria-hidden="true">✿</span><div><small>BLOSSOM HAVEN</small><h2>You found your home!</h2><p>Stay a while. Your wings can rest.</p></div></div>
@@ -45,11 +61,85 @@ export function createAdventure(worlds: World[], actions: Actions) {
   const earth = worlds.find(world => world.kind === 'earth')!
   const beacon = get<HTMLButtonElement>('home-beacon')
   const tools = host.querySelector<HTMLElement>('.adventure-tools')!
-  // The map always shows the orbit paths. The Orbit paths switch of Settings shows them in the sky only.
-  let found = false, celebrationTime = 0, moveNoticeTime = 0, opener: HTMLElement | null = null
+  // The map shows the path of each known world. The Orbit paths switch of Settings shows them in the sky only.
+  let celebrationTime = 0, moveNoticeTime = 0, opener: HTMLElement | null = null
+  let here: StickerId = 'earth', selected: StickerId | null = null, flyTo: StickerId | null = null
+  const worldOf = (id: StickerId) => worlds.find(world => world.kind === id)!
+  const colourOf = (id: StickerId) => `#${new THREE.Color(worldOf(id).color).getHexString()}`
+
+  function cardState(book: Book, id: StickerId): CardState {
+    if (book.arrived.includes(id)) return 'sticker'
+    const open = stickers.canFly(id)
+    if (isKnown(book, id)) return open ? 'open' : 'closed'
+    return open ? 'mystery-open' : 'mystery-closed'
+  }
+  function status(state: CardState, id: StickerId) {
+    if (id === here && (state === 'sticker' || state === 'open')) return '✦ You are here'
+    if (state === 'sticker') return id === 'fairy' ? '★ Your fairy home' : '★ Your sticker'
+    if (state === 'open') return id === 'fairy' ? 'Follow the flower' : 'Fly here ↗'
+    if (state === 'mystery-open') return 'A mystery · fly to it ↗'
+    return 'Opens later'
+  }
+  function note(text: string, target: StickerId | null) {
+    get('world-note-text').textContent = text
+    // No guided flight to the world where the fairy is.
+    flyTo = target && target !== here ? target : null
+    get('world-fly').hidden = !flyTo
+  }
+  /** The note with no card chosen: the next door. */
+  function nextNote(book: Book) {
+    const next = nextDoor(book)
+    if (!next) note('Your book is full! You are a space explorer!', null)
+    else if (next === 'earth') note('Fly back home to Earth to get its sticker.', 'earth')
+    else if (isKnown(book, next)) note(`Next: ${called(next)} is waiting. Fly there to get its sticker.`, next)
+    else note('Next: a mystery world is waiting. Fly there to find out what it is!', next)
+  }
+  function select(id: StickerId) {
+    selected = id
+    const book = stickers.book, state = cardState(book, id)
+    if (state === 'sticker') note(stickerById(id).fact, id)
+    else if (id === 'fairy') note('Follow the flower to Blossom Haven, your fairy home.', id)
+    // Earth is always the way home. On Earth, the note says how to get its sticker.
+    else if (id === 'earth') note(here === 'earth' ? EARTH_NOTE : 'Fly back home to Earth to get its sticker.', id)
+    else if (state === 'open') note(`Fly to ${called(id)} to get its sticker.`, id)
+    else if (state === 'mystery-open') note('A mystery world is waiting. Fly there to find out what it is!', id)
+    else if (state === 'closed') note(`${capital(called(id))} opens later. Or find it in the sky on your own!`, null)
+    else note('This world opens later. Or find it in the sky on your own!', null)
+    render()
+  }
+
+  /** Draws the book: the count, the dots, the cards and the map. A mystery is a grey "?" with no path. */
+  function render() {
+    const book = stickers.book, earned = book.arrived.length, total = STICKERS.length
+    host.querySelector('.sticker-dots')!.innerHTML = STICKERS.map((_, i) => `<i class="${i < earned ? 'on' : ''} ${(i + 1) % MILESTONE === 0 ? 'milestone' : ''}"></i>`).join('')
+    host.querySelector('.sticker-dots')!.setAttribute('aria-label', `${earned} of ${total} stickers`)
+    get('sticker-count').textContent = `${earned} of ${total} stickers`
+    get('open-map').querySelector('.world-count')!.textContent = `${earned}/${total}`
+    get('open-map').ariaLabel = `Worlds and stickers: ${earned} of ${total} stickers`
+    host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => {
+      const id = card.dataset.world as StickerId, state = cardState(book, id), mystery = state.startsWith('mystery')
+      const html = `${mystery ? '<span class="planet-picture mystery-picture" aria-hidden="true">?</span>' : worldPicture(worlds, id)}<strong>${mystery ? 'Mystery world' : stickerById(id).name}</strong><small class="map-location">${status(state, id)}</small>`
+      if (card.innerHTML !== html) card.innerHTML = html
+      card.className = `book-card is-${state}${id === selected ? ' is-selected' : ''}${id === here ? ' you-are-here' : ''}`
+    })
+    for (const world of worlds) {
+      if (world.kind === 'sun') continue
+      const known = isKnown(book, world.kind)
+      host.querySelector(`[data-orbit="${world.kind}"]`)!.classList.toggle('is-mystery', !known)
+      const marker = host.querySelector(`[data-orbit-marker="${world.kind}"]`)!
+      marker.classList.toggle('is-mystery', !known)
+      marker.querySelector('circle')!.setAttribute('fill', known ? colourOf(world.kind) : '#59607a')
+      marker.querySelector('text')!.textContent = known ? world.name : '?'
+    }
+  }
+  function refresh() { if (selected) select(selected); else { nextNote(stickers.book); render() } }
+  stickers.onChange(refresh)
+
   function closeMap() { map.close(); actions.map(false) }
   get('open-map').onclick = () => {
     opener = document.activeElement as HTMLElement
+    selected = null
+    refresh()
     actions.map(true)
     map.showModal()
     get('close-map').focus()
@@ -60,9 +150,14 @@ export function createAdventure(worlds: World[], actions: Actions) {
   // The Blossom Haven picture in Worlds starts the flower guide (actions.travel), and the flower marker resumes it.
   beacon.onclick = actions.home
   get('stop-home').onclick = actions.stop
-  host.querySelectorAll<HTMLButtonElement>('[data-world]').forEach(button => {
-    button.onclick = () => { closeMap(); actions.travel(worlds.find(world => world.kind === button.dataset.world)!) }
-  })
+  // A tap on a card shows its fact or its hint. "Fly there" flies.
+  host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => { card.onclick = () => select(card.dataset.world as StickerId) })
+  get('world-fly').onclick = () => {
+    if (!flyTo || !stickers.canFly(flyTo)) return
+    const world = worldOf(flyTo)
+    closeMap(); actions.travel(world)
+  }
+  refresh()
   const local = new THREE.Vector3(), projected = new THREE.Vector3()
   return {
     notifyMove(carrying: boolean) {
@@ -72,7 +167,6 @@ export function createAdventure(worlds: World[], actions: Actions) {
       get('home-move-note').hidden = false
       get('home-move-note').querySelector('p')!.textContent = 'A little hop through the stars. You and your home moved together!'
     },
-    setFound(value: boolean) { found = value },
     celebrate() {
       celebrationTime = 8
       get('home-celebration').hidden = false
@@ -103,11 +197,7 @@ export function createAdventure(worlds: World[], actions: Actions) {
         beacon.classList.toggle('at-edge', edge > 1)
         beacon.querySelector('small')!.style.transform = `rotate(${Math.atan2(x, y) * 180 / Math.PI}deg)`
       }
-      host.querySelectorAll<HTMLButtonElement>('[data-world]').forEach(button => {
-        const here = button.dataset.world === nearest.kind
-        button.classList.toggle('you-are-here', here)
-        button.querySelector('.map-location')!.textContent = here ? '✦ You are here' : button.dataset.world === 'fairy' && found ? 'Your fairy home' : 'Fly here ↗'
-      })
+      if (nearest.kind !== here) { here = nearest.kind; refresh() }
       if (map.open) {
         // Map projections use the star's center and live planet coordinates.
         const cx = sunCenter.x

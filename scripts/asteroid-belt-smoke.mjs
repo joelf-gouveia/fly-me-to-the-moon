@@ -65,6 +65,8 @@ try {
       for (let i = 0; i < Math.ceil(seconds * 60); i++) { window.testTime += 1000 / 60; window.testFrame(window.testTime); }
     };
   ` })
+  // Worlds opens a world with its sticker, and a new book opens only Earth, Blossom Haven and the Moon.
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: `localStorage.setItem('fairy-sticker-book', JSON.stringify({ arrived: ['ceres', 'vesta'] }))` })
   async function load(mobile) {
     if (mobile) {
       await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
@@ -96,7 +98,7 @@ try {
   assert(pictures.length === 13 && pictures.includes('moon') && pictures.includes('ceres') && pictures.includes('vesta'), `Worlds dialog pictures: ${pictures}`)
   await evaluate('advanceFlight(0.2)')
   await screenshot('worlds-dialog')
-  await evaluate('document.querySelector("[data-world=ceres]").click()')
+  await evaluate('document.querySelector("[data-world=ceres]").click(); document.querySelector("#world-fly").click()')
 
   step("to Ceres")
   // Guided flight from Earth to Ceres crosses the inner edge of the belt.
@@ -118,7 +120,7 @@ try {
   await screenshot('ceres')
 
   await evaluate('document.querySelector("#open-map").click()')
-  step("to Vesta"); await evaluate(`document.querySelector("[data-world=vesta]").click()`)
+  step("to Vesta"); await evaluate(`document.querySelector("[data-world=vesta]").click(); document.querySelector("#world-fly").click()`)
   for (let tick = 0; tick < 240; tick++) {
     await evaluate('advanceFlight(0.5)')
     state = await snapshot()

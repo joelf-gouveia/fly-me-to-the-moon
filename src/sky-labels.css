@@ -12,7 +12,7 @@
 .sky-caption .credit { margin: 0; font-size: 10px; line-height: 1.45; color: #bfc8dc; }
 .sky-caption a { color: #ead0a1; }
 .touch-ui .sky-caption { top: calc(var(--edge-top) + 64px); bottom: auto; }
-.is-customizing .sky-caption, .is-map-open .sky-caption, .is-book-open .sky-caption, .is-settings-open .sky-caption, .is-menu-open .sky-caption, .is-paused .sky-caption { visibility: hidden; }
+.is-customizing .sky-caption, .is-map-open .sky-caption, .is-settings-open .sky-caption, .is-menu-open .sky-caption, .is-paused .sky-caption { visibility: hidden; }
 
 @media (max-width: 720px) {
   .sky-label.star { display: none; }

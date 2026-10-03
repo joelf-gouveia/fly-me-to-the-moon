@@ -6,6 +6,8 @@
 .explore-tools { display: flex; gap: 7px; }
 .explore-tools button { min-height: 48px; padding: 8px 12px; border: 1px solid #ffffff40; border-radius: 16px; color: #fff6e7; background: #182335c9; font-size: 11px; backdrop-filter: blur(10px); }
 .explore-tools span { margin-right: 5px; font-size: 20px; vertical-align: middle; }
+/* The sticker count of the book on the Worlds button. */
+.world-count, .explore-tools .world-count { margin: 0 0 0 4px; padding: 1px 6px; border-radius: 8px; background: #ffffff1a; font-size: 10px; vertical-align: 1px; }
 #home-help { max-width: 240px; padding: 8px 12px; border-radius: 12px; margin: 8px 0 0; font-size: 10px; line-height: 1.5; color: #ffefdf; background: #182335a6; }
 #home-beacon { position: absolute; z-index: 2; transform: translate(-50%, -50%); width: 56px; height: 56px; padding: 0; border-radius: 50%; border: 1px solid #ffe3f49c; color: #fff0a8; background: #bb568bc2; box-shadow: 0 0 22px #ffb5de77; }
 #home-beacon > span { font-size: 40px; line-height: 1; }
@@ -17,7 +19,7 @@
 #world-map h2 { margin: 7px 0; font: 34px 'Italiana', Georgia, serif; }
 #world-map .eyebrow { color: #d5bed4; }
 #close-map { width: 48px; height: 48px; flex-shrink: 0; border: 1px solid #ffffff44; border-radius: 50%; color: #fff; background: transparent; font-size: 26px; }
-.map-caption, .map-footnote { font-size: 12px; line-height: 1.6; color: #c3c9da; }
+.map-footnote { font-size: 12px; line-height: 1.6; color: #c3c9da; }
 .map-footnote { margin-bottom: 0; font-size: 10px; text-align: center; }
 .solar-map { margin: 16px 0 20px; padding: 14px 18px 8px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d; }
 .solar-map > p { margin: 0; color: #ddd0e4; font-size: 11px; text-align: center; }
@@ -28,11 +30,29 @@
 .solar-map .solar-sun-label { fill: #fff0c8; font: 8px 'DM Mono', monospace; text-anchor: middle; letter-spacing: .1em; }
 .solar-map .solar-planet { stroke: #fff7ee; stroke-width: 1.2; }
 .solar-map g[data-orbit-marker] text { fill: #eee3f0; font: 8px 'DM Sans', sans-serif; text-anchor: middle; paint-order: stroke; stroke: #13121d; stroke-width: 2.5px; stroke-linejoin: round; }
-.picture-worlds { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
-.world-picture { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 140px; padding: 15px 6px 12px; border-radius: 20px; border: 1px solid #d5cbed22; background: #ffffff05; color: #f5eddf; }
-.world-picture:hover, .world-picture:focus-visible { background: #ffffff12; border-color: #f2b9d8; }
-.world-picture strong { font-size: 11px; font-weight: 500; }
-.world-picture small { font-size: 9px; color: #c0c7db; }
+/* The book of worlds: the note with "Fly there", then one card for each world. */
+.world-note { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 0 0 16px; padding: 10px 12px 10px 16px; border-radius: 16px; background: #080e1b80; }
+.world-note p { flex: 1; margin: 0; font-size: 14px; line-height: 1.5; color: #fff2e7; }
+#world-fly { flex-shrink: 0; min-height: 44px; padding: 8px 16px; border: 1px solid #ffd0e0; border-radius: 18px; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600 !important; font-size: 13px !important; }
+.book-cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+.book-card { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 140px; padding: 15px 6px 12px; border-radius: 20px; border: 1px solid #d5cbed22; background: #ffffff05; color: #f5eddf; }
+.book-card:hover, .book-card:focus-visible { background: #ffffff12; border-color: #f2b9d8; }
+.book-card strong { font-size: 11px; font-weight: 500; }
+.book-card small { font-size: 9px; color: #c0c7db; text-align: center; }
+.book-card.is-sticker { border: 2px solid #fff6ee; background: linear-gradient(160deg, #fff7fb, #ffe6f1); color: #603449; rotate: var(--tilt); box-shadow: 0 8px 22px #0006; }
+.book-card.is-sticker strong { font-weight: 700; }
+.book-card.is-sticker small { color: #b55782; }
+.book-card.is-mystery-open, .book-card.is-mystery-closed { border-style: dashed; border-color: #ffffff30; }
+.book-card.is-mystery-open { border-color: #ffe1a2aa; }
+.book-card.is-mystery-open small { color: #ffe1a2; }
+.book-card.is-closed small, .book-card.is-mystery-closed small { color: #8e95ab; }
+.book-card.is-closed .planet-picture { filter: grayscale(.5) brightness(.8); }
+.book-card.is-selected { outline: 2px solid #ffe1a2; outline-offset: 2px; }
+.planet-picture.mystery-picture { background: radial-gradient(circle at 30% 25%, #ffffff30, transparent 65%), #3b4260; color: #c9cee0; font: 700 26px 'Manrope', sans-serif; }
+.solar-map .solar-orbit.is-mystery { display: none; }
+.solar-map g.is-mystery text { fill: #9aa1ba; font-weight: 700; }
+#world-map .sticker-progress { margin: 4px 0 12px; }
+#world-fly:focus-visible, .book-card:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
 .planet-picture { width: 48px; height: 48px; margin: 4px; display: grid; place-items: center; flex-shrink: 0; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), var(--planet-color); box-shadow: inset -8px -4px 10px #0004, 0 0 20px #ffffff08; font-size: 36px; color: #669b79; position: relative; }
 .planet-picture.saturn::after { content: ''; position: absolute; width: 70px; height: 20px; border: 5px solid #e7c794aa; border-radius: 50%; transform: rotate(-25deg); }
 .planet-picture.jupiter, .planet-picture.neptune { background: repeating-linear-gradient(10deg, #ffffff33 0 5px, transparent 5px 10px), var(--planet-color); }
@@ -44,9 +64,8 @@
 .planet-picture.vesta::after { content: ''; position: absolute; width: 14px; height: 8px; left: 10px; bottom: 3px; border-radius: 50%; background: #0003; }
 /* The Moon: a small grey picture with dark maria. */
 .planet-picture.moon { width: 36px; height: 36px; margin: 10px; background: radial-gradient(circle at 36% 42%, #7c7d82 0 5px, transparent 6px), radial-gradient(circle at 62% 60%, #7c7d82 0 7px, transparent 8px), radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), var(--planet-color); }
-.home-picture { grid-row: 1; grid-column: 1; border-color: #f2acd066; background: #dc85b015; }
-.you-are-here { border-color: #ffe1a2; }
-.you-are-here small { color: #ffe1a2; }
+.book-card.is-open.you-are-here, .book-card.is-sticker.you-are-here { border-color: #ffe1a2; }
+.book-card.you-are-here:not(.is-sticker) small { color: #ffe1a2; }
 #home-celebration { position: absolute; z-index: 4; top: 24%; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; width: max-content; max-width: calc(var(--view-width, 100vw) - 32px); padding: 18px 26px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eeed; pointer-events: none; box-shadow: 0 10px 50px #6f3c6220; }
 #home-celebration > span { font-size: 58px; color: #c76894; }
 #home-celebration small { font-size: 9px; letter-spacing: .2em; }
@@ -68,13 +87,15 @@
   #world-map { padding: 20px 16px; }
   #world-map h2 { font-size: 29px; }
   .solar-map { padding: 10px 6px 4px; }
-  .picture-worlds { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-  .world-picture { min-height: 120px; padding: 8px 4px; gap: 7px; }
-  .world-picture strong { font-size: 10px; }
+  .book-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .book-card { min-height: 120px; padding: 8px 4px; gap: 7px; }
+  .book-card strong { font-size: 10px; }
+  .world-note { flex-wrap: wrap; }
+  #world-fly { width: 100%; }
   #home-celebration { top: 33%; gap: 12px; padding: 16px; }
   #home-celebration h2 { font-size: 25px; }
   #home-celebration > span { font-size: 38px; }
   #home-move-note { bottom: 200px; padding: 12px 16px; }
   .touch-controls { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(2, 44px); }
 }
-@media (prefers-reduced-motion: reduce) { .celebration-petals { display: none; } }
+@media (prefers-reduced-motion: reduce) { .celebration-petals { display: none; } .book-card.is-sticker { rotate: none; } }

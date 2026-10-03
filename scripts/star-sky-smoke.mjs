@@ -139,7 +139,7 @@ try {
   assert(!(await evaluate('document.documentElement.scrollWidth > innerWidth')), 'Overflow at 390px')
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log('Verified toggle off by default, lazy Webb load, names in space only, caption credit, toggle hides names/lines/pictures, Worlds credits, and 390px layout. No browser errors.')
+  console.log('Verified the Star pictures switch off by default, lazy Webb load, names in space only, caption credit, switch hides names/lines/pictures, Settings credits, and 390px layout. No browser errors.')
 } finally {
   ws?.close(); browser.kill()
 }

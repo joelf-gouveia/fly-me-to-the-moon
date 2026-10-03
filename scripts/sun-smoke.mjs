@@ -72,6 +72,8 @@ try {
       for (let i = 0; i < Math.ceil(seconds * 60); i++) { window.testTime += 1000 / 60; window.testFrame(window.testTime); }
     };
   ` })
+  // Worlds opens a world with its sticker, and a new book opens only Earth, Blossom Haven and the Moon.
+  await send('Page.addScriptToEvaluateOnNewDocument', { source: `localStorage.setItem('fairy-sticker-book', JSON.stringify({ arrived: ['sun'] }))` })
   async function load(mobile) {
     if (mobile) {
       await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
@@ -129,7 +131,7 @@ try {
 
   step('to the Sun')
   await evaluate('document.querySelector("#open-map").click()')
-  await evaluate('document.querySelector("[data-world=sun]").click()')
+  await evaluate('document.querySelector("[data-world=sun]").click(); document.querySelector("#world-fly").click()')
   let altitude = Infinity
   for (let tick = 0; tick < 400; tick++) {
     await evaluate('advanceFlight(0.5)')

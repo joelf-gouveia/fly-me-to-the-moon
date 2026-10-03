@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { arrivalDistance, arrive, earnsSticker, emptyBook, parseBook, reachesMilestone, stickerById, STICKERS, suggestNext } from '../src/stickers'
+import { arrivalDistance, arrive, BOOK_ORDER, canFly, earnsSticker, emptyBook, isKnown, nextDoor, parseBook, reachesMilestone, stickerById, STICKERS, suggestNext } from '../src/stickers'
+import type { StickerId } from '../src/stickers'
 
 describe('sticker book', () => {
   it('has one sticker for each world, with the Moon after Earth, as in Worlds', () => {
@@ -44,5 +45,29 @@ describe('sticker book', () => {
   it('reads a saved book safely', () => {
     expect(parseBook('broken')).toEqual(emptyBook())
     expect(parseBook({ arrived: ['moon', 'moon', 'pluto'] }).arrived).toEqual(['moon'])
+  })
+
+  it('opens the worlds one next door at a time, from the Moon to Earth', () => {
+    expect(BOOK_ORDER[0]).toBe('fairy')
+    expect(new Set(BOOK_ORDER).size).toBe(13)
+    const book = emptyBook()
+    const open = () => STICKERS.map(sticker => sticker.id).filter(id => canFly(book, id))
+    expect(open()).toEqual(['earth', 'moon', 'fairy'])
+    expect(isKnown(book, 'sun') && isKnown(book, 'earth') && isKnown(book, 'fairy') && !isKnown(book, 'mars')).toBe(true)
+    const chain: StickerId[] = []
+    for (let next = nextDoor(book); next; next = nextDoor(book)) {
+      // Never more than one world is open with no sticker, other than Earth and Blossom Haven.
+      expect(open().filter(id => !book.arrived.includes(id) && id !== 'earth' && id !== 'fairy').length).toBeLessThanOrEqual(1)
+      chain.push(next)
+      book.arrived.push(next)
+    }
+    expect(chain).toEqual(['moon', 'venus', 'mercury', 'sun', 'mars', 'vesta', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'earth'])
+  })
+
+  it('keeps a world open after its sticker, even one found in free flight', () => {
+    const book = { ...emptyBook(), arrived: ['neptune' as const] }
+    expect(canFly(book, 'neptune')).toBe(true)
+    expect(canFly(book, 'mars')).toBe(false)
+    expect(isKnown(book, 'neptune')).toBe(true)
   })
 })

@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Italiana&family=Manrope:wght@300;400;500;600&display=swap');
+
+/* F10 · Install and fly offline. The layer is 1280 × 720 and scales to the stage. */
+.f10-root { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; font-family: 'Manrope', system-ui, sans-serif; color: #fff8df; }
+.f10-room { position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, #3a3157, #191527 60%, #0d0b16); }
+
+/* The iPad: a dark rounded bezel. Its screen has no background, so the lab shows through. */
+.f10-device { position: absolute; left: 210px; top: 54px; width: 860px; height: 612px; border: 20px solid #111218; border-radius: 42px; box-shadow: 0 0 0 2px #4a4c58, 0 0 0 3px #1c1d24, 0 40px 90px #000a; }
+.f10-lens { position: absolute; left: 50%; top: -12px; width: 6px; height: 6px; margin-left: -3px; border-radius: 50%; background: #2a2d3a; box-shadow: inset 0 0 0 1px #3c4052; }
+.f10-screen { position: absolute; inset: 0; overflow: hidden; border-radius: 22px; }
+
+/* The status bar: the time, airplane mode and the battery. There is no Wi-Fi mark. */
+.f10-status { position: absolute; left: 0; right: 0; top: 0; display: flex; justify-content: space-between; align-items: center; height: 26px; padding: 0 20px; font-size: 12px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px #0005; }
+.f10-status-right { display: flex; align-items: center; gap: 6px; }
+.f10-status svg { width: 15px; height: 15px; }
+.f10-status svg:first-child { fill: #fff; }
+.f10-status svg:last-child { width: 22px; height: 22px; }
+
+/* The home screen: a soft wallpaper, plain tiles and a dock. */
+.f10-home { position: absolute; inset: 0; transform-origin: 43% 37%; background: radial-gradient(circle at 18% 85%, #ffc6a8 0, transparent 38%), radial-gradient(circle at 85% 20%, #b9a6ff 0, transparent 42%), radial-gradient(circle at 60% 70%, #ff9fc8 0, transparent 40%), linear-gradient(150deg, #8fb2ff, #c69cf0 50%, #f6a9c4); }
+.f10-grid { position: absolute; left: 60px; right: 60px; top: 64px; display: grid; grid-template-columns: repeat(6, 1fr); row-gap: 26px; }
+.f10-app { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.f10-app small { display: block; width: 46px; height: 8px; border-radius: 4px; background: #ffffff70; }
+.f10-game-app small { width: auto; height: auto; border-radius: 0; background: none; font-size: 11px; font-weight: 600; color: #fff; text-shadow: 0 1px 4px #0006; white-space: nowrap; }
+.f10-tile, .f10-icon { position: relative; display: block; width: 68px; height: 68px; border-radius: 16px; box-shadow: 0 4px 12px #3a1e5a33; }
+.f10-tile::after { content: ''; position: absolute; inset: 22px; border-radius: 50%; background: #ffffffc0; }
+.f10-tile-0 { background: linear-gradient(160deg, #9fd8ff, #5aa9e6); }
+.f10-tile-1 { background: linear-gradient(160deg, #ffe08a, #f5b74e); }
+.f10-tile-1::after { border-radius: 6px; }
+.f10-tile-2 { background: linear-gradient(160deg, #b8ebc9, #6cc192); }
+.f10-tile-2::after { inset: 30px 16px; border-radius: 4px; }
+.f10-tile-3 { background: linear-gradient(160deg, #fbfbfd, #dcdde6); }
+.f10-tile-3::after { background: #c4c7d6; }
+.f10-tile-4 { background: linear-gradient(160deg, #ffb0c8, #f07aa0); }
+.f10-tile-4::after { inset: 18px 24px; border-radius: 10px; }
+.f10-tile-5 { background: linear-gradient(160deg, #d2c1ff, #9a7ce8); }
+.f10-tile-5::after { inset: 20px; border-radius: 30% 70% 50% 50%; }
+.f10-dock { position: absolute; left: 50%; bottom: 16px; display: flex; gap: 18px; padding: 12px 16px; translate: -50% 0; border-radius: 28px; background: #ffffff38; backdrop-filter: blur(16px); }
+.f10-dock .f10-tile { width: 60px; height: 60px; border-radius: 14px; }
+.f10-dock .f10-tile::after { inset: 19px; }
+
+/* The game icon: the night sky, the wings of the game brand and a gold moon. */
+.f10-icon { overflow: hidden; background: radial-gradient(circle at 70% 25%, #3b3a8a, #12153a 60%, #02030f); box-shadow: 0 4px 14px #1b0e3a66, inset 0 0 0 1px #ffffff22; }
+.f10-icon em { position: absolute; right: 10px; top: 9px; width: 15px; height: 15px; border-radius: 50%; box-shadow: inset -4px 2px 0 0 #ffe3a3; }
+.f10-icon em { box-shadow: inset -5px 2px 0 0 #ffe3a3; }
+/* Fairy wings: two big and two small petals round a gold spark, as the wings of the fairy. */
+.f10-wings { position: absolute; left: 50%; top: 58%; width: 0; height: 0; }
+.f10-wings i { position: absolute; border: 1.5px solid #fff9dbd9; border-radius: 50%; background: #ffffff24; }
+.f10-wings i:nth-child(1), .f10-wings i:nth-child(2) { width: 14px; height: 23px; left: -7px; top: -23px; transform-origin: 50% 100%; rotate: -50deg; }
+.f10-wings i:nth-child(2) { rotate: 50deg; }
+.f10-wings i:nth-child(3), .f10-wings i:nth-child(4) { width: 10px; height: 15px; left: -5px; top: 0; transform-origin: 50% 0; rotate: 42deg; }
+.f10-wings i:nth-child(4) { rotate: -42deg; }
+.f10-wings i:nth-child(5) { width: 6px; height: 6px; left: -3px; top: -3px; border: 0; background: #f8dca2; box-shadow: 0 0 10px #f8dca2; }
+/* The brand mark of src/style.css (.brand-mark): two wings and a gold spark. */
+.f10-mark { position: relative; display: block; width: 29px; height: 35px; }
+.f10-mark i { position: absolute; display: block; width: 17px; height: 25px; border: 1px solid #fff9dbc2; border-radius: 90% 15% 90% 20%; transform-origin: bottom right; }
+.f10-mark i:nth-child(1) { transform: rotate(-35deg); left: 0; top: 0; }
+.f10-mark i:nth-child(2) { transform: scaleX(-1) rotate(-35deg); right: 0; top: 0; }
+.f10-mark i:nth-child(3) { width: 4px; height: 4px; border: 0; border-radius: 50%; background: #f8dca2; box-shadow: 0 0 12px #f8dca2; left: 13px; bottom: 0; }
+.f10-mark-large { scale: 1.9; margin: 0 auto 34px; }
+
+/* The splash screen: it grows from the icon. */
+.f10-splash { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; background: #02030f; transform-origin: 50% 50%; }
+.f10-splash-brand { text-align: center; }
+.f10-splash-brand p { margin: 0 0 10px; font: 10px 'DM Mono', monospace; letter-spacing: .24em; color: #fffae67a; }
+.f10-splash-brand h2 { margin: 0; font: 44px/1 'Italiana', Georgia, serif; letter-spacing: .03em; color: #fff8df; }
+
+/* The touch layout of the game (docs/mobile-play.md): Worlds and pause at the top, arrows and Boost below. */
+.f10-game-ui { position: absolute; inset: 0; opacity: 0; }
+.f10-worlds { position: absolute; left: 18px; top: 36px; display: flex; align-items: center; gap: 6px; min-height: 40px; padding: 6px 12px; border: 1px solid #ffffff40; border-radius: 16px; background: #182335c9; font-size: 11px; color: #fff6e7; }
+.f10-worlds b { font-size: 17px; font-weight: 400; }
+.f10-worlds small { padding: 1px 6px; border-radius: 8px; background: #ffffff1a; font-size: 10px; }
+.f10-round { position: absolute; display: grid; place-items: center; border: 1px solid #ffffff29; border-radius: 50%; background: #06091b6e; color: #ffffffb0; }
+.f10-pause { right: 18px; top: 36px; width: 40px; height: 40px; }
+.f10-pause svg { width: 18px; height: 18px; }
+.f10-boost { right: 22px; bottom: 22px; width: 76px; height: 76px; font-size: 12px; font-weight: 600; color: #ffe2a9; }
+.f10-arrows { position: absolute; left: 20px; bottom: 18px; display: grid; grid-template-columns: repeat(3, 40px); grid-template-rows: repeat(3, 32px); gap: 2px; }
+.f10-arrows i { display: grid; place-items: center; border: 1px solid #ffffff29; border-radius: 12px; background: #06091b6e; color: #ffffffb0; }
+.f10-arrows i:nth-child(1) { grid-area: 1 / 2; }
+.f10-arrows i:nth-child(2) { grid-area: 2 / 1; }
+.f10-arrows i:nth-child(3) { grid-area: 2 / 3; }
+.f10-arrows i:nth-child(4) { grid-area: 3 / 2; }
+.f10-arrows svg { width: 18px; height: 18px; }
+
+/* The note of the clip: the game flies with no Wi-Fi. */
+.f10-note { position: absolute; left: 50%; top: 40px; display: flex; align-items: center; gap: 9px; width: max-content; padding: 9px 16px; border: 1px solid #efd2e38c; border-radius: 20px; background: #352741ed; color: #ffe8f2; font-size: 13px; opacity: 0; box-shadow: 0 5px 24px #11082230; }
+.f10-note svg { width: 16px; height: 16px; color: #f2b4d6; }
+
+/* A finger tap: a soft dot and a ring. */
+.f10-touch { position: absolute; width: 50px; height: 50px; margin: -25px 0 0 -25px; border-radius: 50%; background: #ffffff70; box-shadow: 0 0 0 2px #ffffffb0, 0 4px 16px #0003; transform: scale(var(--press, 1)); visibility: hidden; }
+.f10-touch::after { content: ''; position: absolute; inset: 0; border: 2px solid #ffffffd0; border-radius: 50%; transform: scale(var(--ring, 1)); opacity: calc(2 - var(--ring, 1)); }

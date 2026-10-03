@@ -123,3 +123,30 @@ export function parseBook(value: unknown): Book {
  * and comes back: a new visit, as for a new landscape (World.visit 2 or more).
  */
 export const earnsSticker = (id: StickerId, visit: number) => id !== 'earth' || visit > 1
+
+// The book of worlds (option D of docs/world-book-study.md): Worlds and the stickers in one
+// dialog. The solar system opens as the fairy visits it, one "next door" at a time.
+
+/** The order of the cards: Blossom Haven first, then the Sun and the worlds outward. */
+export const BOOK_ORDER: readonly StickerId[] = ['fairy', ...STICKERS.map(sticker => sticker.id).filter(id => id !== 'fairy')]
+/** Earth is the start, Blossom Haven the goal of the flower guide, and the Sun the centre of the map. */
+export const KNOWN_AT_START: readonly StickerId[] = ['earth', 'fairy', 'sun']
+/** Always open to "Fly there": the way home to Earth, and the flower guide to Blossom Haven, which wanders. */
+export const ALWAYS_OPEN: readonly StickerId[] = ['earth', 'fairy']
+
+/**
+ * The empty space that the book opens next: the nearest world on the poster that has no
+ * sticker. The fairy starts on Earth, so Earth comes last. Blossom Haven is always open,
+ * so it is never the next door.
+ */
+export function nextDoor(book: Book): StickerId | null {
+  const hasEarth = book.arrived.includes('earth')
+  const assumed = [...book.arrived, ...(hasEarth ? [] : ['earth' as const]), ...(book.arrived.includes('fairy') ? [] : ['fairy' as const])]
+  return suggestNext({ ...book, arrived: assumed }, book.arrived.at(-1) ?? 'earth')?.id ?? (hasEarth ? null : 'earth')
+}
+
+/** The map and the book show the name and the picture of a known world. The others are a grey "?". */
+export const isKnown = (book: Book, id: StickerId) => KNOWN_AT_START.includes(id) || book.arrived.includes(id)
+
+/** A guided flight goes to a world with its sticker, to Earth, to Blossom Haven, or to the next door. */
+export const canFly = (book: Book, id: StickerId) => book.arrived.includes(id) || ALWAYS_OPEN.includes(id) || nextDoor(book) === id

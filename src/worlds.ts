@@ -70,7 +70,7 @@ const dwarf = (id: typeof DWARF_WORLDS[number]['id']) => {
 
 // Base units: radius, orbit, angle, colour, atmosphere, cloud height. createWorlds() applies
 // PROPORTIONS: size to radii, air and clouds, spacing to orbits (docs/proportions-study.md).
-const data = [
+export const WORLD_DATA = [
   ['Mercury', 'mercury', 95, 1400, 0.28, 0xb7a58d, 0, 0],
   ['Venus', 'venus', 170, 2250, 1.18, 0xd5a36d, 95, 48],
   ['Earth', 'earth', 220, 3300, 0.08, 0x83c5e8, 78, 34],
@@ -483,7 +483,7 @@ export function createWorlds(scene: THREE.Scene, mobile = false, renderer?: THRE
   const sun = new THREE.Group()
   sunCentre = sun.position
   setPlanetPainter(renderer ?? null)
-  for (const [name, kind, baseRadius, baseOrbit, angle, color, baseAtmosphere, baseCloudHeight] of data) {
+  for (const [name, kind, baseRadius, baseOrbit, angle, color, baseAtmosphere, baseCloudHeight] of WORLD_DATA) {
     const radius = baseRadius * PROPORTIONS.size, orbit = baseOrbit * PROPORTIONS.spacing
     const atmosphere = baseAtmosphere * PROPORTIONS.size, cloudHeight = baseCloudHeight * PROPORTIONS.size
     const group = new THREE.Group(), surface = new THREE.Group(), clouds = new THREE.Group()

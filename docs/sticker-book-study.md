@@ -6,6 +6,10 @@ study for later. Open `/studies/sticker-book-study.html` on the Vite server. The
 controls do not change the game or saved game data. The study saves its own book
 as `fairy-sticker-book-study-v1`.
 
+Later on 27 September 2026 the book moved into **Worlds**, and the worlds open one at a
+time: option D of [the world book study](world-book-study.md). The table below records
+option A as it was built.
+
 ## What the game now does
 
 | Area | Implementation |

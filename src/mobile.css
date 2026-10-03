@@ -44,7 +44,6 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .touch-ui.is-customizing .touch-actions, .touch-ui.is-customizing .mobile-top, .touch-ui.is-customizing .toolbar,
 .touch-ui.is-paused .touch-controls, .touch-ui.is-paused .touch-actions,
 .touch-ui.is-map-open .touch-controls, .touch-ui.is-map-open .touch-actions,
-.touch-ui.is-book-open .touch-controls, .touch-ui.is-book-open .touch-actions,
 .touch-ui.is-settings-open .touch-controls, .touch-ui.is-settings-open .touch-actions,
 .touch-ui.is-menu-open .touch-controls, .touch-ui.is-menu-open .touch-actions,
 .touch-ui:not(.has-started) .touch-controls, .touch-ui:not(.has-started) .touch-actions,

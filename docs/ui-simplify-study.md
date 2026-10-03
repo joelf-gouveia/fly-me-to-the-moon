@@ -20,6 +20,7 @@ game before the change.
 | Flight panel | The glide speed only. The keys are in **How to fly**; the welcome card keeps its hint |
 | Removed | The hidden **Follow a world** picker and its code, and "· landscape N" in the world panel |
 | Phone Menu (`src/mobile-ui.ts`) | **Your fairy**, **Stickers**, **Settings**, then **Stop following** while the guide is on, and the flight details |
+| Later | The world book study (`docs/world-book-study.md`) moved **Stickers** into **Worlds**. The toolbar has three buttons, and the phone Menu two |
 | Test snapshot | `__fairyTest.snapshot()` adds `destination`, `orbitSpeed`, `orbitPaths`, `sound` and `earthVisit` |
 | Smoke scripts | The scripts that used the removed controls now use **Worlds** pictures, the Settings switches and the snapshot. `scripts/settings-smoke.mjs` checks the new Settings |
 
@@ -266,9 +267,14 @@ stay on the screen in all options: they are the play of the child.
 ## Verification
 
 - `npx vitest run studies/ui-simplify-study` runs 6 model tests. They check the counts of each option,
-  the sections of **Settings**, and that each cited line and fact is in the game code.
+  the sections of **Settings**, and that the game code follows option C without **Guide me
+  home**.
+- `tests/settings.test.ts` checks the saved switches of `fairy-settings`.
+- `node scripts/settings-smoke.mjs "path/to/chrome.exe"` checks the four toolbar buttons, the
+  removed controls, the paths of the Worlds map, the sky switches, World speed, the sound,
+  the saved switches after a reload, **How to fly** and the phone Menu.
 - `node studies/ui-simplify-study/ui-study-smoke.mjs "path/to/chrome.exe"` against the Vite server
-  (port 5174) checks the facts of today in the game, then opens the study at a computer
+  (port 5174) checks that the game follows option C, then opens the study at a computer
   width and at 390 px and 320 px. It checks each option, **Settings** of B, the sky of
   the drawing, the phone Menu, a kept answer, the export and the link to this doc. It
   saves screenshots in `artifacts.local/ui-study/`.

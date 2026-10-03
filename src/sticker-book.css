@@ -1,12 +1,5 @@
-/* The sticker book uses the look of the Worlds dialog (src/adventure.css) and its planet pictures. */
+/* The progress dots of the book in Worlds (src/adventure.ts), and the new-sticker note. */
 .sticker-book [hidden] { display: none !important; }
-.sticker-book button { cursor: pointer; font: inherit; }
-#sticker-book { width: min(760px, calc(var(--view-width, 100vw) - 32px)); max-height: calc(var(--view-height, 100dvh) - 40px); padding: 30px; border: 1px solid #a6afc855; border-radius: 28px; color: #fff0de; background: linear-gradient(140deg, #28314d, #161929); box-shadow: 0 30px 90px #0008; }
-#sticker-book::backdrop { background: #040916a6; backdrop-filter: blur(8px); }
-#sticker-book header { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-#sticker-book h2 { margin: 7px 0; font: 34px 'Italiana', Georgia, serif; }
-#sticker-book .eyebrow { margin: 0; font: 10px 'DM Mono', monospace; letter-spacing: .16em; color: #d5bed4; }
-#close-stickers { width: 48px; height: 48px; flex-shrink: 0; border: 1px solid #ffffff44; border-radius: 50%; color: #fff; background: transparent; font-size: 26px; }
 .sticker-progress { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; margin: 10px 0 18px; }
 .sticker-dots { display: flex; flex-wrap: wrap; gap: 5px; }
 .sticker-dots i { width: 12px; height: 12px; border-radius: 50%; border: 1px solid #ffffff55; }
@@ -14,41 +7,19 @@
 .sticker-dots i.on { background: #f3acd1; border-color: #ffd6ea; box-shadow: 0 0 8px #f3acd177; }
 #sticker-count { margin: 0; font-size: 12px; color: #d9cfe2; }
 
-.sticker-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 12px; }
-.sticker-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 108px; padding: 12px 4px 10px; border-radius: 20px; border: 2px dashed #ffffff30; background: #ffffff06; color: #b7b3c7; font-size: 11px !important; }
-.sticker-slot:hover { background: #ffffff10; }
-.sticker-slot .planet-picture { filter: grayscale(1) brightness(.5); opacity: .45; }
-.sticker-slot.is-earned { border: 2px solid #fff6ee; background: linear-gradient(160deg, #fff7fb, #ffe6f1); color: #603449; font-weight: 600; rotate: var(--tilt); box-shadow: 0 8px 22px #0006; }
-.sticker-slot.is-earned .planet-picture { filter: none; opacity: 1; }
-.sticker-slot:focus-visible, #sticker-fly:focus-visible, #close-stickers:focus-visible, #stickers-toggle:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
-
-.sticker-note { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 0 0 16px; padding: 10px 12px 10px 16px; border-radius: 16px; background: #080e1b80; }
-.sticker-note p { flex: 1; margin: 0; font-size: 14px; line-height: 1.5; color: #fff2e7; }
-#sticker-fly { flex-shrink: 0; min-height: 44px; padding: 8px 16px; border: 1px solid #ffd0e0; border-radius: 18px; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600 !important; font-size: 13px !important; }
-
-/* The new-sticker note: above the toolbar, beside the book button, clear of the fairy.
+/* The new-sticker note: above the toolbar, clear of the fairy.
    On a touch screen the toolbar is at the top, so the note goes below it. */
 #sticker-toast { position: absolute; z-index: 4; right: 40px; bottom: 96px; display: flex; align-items: center; gap: 14px; width: max-content; max-width: min(360px, calc(var(--view-width, 100vw) - 80px)); padding: 14px 20px 14px 14px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eef2; box-shadow: 0 10px 50px #6f3c6230; pointer-events: none; transform-origin: 90% 100%; animation: sticker-on .6s cubic-bezier(.2, 1.4, .4, 1) both; transition: opacity .6s; }
 #sticker-toast.is-leaving { opacity: 0; }
 #sticker-toast small { font: 9px 'DM Mono', monospace; letter-spacing: .2em; }
 #sticker-toast h2 { margin: 3px 0 4px; font: 26px 'Italiana', Georgia, serif; }
 #sticker-toast p { margin: 0; font-size: 12px; line-height: 1.5; }
+#sticker-toast .sticker-toast-next { margin-top: 4px; font-weight: 600; }
+#sticker-toast .sticker-toast-next:empty { display: none; }
 .touch-ui #sticker-toast { top: calc(var(--edge-top, 16px) + 64px); right: var(--edge-right, 16px); bottom: auto; max-width: calc(var(--view-width, 100vw) - 32px); transform-origin: 90% 0; }
 @keyframes sticker-on { from { transform: scale(1.4) rotate(-8deg); opacity: 0; } }
 
-/* A world in the Worlds dialog that has its sticker. */
-.world-picture { position: relative; }
-.world-picture.has-sticker::after { content: '★'; position: absolute; top: 8px; right: 10px; font-size: 14px; color: #ffd56a; text-shadow: 0 0 6px #ffd56a88; }
-
-.is-book-open #sticker-toast, .is-settings-open #sticker-toast { visibility: hidden; }
-@media (max-width: 560px) {
-  #sticker-book { padding: 22px 16px; }
-  #sticker-book h2 { font-size: 28px; }
-  .sticker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-  .sticker-note { flex-wrap: wrap; }
-  #sticker-fly { width: 100%; }
-}
+.is-map-open #sticker-toast, .is-settings-open #sticker-toast { visibility: hidden; }
 @media (prefers-reduced-motion: reduce) {
   #sticker-toast { animation: none; }
-  .sticker-slot.is-earned { rotate: none; }
 }

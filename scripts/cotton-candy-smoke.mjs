@@ -79,7 +79,7 @@ try {
     await evaluate('document.querySelector("#begin-button").click(); advanceGame(0.5)')
     const [er, eg] = channels((await snapshot()).clouds.mist)
     assert(eg >= er - 6, `The mist on Earth is not white: ${(await snapshot()).clouds.mist}`)
-    await evaluate('document.querySelector("[data-world=fairy]").click(); advanceGame(0.05)')
+    await evaluate('document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceGame(0.05)')
     let home, layer
     for (let i = 0; i < 600; i++) {
       await evaluate('advanceGame(0.5)')

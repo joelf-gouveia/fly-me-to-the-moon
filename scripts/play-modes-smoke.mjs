@@ -93,7 +93,7 @@ try {
   if (await evaluate('document.querySelector("[data-world=fairy] .planet-picture").textContent') !== '✿') throw new Error('The map is missing the blossom icon')
   await evaluate('document.querySelector("#close-map").click()')
   await delay(100)
-  await evaluate('document.querySelector("[data-world=fairy]").click(); advanceFlight(0.1)')
+  await evaluate('document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceFlight(0.1)')
   if (!(await snapshot()).guided) throw new Error('The Blossom Haven picture did not start the guide')
   if (await evaluate('document.querySelector("#home-beacon").hidden')) throw new Error('The guide is missing its flower marker')
   for (let i = 0; i < 100 && !(await snapshot()).found; i++) await evaluate('advanceFlight(2)')

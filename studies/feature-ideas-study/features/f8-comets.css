@@ -1,0 +1,23 @@
+/* F8 · The caption of each part, and a soft dark fade between the two parts. */
+.f8-caption {
+  position: absolute;
+  left: 50%;
+  top: 36px;
+  margin: 0;
+  padding: 10px 18px;
+  transform: translateX(-50%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(18, 25, 56, 0.6), rgba(5, 8, 26, 0.34));
+  backdrop-filter: blur(14px);
+  color: #fff8df;
+  font-family: 'Italiana', Georgia, serif;
+  font-size: 18px;
+  white-space: nowrap;
+}
+.f8-fade {
+  position: absolute;
+  inset: 0;
+  background: #02030f;
+  opacity: 0;
+}

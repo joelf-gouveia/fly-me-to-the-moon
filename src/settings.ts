@@ -36,7 +36,7 @@ export function createSettings(actions: Actions) {
   button.title = 'Settings'
   button.setAttribute('aria-haspopup', 'dialog')
   button.append(createElement(Settings))
-  document.querySelector('#stickers-toggle')!.after(button)
+  document.querySelector('#customize-toggle')!.after(button)
 
   const host = document.createElement('div')
   host.className = 'settings'
@@ -66,7 +66,7 @@ export function createSettings(actions: Actions) {
         <button id="reset-stickers" type="button">Reset sticker book</button>
         <div id="reset-confirm" class="reset-confirm" role="alertdialog" aria-labelledby="reset-question" aria-describedby="reset-detail" hidden>
           <p id="reset-question"></p>
-          <p id="reset-detail">Your child starts again with an empty book. This cannot be undone.</p>
+          <p id="reset-detail">Your child starts again with an empty book, and the worlds close again. This cannot be undone.</p>
           <div><button id="reset-cancel" type="button">Keep the stickers</button><button id="reset-yes" type="button" class="danger">Reset the book</button></div>
         </div>
         <p id="reset-status" role="status"></p>
