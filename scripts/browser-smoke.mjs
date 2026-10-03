@@ -95,12 +95,12 @@ try {
   console.log('Paused:', await evaluate('document.querySelector("#pause-toggle").ariaLabel'))
   await evaluate('document.querySelector("#customize-toggle").click()')
   await evaluate('document.querySelector(\'[data-custom="hair"][data-value="bob"]\').click()')
-  await evaluate('document.querySelector(\'[data-custom="wings"][data-value="luna"]\').click()')
+  await evaluate('document.querySelector(\'[data-custom="wings"][data-value="glitter"]\').click()')
   for (const [part, value] of [['hairColor', 'lavender'], ['dress', 'buttercup'], ['wingColor', 'violet'], ['skin', 'cocoa']]) {
     await evaluate(`document.querySelector('[data-custom="${part}"][data-value="${value}"]').click()`)
   }
   const savedLook = await evaluate('localStorage.getItem("fairy-look")')
-  if (savedLook !== '{"hair":"bob","hairColor":"lavender","dress":"buttercup","wings":"luna","wingColor":"violet","skin":"cocoa"}') throw new Error(`Customization was not saved: ${savedLook}`)
+  if (savedLook !== '{"hair":"bob","hairColor":"lavender","dress":"buttercup","wings":"glitter","wingColor":"violet","skin":"cocoa"}') throw new Error(`Customization was not saved: ${savedLook}`)
   await evaluate('advanceFlight(1)')
   await delay(300)
   await screenshot('customization')
@@ -134,7 +134,7 @@ try {
       await delay(250)
     }
     const selected = await evaluate('Array.from(document.querySelectorAll(\'[data-custom][aria-pressed="true"]\'), b => b.dataset.value).join(",")')
-    if (selected !== 'bob,lavender,buttercup,luna,violet,cocoa') throw new Error(`Saved look was not restored: ${selected}`)
+    if (selected !== 'bob,lavender,buttercup,glitter,violet,cocoa') throw new Error(`Saved look was not restored: ${selected}`)
     await evaluate('document.querySelector("#welcome-customize").click()')
     if (!await evaluate('document.querySelector("#customizer").classList.contains("is-open")')) throw new Error('Welcome customization did not open')
     console.log('Customization: selection, persistence, Escape, welcome entry and responsive layout passed')

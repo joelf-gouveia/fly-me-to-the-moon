@@ -154,7 +154,8 @@ try {
   assert(ringsOf(await rings(), 'Earth').taken.join() === '1', 'The ring came back before 30 s')
   await evaluate('advanceFlight(3, 60, false)')
   assert(ringsOf(await rings(), 'Earth').taken.length === 0, 'The ring did not come back after 30 s')
-  await evaluate('__fairyTest.aimRing("earth", 1, 14)'); await evaluate('advanceFlight(0.3)')
+  // 8 m before ring 1: two rings are 12 m or more apart, so this start is after ring 0 and takes no ring.
+  await evaluate('__fairyTest.aimRing("earth", 1, 8)'); await evaluate('advanceFlight(0.3)')
   await screenshot('earth-ring-back')
 
   step('a pass at boost speed, 20 frames a second')
