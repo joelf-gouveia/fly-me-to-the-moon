@@ -24,7 +24,7 @@ Last update: 3 October 2026.
 | F8 Comets and shooting stars | Code complete, not merged | `features/f8-comets` |
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
-| Weather on Earth and Blossom Haven | Study decided for Earth; game code not started | None |
+| Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
 
 Each open branch has a worktree folder with the same name in
 `C:\Users\joel_\Documents\GitHub\fly-me-to-the-moon-worktrees\`. To see an idea, run
@@ -147,7 +147,8 @@ game has no public host and no offline cache. The game also needs its own icon:
 A weather system for the two worlds with clouds, air and life. Earth has a study:
 [docs/weather-study.md](docs/weather-study.md) and `/studies/weather-study.html`. The
 decisions are in the study document: a weather map, six kinds of weather and new
-clouds. The game has no weather yet. Blossom Haven has no study.
+clouds. The game has steps 1 to 4 of the study; the next steps are in `TODO.md`.
+Blossom Haven has no study.
 
 Points for the study:
 

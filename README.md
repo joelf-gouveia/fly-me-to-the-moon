@@ -272,6 +272,44 @@ Run `node scripts/magic-seasons-smoke.mjs "path/to/chrome.exe"` against the dev 
 the four seasons at the cottage, the next season after a hop, a pause and the phone. On
 the dev server, `/?test&magic=0.5` starts in Lantern time.
 
+
+## Weather
+
+Earth has weather. Four things make the weather of a place: the place (the moisture of
+its climate belt), the season, the hour and the fronts that move around the planet. So the
+jungle has warm rain, the desert has a clear sky, the rain belt of the tropics follows
+the Sun, and the rain is snow where the air is cold. A front goes around the planet in 40
+minutes, and a shower passes a place in about 1 minute. Each new Earth has new weather.
+
+One small weather map (128 × 64, and 64 × 32 on a phone) holds the cloud, the rain, the
+snow and the wet ground of each place. The game calculates one sixteenth of it on each
+frame. Each part of Earth reads it:
+
+- **Clouds.** Solid heap clouds with a flat base take the place of the puffs. They are
+  small in fair weather and tall and grey in the rain. High wisps are above them, a grey
+  layer closes the sky under a front, and a soft rain curtain shows the rain from far away.
+- **Rain and snow.** Rain lines fall near the fairy, and the wind leans them. Snow falls
+  only under a snow cloud.
+- **Sky and light.** Under a cloud the sky is grey and the light is soft. Rain and mist
+  make the view shorter. Mist lies on low ground at dawn. A rainbow stands opposite to a
+  Sun that is lower than 42°. Thunder is a glow in a cloud far away.
+- **Ground, water and plants.** A cloud makes a shadow. Rain makes the ground dark and
+  wet and the water dull, and fresh snow stays in the cold. The wind of the plants is
+  calm under a clear sky and strong in a front.
+- **Stars.** The stars, the asteroid belt, the comet and the shooting stars show only
+  where the night sky is clear.
+
+With reduced motion the rain stands still and the thunder does not flash. A phone gets
+half the heap clouds and half the rain lines, and no high wisps. The weather code is in
+`src/weather.ts`, `src/weather-clouds.ts` and `src/weather-air.ts`; the
+[weather study](docs/weather-study.md) gives the model and the decisions. The sound of
+the weather, the creatures and the sticker tasks are the next step. The other worlds
+keep their puffs.
+
+Run `node scripts/weather-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+browser check. `/?test&weather=rain` gives the whole planet one weather (`clear`, `rain`,
+`storm` or `mist`) on the dev server.
+
 ## Blossom Haven
 
 The flower button leads to a candy home with half Earth's diameter (radius 137.5,
@@ -984,7 +1022,7 @@ to record the clips of Dew glass and Glitter vein again.
 
 Visit `/studies/weather-study.html` for **A sky that changes**, a study of weather on
 Earth: rain, snow that falls from a cloud, wind, morning mist, a rainbow and thunder far
-away, with new clouds in place of the puffs of the game. The game has no weather yet. In the study, four things make the weather of a place: the
+away, with new clouds in place of the puffs of the game. In the study, four things make the weather of a place: the
 place (the climate belts of the game), the season, the hour and the fronts that move
 around the planet. So the jungle has warm rain, the desert has a clear sky, the rain belt
 of the tropics follows the Sun, and rain becomes snow in the cold. One small weather map
@@ -997,7 +1035,7 @@ game. The study does not include Blossom Haven.
 
 The study compares **A — A weather map** (each place has its own weather) with
 **B — One sky** (the whole planet has one weather at a time). The decision of 3 October 2026 is A, with
-all six kinds of weather; the game code is the next step. The
+all six kinds of weather and all the new clouds; the game now has them, see [Weather](#weather). The
 [technical study](docs/weather-study.md) gives the findings, the model, the change for
 each part, the cost and the limits. The clips are in `public/studies/weather/`. Run
 `node studies/weather-study/weather-study-capture.mjs "path/to/chrome.exe" W1,W2` against

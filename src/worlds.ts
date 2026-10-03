@@ -9,6 +9,10 @@ import { createFields, groundColour } from './foliage/zones'
 import { buildCottonCandyClouds } from './cotton-candy'
 import { createSeasonUniforms, seasonGround, seasonWater } from './seasons'
 import type { SeasonUniforms } from './seasons'
+import { createWeatherMap, weatherGround, weatherWater } from './weather'
+import type { WeatherMap } from './weather'
+import { buildWeatherClouds } from './weather-clouds'
+import type { WeatherSky } from './weather-clouds'
 import { buildMagicPlants, createMagicUniforms, magicGround } from './magic-seasons'
 import type { MagicUniforms } from './magic-seasons'
 import { createPopulation } from './creatures/population'
@@ -47,6 +51,10 @@ export type World = {
   foliage?: FoliageUniforms
   /** Earth only: the look of its seasons (src/seasons.ts). updateEnvironment() in src/main.ts sets it. */
   season?: SeasonUniforms
+  /** Earth only: the weather map of this landscape (src/weather.ts). regenerateWorld() makes it again. */
+  weather?: WeatherMap
+  /** Earth only: the clock, the haze and the thunder glow of its clouds (src/weather-clouds.ts). */
+  weatherSky?: WeatherSky
   /** Blossom Haven only: the look of its magic seasons (src/magic-seasons.ts). src/main.ts sets it. */
   magic?: MagicUniforms
   /** Earth only, after leanEarth() of src/seasons.ts: the lean of its axis. `rotation.y` stays the daily spin. */
@@ -58,6 +66,12 @@ export type World = {
   /** The Sun only: its living look of src/sun-paint.ts. updateEnvironment() in src/main.ts updates it. */
   sunLook?: SunLook
 }
+
+/**
+ * `weather` false makes an Earth with the puffs of before and no weather. The weather study uses it
+ * for its own prototype (studies/weather-study/).
+ */
+export const WORLD_OPTIONS = { weather: true }
 
 /** The Sun's live position, for the ring shadow on Saturn. createWorlds() sets it. */
 let sunCentre: THREE.Vector3 | undefined
@@ -209,6 +223,11 @@ function addAtmosphere(world: World, sunPosition: THREE.Vector3) {
 
 function buildClouds(world: World) {
   if (!world.cloudHeight) return
+  // Earth has the clouds of the weather: heap clouds, high wisps, rain curtains and a grey layer.
+  if (world.weather && sunCentre) {
+    world.weatherSky = buildWeatherClouds(world, world.weather.uniforms, sunCentre)
+    return
+  }
   if (world.kind === 'fairy') {
     buildCottonCandyClouds(world, homeCottageNormal())
     return
@@ -337,6 +356,7 @@ function buildGround(world: World) {
     const material = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.94 })
     if (isLookedPlanet(world.kind) && world.look) lookMaterial(material, world.kind, world.look)
     if (world.season) seasonGround(material, world.season)
+    if (world.weather) weatherGround(material, world.weather.uniforms)
     if (world.magic) magicGround(material, world.magic)
     world.surface.add(new THREE.Mesh(geometry, material))
   }
@@ -353,6 +373,7 @@ function buildGround(world: World) {
           diffuseColor.rgb *= 0.95 + ripple*0.06;`)
     }
     if (world.season) seasonWater(material, world.season)
+    if (world.weather) weatherWater(material, world.weather.uniforms)
     const waterGeometry = new THREE.SphereGeometry(world.radius, 256, 160)
     world.surface.add(new THREE.Mesh(waterGeometry, material))
     const obstacles = new CreatureObstacles()
@@ -441,6 +462,11 @@ export function regenerateWorld(world: World, seed = (Math.random() * 0xffffffff
   world.seed = world.kind === 'fairy' ? HOME_SEED : world.kind === 'moon' ? MOON.seed : seed
   world.visit++
   world.sample = worldTerrain(world.kind, world.seed)
+  if (world.kind === 'earth' && WORLD_OPTIONS.weather) {
+    // Each new Earth has new weather: the fronts come from the seed, and the rain from the moisture of the plants.
+    world.weather?.dispose()
+    world.weather = createWeatherMap(world.seed, world.sample, createFields(world.seed).moist, world.mobile ? { width: 64, height: 32 } : undefined)
+  }
   if (world.gas) buildGasDeck(world)
   else buildGround(world)
   buildClouds(world)

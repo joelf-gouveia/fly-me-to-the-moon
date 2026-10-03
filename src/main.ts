@@ -15,6 +15,7 @@ import { CANDY_MIST, flossTime } from './cotton-candy'
 import { foliageWind, zoneNameAt } from './foliage/build'
 import { fallAt, leanEarth, seasonAt, setSeason, yearOf, yearOfDate } from './seasons'
 import { createSeasonAir } from './season-air'
+import { createWeatherAir } from './weather-air'
 import { MAGIC_STEP, magicAt, setMagic, stepMagicYear } from './magic-seasons'
 import { touchesBelt } from './belt'
 import { earthshineAt, MOON, moonlightAt } from './moon'
@@ -308,6 +309,16 @@ const meadow = meadowNormal(earth)
 const testYear = import.meta.env.DEV ? new URLSearchParams(location.search).get('year') : null
 leanEarth(earth, sun.group.position, testYear === null ? yearOfDate(new Date()) : Number(testYear))
 const seasonAir = createSeasonAir(earth, touchDevice ? 260 : 520)
+// The weather of Earth (docs/weather-study.md): the rain, the mist and the rainbow near the fairy.
+// A browser check can give the whole planet one weather: ?test&weather=rain. This works on the dev server only.
+const weatherAir = createWeatherAir(scene, earth, sun.group.position, touchDevice)
+const SUN_LIGHT = sunlight.intensity
+const TEST_WEATHER = {
+  clear: { cover: 0, rain: 0, storm: 0, mist: 0 }, rain: { cover: 1, rain: 0.9, storm: 0, mist: 0 },
+  storm: { cover: 1, rain: 1, storm: 1, mist: 0 }, mist: { cover: 0.1, rain: 0, storm: 0, mist: 1 },
+} as const
+const testWeather = import.meta.env.DEV ? TEST_WEATHER[new URLSearchParams(location.search).get('weather') as keyof typeof TEST_WEATHER] ?? null : null
+let weatherClock = 0
 // The magic seasons of Blossom Haven (src/magic-seasons.ts). A visit starts in Blossom time, and each
 // hop of the planet brings the next season. A browser check can give the year: ?test&magic=0.5 is Lantern time.
 const testMagic = import.meta.env.DEV ? new URLSearchParams(location.search).get('magic') : null
@@ -897,6 +908,12 @@ function updateEnvironment() {
   const cloudMist = world.cloudHeight ? Math.exp(-Math.pow((altitude - world.cloudHeight - 4) / 6, 2)) * density : 0
   // Air grows with the planets (src/proportions.ts); thinner fog keeps the same look.
   const fogBase = (world.kind === 'venus' ? 0.018 : world.gas ? 0.009 : world.kind === 'mars' ? 0.002 : 0.0018) / PROPORTIONS.size
+  // The weather of Earth: a part of the weather map on each frame, and the weather at the camera.
+  // It sets the sky colour of Earth before the sky of the frame.
+  earthYear = yearOf(earth, sun.group.position)
+  if (testWeather) earth.weather!.force(testWeather)
+  const weather = weatherAir.update(elapsed, Math.max(0, elapsed - weatherClock), earthYear, camera.position, world === earth, reducedMotion.matches)
+  weatherClock = elapsed
   // Solar elevation at the fairy. Spin, orbit, flight and relocation all change it,
   // so there is no separate day clock.
   const light = world.kind === 'sun' ? fullDay : daylightAt(solarElevation(fairy.position, world.group.position, sun.group.position))
@@ -908,7 +925,8 @@ function updateEnvironment() {
   fog.color.copy(skyTint).lerp(mistTint, cloudMist * 0.65)
   fog.density = fogBase * density + cloudMist * (world.kind === 'mars' ? 0.004 : 0.023)
   ;(scene.background as THREE.Color).copy(spaceColor).lerp(skyTint, density * 0.78)
-  skyVisibility = 1 - density * (1 - light.stars * profile.starClarity)
+  // The stars show only where the sky is clear.
+  skyVisibility = (1 - density * (1 - light.stars * profile.starClarity)) * (1 - weather.cover * 0.92)
   stars.update(camera.position, skyVisibility, renderer.getPixelRatio())
   meteorDark = shootingStarDark({
     air: world.atmosphere, altitude, night: light.stars, visibility: skyVisibility,
@@ -927,15 +945,21 @@ function updateEnvironment() {
   ambient.intensity = THREE.MathUtils.lerp(1.1, THREE.MathUtils.lerp(0.85, 2.1, light.day), density)
   ambient.color.copy(nightAmbientSky).lerp(dayAmbientSky, surfaceDay)
   ambient.groundColor.copy(nightAmbientGround).lerp(dayAmbientGround, surfaceDay)
+  // Under a cloud the light is soft. Rain and mist make the view shorter. A rainbow stands opposite to a low Sun.
+  weatherAir.apply(fog, scene.background as THREE.Color, ambient, sunlight, SUN_LIGHT, light, camera.position)
   // On Earth the night fill comes from the Moon and follows its phase. A night with
   // no Moon keeps 45% of it, so nights stay gentle.
   const moonlight = world === earth ? moonlightAt(fairy.position, normal, moon.group.position, sun.group.position) : null
   nightFill.intensity = 0.45 * light.night * density * (moonlight?.strength ?? 1)
   nightFill.target.position.copy(fairy.position)
   // The season of Earth comes from its place on its orbit. Petals, leaves or snow fall near the fairy.
-  earthYear = yearOf(earth, sun.group.position)
   setSeason(earth.season!, earthYear)
-  const falls = world === earth && altitude < 60 ? fallAt(earthLatitude(), earthYear) : { fall: null, amount: 0 }
+  let falls = world === earth && altitude < 60 ? fallAt(earthLatitude(), earthYear) : { fall: null, amount: 0 }
+  // Snow falls only under a snow cloud. Leaves and petals fall more in the wind, and less in the rain.
+  const snowfall = weather.rain * weather.snow
+  if (snowfall > 0.04) falls = { fall: 'snow', amount: Math.min(1, snowfall * 1.6) }
+  else if (falls.fall === 'snow') falls = { fall: null, amount: 0 }
+  else falls = { fall: falls.fall, amount: falls.amount * Math.min(1, 0.45 + weather.wind * 0.25) * (weather.rain > 0.3 ? 0.4 : 1) }
   seasonAir.update(reducedMotion.matches ? 0 : elapsed, timer.getDelta(), camera.position, falls.fall, falls.amount)
   // The magic season of Blossom Haven: the ground, the season plants, and the thing in the air near the fairy.
   setMagic(home.magic!, magicYear)
@@ -1032,7 +1056,8 @@ function animate(timestamp?: number) {
   })
   updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
   for (const world of worlds) {
-    world.clouds.rotation.y += delta * 0.001
+    // The clouds of Earth read the weather map at their place, so they do not turn.
+    if (!world.weather) world.clouds.rotation.y += delta * 0.001
     world.creatures?.update(delta, camera.position)
     // After update(): the hop and the turn go over the place on the route.
     if (world.creatures?.greet(delta, fairy.position)) playHelloChime()
@@ -1040,6 +1065,8 @@ function animate(timestamp?: number) {
   }
   flossTime.value = reducedMotion.matches ? 0 : elapsed
   foliageWind.value.x = reducedMotion.matches ? 0 : elapsed
+  // The strength of the wind in the plants comes from the weather of Earth. Away from Earth it is 1.
+  foliageWind.value.y = weatherAir.here.wind
   teleportGlow.update(delta, reducedMotion.matches)
   const sparkle = sparkleLevel()
   trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12 + sparkle * 0.22
@@ -1151,6 +1178,12 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     season: {
       year: earthYear, on: earth.season!.seasonOn.value, tilt: earth.tilt!.angle, latitude: earthLatitude(), name: seasonAt(earthLatitude(), earthYear),
       air: seasonAir.shown, airVisible: seasonAir.points.visible,
+    },
+    weather: {
+      kind: weatherAir.current?.kind ?? null, ...weatherAir.here, rain: weatherAir.here.rain, rainLines: weatherAir.rain.visible, mistDiscs: weatherAir.mist.visible,
+      rainbow: weatherAir.bowShown, wind: foliageWind.value.y, map: earth.weather!.texture.image.width,
+      clouds: earth.clouds.children.map(child => child.name), fog: fog.density, sunlight: sunlight.intensity,
+      mapCover: (() => { let sum = 0; const data = earth.weather!.data; for (let i = 0; i < data.length; i += 4) sum += data[i]; return sum / (data.length / 4) / 255 })(),
     },
     sun: { look: sun.sunLook!.root.name, tint: sunTint.getHexString(), turn: sun.sunLook!.prominences?.rotation.y ?? 0, position: sun.group.position.toArray() },
     sky: {

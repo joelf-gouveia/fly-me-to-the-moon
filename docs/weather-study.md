@@ -1,6 +1,7 @@
 # A sky that changes: weather study
 
-Status: decided on 3 October 2026. The game has no weather yet. Open
+Status: decided on 3 October 2026. The game has the weather of Earth, steps 1 to 4; see
+"In the game" below. The sound, the creatures and the sticker tasks (step 5) are next. Open
 `/studies/weather-study.html` on the Vite server. The controls of the study do not change
 the game or saved game data. It saves its own answers as `fairy-weather-study-v1`.
 
@@ -24,6 +25,35 @@ get better as a part of this change. Answer 8 came after the second round.
 
 The study is for Earth only. Blossom Haven is a magic planet, so it gets weather of its
 own in a later study, as it gets magic seasons (`docs/seasons-study.md`).
+
+## In the game
+
+The game has steps 1 to 4 of this study. The study page keeps its own prototype, on an
+Earth with the puffs of before (`WORLD_OPTIONS.weather` in `src/worlds.ts`).
+
+| Part | Where |
+| --- | --- |
+| The model, the weather map and the shader changes of the ground, the water and the plants | `src/weather.ts` |
+| The heap clouds, the high wisps, the rain curtains and the grey layer | `src/weather-clouds.ts`, from `buildClouds()` in `src/worlds.ts` |
+| The rain, the mist, the rainbow, and the weather at the camera | `src/weather-air.ts` |
+| The map of each new Earth | `regenerateWorld()` in `src/worlds.ts` |
+| The sky, the fog, the light, the stars, the snow and the wind of the plants | `updateEnvironment()` and `animate()` in `src/main.ts` |
+| Unit tests | `tests/weather.test.ts` |
+| Browser check | `scripts/weather-smoke.mjs` |
+
+How it differs from the prototype of this study:
+
+- **The map has one sixteenth on each frame.** A phone has a map of 64 × 32.
+- **The clouds are in `world.clouds`**, so `regenerateWorld()` makes them again with each
+  new Earth. The clouds of Earth do not turn, because they read the map at their place.
+- **The high wisps go clear in the dark.** The planet is small, so the Sun is low for a
+  wisp that is not far away. The prototype made such a wisp dark.
+- **The game has no stamps.** A browser check can give the whole planet one weather:
+  `/?test&weather=rain` on the dev server.
+- **Snow falls only under a snow cloud.** `fallAt()` of `src/seasons.ts` still gives the
+  leaves and the petals; `updateEnvironment()` takes the snow from the weather.
+- **Not in the game:** the name of the weather in the flight panel (decision 7), and
+  step 5: the sound, the creatures and the sticker tasks.
 
 ## What to review
 
