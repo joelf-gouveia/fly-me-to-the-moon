@@ -1059,6 +1059,30 @@ port 5174 to record the clips of W1 and W2 again, and
 `node studies/weather-study/weather-study-smoke.mjs "path/to/chrome.exe"` for the browser
 check of the page.
 
+## Fairy trail study
+
+Visit `/studies/fairy-trail-study.html` for **A trail that stays behind her**, a study of
+the sparkle trail of the fairy. The trail of the game goes off at an angle: near a world,
+the game carries the fairy with the spin and the orbit of that world, and the dots of the
+trail stay in space. The study gives five rules for a trail that is the same on each
+screen, at each speed and on each world, and fifteen options for its look: No trail,
+Today repaired, Pixie dust, Star glints, Ribbon of light, Wing-tip streams, Comet tail,
+Sparkle halo, Ribbon and stars, Rainbow dust, Blossom confetti (a magic trail for Blossom
+Haven), Only when it counts, Shimmer to sparkle, Shimmer from her feet and Shimmer from her wings. Each option has a clip of the same
+flight of 14 s from
+the engine of the game: a cruise, two turns, a boost, a hover and the 4 s after a sparkle
+ring. **See it live** runs an option in live 3D, with the flight, the camera, day and
+night, the ten sparkle colours and a switch that stops the motion of the world. Its
+controls do not change the game.
+
+On 4 October 2026 four options were selected for the game: Pixie dust, Comet tail,
+Sparkle halo and Shimmer from her feet. The player selects one of them in the look menu
+(see [Character customization](#character-customization)); the study keeps the trail from
+before as **The trail of today**. The
+[technical study](docs/fairy-trail-study.md) gives the cause, the rules, each option, the
+cost and the limits. The clips are in `public/studies/fairy-trail/`. Run
+`node studies/fairy-trail-study/fairy-trail-study-capture.mjs "path/to/chrome.exe" today,pixie http://localhost:5174`
+to record the clips of the trail of today and of Pixie dust again.
 
 ## Browser checks
 
