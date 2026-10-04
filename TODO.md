@@ -140,6 +140,25 @@ was not recorded. The second run passed all steps.
 The check selected the wing shape "luna". The game now has six new wing shapes, and the
 check stopped at that step. It now selects "glitter".
 
+### 13. "Fly there" does not show for the nearest world, also from far away
+
+- [ ] Let the fairy fly to the nearest world with **Fly there** when she is not near it.
+
+In **Worlds**, the card of the nearest world says "You are here" and has no **Fly there**
+(`here` in `src/adventure.ts:200` is the nearest world at any distance). A fairy in open
+space, 2.5 km from Earth, cannot fly home with the book when Earth is the nearest world. Use
+the near test of the flight panel (`updateNearestWorld()` in `src/main.ts`) for `here`.
+
+This fault makes `scripts/browser-smoke.mjs` fail in about one run of five: "Return from space
+failed to generate a new Earth" (4 of 21 runs). The check climbs for 9 s and then selects
+Earth in **Worlds**. The result depends on the random start direction: the check passes only
+when a different world is the nearest one after the climb.
+
+### 14. `scripts/browser-smoke.mjs` did not know the trail of the saved look
+
+- [x] Read only the parts of the look that the check selects. The saved look has a new part,
+  `trail`, since the sparkle trails of the fairy. The check compared the whole text.
+
 ### 12. The comet check failed when the weather of Earth covered the night sky
 
 - [x] Give the check a clear sky: `scripts/comet-smoke.mjs` now loads `?test&weather=clear`.
