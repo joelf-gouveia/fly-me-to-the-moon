@@ -5,7 +5,7 @@ import { join } from 'node:path'
 
 const args = process.argv.slice(2)
 // The painted maps and the game worlds are slow in software rendering, so the default is the graphics card.
-const software = args.includes('--swiftshader')
+const software = args.includes('--swiftshader') || !!process.env.FAIRY_SWIFTSHADER
 const [browserPath, origin = 'http://127.0.0.1:5174'] = args.filter(arg => arg !== '--swiftshader')
 if (!browserPath) throw new Error('Pass a Chromium browser executable')
 const profile = await mkdtemp(join(tmpdir(), 'planet-look-study-browser-'))

@@ -7,7 +7,7 @@ const executable = process.argv[2]
 if (!executable) throw new Error('Pass a Chrome executable')
 const base = process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174/'
 const profile = await mkdtemp(join(tmpdir(), 'fairy-mobile-play-'))
-const browser = spawn(executable, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], {windowsHide:true,stdio:'ignore'})
+const browser = spawn(executable, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], {windowsHide:true,stdio:'ignore'})
 const delay = ms => new Promise(resolve => setTimeout(resolve,ms))
 let ws
 try {

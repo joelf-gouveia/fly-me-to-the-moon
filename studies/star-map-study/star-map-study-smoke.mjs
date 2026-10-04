@@ -6,7 +6,7 @@ import { join } from 'node:path'
 const browserPath = process.argv[2]
 if (!browserPath) throw new Error('Pass a Chromium browser executable')
 const profile = await mkdtemp(join(tmpdir(), 'star-map-browser-'))
-const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
+const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))

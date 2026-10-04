@@ -9,7 +9,7 @@ import { join } from 'node:path'
 if (!process.argv[2]) throw new Error('Pass a Chromium executable')
 const origin = process.argv[3] ?? 'http://127.0.0.1:5174'
 const profile = await mkdtemp(join(tmpdir(), 'cotton-candy-game-'))
-const browser = spawn(process.argv[2], ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
+const browser = spawn(process.argv[2], ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 let ws
 try {

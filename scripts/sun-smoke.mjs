@@ -6,7 +6,7 @@ import { join } from 'node:path'
 // The living Sun in the game (docs/sun-study.md, option B): the look, the Sun in the sky of Earth, the motion,
 // a guided trip to the Sun, and the phone shader. The default is the graphics card; add --swiftshader for software rendering.
 const args = process.argv.slice(2)
-const software = args.includes('--swiftshader')
+const software = args.includes('--swiftshader') || !!process.env.FAIRY_SWIFTSHADER
 const [browserPath, origin = 'http://127.0.0.1:5174'] = args.filter(arg => arg !== '--swiftshader')
 if (!browserPath) throw new Error('Pass a Chromium browser executable as the first argument')
 const profile = await mkdtemp(join(tmpdir(), 'sun-browser-'))

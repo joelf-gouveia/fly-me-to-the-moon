@@ -15,7 +15,7 @@ if (!browserPath) throw new Error('Pass a Chromium browser executable as the fir
 const profile = await mkdtemp(join(tmpdir(), 'comet-browser-'))
 const browser = spawn(browserPath, [
   '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
+  ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
@@ -75,7 +75,8 @@ try {
       await send('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 })
       await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
     } else await send('Emulation.setDeviceMetricsOverride', { width: 960, height: 600, deviceScaleFactor: 1, mobile: false })
-    await send('Page.navigate', { url: `${origin}/?test` })
+    // A clear sky on all of Earth: the weather of Earth can hide the stars and the shooting stars at night.
+    await send('Page.navigate', { url: `${origin}/?test&weather=clear` })
     for (let i = 0; i < 120; i++) {
       if (await evaluate(`!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#begin-button")`)) break
       await delay(250)
