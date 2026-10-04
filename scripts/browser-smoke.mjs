@@ -157,7 +157,10 @@ try {
   await screenshot('earth-ascent')
   console.log('Ascent:', await evaluate('document.querySelector(".destination").innerText'))
   // Fly back with the Earth picture of Worlds. On the way in, the game builds a new Earth and says so.
-  await evaluate('document.querySelector("#open-map").click(); document.querySelector("[data-world=earth]").click(); document.querySelector("#world-fly").click()')
+  await evaluate('document.querySelector("#open-map").click(); document.querySelector("[data-world=earth]").click()')
+  // In open space the fairy is at no world: Earth has "Fly there", also when Earth is the nearest world.
+  if (await evaluate('document.querySelector("#world-fly").hidden')) throw new Error(`No "Fly there" for Earth from space: ${await evaluate('document.querySelector(".destination").innerText')}`)
+  await evaluate('document.querySelector("#world-fly").click()')
   const returnProgress = []
   let returned = false
   for (let i = 0; i < 20 && !returned; i++) {
