@@ -32,6 +32,7 @@ const CHECKS = [
   { name: 'mobile-play', script: 'scripts/mobile-play-smoke.mjs', url: 'root', files: ['src/mobile', 'src/viewport.ts', 'src/flight-input.ts'] },
   { name: 'settings', script: 'scripts/settings-smoke.mjs', url: 'arg', files: ['src/settings', 'src/mobile-ui.ts', 'src/sticker-book'] },
   { name: 'sticker-book', script: 'scripts/sticker-book-smoke.mjs', url: 'arg', files: ['src/stickers.ts', 'src/sticker-book', 'src/adventure'] },
+  { name: 'search-stars', script: 'scripts/search-stars-smoke.mjs', url: 'arg', files: ['src/stickers.ts', 'src/search-', 'src/sticker-book', 'src/planet-paint.ts', 'src/sun-', 'src/candy.ts', 'src/weather'] },
   { name: 'blossom', script: 'scripts/blossom-smoke.mjs', url: 'test', files: ['src/relocation.ts', 'src/journey.ts', 'src/candy.ts', 'src/adventure'] },
   { name: 'cotton-candy', script: 'scripts/cotton-candy-smoke.mjs', url: 'arg', files: ['src/cotton-candy.ts', 'src/candy.ts'] },
   { name: 'wildlife', script: 'scripts/wildlife-smoke.mjs', url: 'origin', files: ['src/creatures/'] },

@@ -1,8 +1,9 @@
 // Checks the search stars (F1) in the real game: no star before the hello sticker, the task line in
-// the note of a new sticker, the task as the hint in Worlds, a find on seven worlds (the dark seas of
-// the Moon, a duck on Earth, the red dust of Mars, the south pole of Vesta, the rings of Saturn, a
-// crater on Mercury and a unicorn on Blossom Haven), the gold star in the world and on the sticker,
-// the saved book, the reset in Settings, and the phone layout. Test moves put the fairy at each place.
+// the note of a new sticker, the task as the hint in Worlds, a find on twelve worlds (the dark seas of
+// the Moon, a rainbow on Earth, the canyon of Mars, the south pole of Vesta, the rings of Saturn and of
+// Uranus, a ray crater on Mercury, a soda bubble on Blossom Haven, a loop of fire of the Sun, a lap of
+// Venus, and the storms of Jupiter and Neptune), the gold star in the world and on the sticker, the
+// saved book, the reset in Settings, and the phone layout. Test moves put the fairy at each place.
 // Run against the dev server on port 5174:
 //   node scripts/search-stars-smoke.mjs "path/to/chrome.exe" [origin]
 import { spawn } from 'node:child_process'
@@ -17,7 +18,7 @@ const profile = await mkdtemp(join(tmpdir(), 'search-stars-browser-'))
 const browser = spawn(browserPath, [
   // Port 0: Chrome picks a free port, so parallel test runs do not share a browser.
   '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
+  ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
@@ -89,20 +90,43 @@ try {
       }
       return null
     };
-    // The local direction and the distance to the fairy of the nearest model of a creature that shows.
-    window.nearestModel = name => {
-      const fairy = __fairyTest.snapshot().fairy, world = __fairyTest.world(__fairyTest.snapshot().belt.nearest === 'Blossom Haven' ? 'fairy' : 'earth')
-      let best = null
-      for (const model of world.creatures.group.children) {
-        if (!model.visible || (model.userData.fairytale ?? model.userData.species) !== name) continue
-        const point = model.getWorldPosition(model.position.clone())
-        const gap = Math.hypot(point.x - fairy[0], point.y - fairy[1], point.z - fairy[2])
-        if (!best || gap < best.gap) {
-          const local = point.clone().sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert())
-          best = { gap, name: model.name, direction: local.normalize().toArray() }
-        }
+    // The direction of the Sun in the local frame of a world.
+    window.sunOver = kind => {
+      const world = __fairyTest.world(kind)
+      return __fairyTest.world('sun').group.position.clone().sub(world.group.position).normalize().applyQuaternion(world.group.quaternion.clone().invert())
+    };
+    // A local direction on Earth where the Sun is 'elevation' degrees above the horizon.
+    window.sunAt = elevation => {
+      const sun = sunOver('earth'), side = sun.clone().cross(sun.clone().set(0, 1, 0)).normalize(), angle = (90 - elevation) * Math.PI / 180
+      return sun.multiplyScalar(Math.cos(angle)).addScaledVector(side, Math.sin(angle)).toArray()
+    };
+    // A soda bubble 3 to 6 m above the base radius of Blossom Haven: its local direction and its distance from the centre.
+    window.sodaBubble = () => {
+      const world = __fairyTest.world('fairy'), bubbles = world.surface.getObjectByName('soda-bubbles'), places = bubbles.instanceMatrix.array
+      for (let i = 0; i < bubbles.count; i++) {
+        const place = [places[i * 16 + 12], places[i * 16 + 13], places[i * 16 + 14]], distance = Math.hypot(...place)
+        if (distance - world.radius > 3 && distance - world.radius < 6) return { direction: place.map(value => value / distance), distance, index: i }
       }
-      return best
+      return null
+    };
+    // The paint of the ground of a rocky world at a local direction: the colour of the nearest vertex, as [r, g, b].
+    window.groundPaint = (kind, direction) => {
+      const world = __fairyTest.world(kind)
+      const ground = world.surface.children.find(child => child.isMesh && child.geometry.attributes.color && !child.isInstancedMesh)
+      const places = ground.geometry.attributes.position, colours = ground.geometry.attributes.color
+      const length = Math.hypot(...direction), [x, y, z] = direction.map(value => value / length)
+      let best = 0, most = -Infinity
+      for (let i = 0; i < places.count; i++) {
+        const dot = (places.getX(i) * x + places.getY(i) * y + places.getZ(i) * z) / Math.hypot(places.getX(i), places.getY(i), places.getZ(i))
+        if (dot > most) { most = dot; best = i }
+      }
+      return [colours.getX(best), colours.getY(best), colours.getZ(best)]
+    };
+    // A view from 'height' m above a place, straight down, for a screenshot of the scenery.
+    window.lookDown = (kind, direction, height) => {
+      const world = __fairyTest.world(kind)
+      const normal = world.group.position.clone().set(...direction).normalize().applyQuaternion(world.group.quaternion)
+      __fairyTest.place(world.group.position.clone().addScaledVector(normal, world.radius + height).toArray(), world.group.position.toArray())
     };
   ` })
   async function load(mobile, width = 390) {
@@ -111,7 +135,8 @@ try {
       await send('Emulation.setDeviceMetricsOverride', { width, height: 844, deviceScaleFactor: 2, mobile: true })
     // A small window keeps software rendering fast.
     } else await send('Emulation.setDeviceMetricsOverride', { width: 960, height: 600, deviceScaleFactor: 1, mobile: false })
-    await send('Page.navigate', { url: `${origin}/?test` })
+    // Rain from a thin cloud on the whole of Earth: a rainbow shows where the Sun is low.
+    await send('Page.navigate', { url: `${origin}/?test&weather=shower` })
     for (let i = 0; i < 160; i++) {
       if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#open-map")').catch(() => false)) return
       await delay(250)
@@ -130,6 +155,12 @@ try {
   // The cards of the book are under the map: show the card of a world in the screenshot.
   const showCard = kind => evaluate(`document.querySelector('[data-world="${kind}"]').scrollIntoView({ block: 'center' })`)
   const place = (kind, direction, height) => evaluate(`__fairyTest.placeOver(${JSON.stringify(kind)}, ${JSON.stringify(direction)}, ${height})`)
+  /** A picture of a place from above. The view is high over the place, so it gives no star. */
+  const pictureFromAbove = async (name, kind, direction, height) => {
+    await evaluate(`lookDown(${JSON.stringify(kind)}, ${JSON.stringify(direction)}, ${height})`)
+    await evaluate('advanceFlight(0.05)')
+    await screenshot(name)
+  }
   // A find waits until the note of the last sticker is gone.
   const waitForNote = async () => {
     await evaluate('releaseNote()')
@@ -148,17 +179,27 @@ try {
     assert(line === `☆ ${task}`, `Wrong task line at ${kind}: ${line}`)
     return state
   }
-  /** A find: the star in the book, the note, the gold star on the picture and in the world. */
-  async function found(kind, line, over = 'fairy') {
+  /** No star: the fairy is at a place that is not the place of the task. */
+  async function notFound(kind, why) {
     await evaluate('advanceFlight(0.3)')
+    assert(!(await snapshot()).searchStars.includes(kind), `${kind} gives a star ${why}`)
+  }
+  /** A find: the star in the book, the note, the gold star on the picture and in the world. */
+  async function found(kind, line, seconds = 0.3) {
+    await evaluate(`advanceFlight(${seconds})`)
     const state = await snapshot()
     assert(state.searchStars.includes(kind), `No search star at ${kind}: ${state.searchStars}`)
     assert((await text('#sticker-toast small')) === 'SEARCH STAR' && (await text('#sticker-toast .sticker-toast-fact')) === line, `Wrong note at ${kind}: ${await text('#sticker-toast')}`)
     assert(await has('#sticker-toast .search-badge.is-found') && (await text('#sticker-toast .sticker-toast-task')) === '', 'No gold star on the sticker picture')
-    assert(state.searchStar.visible && state.searchStar.over.startsWith(over), `No gold star in the world at ${kind}: ${JSON.stringify(state.searchStar)}`)
+    assert(state.searchStar.visible && state.searchStar.over === 'fairy', `No gold star in the world at ${kind}: ${JSON.stringify(state.searchStar)}`)
     return state
   }
   const pressQ = () => evaluate('window.dispatchEvent(new KeyboardEvent("keydown", { code: "KeyQ" })); window.dispatchEvent(new KeyboardEvent("keyup", { code: "KeyQ" }))')
+  const RADIANS = Math.PI / 180
+  /** A direction on the ground paint of a rocky world: its longitude is atan2(z, x). */
+  const onGround = (latitude, longitude) => [Math.cos(latitude * RADIANS) * Math.cos(longitude * RADIANS), Math.sin(latitude * RADIANS), Math.cos(latitude * RADIANS) * Math.sin(longitude * RADIANS)]
+  /** A direction on the painted map of a giant: its longitude is atan2(z, -x). */
+  const onMap = (latitude, longitude) => [-Math.cos(latitude * RADIANS) * Math.cos(longitude * RADIANS), Math.sin(latitude * RADIANS), Math.cos(latitude * RADIANS) * Math.sin(longitude * RADIANS)]
 
   step('desktop'); await load(false)
   await evaluate('localStorage.clear()')
@@ -170,25 +211,13 @@ try {
   let state = await snapshot()
   assert(state.hoverHeld && state.searchStars.length === 0 && !state.searchStar.visible, 'A new player has search stars')
 
-  // A duck on Earth before the Earth sticker gives no star: the fairy starts on Earth, with no sticker.
+  // A rainbow on Earth before the Earth sticker gives no star: the fairy starts on Earth, with no sticker.
   step('Earth before the hello')
-  async function nearCreature(kind, species, name) {
-    const resident = await evaluate(`(() => { const r = __fairyTest.world(${JSON.stringify(kind)}).creatures.residents.find(item => item.kind === ${JSON.stringify(species)}); return r && r.route[0].toArray() })()`)
-    assert(resident, `${kind} has no ${species}`)
-    await place(kind, resident, 25)
-    await evaluate('advanceFlight(0.2)')
-    let model = await evaluate(`nearestModel(${JSON.stringify(name)})`)
-    assert(model, `No ${name} model shows near its home`)
-    await place(kind, model.direction, 4)
-    await evaluate('advanceFlight(0.05)')
-    model = await evaluate(`nearestModel(${JSON.stringify(name)})`)
-    assert(model.gap < 12, `The fairy is not near the ${name}: ${model.gap}`)
-    return model
-  }
-  await nearCreature('earth', 'duck', 'duck')
-  await evaluate('advanceFlight(1)')
+  await place('earth', await evaluate('sunAt(20)'), 20)
+  await evaluate('advanceFlight(1.5)')
   state = await snapshot()
-  assert(!state.stickers.includes('earth') && state.searchStars.length === 0 && !state.searchStar.visible, `A duck before the Earth sticker gives a star: ${state.searchStars}`)
+  assert(state.weather.rainbow > 0.5, `The shower gives no rainbow with a low Sun: ${JSON.stringify(state.weather)}`)
+  assert(!state.stickers.includes('earth') && state.searchStars.length === 0 && !state.searchStar.visible, `A rainbow before the Earth sticker gives a star: ${state.searchStars}`)
 
   step('the Moon: the dark seas')
   // The fairy arrives low over a dark sea. The find waits until the note of the hello sticker is gone.
@@ -211,34 +240,45 @@ try {
   await screenshot('book-moon')
   await click('#close-map')
 
-  step('Earth: a duck')
+  step('Earth: a rainbow')
+  // The fairy leaves Earth and comes back at noon: the Sun is high, so the rain gives no rainbow.
   await place('earth', [0, 1, 0], 320)
   await evaluate('advanceFlight(0.1)')
-  await place('earth', [0.3, 0.2, 0.9], 20)
-  await evaluate('advanceFlight(0.1)')
-  state = await hello('earth', [0.3, 0.2, 0.9], 20, 'Find a duck on the water.')
+  const noon = await evaluate('sunOver("earth").toArray()')
+  state = await hello('earth', noon, 20, 'Find a rainbow.')
   assert(state.earthVisit === 2, `No new visit of Earth: ${state.earthVisit}`)
   await click('#open-map')
   await evaluate('advanceFlight(0.2)')
   await click('[data-world="earth"]')
-  assert(await has('[data-world="earth"] .search-badge.is-waiting') && (await text('#world-note-text')).endsWith('☆ Find a duck on the water.'), `The Earth card does not give the task: ${await text('#world-note-text')}`)
+  assert(await has('[data-world="earth"] .search-badge.is-waiting') && (await text('#world-note-text')).endsWith('☆ Find a rainbow.'), `The Earth card does not give the task: ${await text('#world-note-text')}`)
   await showCard('earth')
   await screenshot('book-earth-task')
   await click('#close-map')
   await waitForNote()
-  await nearCreature('earth', 'duck', 'duck')
-  state = await found('earth', 'You found a duck!', 'creature-duck')
-  await evaluate('advanceFlight(0.5)')
-  await screenshot('star-duck')
+  await evaluate('advanceFlight(1.5)')
+  state = await snapshot()
+  assert(state.weather.rainbow < 0.05 && !state.searchStars.includes('earth'), `Earth gives a star at noon: ${JSON.stringify(state.weather)}`)
+  await place('earth', await evaluate('sunAt(20)'), 20)
+  state = await found('earth', 'You found a rainbow!', 1.5)
+  assert(state.weather.rainbow > 0.25, `The star comes with no rainbow: ${state.weather.rainbow}`)
+  await screenshot('star-rainbow')
 
-  step('Mars: the red dust')
-  await hello('mars', [0.5, 0.3, 0.8], 30, 'Fly low over the red dust.')
+  step('Mars: the canyon')
+  await hello('mars', [0.5, 0.3, 0.8], 30, 'Fly along the long canyon.')
   await waitForNote()
-  await place('mars', [0.5, 0.3, 0.8], 12)
-  await evaluate('advanceFlight(0.3)')
-  assert(!(await snapshot()).searchStars.includes('mars'), 'Mars gives a star at 12 m')
   await place('mars', [0.5, 0.3, 0.8], 5)
-  await found('mars', 'You flew over the red dust!')
+  await notFound('mars', 'low over the red dust, away from the canyon')
+  // The middle of the canyon: longitude 120°, latitude -9° + 2.5° × sin(120 × 0.09) (CANYON in src/search-places.ts).
+  const canyon = onGround(-9 + 2.5 * Math.sin(120 * 0.09), 120)
+  // The paint agrees with the task: the ground is dark in the canyon, and it is the red dust 6° to the north.
+  const paint = (kind, direction) => evaluate(`groundPaint(${JSON.stringify(kind)}, ${JSON.stringify(direction)})`)
+  const dark = await paint('mars', canyon), dust = await paint('mars', onGround(-9 + 2.5 * Math.sin(120 * 0.09) + 6, 120))
+  assert(dark[0] < dust[0] * 0.75, `The canyon is not dark at its place: ${dark} and ${dust}`)
+  await pictureFromAbove('place-canyon', 'mars', canyon, 160)
+  await place('mars', canyon, 40)
+  await notFound('mars', '40 m above the canyon')
+  await place('mars', canyon, 8)
+  await found('mars', 'You flew along the long canyon!')
   await screenshot('star-mars')
 
   step('Vesta: the south pole')
@@ -250,58 +290,125 @@ try {
   step('Saturn: the rings')
   await hello('saturn', [1, 0.02, 0], 50, 'Fly over the rings.')
   await waitForNote()
-  await evaluate('advanceFlight(0.3)')
-  assert(!(await snapshot()).searchStars.includes('saturn'), 'Saturn gives a star inside the rings')
-  const ring = await evaluate('__fairyTest.world("saturn").radius * 0.6 + 12')
-  await place('saturn', [1, 0.02, 0], ring)
+  await notFound('saturn', 'inside the rings')
+  await place('saturn', [1, 0.02, 0], await evaluate('__fairyTest.world("saturn").radius * 0.6 + 12'))
   await found('saturn', 'You flew over the rings!')
   await screenshot('star-saturn')
 
-  step('Mercury: a crater')
-  await hello('mercury', [0, 0.3, 1], 25, 'Find a crater, a round dip in the ground.')
+  step('Uranus: the thin rings')
+  await hello('uranus', [1, 0.02, 0], 50, 'Find the thin rings of the planet that lies on its side.')
   await waitForNote()
-  // Mercury has a new landscape after the arrival, so the search reads the terrain now.
-  const crater = await evaluate('findGround("mercury", sample => sample.crater > 0.8)')
-  assert(crater, 'Mercury has no deep crater')
-  await place('mercury', crater, 8)
-  await found('mercury', 'You found a crater!')
+  // Saturn has rings at 1.4 radii from the centre. Uranus has none there.
+  await place('uranus', [1, 0.02, 0], await evaluate('__fairyTest.world("uranus").radius * 0.4 + 12'))
+  await notFound('uranus', 'between the planet and its rings')
+  await place('uranus', [1, 0.02, 0], await evaluate('__fairyTest.world("uranus").radius * 0.8 + 12'))
+  await found('uranus', 'You found the thin rings!')
+  await screenshot('star-uranus')
 
-  step('Blossom Haven: a unicorn')
-  await hello('fairy', [0, -1, -0.2], 30, 'Say hello to a unicorn.')
+  step('Mercury: a crater with bright rays')
+  await hello('mercury', [0, 0.3, 1], 25, 'Find a crater with bright rays.')
   await waitForNote()
-  await nearCreature('fairy', 'cow', 'unicorn')
-  await found('fairy', 'You found a unicorn!', 'creature-cow')
+  // Mercury has a new landscape after the arrival, so the search reads the craters now.
+  const craters = await evaluate('__fairyTest.rayCraters()')
+  assert(craters.length === 4, `Mercury has ${craters.length} ray craters`)
+  // The paint agrees with the task: the middle of each ray crater is almost white.
+  for (const crater of craters) {
+    const middle = await paint('mercury', crater)
+    assert(Math.min(...middle) > 0.6, `A ray crater is not bright at its middle: ${middle}`)
+  }
+  await pictureFromAbove('place-ray-crater', 'mercury', craters[0], 110)
+  assert(JSON.stringify(await evaluate('__fairyTest.rayCraters()')) === JSON.stringify(craters), 'The ray craters change during a visit')
+  await place('mercury', craters[0], 40)
+  await notFound('mercury', '40 m above a ray crater')
+  await place('mercury', craters[0], 8)
+  await found('mercury', 'You found a crater with bright rays!')
+  await screenshot('star-mercury')
+
+  step('the Sun: a loop of fire')
+  // The first loop of PROMINENCES: latitude 12°, longitude 0°, 0.12 radii high. The loops turn with the Sun.
+  const turn = (await snapshot()).sun.turn
+  const loop = [Math.cos(12 * RADIANS) * Math.cos(turn), Math.sin(12 * RADIANS), -Math.cos(12 * RADIANS) * Math.sin(turn)]
+  const sunRadius = await evaluate('__fairyTest.world("sun").radius')
+  await hello('sun', [0, -1, 0], 60, 'Fly through a loop of fire.')
+  await waitForNote()
+  await notFound('sun', 'low over the Sun, away from the loops')
+  await place('sun', loop, sunRadius * 0.2)
+  await notFound('sun', 'above the top of a loop')
+  await place('sun', loop, sunRadius * 0.06)
+  await found('sun', 'You flew through a loop of fire!')
+  await screenshot('star-sun')
+
+  step('Venus: a lap')
+  await hello('venus', [1, 0, 0], 60, 'Fly all the way around Venus.')
+  await waitForNote()
+  // 40 places around the equator, 9° apart. The lap is complete near its start.
+  for (let i = 1; i <= 40; i++) {
+    await place('venus', [Math.cos(i * 9 * RADIANS), 0, Math.sin(i * 9 * RADIANS)], 60)
+    await evaluate('advanceFlight(0.05)')
+    if (i === 30) assert(!(await snapshot()).searchStars.includes('venus'), 'Venus gives a star after three quarters of a lap')
+  }
+  await found('venus', 'You flew all the way around Venus!')
+  await screenshot('star-venus')
+
+  for (const [kind, name, latitude, longitude, task, line] of [
+    ['jupiter', 'the big red storm', -22, 150, 'Find the big red storm.', 'You found the big red storm!'],
+    ['neptune', 'the dark storm', -21, 200, 'Find the dark storm and its white cloud.', 'You found the dark storm!'],
+  ]) {
+    step(`${kind}: ${name}`)
+    const storm = onMap(latitude, longitude)
+    await hello(kind, onMap(40, longitude + 120), 20, task)
+    await waitForNote()
+    await notFound(kind, 'in the clouds, away from the storm')
+    await pictureFromAbove(`place-${kind}-storm`, kind, storm, 420)
+    await place(kind, storm, 100)
+    await notFound(kind, 'above the clouds of the storm')
+    await place(kind, storm, 20)
+    await found(kind, line)
+    await screenshot(`star-${kind}`)
+  }
+
+  step('Blossom Haven: a soda bubble')
+  await hello('fairy', [0, -1, -0.2], 30, 'Pop a soda bubble.')
+  await waitForNote()
+  await notFound('fairy', '30 m above the garden')
+  const bubble = await evaluate('sodaBubble()')
+  assert(bubble, 'Blossom Haven has no soda bubble 3 to 6 m up')
+  // The test move puts the fairy over the ground or the soda: its distance from the centre gives the height of the bubble.
+  await place('fairy', bubble.direction, 0)
+  const centre = await evaluate('(() => { const s = __fairyTest.snapshot(); return Math.hypot(s.fairy[0] - s.home[0], s.fairy[1] - s.home[1], s.fairy[2] - s.home[2]) })()')
+  await place('fairy', bubble.direction, bubble.distance - centre)
+  await found('fairy', 'You popped a soda bubble!', 0.1)
   await evaluate('advanceFlight(0.5)')
-  await screenshot('star-unicorn')
+  await screenshot('star-bubble')
   state = await snapshot()
   const saved = state.searchStars
-  assert(saved.length === 7, `Wrong stars: ${saved}`)
+  assert(saved.length === 12, `Wrong stars: ${saved}`)
 
   step('saved book')
   await load(false)
   state = await snapshot()
   assert(JSON.stringify(state.searchStars) === JSON.stringify(saved), `The stars differ after a reload: ${state.searchStars}`)
-  assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).found.length === 7, 'The saved book has no stars')
+  assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).found.length === 12, 'The saved book has no stars')
   await click('#begin-button')
   await evaluate('advanceFlight(0.5)')
   await click('#open-map')
   await evaluate('advanceFlight(0.2)')
-  assert(await evaluate('document.querySelectorAll(".book-card .search-badge.is-found").length') === 7, 'The book does not show 7 gold stars')
-  assert((await text('#sticker-count')) === '7 of 13 stickers · 7 search stars', `Wrong count: ${await text('#sticker-count')}`)
+  assert(await evaluate('document.querySelectorAll(".book-card .search-badge.is-found").length') === 12, 'The book does not show 12 gold stars')
+  assert((await text('#sticker-count')) === '12 of 13 stickers · 12 search stars', `Wrong count: ${await text('#sticker-count')}`)
   await showCard('moon')
   await screenshot('book-saved')
   await click('#close-map')
 
   step('reset')
   await click('#settings-toggle')
-  assert((await text('#sticker-summary')) === 'The book has 7 of 13 stickers and 7 search stars.', `Wrong summary: ${await text('#sticker-summary')}`)
+  assert((await text('#sticker-summary')) === 'The book has 12 of 13 stickers and 12 search stars.', `Wrong summary: ${await text('#sticker-summary')}`)
   await click('#reset-stickers')
-  assert((await text('#reset-question')) === 'Remove all 7 stickers and 7 search stars?', `Wrong question: ${await text('#reset-question')}`)
+  assert((await text('#reset-question')) === 'Remove all 12 stickers and 12 search stars?', `Wrong question: ${await text('#reset-question')}`)
   await click('#reset-yes')
   state = await snapshot()
   assert(state.stickers.length === 0 && state.searchStars.length === 0, `The reset keeps stars: ${state.searchStars}`)
   assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).found.length === 0, 'The saved book keeps stars')
-  assert((await text('#reset-status')).startsWith('7 stickers and 7 search stars removed.'), `Wrong status: ${await text('#reset-status')}`)
+  assert((await text('#reset-status')).startsWith('12 stickers and 12 search stars removed.'), `Wrong status: ${await text('#reset-status')}`)
   await click('#close-settings')
 
   const phoneCalls = []
@@ -314,6 +421,11 @@ try {
     await evaluate('advanceFlight(0.5)')
     await click('#hover-toggle')
     const fits = async () => (await settle(), evaluate('(() => { const r = document.querySelector("#sticker-toast").getBoundingClientRect(); return r.left >= 0 && r.right <= innerWidth && r.top >= 0 && r.bottom <= innerHeight })()'))
+    // The longest task line.
+    await hello('uranus', [1, 0.02, 0], 50, 'Find the thin rings of the planet that lies on its side.')
+    assert(await fits(), `The note with the longest task does not fit at ${width}px`)
+    await screenshot(`hello-long-task-${width}`)
+    await waitForNote()
     await hello('moon', [0.2, 0.9, 0.3], 40, 'Find the dark seas on the Moon.')
     assert(await fits(), `The note with the task does not fit at ${width}px`)
     await screenshot(`hello-task-${width}`)
@@ -333,7 +445,7 @@ try {
   }
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log(`Verified the search stars: no star before the hello sticker, the task in the note and in Worlds, a find that waits for the note, seven finds (${saved.join(', ')}) with the note, the gold star on the sticker and in the world, the saved book, the reset in Settings, and the 390/320 px phone layout (${phoneCalls.join(', ')}). No browser errors.`)
+  console.log(`Verified the search stars: no star before the hello sticker, the task in the note and in Worlds, a find that waits for the note, twelve finds (${saved.join(', ')}) with the note, the gold star on the sticker and in the world, the saved book, the reset in Settings, and the 390/320 px phone layout (${phoneCalls.join(', ')}). No browser errors.`)
 } finally {
   ws?.close(); browser.kill()
 }

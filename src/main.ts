@@ -23,7 +23,7 @@ import { PROPORTIONS } from './proportions'
 import { daylightAt, morningSpin, skyColor, skyProfile, solarElevation } from './daylight'
 import { createSunShading } from './sun-shading'
 import { LOW_SUN_DIM } from './sun-look'
-import { updatePlanetLooks } from './planet-paint'
+import { rayCraters, updatePlanetLooks } from './planet-paint'
 import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
@@ -330,6 +330,8 @@ const SUN_LIGHT = sunlight.intensity
 const TEST_WEATHER = {
   clear: { cover: 0, rain: 0, storm: 0, mist: 0 }, rain: { cover: 1, rain: 0.9, storm: 0, mist: 0 },
   storm: { cover: 1, rain: 1, storm: 1, mist: 0 }, mist: { cover: 0.1, rain: 0, storm: 0, mist: 1 },
+  // Rain from a thin cloud: the Sun comes through, so a rainbow shows when the Sun is low.
+  shower: { cover: 0.2, rain: 0.9, storm: 0, mist: 0 },
 } as const
 const testWeather = import.meta.env.DEV ? TEST_WEATHER[new URLSearchParams(location.search).get('weather') as keyof typeof TEST_WEATHER] ?? null : null
 let weatherClock = 0
@@ -727,7 +729,7 @@ function updateNearestWorld() {
   // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
   // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
   const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
-  if (flying && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near)) && stickerBook.find(world.kind)) {
+  if (flying && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
     const creature = SEARCH_CREATURE[world.kind]
     searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
   }
@@ -1140,6 +1142,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     orientFlight(fairy.quaternion, heading, up.addScaledVector(heading, -up.dot(heading)).normalize())
     snapCamera()
   },
+  /** The middles of the ray craters of Mercury, as local directions, for the search star check. */
+  rayCraters: () => rayCraters(worlds.find(world => world.kind === 'mercury')!.seed).map(crater => crater.centre.toArray()),
   /** A world object, to read its terrain (`sample`) and its creatures in a browser check. */
   world: (kind: string) => worlds.find(world => world.kind === kind),
   /** Moves the fairy to `height` metres above the ground of a world, over a local direction. The camera moves with her. */

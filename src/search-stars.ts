@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { rayCraters } from './planet-paint'
+import { lapStep, newLap } from './stickers'
 import { surfaceRadius } from './worlds'
 import type { World } from './worlds'
 import type { SearchProbe } from './stickers'
@@ -12,8 +14,33 @@ const offset = new THREE.Vector3(), point = new THREE.Vector3(), inverse = new T
 /** The name of a creature model: its fairytale on Blossom Haven, else its species. */
 const creatureName = (model: THREE.Object3D): string | undefined => model.userData.fairytale ?? model.userData.species
 
-/** Measures the place of the fairy over `world` for searchDone(). Only the creature models that show count. */
-export function searchProbe(world: World, position: THREE.Vector3, near: boolean): SearchProbe {
+// The ray craters of Mercury come from its seed: a new visit gives new craters.
+let rays: { seed: number; centres: THREE.Vector3[] } | null = null
+function rayAngle(world: World, up: THREE.Vector3) {
+  if (rays?.seed !== world.seed) rays = { seed: world.seed, centres: rayCraters(world.seed).map(crater => crater.centre) }
+  return Math.min(...rays.centres.map(centre => centre.angleTo(up)))
+}
+
+/** The distance in metres to the nearest soda bubble of src/candy.ts. The bubbles are in the frame of the surface. */
+function nearestBubble(world: World, position: THREE.Vector3) {
+  const bubbles = world.surface.getObjectByName('soda-bubbles')
+  if (!(bubbles instanceof THREE.InstancedMesh)) return Infinity
+  world.surface.worldToLocal(point.copy(position))
+  const matrices = bubbles.instanceMatrix.array
+  let gap = Infinity
+  for (let i = 0; i < bubbles.count; i++) gap = Math.min(gap, Math.hypot(matrices[i * 16 + 12] - point.x, matrices[i * 16 + 13] - point.y, matrices[i * 16 + 14] - point.z))
+  return gap
+}
+
+/** The lap of Venus continues from one frame to the next (lapStep() in src/stickers.ts). */
+const lap = newLap()
+
+/**
+ * Measures the place of the fairy over `world` for searchDone(). Only the creature models that show count.
+ * `scene` gives what the world does not know: how much the rainbow of Earth shows, and the spin of the
+ * prominences of the Sun. Call it one time for each frame of flight: on Venus it counts the lap.
+ */
+export function searchProbe(world: World, position: THREE.Vector3, near: boolean, scene: { rainbow?: number; turn?: number } = {}): SearchProbe {
   offset.copy(position).sub(world.group.position)
   const distance = offset.length()
   const normal = offset.normalize().clone()
@@ -25,10 +52,15 @@ export function searchProbe(world: World, position: THREE.Vector3, near: boolean
     const gap = model.getWorldPosition(point).distanceTo(position)
     if (gap < (creatures[name] ?? Infinity)) creatures[name] = gap
   }
+  const direction = { x: up.x, y: up.y, z: up.z }
   return {
     near, altitude: distance - world.radius, clearance: distance - surfaceRadius(world, normal),
-    radius: world.radius, cloudHeight: world.cloudHeight, up: { x: up.x, y: up.y, z: up.z },
+    radius: world.radius, cloudHeight: world.cloudHeight, up: direction,
     ground: world.sample(up.x, up.y, up.z), creatures,
+    turn: scene.turn, rainbow: world.kind === 'earth' ? scene.rainbow : 0,
+    rays: world.kind === 'mercury' ? rayAngle(world, up) : undefined,
+    lap: world.kind === 'venus' && lapStep(lap, direction, distance - world.radius < world.atmosphere),
+    bubble: world.kind === 'fairy' ? nearestBubble(world, position) : undefined,
   }
 }
 

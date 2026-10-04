@@ -88,6 +88,11 @@ size includes a smoke script, as for the other features.
 ### F1 · Search stars
 
 Status: in the game, 3 October 2026. All 13 checks work as the `rule` of each sticker says.
+On 4 October 2026 the player selected new tasks for nine worlds, so that each world asks for
+its own scenery: a loop of fire of the Sun, a ray crater of Mercury, a lap of Venus, a rainbow
+on Earth, the canyon of Mars, the storms of Jupiter and Neptune, the rings of Uranus and a soda
+bubble of Blossom Haven. The places are in `src/search-places.ts`. The text below is the first
+design.
 `searchDone()` is in `src/stickers.ts`; `searchProbe()` and the gold star are in
 `src/search-stars.ts`. The crater term (`TerrainSample.crater`) and `OCCATOR` are new exports of
 `src/terrain.ts`. A find waits until the last note is gone. Over a creature, the star floats

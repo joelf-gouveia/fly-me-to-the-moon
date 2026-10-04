@@ -309,7 +309,7 @@ the weather, the creatures and the sticker tasks are the next step. The other wo
 keep their puffs.
 
 Run `node scripts/weather-smoke.mjs "path/to/chrome.exe"` against the dev server for the
-browser check. `/?test&weather=rain` gives the whole planet one weather (`clear`, `rain`,
+browser check. `/?test&weather=rain` gives the whole planet one weather (`clear`, `rain`, `shower`,
 `storm` or `mist`) on the dev server.
 
 ## Blossom Haven
@@ -379,26 +379,43 @@ guide. The Sun is on the map from the start, but it opens in its turn.
 
 Each world also has one search star (F1 of the [feature ideas study](docs/feature-ideas-study.md),
 option B of the sticker book study). The note of a new sticker gives one small task on that
-world, for example "Find a duck on the water." In **Worlds**, the card of the world gives the
+world, for example "Find the big red storm." In **Worlds**, the card of the world gives the
 task as its hint, and a dashed star shows on its picture. When the fairy does the task, a gold
 star pops up in the world with sparkles, the note says "SEARCH STAR" and the found line, a gold
 star goes on the sticker picture, and a brighter chime plays when the sound is on. There is no
 score, no timer and no fail. A search counts only after the hello sticker of that world, and it
 waits until the last note is gone. The tasks:
 
-| Check | Worlds | The fairy |
-|---|---|---|
-| altitude | Sun | Is less than 40 m above the Sun |
-| altitude | Venus, Jupiter, Uranus, Neptune | Flies below the cloud height of the world |
-| altitude | Mars | Is less than 8 m above the ground |
-| place | Vesta | Is near Vesta, over its south pole |
-| place | Ceres | Is near Ceres, within 0.12 rad of Occator crater (the salt spots) |
-| place | Saturn | Is 1.3 to 2.02 radii from the centre, less than 40 m from the ring plane |
-| creature | Earth, Blossom Haven | Is within 12 m of a duck, or of a unicorn |
-| terrain | Mercury, the Moon | Is less than 20 m above a deep crater, or above a dark sea |
+| Check | World | Task | The fairy |
+|---|---|---|---|
+| through | Sun | Fly through a loop of fire. | Is under the arch of one of the five prominences, in the plane of the loop |
+| place | Mercury | Find a crater with bright rays. | Is less than 20 m above the bright middle of one of the four ray craters |
+| lap | Venus | Fly all the way around Venus. | Flies one lap in the air of Venus: to the far side and back to the start |
+| weather | Earth | Find a rainbow. | Is near Earth while the rainbow of the weather shows |
+| terrain | Moon | Find the dark seas on the Moon. | Is less than 20 m above a dark sea |
+| place | Mars | Fly along the long canyon. | Is less than 20 m above the canyon on the equator |
+| place | Vesta | Find the giant hole at the bottom. | Is near Vesta, over its south pole |
+| place | Ceres | Find the bright white spots. | Is near Ceres, within 0.12 rad of Occator crater (the salt spots) |
+| place | Jupiter | Find the big red storm. | Flies below the cloud height, over the Great Red Spot |
+| place | Saturn | Fly over the rings. | Is 1.3 to 2.02 radii from the centre, less than 40 m from the ring plane |
+| place | Uranus | Find the thin rings of the planet that lies on its side. | Is 1.64 to 2 radii from the centre, less than 40 m from the ring plane |
+| place | Neptune | Find the dark storm and its white cloud. | Flies below the cloud height, over the Great Dark Spot |
+| through | Blossom Haven | Pop a soda bubble. | Is within 1.5 m of a soda bubble |
+
+The first tasks had six "fly low" tasks. The player selected these tasks on 4 October 2026, so
+that each world asks for its own scenery.
+
+- A rainbow needs rain in front of the fairy, sunshine, and a Sun lower than 42°. The weather is
+  mostly sunny, so this task can take some time.
+- A lap can go in each direction, also over the poles. It starts where the fairy comes into the
+  air of Venus, and it starts again when she leaves the air.
+- The soda bubbles rise 8 m from the soda rivers of Blossom Haven.
 
 The checks are `searchDone()` in `src/stickers.ts`. `searchProbe()` and the gold star are in
-`src/search-stars.ts`. The crater term and the Occator direction are exports of `src/terrain.ts`.
+`src/search-stars.ts`. The places of the storms, the canyon and the loops of fire are in
+`src/search-places.ts`; `src/planet-paint.ts` paints the storms and the canyon from the same
+numbers. The ray craters are `rayCraters()` in `src/planet-paint.ts`, and the Occator direction
+is an export of `src/terrain.ts`.
 
 The book is saved in this browser as `fairy-sticker-book`, with the search stars. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
@@ -415,9 +432,11 @@ without file watching.
 
 Run `node scripts/search-stars-smoke.mjs "path/to/chrome.exe"` against the dev server for the
 search stars: no star before the hello sticker, the task in the note and in **Worlds**, a find
-on seven worlds, the gold star in the world and on the sticker, the saved book, the reset and
-the phone layout. A test move puts the fairy at each place. An optional second argument sets
-the server origin.
+on twelve worlds, the gold star in the world and on the sticker, the saved book, the reset and
+the phone layout. A test move puts the fairy at each place, and the check uses
+`/?test&weather=shower` for the rainbow. The check also reads the paint of the ground: it is
+dark in the canyon of Mars and bright at the middle of each ray crater of Mercury. An optional
+second argument sets the server origin.
 
 ## Postcard camera
 
