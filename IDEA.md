@@ -8,7 +8,7 @@ The feature study is the source of F1 to F10:
 [docs/feature-ideas-study.md](docs/feature-ideas-study.md) and
 `/studies/feature-ideas-study.html`.
 
-Last update: 3 October 2026.
+Last update: 4 October 2026.
 
 ## State of each idea
 
@@ -37,20 +37,43 @@ README part and a status note in the study document.
 
 ### F1 · Search stars
 
-- **Branch:** `features/f1-search-stars` (`a60c7a3`). Not on GitHub.
+- **Branch:** `features/f1-search-stars` (`fb0aedb`). Not on GitHub. The branch has
+  `master` of 4 October 2026 (`6364f6e`) in it.
 - **What it does:** after the hello sticker of a world, the note gives one small
-  task, for example "Find a duck on the water." When the fairy does it, a gold star
+  task, for example "Find the big red storm." When the fairy does it, a gold star
   pops up in the world, a chime plays, and the sticker gets a star. **Worlds** shows
   the task, the star and the count. **Reset sticker book** removes the stars.
-- **Checks in the game:** all 13 worlds. Altitude (Sun, Venus, Mars, Jupiter,
-  Uranus, Neptune), place (Vesta, Ceres, the rings of Saturn), creature (a duck on
-  Earth, a unicorn on Blossom Haven) and terrain (a crater on Mercury, a dark sea
-  on the Moon).
-- **Files:** `src/search-stars.ts`, `src/stickers.ts`, `src/terrain.ts`,
-  `scripts/search-stars-smoke.mjs`.
-- **Decisions to confirm:** "low" is less than 20 m for Mercury and the Moon. The
-  ring plane of Saturn is less than 40 m away. A search does not count as an
-  arrival.
+- **Tasks in the game:** one for each of the 13 worlds. On 4 October 2026 nine
+  worlds got a task that uses their own scenery, because the first tasks had six
+  tasks of the kind "fly low".
+
+  | World | Task |
+  | --- | --- |
+  | Sun | Fly through a loop of fire. |
+  | Mercury | Find a crater with bright rays. |
+  | Venus | Fly all the way around Venus. |
+  | Earth | Find a rainbow. |
+  | Moon | Find the dark seas on the Moon. |
+  | Mars | Fly along the long canyon. |
+  | Vesta | Find the giant hole at the bottom. |
+  | Ceres | Find the bright white spots. |
+  | Jupiter | Find the big red storm. |
+  | Saturn | Fly over the rings. |
+  | Uranus | Find the thin rings of the planet that lies on its side. |
+  | Neptune | Find the dark storm and its white cloud. |
+  | Blossom Haven | Pop a soda bubble. |
+
+- **Files:** `src/search-stars.ts`, `src/search-places.ts`, `src/stickers.ts`,
+  `src/planet-paint.ts`, `scripts/search-stars-smoke.mjs`.
+- **Decisions to confirm:**
+  - "Low" is less than 20 m for Mercury, the Moon and Mars. The ring plane of
+    Saturn and of Uranus is less than 40 m away. A search does not count as an
+    arrival.
+  - A rainbow needs rain, sunshine and a low Sun. The weather is mostly sunny, so
+    the task of Earth can take some time. Decide if this is acceptable.
+  - The soda bubbles are small and clear. Decide if they must be larger or
+    brighter for the task.
+  - A soda bubble does not pop: only the gold star shows.
 - **To check on a real phone:** the 3D star, the chime and the note colours.
 
 ### F2 · Spoken facts
@@ -70,9 +93,11 @@ README part and a status note in the study document.
     setting is a new idea.
 - **To check on a real device:** the sound unlock on iOS, and the voice after a
   phone call.
-- **Note:** F1 adds task and found lines to the note. The recordings for them
-  exist (`task-<world>.mp3`, `found-<world>.mp3`). After F1 and F2 are both in
-  `master`, the voice can say them too.
+- **Note:** F1 adds task and found lines to the note. The recordings
+  (`task-<world>.mp3`, `found-<world>.mp3`) are for the first tasks. Nine worlds
+  have new tasks since 4 October 2026: the Sun, Mercury, Venus, Earth, Mars,
+  Jupiter, Uranus, Neptune and Blossom Haven. These need new recordings, in English
+  and in Portuguese, before the voice can say them.
 
 ### F3 · Creature hello
 
@@ -140,6 +165,42 @@ game has no public host and no offline cache. The game also needs its own icon:
 `public/favicon.svg` is the default Vite logo. Size: medium. Not started.
 
 ## New ideas
+
+### More search tasks on each world
+
+Each world has one search task (F1). Add more tasks to each world, until a world
+is a place to explore: a "Where is Waldo" for small children. The child looks at
+the world, finds a thing, and gets a star.
+
+Points for the study:
+
+- **Tasks that exist as options.** The player saw these on 4 October 2026 and
+  did not select them. Each one is a task for a second or third star:
+  - Sun: fly close to feel the warm light.
+  - Mercury: find a crater.
+  - Venus: fly under the golden clouds.
+  - Earth: find a duck on the water; find the snow.
+  - Moon: find the crater with the bright rays; fly through a sparkle ring.
+  - Mars: fly low over the red dust; find the white ice at the top.
+  - Vesta and Ceres: fly all the way around.
+  - Jupiter, Uranus and Neptune: dive into the clouds.
+  - Saturn: fly through the dark gap in the rings; find the six-sided storm at
+    the top.
+  - Blossom Haven: say hello to a unicorn; find the flying foals over the garden.
+- **Things to find.** Hide small things for the child to look for: one creature
+  with a hat, a golden flower, a lost balloon, a gift at the cottage. A hidden
+  thing must be easy to see when the fairy is near it.
+- **The book.** The card of a world shows each task and its star, and a count
+  for the world, for example 2 of 5. A world that is complete gets a mark.
+- **The order.** Decide if a world gives its tasks one at a time or all
+  together. One at a time is easier for a small child.
+- **The code.** `Sticker.search` becomes a list, and `Book.found` records each
+  task, not each world. A saved book of today must stay correct. The creature
+  check of `searchProbe()` exists (`SEARCH_CREATURE`), and no task uses it now.
+- **The voice.** Each task has a task line and a found line. Each line needs a
+  recording for the spoken facts (F2), in each language.
+- **Rules to keep:** no score, no timer and no fail. Earth gets a new landscape
+  at each visit, so a task on Earth must not need a fixed place.
 
 ### Weather on Earth and Blossom Haven
 
