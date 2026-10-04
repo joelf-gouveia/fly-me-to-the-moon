@@ -409,7 +409,10 @@ that each world asks for its own scenery.
   mostly sunny, so this task can take some time.
 - A lap can go in each direction, also over the poles. It starts where the fairy comes into the
   air of Venus, and it starts again when she leaves the air.
-- The soda bubbles rise 8 m from the soda rivers of Blossom Haven.
+- The soda bubbles rise 8 m from the soda rivers of Blossom Haven. A bubble pops when the fairy
+  touches it: it goes away until its next rise, a few drops fly out, and a soft high note
+  plays. This occurs at each touch, also after the star (`popSodaBubble()` in `src/candy.ts`).
+  With reduced motion, the drops do not show.
 
 The checks are `searchDone()` in `src/stickers.ts`. `searchProbe()` and the gold star are in
 `src/search-stars.ts`. The places of the storms, the canyon and the loops of fire are in

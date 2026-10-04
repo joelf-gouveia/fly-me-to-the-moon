@@ -49,6 +49,7 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { popSodaBubble } from './candy'
 import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
@@ -1019,6 +1020,9 @@ function animate(timestamp?: number) {
   trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
+  // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
+  // updateNearestWorld() reads the bubble first.
+  if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
   if (delta > 0) updateFairy(delta)
   // A ring that the fairy flies through gives a burst, a chime and a longer, brighter trail.
   const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
@@ -1214,6 +1218,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       webb: stars.placements.map(({ image }) => ({ id: image.id, loaded: !!stars.group.getObjectByName(image.id)?.visible })),
       caption: document.querySelector<HTMLElement>('.sky-caption:not([hidden]) h2')?.textContent ?? null,
     },
+    sodaPop: home.surface.getObjectByName('soda-pop')?.visible ?? false,
     candy: ['foliage-lollipop', 'foliage-cane', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
     clouds: { puffs: (home.clouds.getObjectByName('cotton-candy-clouds') as THREE.InstancedMesh | undefined)?.count ?? 0, mist: mistTint.getHexString(), fogDensity: fog.density },
     rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailBonus: fairyTrail.bonus },

@@ -1,6 +1,7 @@
 import { DWARF_WORLDS } from './belt'
 import { MOON } from './moon'
 import { URANUS_RING_SPAN } from './planet-look'
+import { BUBBLE_POP } from './candy'
 import { DARK_SPOT, inCanyon, inStorm, loopAt, RED_SPOT } from './search-places'
 import type { Direction } from './search-places'
 import { OCCATOR } from './terrain'
@@ -72,7 +73,7 @@ export const STICKERS: Sticker[] = [
     search: { task: 'Find the dark storm and its white cloud.', found: 'You found the dark storm!', check: 'place', rule: 'Below cloudHeight over the Great Dark Spot (DARK_SPOT in src/search-places.ts)' } },
   { id: 'fairy', name: 'Blossom Haven', group: 'pretend', color: 0xf3acd1, atmosphere: 52, path: null,
     fact: 'Blossom Haven is a pretend world. Unicorns live here, but only in stories.',
-    search: { task: 'Pop a soda bubble.', found: 'You popped a soda bubble!', check: 'through', rule: 'Within 1.5 m of a soda bubble of src/candy.ts' } },
+    search: { task: 'Pop a soda bubble.', found: 'You popped a soda bubble!', check: 'through', rule: 'Within 1.5 m of a soda bubble of src/candy.ts, which pops (popSodaBubble())' } },
 ]
 
 export const GROUP_NAMES: Record<Group, string> = { star: 'Star', rocky: 'Rocky planet', moon: 'Moon of Earth', dwarf: 'Dwarf planet', giant: 'Giant planet', pretend: 'Pretend world' }
@@ -146,7 +147,7 @@ export const SEARCH = {
   /** Earth: the rainbow shows clearly. */
   rainbow: 0.25,
   /** Blossom Haven: a soda bubble pops within 1.5 m. */
-  bubble: 1.5,
+  bubble: BUBBLE_POP.reach,
   /** Venus: a lap goes further than 2.6 rad from its start, comes back to 0.5 rad, and is 6 rad long or more: almost a full circle. */
   lapFar: 2.6,
   lapClose: 0.5,

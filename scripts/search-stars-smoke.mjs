@@ -378,7 +378,11 @@ try {
   const centre = await evaluate('(() => { const s = __fairyTest.snapshot(); return Math.hypot(s.fairy[0] - s.home[0], s.fairy[1] - s.home[1], s.fairy[2] - s.home[2]) })()')
   await place('fairy', bubble.direction, bubble.distance - centre)
   await found('fairy', 'You popped a soda bubble!', 0.1)
+  // The bubble pops: it has no size until its next rise, and its drops fly out.
+  assert((await snapshot()).sodaPop, 'No drops show after the pop')
+  assert(await evaluate(`__fairyTest.world('fairy').surface.getObjectByName('soda-bubbles').instanceMatrix.array[${bubble.index} * 16]`) === 0, 'The soda bubble shows after the pop')
   await evaluate('advanceFlight(0.5)')
+  assert(!(await snapshot()).sodaPop, 'The drops of the pop stay')
   await screenshot('star-bubble')
   state = await snapshot()
   const saved = state.searchStars

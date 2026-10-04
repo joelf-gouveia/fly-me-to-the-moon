@@ -21,14 +21,14 @@ function rayAngle(world: World, up: THREE.Vector3) {
   return Math.min(...rays.centres.map(centre => centre.angleTo(up)))
 }
 
-/** The distance in metres to the nearest soda bubble of src/candy.ts. The bubbles are in the frame of the surface. */
+/** The distance in metres to the nearest soda bubble of src/candy.ts that shows. The bubbles are in the frame of the surface. A popped bubble has no size. */
 function nearestBubble(world: World, position: THREE.Vector3) {
   const bubbles = world.surface.getObjectByName('soda-bubbles')
   if (!(bubbles instanceof THREE.InstancedMesh)) return Infinity
   world.surface.worldToLocal(point.copy(position))
   const matrices = bubbles.instanceMatrix.array
   let gap = Infinity
-  for (let i = 0; i < bubbles.count; i++) gap = Math.min(gap, Math.hypot(matrices[i * 16 + 12] - point.x, matrices[i * 16 + 13] - point.y, matrices[i * 16 + 14] - point.z))
+  for (let i = 0; i < bubbles.count; i++) if (matrices[i * 16] > 0) gap = Math.min(gap, Math.hypot(matrices[i * 16 + 12] - point.x, matrices[i * 16 + 13] - point.y, matrices[i * 16 + 14] - point.z))
   return gap
 }
 
