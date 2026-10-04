@@ -87,6 +87,18 @@ size includes a smoke script, as for the other features.
 
 ### F1 · Search stars
 
+Status: in the game, 3 October 2026. All 13 checks work as the `rule` of each sticker says.
+On 4 October 2026 the player selected new tasks for nine worlds, so that each world asks for
+its own scenery: a loop of fire of the Sun, a ray crater of Mercury, a lap of Venus, a rainbow
+on Earth, the canyon of Mars, the storms of Jupiter and Neptune, the rings of Uranus and a soda
+bubble of Blossom Haven. The places are in `src/search-places.ts`. The text below is the first
+design.
+`searchDone()` is in `src/stickers.ts`; `searchProbe()` and the gold star are in
+`src/search-stars.ts`. The crater term (`TerrainSample.crater`) and `OCCATOR` are new exports of
+`src/terrain.ts`. A find waits until the last note is gone. Over a creature, the star floats
+over it; for the other tasks, the star floats over the fairy, so it stays in view at each speed.
+See the Sticker book section of `README.md` and `scripts/search-stars-smoke.mjs`.
+
 After the hello sticker, the note gives one small task. Earth: "Find a duck on the
 water." When the fairy comes within 12 m of a duck, a gold star pops up, a chime plays,
 and the note says "You found a duck!" with a star on the sticker.

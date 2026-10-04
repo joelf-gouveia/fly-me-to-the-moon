@@ -23,7 +23,7 @@ import { PROPORTIONS } from './proportions'
 import { daylightAt, morningSpin, skyColor, skyProfile, solarElevation } from './daylight'
 import { createSunShading } from './sun-shading'
 import { LOW_SUN_DIM } from './sun-look'
-import { updatePlanetLooks } from './planet-paint'
+import { rayCraters, updatePlanetLooks } from './planet-paint'
 import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
@@ -49,6 +49,9 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { popSodaBubble } from './candy'
+import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
+import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
 import { createPostcardCamera } from './postcard-camera'
 import { createSparkleRings, RING, RING_CHIME, ringGlowTexture } from './rings'
@@ -328,6 +331,8 @@ const SUN_LIGHT = sunlight.intensity
 const TEST_WEATHER = {
   clear: { cover: 0, rain: 0, storm: 0, mist: 0 }, rain: { cover: 1, rain: 0.9, storm: 0, mist: 0 },
   storm: { cover: 1, rain: 1, storm: 1, mist: 0 }, mist: { cover: 0.1, rain: 0, storm: 0, mist: 1 },
+  // Rain from a thin cloud: the Sun comes through, so a rainbow shows when the Sun is low.
+  shower: { cover: 0.2, rain: 0.9, storm: 0, mist: 0 },
 } as const
 const testWeather = import.meta.env.DEV ? TEST_WEATHER[new URLSearchParams(location.search).get('weather') as keyof typeof TEST_WEATHER] ?? null : null
 let weatherClock = 0
@@ -467,7 +472,12 @@ function travelTo(world: World) {
 // One sticker for each world, the first time the fairy arrives. The stickers are in Worlds.
 const stickerBook = createStickerBook(worlds, {
   chime: milestone => playChime(milestone ? [523.25, 659.25, 783.99, 1046.5] : [659.25, 783.99]),
+  // A rising chime, brighter than the sticker chime: the search star.
+  searchChime: () => playChime([783.99, 987.77, 1174.66, 1567.98]),
 })
+// The gold star of a find (F1). After a reset of the book, a star in the sky goes too.
+const searchStar = createSearchStar(scene, makeSoftDiscTexture('rgba(255,255,255,1)'), touchDevice)
+stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
@@ -717,6 +727,13 @@ function updateNearestWorld() {
   nearNearest = near
   // The flight panel's "near" test earns the sticker (arrivalDistance() in src/stickers.ts).
   if (started) stickerBook.arrive(world, near)
+  // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
+  // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
+  const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
+  if (flying && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
+    const creature = SEARCH_CREATURE[world.kind]
+    searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
+  }
   planetDistance.textContent = near
     ? `${Math.round(Math.max(0, clearance))} m above ${world.gas ? 'deep clouds' : 'surface'}`
     : `${(nearestDistance / 1000).toFixed(1)} km away`
@@ -1003,6 +1020,9 @@ function animate(timestamp?: number) {
   trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
+  // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
+  // updateNearestWorld() reads the bubble first.
+  if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
   if (delta > 0) updateFairy(delta)
   // A ring that the fairy flies through gives a burst, a chime and a longer, brighter trail.
   const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
@@ -1037,6 +1057,7 @@ function animate(timestamp?: number) {
   // The strength of the wind in the plants comes from the weather of Earth. Away from Earth it is 1.
   foliageWind.value.y = weatherAir.here.wind
   teleportGlow.update(delta, reducedMotion.matches)
+  searchStar.update(delta, fairy, camera, reducedMotion.matches)
   // The points of the trail stay with the world that carries her. In open space they stay in the scene,
   // and they keep the velocity that the orbit of a world gives her.
   trailState.frame = attachedToWorld?.group ?? null
@@ -1125,6 +1146,19 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     orientFlight(fairy.quaternion, heading, up.addScaledVector(heading, -up.dot(heading)).normalize())
     snapCamera()
   },
+  /** The middles of the ray craters of Mercury, as local directions, for the search star check. */
+  rayCraters: () => rayCraters(worlds.find(world => world.kind === 'mercury')!.seed).map(crater => crater.centre.toArray()),
+  /** A world object, to read its terrain (`sample`) and its creatures in a browser check. */
+  world: (kind: string) => worlds.find(world => world.kind === kind),
+  /** Moves the fairy to `height` metres above the ground of a world, over a local direction. The camera moves with her. */
+  placeOver: (kind: string, direction: [number, number, number], height: number) => {
+    const world = worlds.find(item => item.kind === kind)!
+    const normal = new THREE.Vector3(...direction).normalize().applyQuaternion(world.group.quaternion)
+    fairy.position.copy(world.group.position).addScaledVector(normal, surfaceRadius(world, normal) + height)
+    orientFlight(fairy.quaternion, new THREE.Vector3().crossVectors(normal, Math.abs(normal.y) > 0.9 ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 1, 0)).normalize(), normal)
+    snapCamera()
+    destination = null; flight.speed = 11
+  },
   /** Turns the nearest world by `seconds` of its spin and carries the fairy with it: a later time of day. */
   spin: (seconds: number) => {
     const world = nearestWorld
@@ -1143,7 +1177,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     postcard: postcard.state,
@@ -1184,6 +1218,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       webb: stars.placements.map(({ image }) => ({ id: image.id, loaded: !!stars.group.getObjectByName(image.id)?.visible })),
       caption: document.querySelector<HTMLElement>('.sky-caption:not([hidden]) h2')?.textContent ?? null,
     },
+    sodaPop: home.surface.getObjectByName('soda-pop')?.visible ?? false,
     candy: ['foliage-lollipop', 'foliage-cane', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
     clouds: { puffs: (home.clouds.getObjectByName('cotton-candy-clouds') as THREE.InstancedMesh | undefined)?.count ?? 0, mist: mistTint.getHexString(), fogDensity: fog.density },
     rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailBonus: fairyTrail.bonus },

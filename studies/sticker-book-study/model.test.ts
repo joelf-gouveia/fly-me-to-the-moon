@@ -134,7 +134,7 @@ describe('sticker book study', () => {
 
   it('reports a small cost per option', () => {
     expect(cost('stamps')).toMatchObject({ stickers: 13, spokenLines: 57, newChecks: 0, screens: 1 })
-    expect(cost('search')).toMatchObject({ stickers: 26, spokenLines: 100, newChecks: 13, checks: { altitude: 6, place: 3, creature: 2, terrain: 2 } })
+    expect(cost('search')).toMatchObject({ stickers: 26, spokenLines: 100, newChecks: 13, checks: { altitude: 0, place: 8, creature: 0, terrain: 1, through: 2, lap: 1, weather: 1 } })
     expect(cost('poster')).toMatchObject({ stickers: 13, spokenLines: 107, screens: 2 })
     for (const option of ['stamps', 'search', 'poster'] as const) expect(cost(option).savedBytes).toBeLessThan(600)
   })

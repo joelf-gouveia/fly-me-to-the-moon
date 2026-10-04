@@ -1,5 +1,5 @@
 import { arrive, emptyBook, stickerById, STICKERS } from '../../src/stickers'
-import type { Book, Earned, Sticker, StickerId } from '../../src/stickers'
+import type { Book, Earned, SearchCheck, Sticker, StickerId } from '../../src/stickers'
 
 // The sticker data and the book of option A are in src/stickers.ts; the game and this study use the same values.
 export {
@@ -189,7 +189,7 @@ export const sentences = (text: string) => text.split(/(?<=[.!?])\s+/)
 /** Rough game cost of an option, for the cost panel and the tests. */
 export function cost(option: BookOption) {
   const full: Book = { arrived: STICKERS.map(s => s.id), found: option === 'search' ? STICKERS.map(s => s.id) : [], placed: option === 'poster' ? STICKERS.map(s => s.id) : [] }
-  const checks = { altitude: 0, place: 0, creature: 0, terrain: 0 }
+  const checks: Record<SearchCheck, number> = { altitude: 0, place: 0, creature: 0, terrain: 0, through: 0, lap: 0, weather: 0 }
   if (option === 'search') for (const sticker of STICKERS) checks[sticker.search.check]++
   return {
     stickers: progress(option, emptyBook()).total,

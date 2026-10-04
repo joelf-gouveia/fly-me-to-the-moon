@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { createNoise3D } from 'simplex-noise'
 import { seededRandom } from './terrain'
 import type { TerrainSample } from './terrain'
+import { CANYON, canyonLatitude, canyonOffset, DARK_SPOT, RED_SPOT } from './search-places'
 import { BAKE_SIZE, haloFarAt, puffsVisibleAt, RING_SPAN, ringOpacity, spaceLightAt, URANUS_RING_SPAN } from './planet-look'
 import type { LookedPlanet } from './planet-look'
 
@@ -13,6 +14,8 @@ import type { LookedPlanet } from './planet-look'
 
 /** A linear-light GLSL colour from an sRGB hex. THREE.Color converts it, as the game materials do. */
 const vec3 = (hex: number) => { const c = new THREE.Color(hex); return `vec3(${c.r.toFixed(5)}, ${c.g.toFixed(5)}, ${c.b.toFixed(5)})` }
+/** A number as a GLSL float. */
+const glsl = (value: number) => value.toFixed(2)
 
 /*
  * 3D simplex noise: webgl-noise by Ian McEwan and Stefan Gustavson, Ashima Arts, MIT license.
@@ -108,7 +111,7 @@ const RECIPES: Partial<Record<LookedPlanet, string>> = {
     // White ovals in the South Temperate Belt.
     for (int i = 0; i < 7; i++) c = mix(c, ${vec3(0xf6f1e8)}, oval(lat, lon, -33.0 + mod(float(i), 2.0) * 1.5, 40.0 + float(i) * 48.0, 3.2, 2.0) * 0.9);
     // The Great Red Spot, larger than life so it reads from far away. The swirl turns its inside.
-    float dl = dlon(lon, 150.0) * cos(radians(lat)) / 14.0, dt = (lat + 22.0) / 7.5;
+    float dl = dlon(lon, ${glsl(RED_SPOT.longitude)}) * cos(radians(lat)) / ${glsl(RED_SPOT.width)}, dt = (lat - (${glsl(RED_SPOT.latitude)})) / ${glsl(RED_SPOT.height)};
     float r = length(vec2(dl, dt));
     float turn = (1.0 - smoothstep(0.0, 1.2, r)) * 3.0;
     vec2 s = mat2(cos(turn), -sin(turn), sin(turn), cos(turn)) * vec2(dl, dt);
@@ -162,7 +165,7 @@ const RECIPES: Partial<Record<LookedPlanet, string>> = {
     float belts = exp(-pow((lat - 27.0) / 4.0, 2.0)) + exp(-pow((lat + 43.0) / 3.0, 2.0)) * 0.8;
     c = mix(c, ${vec3(0xeef4ff)}, streak * belts * 0.85);
     // The Great Dark Spot with its white companion cloud.
-    c = mix(c, ${vec3(0x1f2f80)}, oval(lat, lon, -21.0, 200.0, 13.0, 6.5) * 0.9);
+    c = mix(c, ${vec3(0x1f2f80)}, oval(lat, lon, ${glsl(DARK_SPOT.latitude)}, ${glsl(DARK_SPOT.longitude)}, ${glsl(DARK_SPOT.width)}, ${glsl(DARK_SPOT.height)}) * 0.9);
     c = mix(c, ${vec3(0xf4f7ff)}, oval(lat, lon, -27.5, 196.0, 10.0, 1.3) * 0.9);
     // The Scooter: a small bright cloud further south.
     return mix(c, ${vec3(0xe6eeff)}, oval(lat, lon, -42.0, 300.0, 4.0, 1.6) * 0.8);
@@ -244,17 +247,21 @@ const colors = {
   mercury: new THREE.Color(0x97938e), mercuryDark: new THREE.Color(0x676c76), mercuryPlain: new THREE.Color(0xa99f91), ray: new THREE.Color(0xf5f4f2),
 }
 
-/** Ground colour for Mars or Mercury at a unit direction. Same seed as the terrain. */
-export function createGroundPainter(id: 'mars' | 'mercury', seed: number) {
-  const noise = createNoise3D(seededRandom(seed + 77))
+/** Four young ray craters on Mercury, as in the MESSENGER pictures. `centre` is a unit direction. Same seed as the terrain. */
+export function rayCraters(seed: number) {
   const random = seededRandom(seed + 78)
-  // Four young ray craters on Mercury, as in the MESSENGER pictures.
-  const craters = Array.from({ length: 4 }, () => {
+  return Array.from({ length: 4 }, () => {
     const y = random() * 1.6 - 0.8, a = random() * Math.PI * 2, s = Math.sqrt(1 - y * y)
     const centre = new THREE.Vector3(s * Math.cos(a), y, s * Math.sin(a))
     const east = new THREE.Vector3().crossVectors(centre, new THREE.Vector3(0, 1, 0)).normalize()
     return { centre, east, north: new THREE.Vector3().crossVectors(east, centre), reach: 0.55 + random() * 0.45, rays: 9 + Math.floor(random() * 6) }
   })
+}
+
+/** Ground colour for Mars or Mercury at a unit direction. Same seed as the terrain. */
+export function createGroundPainter(id: 'mars' | 'mercury', seed: number) {
+  const noise = createNoise3D(seededRandom(seed + 77))
+  const craters = rayCraters(seed)
   const flat = new THREE.Vector3()
   const fbm = (x: number, y: number, z: number) => noise(x, y, z) * 0.6 + noise(x * 2.1 + 9, y * 2.1, z * 2.1) * 0.3 + noise(x * 4.3 + 3, y * 4.3, z * 4.3) * 0.1
 
@@ -268,10 +275,10 @@ export function createGroundPainter(id: 'mars' | 'mercury', seed: number) {
       target.copy(colors.marsDust).lerp(colors.marsBright, bright * 0.7).lerp(colors.marsDark, dark * 0.85)
       target.multiplyScalar(0.9 + sample.detail * 0.12 + sample.height * 0.018)
       // A long canyon along the equator, as Valles Marineris.
-      const along = Math.abs(((lon + 60 + 540) % 360) - 180)
-      if (along > 140) {
-        const middle = -9 + 2.5 * Math.sin(lon * 0.09) + noise(direction.x * 9, direction.y * 9, direction.z * 9) * 0.8
-        target.lerp(colors.marsCanyon, Math.exp(-(((lat - middle) / 1.1) ** 2)) * smooth(along, 140, 150) * 0.85)
+      const inside = CANYON.reach - canyonOffset(lon)
+      if (inside > 0) {
+        const middle = canyonLatitude(lon) + noise(direction.x * 9, direction.y * 9, direction.z * 9) * 0.8
+        target.lerp(colors.marsCanyon, Math.exp(-(((lat - middle) / CANYON.width) ** 2)) * smooth(inside, 0, CANYON.fade) * 0.85)
       }
       // Ice caps: the north cap is larger. Their edges are ragged.
       const ice = Math.max(smooth(lat + ragged * 4, 60, 64), smooth(-lat + ragged * 4, 68, 72))

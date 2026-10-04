@@ -75,9 +75,9 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     if (isKnown(book, id)) return open ? 'open' : 'closed'
     return open ? 'mystery-open' : 'mystery-closed'
   }
-  function status(state: CardState, id: StickerId) {
+  function status(state: CardState, id: StickerId, book: Book) {
     if (id === here && (state === 'sticker' || state === 'open')) return '✦ You are here'
-    if (state === 'sticker') return id === 'fairy' ? '★ Your fairy home' : '★ Your sticker'
+    if (state === 'sticker') return id === 'fairy' ? '★ Your fairy home' : book.found.includes(id) ? '★ Sticker and star' : '★ Your sticker'
     if (state === 'open') return id === 'fairy' ? 'Follow the flower' : 'Fly here ↗'
     if (state === 'mystery-open') return 'A mystery · fly to it ↗'
     return 'Opens later'
@@ -99,7 +99,8 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   function select(id: StickerId) {
     selected = id
     const book = stickers.book, state = cardState(book, id)
-    if (state === 'sticker') note(stickerById(id).fact, id)
+    // A sticker card gives its fact, then its search task as the hint until the star is found.
+    if (state === 'sticker') note(`${stickerById(id).fact} ${book.found.includes(id) ? `★ ${stickerById(id).search.found}` : `☆ ${stickerById(id).search.task}`}`, id)
     else if (id === 'fairy') note('Follow the flower to Blossom Haven, your fairy home.', id)
     // Earth is always the way home. On Earth, the note says how to get its sticker.
     else if (id === 'earth') note(here === 'earth' ? EARTH_NOTE : 'Fly back home to Earth to get its sticker.', id)
@@ -115,12 +116,15 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     const book = stickers.book, earned = book.arrived.length, total = STICKERS.length
     host.querySelector('.sticker-dots')!.innerHTML = STICKERS.map((_, i) => `<i class="${i < earned ? 'on' : ''} ${(i + 1) % MILESTONE === 0 ? 'milestone' : ''}"></i>`).join('')
     host.querySelector('.sticker-dots')!.setAttribute('aria-label', `${earned} of ${total} stickers`)
-    get('sticker-count').textContent = `${earned} of ${total} stickers`
+    const stars = book.found.length
+    get('sticker-count').textContent = `${earned} of ${total} stickers${stars ? ` · ${stars} search star${stars === 1 ? '' : 's'}` : ''}`
     get('open-map').querySelector('.world-count')!.textContent = `${earned}/${total}`
     get('open-map').ariaLabel = `Worlds and stickers: ${earned} of ${total} stickers`
     host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => {
       const id = card.dataset.world as StickerId, state = cardState(book, id), mystery = state.startsWith('mystery')
-      const html = `${mystery ? '<span class="planet-picture mystery-picture" aria-hidden="true">?</span>' : worldPicture(worlds, id)}<strong>${mystery ? 'Mystery world' : stickerById(id).name}</strong><small class="map-location">${status(state, id)}</small>`
+      // A sticker card shows its search star: gold when found, a dashed outline while it waits.
+      const star = state !== 'sticker' ? null : book.found.includes(id) ? 'found' : 'waiting'
+      const html = `${mystery ? '<span class="planet-picture mystery-picture" aria-hidden="true">?</span>' : worldPicture(worlds, id, star)}<strong>${mystery ? 'Mystery world' : stickerById(id).name}</strong><small class="map-location">${status(state, id, book)}</small>`
       if (card.innerHTML !== html) card.innerHTML = html
       card.className = `book-card is-${state}${id === selected ? ' is-selected' : ''}${id === here ? ' you-are-here' : ''}`
     })
