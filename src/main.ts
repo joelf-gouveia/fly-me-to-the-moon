@@ -436,6 +436,8 @@ let audioContext: AudioContext | null = null
 let audioGain: GainNode | null = null
 let nearestWorld = earth
 let nearestDistance = 0
+// True when the flight panel says that the fairy is near the nearest world (updateNearestWorld()).
+let nearNearest = true
 const flight = { position: fairy.position, quaternion: fairy.quaternion, speed: 11 }
 let destination: World | null = null
 let arrivalUntil = 0
@@ -712,6 +714,7 @@ function updateNearestWorld() {
   planetDot.style.backgroundColor = worldColor
   planetDot.style.boxShadow = `0 0 15px ${worldColor}`
   const near = nearestDistance < Math.max(85, world.atmosphere * 1.5)
+  nearNearest = near
   // The flight panel's "near" test earns the sticker (arrivalDistance() in src/stickers.ts).
   if (started) stickerBook.arrive(world, near)
   planetDistance.textContent = near
@@ -1018,7 +1021,7 @@ function animate(timestamp?: number) {
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
-    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen,
+    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen, near: nearNearest,
   })
   updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
   for (const world of worlds) {

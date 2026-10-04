@@ -363,7 +363,9 @@ when the sound is on. Every fourth sticker has a bigger note.
 
 The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
 for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
-card to read its fact or a hint, then **Fly there** for a guided flight. A card with its
+card to read its fact or a hint, then **Fly there** for a guided flight. The card of a world
+says "You are here" only when the fairy is near that world, as the flight panel says. In open
+space each open world has **Fly there**, also the nearest one, so Earth is always a way home. A card with its
 sticker looks like a sticker.
 
 The worlds open one at a time. A new book opens Earth, Blossom Haven and the Moon. The
