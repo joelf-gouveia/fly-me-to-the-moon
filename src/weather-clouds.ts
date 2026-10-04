@@ -81,7 +81,10 @@ void main() {
   vDir = normalize(position);
   vec4 world = modelMatrix * vec4(position, 1.0);
   vWorld = world.xyz;
-  gl_Position = projectionMatrix * viewMatrix * world;
+  // The place on the screen comes from the model-view matrix, as for the heap clouds. Earth is far from the
+  // middle of the scene, so a place in the scene has an error of some millimetres that changes on each frame.
+  // With that error the line where a heap cloud goes through the layer flickers.
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
 }`
 const DECK_FRAGMENT = /* glsl */`
 ${MAP}
