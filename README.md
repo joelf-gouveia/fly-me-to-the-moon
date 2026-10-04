@@ -1048,6 +1048,43 @@ check of the page.
 
 ## Browser checks
 
+Each feature has a browser check in `scripts/`. One command runs them all at the same time:
+
+```
+node scripts/run-checks.mjs "path/to/chrome.exe"
+```
+
+The command starts its own dev server on a free port, runs the 20 checks (4 at the same
+time), and prints one line for each check with its time and its error. All the checks take
+about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
+`artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same
+command, and the variable `CHROME_PATH` can give the browser path.
+
+| Option | Effect |
+| --- | --- |
+| `--changed [base]` | Only the checks for the files that changed from `base` (default `master`), with the files that are not committed. |
+| `--files a,b` | Only the checks for these files. |
+| `--only a,b` | Only these checks, by name. |
+| `--list` | Shows each check and the files that it covers. |
+| `--dry-run` | Shows the selected checks, and stops. |
+| `--jobs n` | The number of checks at the same time. The default is 4. |
+| `--origin url` | Uses a dev server that runs already. |
+| `--swiftshader` | Software graphics, for a machine with no graphics card. |
+
+While you work on one feature, run `--changed`. A change to `src/rings.ts` runs only the
+sparkle rings check; a change to `src/main.ts`, `src/worlds.ts` or another core file runs all
+the checks, and so does a game file that no check covers. A change to a document or a study
+runs no check. The list of the files of each check is `CHECKS` in `scripts/run-checks.mjs`:
+add a new check and its files there. Run all the checks before a merge into `master`.
+
+The checks use the graphics card. With software graphics a check that takes 30 s can take
+30 minutes, because the worlds have many plants. `FAIRY_SWIFTSHADER=1` selects software
+graphics for one script; `--swiftshader` does the same for the runner and for the three
+scripts that have this option. Each script starts its own Chrome on a free debug port, so
+many checks can run at the same time.
+
+One check alone runs against a dev server:
+
 With the dev server at `http://127.0.0.1:5174`, run
 `node scripts/browser-smoke.mjs "path/to/chrome.exe"` using an installed Chromium
 browser. This checks low flight, ascent, return generation and the mobile layout;
