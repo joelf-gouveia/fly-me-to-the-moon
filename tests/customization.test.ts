@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { defaultFairyLook, lookColors, lookOptions, parseFairyLook } from '../src/customization'
+import { trailIds } from '../src/fairy-trail'
 
 describe('fairy customization', () => {
   it('offers ten colors for the hair, dress, wings and skin', () => {
@@ -22,8 +23,15 @@ describe('fairy customization', () => {
 
   it('converts a look saved with an old palette', () => {
     expect(parseFairyLook({ hair: 'bob', wings: 'luna', palette: 'moon' })).toEqual({
-      hair: 'bob', hairColor: 'moonlight', dress: 'moon', wings: 'glitter', wingColor: 'moonbeam', skin: 'peach',
+      hair: 'bob', hairColor: 'moonlight', dress: 'moon', wings: 'glitter', wingColor: 'moonbeam', trail: 'pixie', skin: 'peach',
     })
+  })
+
+  it('offers the four trails of the trail study, and a saved look with no trail gets Pixie dust', () => {
+    expect(lookOptions.trail.map(({ id }) => id)).toEqual([...trailIds])
+    expect(parseFairyLook({ hair: 'bob' }).trail).toBe('pixie')
+    expect(parseFairyLook({ trail: 'halo' }).trail).toBe('halo')
+    expect(parseFairyLook({ trail: 'ribbon' }).trail).toBe('pixie')
   })
 
   it('gives the default look the colors of the original Rose palette', () => {

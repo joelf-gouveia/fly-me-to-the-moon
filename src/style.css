@@ -282,6 +282,7 @@ dialog[open] {
   text-transform: uppercase;
 }
 .option-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
+.option-grid--two { grid-template-columns: repeat(2, 1fr); }
 .option-grid button {
   min-width: 0;
   height: 68px;

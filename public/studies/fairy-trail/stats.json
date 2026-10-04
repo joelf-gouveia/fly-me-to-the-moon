@@ -1,0 +1,172 @@
+{
+  "bursts": {
+    "points": 480,
+    "calls": 1,
+    "carry": 19.36923865084027,
+    "cruise": 11.413653169748237,
+    "drawn": {
+      "calls": 118,
+      "triangles": 2268681
+    }
+  },
+  "candy": {
+    "points": 360,
+    "calls": 2,
+    "carry": 60.26893869521628,
+    "cruise": 11.110807308421107,
+    "drawn": {
+      "calls": 127,
+      "triangles": 2293837
+    }
+  },
+  "fixed": {
+    "points": 160,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "glints": {
+    "points": 90,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "halo": {
+    "points": 160,
+    "calls": 1,
+    "carry": 19.292512363058993,
+    "cruise": 11.413653169748237,
+    "drawn": {
+      "calls": 118,
+      "triangles": 2268681
+    }
+  },
+  "none": {
+    "points": 0,
+    "calls": 0,
+    "carry": 19.36923865084027,
+    "cruise": 11.413653169748237,
+    "drawn": {
+      "calls": 117,
+      "triangles": 2268681
+    }
+  },
+  "pixie": {
+    "points": 520,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "rainbow": {
+    "points": 520,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "ribbon": {
+    "points": 80,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240519
+    }
+  },
+  "ribbon-stars": {
+    "points": 170,
+    "calls": 2,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 99,
+      "triangles": 2240519
+    }
+  },
+  "shimmer": {
+    "points": 560,
+    "calls": 1,
+    "carry": 19.408775639552747,
+    "cruise": 12.561654753960363,
+    "drawn": {
+      "calls": 108,
+      "triangles": 2267001
+    }
+  },
+  "shimmer-feet": {
+    "points": 560,
+    "calls": 1,
+    "carry": 19.53449316620142,
+    "cruise": 12.91365067719765,
+    "drawn": {
+      "calls": 156,
+      "triangles": 2275065
+    }
+  },
+  "shimmer-wings": {
+    "points": 560,
+    "calls": 1,
+    "carry": 19.314737092378017,
+    "cruise": 11.520991045109666,
+    "drawn": {
+      "calls": 100,
+      "triangles": 2265657
+    }
+  },
+  "tail": {
+    "points": 260,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "tips": {
+    "points": 300,
+    "calls": 3,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 100,
+      "triangles": 2240597
+    }
+  },
+  "today": {
+    "points": 144,
+    "calls": 1,
+    "carry": 19.458039039706573,
+    "cruise": 11.388059587082223,
+    "drawn": {
+      "calls": 98,
+      "triangles": 2240441
+    }
+  },
+  "worlds": {
+    "earth": {
+      "spin": 7.199483164476609,
+      "orbit": 14.398966328953218
+    },
+    "fairy": {
+      "spin": 2.879793265790644,
+      "orbit": 58.7025089867302
+    }
+  }
+}
