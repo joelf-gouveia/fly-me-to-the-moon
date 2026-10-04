@@ -14,7 +14,7 @@ Last update: 4 October 2026.
 
 | Idea | State | Branch |
 | --- | --- | --- |
-| F1 Search stars | Code complete, not merged | `features/f1-search-stars` |
+| F1 Search stars | In `master` | Merged in `c83f7d7` |
 | F2 Spoken facts | Code complete, not merged | `features/f2-spoken-facts` |
 | F3 Creature hello | In `master` | Merged in `00af6ea` |
 | F4 Sparkle rings | In `master` | Merged, branch closed |
@@ -37,8 +37,7 @@ README part and a status note in the study document.
 
 ### F1 · Search stars
 
-- **Branch:** `features/f1-search-stars` (`87b6f47`). Not on GitHub. The branch has
-  `master` of 4 October 2026 (`6364f6e`) in it.
+- **Branch:** `features/f1-search-stars`. In `master` since merge `c83f7d7` of 4 October 2026.
 - **What it does:** after the hello sticker of a world, the note gives one small
   task, for example "Find the big red storm." When the fairy does it, a gold star
   pops up in the world, a chime plays, and the sticker gets a star. **Worlds** shows
