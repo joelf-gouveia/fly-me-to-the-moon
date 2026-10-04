@@ -16,12 +16,12 @@ Last update: 3 October 2026.
 | --- | --- | --- |
 | F1 Search stars | Code complete, not merged | `features/f1-search-stars` |
 | F2 Spoken facts | Code complete, not merged | `features/f2-spoken-facts` |
-| F3 Creature hello | Code complete, not merged | `features/f3-creature-hello` |
+| F3 Creature hello | In `master` | Merged in `00af6ea` |
 | F4 Sparkle rings | In `master` | Merged, branch closed |
 | F5 Postcard camera | In `master` | Merged, branch closed |
 | F6 A song for each world | Code complete, not merged | `features/f6-world-songs` |
 | F7 Game controller | Dropped | None |
-| F8 Comets and shooting stars | Code complete, not merged | `features/f8-comets` |
+| F8 Comets and shooting stars | In `master` | Merged in `30561c9` |
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
@@ -76,7 +76,7 @@ README part and a status note in the study document.
 
 ### F3 · Creature hello
 
-- **Branch:** `features/f3-creature-hello` (`66fba09`). On GitHub.
+- **Branch:** closed. In `master` since merge `00af6ea` of 3 October 2026.
 - **What it does:** a creature near the path of the fairy turns to her, hops two
   times (a duck or a Frog Prince bobs on the water), and pink hearts float up. A
   soft chime plays when **Sound** is on. Each creature says hello again after 8 s.
@@ -103,8 +103,7 @@ README part and a status note in the study document.
 
 ### F8 · Comets and shooting stars
 
-- **Branch:** `features/f8-comets` (`67ce84c`). Not on GitHub. The branch already
-  contains `master` with F4 and F5; the conflicts in `src/main.ts` are fixed.
+- **Branch:** closed. In `master` since merge `30561c9` of 3 October 2026.
 - **What it does:** a comet goes around the Sun in 600 s at 1×, with a dust tail
   and a blue ion tail that point away from the Sun. A flight through a tail gives
   sparkles, a larger trail for 4 s and a chime; the flight panel says "Comet
