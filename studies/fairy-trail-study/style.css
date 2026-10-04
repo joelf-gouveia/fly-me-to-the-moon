@@ -1,0 +1,9 @@
+/* The lab, in the page and in the capture page. The page look is in page.css of the feature
+   ideas study, with the additions of page.css of this study. */
+.stage { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #02030f }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block }
+.lab-overlay { position: absolute; inset: 0; pointer-events: none; overflow: hidden }
+body.is-capture { margin: 0; overflow: hidden; background: #02030f }
+.capture-stage { width: 1280px; height: 720px; aspect-ratio: auto }
+/* The phase of the flight, in the clip and in the live view. */
+.phase-label { position: absolute; left: 18px; top: 16px; margin: 0; padding: 5px 13px; border-radius: 15px; font: 600 13px/1.4 'Segoe UI', system-ui, sans-serif; letter-spacing: .06em; color: #f6d9aa; background: #070b18b8 }

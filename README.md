@@ -457,7 +457,8 @@ Choose **Choose your look** on the welcome card, or the palette button during
 flight. Pick one of nine hair styles (Bun, Bob, Tails, Space buns, Cloud curls,
 Ponytail, Long braid, Twin braids, Long waves) and one of twelve wings (Dew glass,
 Glitter vein, Leaf glass, Silk pleats, Rainbow cells, Swirl and gems, Monarch,
-Swallowtail, Frost, Starlight, Autumn leaf, Aurora). Then pick one of ten colors each for the hair, dress, wings and skin.
+Swallowtail, Frost, Starlight, Autumn leaf, Aurora). Then pick one of ten colors each for the hair, dress, wings and skin,
+and one of four sparkle trails (Pixie dust, Comet tail, Sparkle halo, Shimmer steps).
 Each choice applies instantly and is saved in this browser. The camera moves
 closer and flight waits while the panel is open; close it or press Escape to return.
 
@@ -476,7 +477,20 @@ styles changes visibility, and switching colors updates shared materials. The wi
 in `src/fairy-wings/` (see the [fairy wing study](#fairy-wing-study)): each wing is a set
 of painted panels with a shader for the colour shift, the glitter and the light through
 the wing. Each wing takes the wing color. A look saved
-with Petal, Luna or Flutter gets Dew glass, Glitter vein or Swirl and gems. The hair
+with Petal, Luna or Flutter gets Dew glass, Glitter vein or Swirl and gems.
+
+The sparkle trail is in `src/fairy-trail.ts` (see the [fairy trail study](#fairy-trail-study)).
+Pixie dust is fine dust that twinkles and falls slowly behind her. Comet tail is a cone of
+sparkles that is fixed to her back. Sparkle halo has no trail: stars flash around her.
+Shimmer steps is a faint shimmer from her two feet that becomes strong in a boost. Each
+trail uses the sparkle colour of the wing color. The points of Pixie dust and of Shimmer
+steps stay with the world that carries her, so the trail is on the path that she flew. A
+sparkle ring and a comet tail make each trail stronger for 4 s. With reduced motion the
+points do not twinkle. A look that was saved with no trail gets Pixie dust. While the
+look menu is open, the trail of the look continues behind the fairy, so each trail shows
+when you select it.
+
+The hair
 styles are in `src/fairy-hair.ts`. The Ponytail, Long braid, Twin braids and Long
 waves swing gently with the flight and straighten along her body in boost. The six
 newer styles stay clear of the wings and the pointed ears in every wing shape.
@@ -1045,6 +1059,30 @@ port 5174 to record the clips of W1 and W2 again, and
 `node studies/weather-study/weather-study-smoke.mjs "path/to/chrome.exe"` for the browser
 check of the page.
 
+## Fairy trail study
+
+Visit `/studies/fairy-trail-study.html` for **A trail that stays behind her**, a study of
+the sparkle trail of the fairy. The trail of the game goes off at an angle: near a world,
+the game carries the fairy with the spin and the orbit of that world, and the dots of the
+trail stay in space. The study gives five rules for a trail that is the same on each
+screen, at each speed and on each world, and fifteen options for its look: No trail,
+Today repaired, Pixie dust, Star glints, Ribbon of light, Wing-tip streams, Comet tail,
+Sparkle halo, Ribbon and stars, Rainbow dust, Blossom confetti (a magic trail for Blossom
+Haven), Only when it counts, Shimmer to sparkle, Shimmer from her feet and Shimmer from her wings. Each option has a clip of the same
+flight of 14 s from
+the engine of the game: a cruise, two turns, a boost, a hover and the 4 s after a sparkle
+ring. **See it live** runs an option in live 3D, with the flight, the camera, day and
+night, the ten sparkle colours and a switch that stops the motion of the world. Its
+controls do not change the game.
+
+On 4 October 2026 four options were selected for the game: Pixie dust, Comet tail,
+Sparkle halo and Shimmer from her feet. The player selects one of them in the look menu
+(see [Character customization](#character-customization)); the study keeps the trail from
+before as **The trail of today**. The
+[technical study](docs/fairy-trail-study.md) gives the cause, the rules, each option, the
+cost and the limits. The clips are in `public/studies/fairy-trail/`. Run
+`node studies/fairy-trail-study/fairy-trail-study-capture.mjs "path/to/chrome.exe" today,pixie http://localhost:5174`
+to record the clips of the trail of today and of Pixie dust again.
 
 ## Browser checks
 

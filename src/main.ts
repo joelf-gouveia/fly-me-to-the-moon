@@ -40,6 +40,7 @@ import {
   parseFairyLook,
   skinOptions,
   wingColorOptions,
+  trailOptions,
   wingOptions,
 } from './customization'
 import type { FairyLook, LookPart } from './customization'
@@ -52,6 +53,7 @@ import { createSettings } from './settings'
 import { createPostcardCamera } from './postcard-camera'
 import { createSparkleRings, RING, RING_CHIME, ringGlowTexture } from './rings'
 import { view, watchView } from './viewport'
+import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
   return `
@@ -144,6 +146,16 @@ app.innerHTML = `
             </button>`).join('')}
         </div>
         ${colorSwatches('wingColor', 'Wing color', wingColorOptions)}
+      </fieldset>
+      <fieldset class="customizer-group" data-custom-group="trail">
+        <legend>Sparkle trail</legend>
+        <div class="option-grid option-grid--two">
+          ${trailOptions.map(({ id, label }) => `
+            <button type="button" data-custom="trail" data-value="${id}" aria-pressed="false">
+              <canvas class="wing-preview" data-trail="${id}" width="88" height="68" aria-hidden="true"></canvas>
+              <span>${label}</span>
+            </button>`).join('')}
+        </div>
       </fieldset>
       <fieldset class="customizer-group" data-custom-group="skin">
         <legend>Skin</legend>
@@ -333,34 +345,13 @@ const initialForward = new THREE.Vector3().crossVectors(meadow, new THREE.Vector
 orientFlight(fairy.quaternion, initialForward, earthOutward)
 scene.add(fairy)
 
-// The trail shows its newest 72 points. After a sparkle ring it shows all 144: a trail twice as long.
-const trailCount = 72
-const trailCapacity = trailCount * 2
-const trailPositions = new Float32Array(trailCapacity * 3)
-const trailColors = new Float32Array(trailCapacity * 3)
-const trailColor = new THREE.Color()
-for (let i = 0; i < trailCapacity; i += 1) {
-  trailPositions[i * 3] = fairy.position.x
-  trailPositions[i * 3 + 1] = fairy.position.y
-  trailPositions[i * 3 + 2] = fairy.position.z
-  trailColor.setHSL(0.1 + i / trailCapacity * 0.09, 0.75, 0.72)
-  trailColors.set([trailColor.r, trailColor.g, trailColor.b], i * 3)
-}
-const trailGeometry = new THREE.BufferGeometry()
-trailGeometry.setAttribute('position', new THREE.BufferAttribute(trailPositions, 3))
-trailGeometry.setAttribute('color', new THREE.BufferAttribute(trailColors, 3))
-const trailMaterial = new THREE.PointsMaterial({
-  size: 0.2,
-  map: makeSoftDiscTexture('rgba(255,255,255,1)'),
-  vertexColors: true,
-  transparent: true,
-  opacity: 0.78,
-  depthWrite: false,
-  blending: THREE.AdditiveBlending,
-})
-const fairyTrail = new THREE.Points(trailGeometry, trailMaterial)
-fairyTrail.frustumCulled = false
-scene.add(fairyTrail)
+// The sparkle trail of the look (src/fairy-trail.ts). Its points stay with the world that carries her.
+const fairyTrail = createFairyTrail(scene, fairy, fairyRig, camera, renderer)
+// The place of the fairy before the world carries her and after it, and the state of the trail for a frame.
+const trailFrom = new THREE.Vector3(), trailCarried = new THREE.Vector3()
+const trailState = { frame: null as THREE.Object3D | null, velocity: new THREE.Vector3(), drift: new THREE.Vector3(), down: new THREE.Vector3(), boost: false, hover: false, bonus: 0, still: false, preview: false }
+// The time of the trail. It continues in the look menu, where the time of the flight stops.
+let trailClock = 0
 
 // The wing buttons show each wing in the wing colour of the look. They paint again only when that colour changes.
 let wingIconColor = ''
@@ -368,6 +359,8 @@ function drawWingIcons(look: FairyLook) {
   if (look.wingColor === wingIconColor) return
   wingIconColor = look.wingColor
   document.querySelectorAll<HTMLCanvasElement>('canvas[data-wing]').forEach(canvas => drawWingIcon(canvas, designById(canvas.dataset.wing!)!, look))
+  // The trail buttons show each trail in the sparkle colour of the wing colour.
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-trail]').forEach(canvas => drawTrailIcon(canvas, canvas.dataset.trail as FairyLook['trail'], lookColors(look).sparkle))
 }
 
 function applyFairyLook(look: FairyLook, persist = true) {
@@ -376,11 +369,8 @@ function applyFairyLook(look: FairyLook, persist = true) {
   drawWingIcons(look)
   const { sparkle } = lookColors(look)
   fairyLight.color.setHex(sparkle).lerp(new THREE.Color(0xffffff), 0.35)
-  for (let i = 0; i < trailCapacity; i++) {
-    trailColor.setHex(sparkle).offsetHSL(0, 0, (i / trailCapacity - 0.5) * 0.12)
-    trailColors.set([trailColor.r, trailColor.g, trailColor.b], i * 3)
-  }
-  trailGeometry.attributes.color.needsUpdate = true
+  fairyTrail.setDesign(look.trail)
+  fairyTrail.setColour(sparkle)
 
   document.querySelectorAll<HTMLButtonElement>('[data-custom]').forEach((button) => {
     const selected = look[button.dataset.custom as keyof FairyLook] === button.dataset.value
@@ -444,7 +434,6 @@ let orbitSpeedFactor = 1
 let soundOn = false
 let audioContext: AudioContext | null = null
 let audioGain: GainNode | null = null
-let trailCursor = 0
 let nearestWorld = earth
 let nearestDistance = 0
 const flight = { position: fairy.position, quaternion: fairy.quaternion, speed: 11 }
@@ -527,12 +516,7 @@ function moveHome() {
     camera.position.add(result.offset)
     cameraLook.add(result.offset)
     previousFlightPosition.add(result.offset)
-    for (let i = 0; i < trailCapacity; i++) {
-      trailPositions[i * 3] += result.offset.x
-      trailPositions[i * 3 + 1] += result.offset.y
-      trailPositions[i * 3 + 2] += result.offset.z
-    }
-    trailGeometry.attributes.position.needsUpdate = true
+    fairyTrail.shift(result.offset)
   }
   guideTarget.copy(homeApproachPoint(home))
   orbits.rebase(home)
@@ -785,19 +769,8 @@ const carryFrom = new THREE.Vector3(), carryShift = new THREE.Vector3()
 const planetLocalOrientation = new THREE.Quaternion()
 const inversePlanetOrientation = new THREE.Quaternion()
 let elapsed = 0
-let trailShown = trailCount
 /** 1 for the 4 s after a sparkle ring, then 0. The last 0.75 s go down smoothly. */
 function sparkleLevel() { return THREE.MathUtils.clamp((sparkleUntil - elapsed) / 0.75, 0, 1) }
-
-/** Hide the points older than the length of the trail now: far away, out of the view. */
-function trimTrail() {
-  trailShown = Math.round(THREE.MathUtils.lerp(trailCount, trailCapacity, sparkleLevel()))
-  for (let age = trailShown; age < trailCapacity; age++) {
-    const index = ((trailCursor - 1 - age) % trailCapacity + trailCapacity) % trailCapacity
-    trailPositions[index * 3] = trailPositions[index * 3 + 1] = trailPositions[index * 3 + 2] = 1e6
-  }
-  trailGeometry.attributes.position.needsUpdate = true
-}
 
 function updateFairy(delta: number) {
   const yaw = Number(keys.has('KeyA') || keys.has('ArrowLeft')) - Number(keys.has('KeyD') || keys.has('ArrowRight'))
@@ -809,7 +782,6 @@ function updateFairy(delta: number) {
     forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
     speedValue.textContent = '0'
     fairyAnimation.update(delta, false)
-    trimTrail()
     return
   }
   boosted = keys.has('ShiftLeft') || keys.has('ShiftRight')
@@ -847,14 +819,6 @@ function updateFairy(delta: number) {
   speedValue.textContent = String(Math.round(flight.speed))
 
   fairyAnimation.update(delta, boosted)
-  for (let i = 0; i < (boosted ? 3 : 1); i++) {
-    const index = trailCursor % trailCapacity
-    trailPositions[index * 3] = fairy.position.x + (Math.random() - 0.5) * 0.34
-    trailPositions[index * 3 + 1] = fairy.position.y + (Math.random() - 0.5) * 0.34
-    trailPositions[index * 3 + 2] = fairy.position.z + (Math.random() - 0.5) * 0.34
-    trailCursor++
-  }
-  trimTrail()
 }
 
 function updateCamera(delta: number) {
@@ -1008,6 +972,7 @@ function animate(timestamp?: number) {
   // atmosphere, or near the airless Moon, which moves fast around Earth.
   // The frame moves with axial spin, the solar orbit and the Moon's orbit.
   const nearbyWorld = nearestWorldAt(fairy.position, worlds)
+  trailFrom.copy(fairy.position)
   let attachedToWorld: World | null = null
   if (nearbyWorld.kind !== 'sun') {
     const normal = fairy.position.clone().sub(nearbyWorld.group.position).normalize()
@@ -1032,6 +997,7 @@ function animate(timestamp?: number) {
     fairy.quaternion.copy(attachedToWorld.group.quaternion).multiply(planetLocalOrientation)
     forward.set(0, 0, -1).applyQuaternion(fairy.quaternion)
   } else if (carry > 0) fairy.position.addScaledVector(carryShift.copy(nearbyWorld.group.position).sub(carryFrom), carry)
+  trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
   if (delta > 0) updateFairy(delta)
@@ -1068,10 +1034,33 @@ function animate(timestamp?: number) {
   // The strength of the wind in the plants comes from the weather of Earth. Away from Earth it is 1.
   foliageWind.value.y = weatherAir.here.wind
   teleportGlow.update(delta, reducedMotion.matches)
-  const sparkle = sparkleLevel()
-  trailMaterial.opacity = 0.56 + Math.sin(elapsed * 3) * 0.12 + sparkle * 0.22
-  // A longer, brighter trail after a sparkle ring, and in a comet tail for 4 s after it.
-  trailMaterial.size = 0.2 + Math.max(sparkle * 0.16, comet.glow * 0.18)
+  // The points of the trail stay with the world that carries her. In open space they stay in the scene,
+  // and they keep the velocity that the orbit of a world gives her.
+  trailState.frame = attachedToWorld?.group ?? null
+  if (attachedToWorld) trailState.down.copy(attachedToWorld.group.position).sub(fairy.position).normalize()
+  else trailState.down.set(0, 0, 0)
+  trailState.still = reducedMotion.matches
+  if (delta > 0) {
+    trailState.velocity.copy(fairy.position).sub(trailCarried).divideScalar(delta)
+    trailState.drift.copy(trailCarried).sub(trailFrom).divideScalar(delta)
+    trailState.boost = boosted
+    trailState.hover = hoverHeld
+    // A stronger trail after a sparkle ring, and in a comet tail for 4 s after it.
+    trailState.bonus = THREE.MathUtils.clamp(Math.max(sparkleLevel(), comet.glow), 0, 1)
+    trailState.preview = false
+    trailClock += delta
+    fairyTrail.update(trailClock, delta, trailState)
+  } else if (customizing && rawDelta > 0) {
+    // The look menu stops the flight. The trail of the look continues as in a cruise, and its
+    // points move slowly behind her, so the player sees each trail.
+    trailState.velocity.copy(forward).multiplyScalar(11)
+    trailState.drift.copy(forward).multiplyScalar(-1.6)
+    trailState.boost = trailState.hover = false
+    trailState.bonus = 0
+    trailState.preview = true
+    trailClock += rawDelta
+    fairyTrail.update(trailClock, rawDelta, trailState)
+  }
   // Space light, air rim, cloud puffs, the deck of Venus and Saturn's ring plane, from the camera.
   updatePlanetLooks(worlds, camera.position)
   sunShading.update(worlds)
@@ -1166,7 +1155,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
       position: [comet.state.position.x, comet.state.position.y, comet.state.position.z],
       away: [comet.state.away.x, comet.state.away.y, comet.state.away.z], distance: comet.state.distance,
       dustLength: comet.state.dust.length, ionLength: comet.state.ion.length, inTail: comet.inTail, glow: comet.glow,
-      visible: comet.group.visible, trailSize: trailMaterial.size, ...comet.stats,
+      visible: comet.group.visible, trailBonus: fairyTrail.bonus, ...comet.stats,
     },
     shootingStars: { ...shootingStars.stats, dark: meteorDark },
     magic: {
@@ -1194,7 +1183,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     },
     candy: ['foliage-lollipop', 'foliage-cane', 'soda-bubbles', 'pegasus-foals'].map(name => home.surface.getObjectByName(name)?.name),
     clouds: { puffs: (home.clouds.getObjectByName('cotton-candy-clouds') as THREE.InstancedMesh | undefined)?.count ?? 0, mist: mistTint.getHexString(), fogDensity: fog.density },
-    rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailShown, trailSize: trailMaterial.size },
+    rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailBonus: fairyTrail.bonus },
+    trail: { design: fairyTrail.design, frame: fairyTrail.frame, points: fairyTrail.points, bonus: fairyTrail.bonus },
     wildlife: worlds.filter(world => world.creatures).map(world => ({
       world: world.name, total: world.creatures!.residents.length,
       kinds: [...new Set(world.creatures!.residents.map(resident => resident.kind))],
@@ -1243,8 +1233,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
     cameraLook.copy(fairy.position).addScaledVector(forward, 12)
     previousFlightPosition.copy(fairy.position)
-    for (let i = 0; i < trailCount; i++) trailPositions.set(fairy.position.toArray(), i * 3)
-    trailGeometry.attributes.position.needsUpdate = true
+    fairyTrail.clear()
   }
 }
 
