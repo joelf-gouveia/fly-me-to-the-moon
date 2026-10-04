@@ -35,7 +35,7 @@ export function startPage(root: HTMLElement) {
   <main>
     <nav class="masthead"><a href="/">← Fly me to the moon</a><span>FIELD STUDY <b>17</b> / EARTH LANDMARKS</span><button id="export" type="button">Save study ↓</button></nav>
     <header class="intro"><div><p class="eyebrow">A MORE VARIED EARTH</p><h1>Twelve wonders, <em>on one small Earth.</em></h1></div>
-      <p>Earth in the game has meadows, rivers, hills and snow. This study adds twelve famous places of the real Earth: a canyon, a volcano, dunes, sea towers, a coral ring, ice, a waterfall, red rock towers, stone columns, a fjord, a rainbow spring and striped hills.<br>Each clip comes from the engine of the game. A photo of the real place is next to it. These landmarks do not change the game. Pick the landmarks you want at the end of the page. <a href="#technical-title">Read the study ↓</a></p></header>
+      <p>Earth in the game has meadows, rivers, hills and snow. This study adds twelve famous places of the real Earth: a canyon, a volcano, dunes, sea towers, a coral ring, ice, a waterfall, red rock towers, stone columns, a fjord, a rainbow spring and striped hills.<br>Each clip comes from the engine of the game. A photo of the real place is next to it. These landmarks do not change the game. <b>Decision, 3 October 2026:</b> the study is kept, and the landmarks are not built, because fixed landmarks make an Earth that is new at each visit more rigid. <a href="#technical-title">Read the study ↓</a></p></header>
 
     <section class="workspace" aria-label="The landmarks in flight">
       <div class="stage-column">

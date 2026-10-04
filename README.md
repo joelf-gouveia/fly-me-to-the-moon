@@ -1004,7 +1004,8 @@ is a patch of fine ground at a place that a search finds, with objects on it: tr
 columns, penguins, a lagoon, waterfalls, steam and a geyser. Its controls do not change
 the game.
 
-The recommendation is the patch method first, then eight landmarks. The
+The study is kept, and the landmarks are not built: fixed landmarks make an Earth that
+is new at each visit more rigid. The game keeps its Earth of today. The
 [technical study](docs/earth-landmarks-study.md) gives the findings, the method, each
 landmark, the cost and the photo credits. The clips are in
 `public/studies/earth-landmarks/`. Run

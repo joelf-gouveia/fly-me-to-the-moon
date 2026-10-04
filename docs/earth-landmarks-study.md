@@ -1,6 +1,7 @@
 # Twelve wonders, on one small Earth: Earth landmarks study
 
-Status: a study, 3 October 2026. No decision yet. Open `/studies/earth-landmarks-study.html`
+Status: a study, 3 October 2026. Decision on 3 October 2026: keep the study, and do not
+build the landmarks (see "Decision"). Open `/studies/earth-landmarks-study.html`
 on the Vite server. The study does not change the game or saved game data. It saves its
 own answers as `fairy-earth-landmarks-study-v1`. The line numbers below describe the game
 on 3 October 2026 (commit `b15d508`).
@@ -9,6 +10,13 @@ Earth in the game has meadows, rivers, hills, mountains and snow. This study loo
 twelve famous landscapes of the real Earth and builds each one on the Earth of the game,
 with study code. Each landmark has a clip from the engine of the game and a photo of the
 real place.
+
+## Decision
+
+On 3 October 2026 Joel decided to keep this study and not to build the landmarks. Earth
+makes a new landscape at each visit. Fixed landmarks make that design more rigid: each new
+Earth has the same twelve places. The game keeps its Earth of today. The recommendation
+and the decisions below stay as a record; they are not a plan.
 
 ## What to review
 
