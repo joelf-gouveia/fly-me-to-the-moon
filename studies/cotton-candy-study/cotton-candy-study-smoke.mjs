@@ -9,7 +9,7 @@ const browserPath = process.argv[2]
 if (!browserPath) throw new Error('Pass a Chromium browser executable')
 const origin = process.argv[3] ?? 'http://127.0.0.1:5174'
 const profile = await mkdtemp(join(tmpdir(), 'cotton-candy-browser-'))
-const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
+const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))

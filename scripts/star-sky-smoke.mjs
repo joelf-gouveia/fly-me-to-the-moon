@@ -1,18 +1,19 @@
 // Checks the star sky in the real game: catalog stars, the Star pictures toggle
 // (lines, names and Webb pictures), the Webb caption with its credit, and the
 // credits in the Worlds dialog. Run against the dev server on port 5174:
-// node scripts/star-sky-smoke.mjs "path/to/chrome.exe"
+// node scripts/star-sky-smoke.mjs "path/to/chrome.exe" [origin]
 import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const browserPath = process.argv[2]
+const origin = process.argv[3] ?? 'http://127.0.0.1:5174'
 if (!browserPath) throw new Error('Pass a Chromium browser executable as the first argument')
 const profile = await mkdtemp(join(tmpdir(), 'star-sky-browser-'))
 const browser = spawn(browserPath, [
   '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
+  ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
@@ -61,7 +62,7 @@ try {
     };
   ` })
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: 'http://127.0.0.1:5174/?test' })
+  await send('Page.navigate', { url: `${origin}/?test` })
   for (let i = 0; i < 80; i++) {
     if (await evaluate('!!window.testFrame && !!window.__fairyTest && !!document.querySelector("#settings-toggle")')) break
     await delay(250)

@@ -17,7 +17,7 @@ const profile = await mkdtemp(join(tmpdir(), 'postcard-browser-'))
 const browser = spawn(browserPath, [
   // Port 0: Chrome picks a free port, so parallel test runs do not share a browser.
   '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
+  ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })

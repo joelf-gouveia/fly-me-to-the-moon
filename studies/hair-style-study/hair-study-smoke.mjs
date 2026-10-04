@@ -6,7 +6,7 @@ import { join } from 'node:path'
 // node studies/hair-style-study/hair-study-smoke.mjs "path/to/chrome.exe"
 if (!process.argv[2]) throw new Error('Pass a Chromium executable')
 const profile = await mkdtemp(join(tmpdir(), 'hair-study-'))
-const browser = spawn(process.argv[2], ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
+const browser = spawn(process.argv[2], ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const out = 'artifacts.local/hair-study'
 const candidates = ['pixie', 'spaceBuns', 'cloudCurls', 'ponytail', 'crownBraid', 'braid', 'twinBraids', 'longWaves']

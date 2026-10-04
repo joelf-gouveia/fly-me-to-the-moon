@@ -140,10 +140,44 @@ was not recorded. The second run passed all steps.
 The check selected the wing shape "luna". The game now has six new wing shapes, and the
 check stopped at that step. It now selects "glitter".
 
+### 13. "Fly there" does not show for the nearest world, also from far away
+
+- [ ] Let the fairy fly to the nearest world with **Fly there** when she is not near it.
+
+In **Worlds**, the card of the nearest world says "You are here" and has no **Fly there**
+(`here` in `src/adventure.ts:200` is the nearest world at any distance). A fairy in open
+space, 2.5 km from Earth, cannot fly home with the book when Earth is the nearest world. Use
+the near test of the flight panel (`updateNearestWorld()` in `src/main.ts`) for `here`.
+
+This fault makes `scripts/browser-smoke.mjs` fail in about one run of five: "Return from space
+failed to generate a new Earth" (4 of 21 runs). The check climbs for 9 s and then selects
+Earth in **Worlds**. The result depends on the random start direction: the check passes only
+when a different world is the nearest one after the climb.
+
+### 14. `scripts/browser-smoke.mjs` did not know the trail of the saved look
+
+- [x] Read only the parts of the look that the check selects. The saved look has a new part,
+  `trail`, since the sparkle trails of the fairy. The check compared the whole text.
+
+### 12. The comet check failed when the weather of Earth covered the night sky
+
+- [x] Give the check a clear sky: `scripts/comet-smoke.mjs` now loads `?test&weather=clear`.
+  Five of five runs then passed.
+
+The weather of Earth lowers the sky visibility under clouds. The shooting stars show only in a
+dark, clear sky, so the night step of the check failed in two of four runs.
+
 ### 11. The browser checks are very slow with software graphics
 
-- [ ] Give the check scripts an option for the graphics card, as `scripts/sun-smoke.mjs`
-  has (`--swiftshader` selects software graphics there).
+- [x] Use the graphics card in each check script. `FAIRY_SWIFTSHADER=1` selects software
+  graphics. 35 scripts: 19 in `scripts/` and 16 in `studies/`.
+- [x] Run the checks at the same time: `node scripts/run-checks.mjs "path/to/chrome.exe"`.
+  All 20 game checks pass in 215 s with 4 at the same time, and in 128 s with 8.
+- [x] Run only the checks for a change: `--changed`. The files of each check are `CHECKS` in
+  `scripts/run-checks.mjs`.
+- [ ] Add each new check, and its files, to `CHECKS` in `scripts/run-checks.mjs`.
+- [ ] Give the 10 study checks with a fixed address (port 5174) a server address argument, so
+  a runner can start them too. They are not in the runner today.
 
 With software graphics and the new foliage, the Blossom Haven check takes 1,667 s, the
 sticker book check 1,595 s and the asteroid belt check more than 2,400 s. With the graphics
@@ -155,7 +189,7 @@ card each check takes 10 to 30 s. A screenshot can also go over the 90 s limit o
 
 - [x] Merge into `master`: merge `28a5992` of 4 October 2026. The type check, the 403 unit
   tests and the build pass on `master`.
-- [ ] Delete the worktree `todo-fixes` and the branch `fixes/todo-faults`. The branch
+- [x] Delete the worktree `todo-fixes` and the branch `fixes/todo-faults`. The branch
   has four commits: `7edc7d6`, `b148c58`, `e8df920` and `b7ff6ca`. The type check, the 360
   unit tests and the build pass. These browser checks pass on it: Blossom Haven, wildlife,
   Moon, asteroid belt, sticker book, Settings, sparkle rings, comet, creature hello, postcard
