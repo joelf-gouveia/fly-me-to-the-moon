@@ -10,10 +10,20 @@ export const hairOptions = [
   { id: 'longWaves', label: 'Long waves' },
 ] as const
 
+// The wings of src/fairy-wings/designs.ts, in the same order.
 export const wingOptions = [
-  { id: 'petal', label: 'Petal' },
-  { id: 'luna', label: 'Luna' },
-  { id: 'flutter', label: 'Flutter' },
+  { id: 'dew', label: 'Dew glass' },
+  { id: 'glitter', label: 'Glitter vein' },
+  { id: 'leaf', label: 'Leaf glass' },
+  { id: 'silk', label: 'Silk pleats' },
+  { id: 'rainbow', label: 'Rainbow cells' },
+  { id: 'swirl', label: 'Swirl and gems' },
+  { id: 'monarch', label: 'Monarch' },
+  { id: 'swallowtail', label: 'Swallowtail' },
+  { id: 'frost', label: 'Frost' },
+  { id: 'star', label: 'Starlight' },
+  { id: 'autumn', label: 'Autumn leaf' },
+  { id: 'aurora', label: 'Aurora' },
 ] as const
 
 export const hairColorOptions = [
@@ -56,6 +66,14 @@ export const wingColorOptions = [
   { id: 'pearl', label: 'Pearl', color: 0xf4f1ea, sparkle: 0xfff0d0 },
 ] as const
 
+// The sparkle trail, from the fairy trail study (docs/fairy-trail-study.md). The ids are those of src/fairy-trail.ts.
+export const trailOptions = [
+  { id: 'pixie', label: 'Pixie dust' },
+  { id: 'tail', label: 'Comet tail' },
+  { id: 'halo', label: 'Sparkle halo' },
+  { id: 'feet', label: 'Shimmer steps' },
+] as const
+
 export const skinOptions = [
   { id: 'porcelain', label: 'Porcelain', color: 0xf8dccb },
   { id: 'peach', label: 'Peach', color: 0xefba9f },
@@ -75,6 +93,7 @@ export const lookOptions = {
   dress: dressOptions,
   wings: wingOptions,
   wingColor: wingColorOptions,
+  trail: trailOptions,
   skin: skinOptions,
 } as const
 
@@ -88,8 +107,9 @@ export const defaultFairyLook: FairyLook = {
   hair: 'bun',
   hairColor: 'plum',
   dress: 'rose',
-  wings: 'petal',
+  wings: 'dew',
   wingColor: 'dewdrop',
+  trail: 'pixie',
   skin: 'peach',
 }
 
@@ -99,6 +119,9 @@ const legacyPalettes: Record<string, Pick<FairyLook, 'hairColor' | 'dress' | 'wi
   moon: { hairColor: 'moonlight', dress: 'moon', wingColor: 'moonbeam' },
   fern: { hairColor: 'chestnut', dress: 'fern', wingColor: 'leaf' },
 }
+
+// The three wings of before the wing study. A saved look gets the new wing that is nearest in shape.
+const legacyWings: Record<string, WingStyle> = { petal: 'dew', luna: 'glitter', flutter: 'swirl' }
 
 export function isLookValue<Part extends LookPart>(part: Part, value: unknown): value is FairyLook[Part] {
   return lookOptions[part].some(({ id }) => id === value)
@@ -115,6 +138,7 @@ export function parseFairyLook(value: unknown): FairyLook {
   for (const part of Object.keys(lookOptions) as LookPart[]) {
     if (isLookValue(part, saved[part])) look[part] = saved[part]
   }
+  if (typeof saved.wings === 'string' && Object.hasOwn(legacyWings, saved.wings)) look.wings = legacyWings[saved.wings]
   return look as FairyLook
 }
 

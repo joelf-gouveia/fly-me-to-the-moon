@@ -63,7 +63,9 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   const tools = host.querySelector<HTMLElement>('.adventure-tools')!
   // The map shows the path of each known world. The Orbit paths switch of Settings shows them in the sky only.
   let celebrationTime = 0, moveNoticeTime = 0, opener: HTMLElement | null = null
-  let here: StickerId = 'earth', selected: StickerId | null = null, flyTo: StickerId | null = null
+  // The world where the fairy is: the nearest world, but only when she is near it (the near test of the
+  // flight panel). In open space she is at no world, so each open world has "Fly there".
+  let here: StickerId | null = 'earth', selected: StickerId | null = null, flyTo: StickerId | null = null
   const worldOf = (id: StickerId) => worlds.find(world => world.kind === id)!
   const colourOf = (id: StickerId) => `#${new THREE.Color(worldOf(id).color).getHexString()}`
 
@@ -176,7 +178,7 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
       get('home-celebration').hidden = false
       host.querySelector<HTMLElement>('.celebration-petals')!.hidden = false
     },
-    update(camera: THREE.Camera, hint: THREE.Vector3, nearest: World, delta: number, state: { started: boolean; following: boolean; suspended: boolean; obscured: boolean }) {
+    update(camera: THREE.Camera, hint: THREE.Vector3, nearest: World, delta: number, state: { started: boolean; following: boolean; suspended: boolean; obscured: boolean; near: boolean }) {
       tools.hidden = !state.started || state.obscured
       get('stop-home').hidden = !state.following
       // The help line shows only while the flower guide is on.
@@ -201,7 +203,8 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
         beacon.classList.toggle('at-edge', edge > 1)
         beacon.querySelector('small')!.style.transform = `rotate(${Math.atan2(x, y) * 180 / Math.PI}deg)`
       }
-      if (nearest.kind !== here) { here = nearest.kind; refresh() }
+      const at = state.near ? nearest.kind : null
+      if (at !== here) { here = at; refresh() }
       if (map.open) {
         // Map projections use the star's center and live planet coordinates.
         const cx = sunCenter.x

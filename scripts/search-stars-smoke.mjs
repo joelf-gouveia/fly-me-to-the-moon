@@ -129,7 +129,7 @@ try {
   }
   // The cards of the book are under the map: show the card of a world in the screenshot.
   const showCard = kind => evaluate(`document.querySelector('[data-world="${kind}"]').scrollIntoView({ block: 'center' })`)
-  const place = (kind, direction, height) => evaluate(`__fairyTest.place(${JSON.stringify(kind)}, ${JSON.stringify(direction)}, ${height})`)
+  const place = (kind, direction, height) => evaluate(`__fairyTest.placeOver(${JSON.stringify(kind)}, ${JSON.stringify(direction)}, ${height})`)
   // A find waits until the note of the last sticker is gone.
   const waitForNote = async () => {
     await evaluate('releaseNote()')

@@ -1,0 +1,36 @@
+/* The additions of the fairy wing study to the page look of the studies (feature-ideas-study/page.css). */
+.stage-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px }
+.stage-bar .chips button { padding: 5px 10px; min-height: 32px; font-variant-numeric: tabular-nums }
+.bar-label { font-size: 10px; font-weight: 650; letter-spacing: .14em; color: #a9b5cc }
+.live-stage { cursor: grab; touch-action: pan-y }
+.live-stage:active { cursor: grabbing }
+.live-tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; padding: 12px 16px; border-top: 1px solid #2b3350 }
+.levers { display: flex; flex-wrap: wrap; gap: 2px 16px }
+.swatches { display: flex; flex-wrap: wrap; gap: 6px }
+.swatches button { width: 30px; min-height: 30px; height: 30px; padding: 0; border-radius: 50%; background: var(--swatch); border: 2px solid #070b18; outline: 1px solid #36405a }
+.swatches button[aria-pressed=true] { outline: 2px solid #f6d9aa; background: var(--swatch) }
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 0 }
+.cost { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin: 6px 0 0 }
+.cost div { border-top: 1px solid #2b3350; padding-top: 7px }
+.cost dt { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #97a3bb }
+.cost dd { margin: 0; font-family: Georgia, serif; font-size: 20px; color: #f0d6a8 }
+/* The card shows the middle of the picture, so the wings are large. */
+.idea-card img { aspect-ratio: 5 / 4; object-position: 50% 30% }
+.idea-cards.before { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 30px }
+.shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px }
+.shots.four { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.shots figure { margin: 0; border: 1px solid #2b3350; border-radius: 10px; overflow: hidden; background: #0d1326 }
+.shots img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #02030f }
+.shots figcaption { padding: 10px 14px; font-size: 12px; color: #aab5ca }
+.shots figcaption b { color: #f0d6a8; font-weight: 600 }
+.lever-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 28px; margin: 26px 0 0; padding: 0; list-style: none }
+.lever-list li { padding: 16px 0; border-top: 1px solid #2b3350; min-width: 0 }
+.lever-list p { font-size: 12px; color: #aab5ca; margin-bottom: 0 }
+.decisions fieldset[data-decision=wings] { grid-column: 1 / -1; padding-right: 0; border-bottom: 1px solid #2b3350 }
+.decisions fieldset[data-decision=wings] .choices { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0 18px }
+.decisions fieldset[data-decision=wings] + fieldset { border-left: 0; padding-left: 0 }
+.decisions fieldset:nth-of-type(n + 5) { border-top: 1px solid #2b3350 }
+.decisions fieldset:nth-of-type(5) { border-left: 0; padding-left: 0 }
+@media (max-width: 1250px) { .shots.four { grid-template-columns: 1fr 1fr } .decisions fieldset[data-decision=wings] .choices { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
+@media (max-width: 1000px) { .shots, .lever-list { grid-template-columns: 1fr 1fr } .decisions fieldset[data-decision=wings] .choices { grid-template-columns: 1fr 1fr } }
+@media (max-width: 740px) { .shots, .shots.four, .lever-list, .idea-cards.before { grid-template-columns: 1fr } }

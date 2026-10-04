@@ -1,0 +1,125 @@
+{
+  "E0": {
+    "trees": 5313,
+    "small": 21252,
+    "kinds": 3,
+    "triangles": 233772,
+    "zones": {},
+    "ms": 0,
+    "drawn": {
+      "calls": 86,
+      "triangles": 723256
+    }
+  },
+  "E1": {
+    "trees": 5465,
+    "small": 16410,
+    "kinds": 8,
+    "triangles": 1056461,
+    "zones": {
+      "mixed": 5465
+    },
+    "ms": 124,
+    "drawn": {
+      "calls": 91,
+      "triangles": 1545945
+    }
+  },
+  "E2": {
+    "trees": 4907,
+    "small": 11210,
+    "kinds": 14,
+    "triangles": 958972,
+    "zones": {
+      "taiga": 1561,
+      "temperate": 1542,
+      "tundra": 336,
+      "desert": 198,
+      "jungle": 948,
+      "beach": 123,
+      "savanna": 199
+    },
+    "ms": 108,
+    "drawn": {
+      "calls": 97,
+      "triangles": 1448456
+    }
+  },
+  "E3": {
+    "trees": 5468,
+    "small": 13821,
+    "kinds": 12,
+    "triangles": 1262169,
+    "zones": {
+      "summer": 1342,
+      "winter": 1381,
+      "autumn": 1407,
+      "spring": 1338
+    },
+    "ms": 116,
+    "drawn": {
+      "calls": 102,
+      "triangles": 1752101
+    }
+  },
+  "H0": {
+    "trees": 586,
+    "small": 953,
+    "kinds": 7,
+    "triangles": 774652,
+    "zones": {},
+    "ms": 0,
+    "drawn": {
+      "calls": 205,
+      "triangles": 1465700
+    }
+  },
+  "H1": {
+    "trees": 1887,
+    "small": 4505,
+    "kinds": 9,
+    "triangles": 1062716,
+    "zones": {
+      "sweet": 1887
+    },
+    "ms": 39,
+    "drawn": {
+      "calls": 210,
+      "triangles": 1754520
+    }
+  },
+  "H2": {
+    "trees": 1817,
+    "small": 4156,
+    "kinds": 11,
+    "triangles": 815905,
+    "zones": {
+      "grove": 685,
+      "peaks": 267,
+      "orchard": 429,
+      "glade": 436
+    },
+    "ms": 20,
+    "drawn": {
+      "calls": 206,
+      "triangles": 1506197
+    }
+  },
+  "H3": {
+    "trees": 1764,
+    "small": 4826,
+    "kinds": 9,
+    "triangles": 1041602,
+    "zones": {
+      "blossom": 1004,
+      "meadow": 349,
+      "lane": 95,
+      "hills": 316
+    },
+    "ms": 29,
+    "drawn": {
+      "calls": 115,
+      "triangles": 1557462
+    }
+  }
+}

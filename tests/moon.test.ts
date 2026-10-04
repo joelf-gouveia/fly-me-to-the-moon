@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { describe, expect, it } from 'vitest'
 import { earthshineAt, MOON, MOON_SIDEREAL_SECONDS, MOON_YEAR_SECONDS, moonlightAt, moonOffset, tidalQuaternion, touchesMoonPath } from '../src/moon'
 import { createPlanetaryOrbits, SOLAR_ORBIT_SECONDS } from '../src/orbits'
+import { PROPORTIONS } from '../src/proportions'
 import { clearHomePosition } from '../src/relocation'
 import { createTerrain } from '../src/terrain'
 import type { World } from '../src/worlds'
@@ -60,16 +61,18 @@ describe('the Moon', () => {
   })
 
   it('keeps Blossom Haven out of the whole Moon path', () => {
-    const earth = fixture('earth', 220, earthStart, 78), sun = fixture('sun', 600, new THREE.Vector3())
-    const home = fixture('fairy', 110, new THREE.Vector3(10000, 1200, 9000), 52)
-    const moon = fixture('moon', MOON.radius, earthStart.clone().add(new THREE.Vector3(0, 0, MOON.orbit)))
+    // Earth at its orbit in the game (3,300 base units at the spacing of src/proportions.ts), clear of the comet.
+    const earthOrbit = 3300 * PROPORTIONS.spacing, earthPlace = earthStart.clone().multiplyScalar(PROPORTIONS.spacing)
+    const earth = fixture('earth', 220, earthPlace, 78), sun = fixture('sun', 600, new THREE.Vector3())
+    const home = fixture('fairy', 110, new THREE.Vector3(10000, 1200, 9000).multiplyScalar(PROPORTIONS.spacing), 52)
+    const moon = fixture('moon', MOON.radius, earthPlace.clone().add(new THREE.Vector3(0, 0, MOON.orbit)))
     // 1,200 m from Earth toward the Sun, far from the Moon now: clear without a Moon, but in its path.
-    const place = earthStart.clone().multiplyScalar(1 - 1200 / 3300)
+    const place = earthPlace.clone().multiplyScalar(1 - 1200 / earthOrbit)
     const fairy = new THREE.Vector3(-9000, 0, 0)
     expect(clearHomePosition(place, home, [earth, sun, home], fairy, false)).toBe(true)
     expect(clearHomePosition(place, home, [earth, moon, sun, home], fairy, false)).toBe(false)
     expect(touchesMoonPath(place, earth.group.position, 204 + 250)).toBe(true)
-    const outside = earthStart.clone().multiplyScalar(1 - 1700 / 3300)
+    const outside = earthPlace.clone().multiplyScalar(1 - 1700 / earthOrbit)
     expect(clearHomePosition(outside, home, [earth, moon, sun, home], fairy, false)).toBe(true)
   })
 

@@ -1,6 +1,8 @@
 import * as THREE from 'three'
-import { lookColors, wingOptions } from './customization'
-import type { FairyLook, WingStyle } from './customization'
+import { lookColors } from './customization'
+import type { FairyLook } from './customization'
+import { designById } from './fairy-wings/designs'
+import { createFairyWings } from './fairy-wings/wings'
 import { buildHairStyles, hairMotion } from './fairy-hair'
 import { buildBody, createJoints, poseTargets, storybookBody } from './fairy-body'
 
@@ -32,6 +34,9 @@ export const directions = [
 ] as const
 
 export type Direction = typeof directions[number]
+/** The three wings of before the wing study (docs/fairy-wing-study.md). */
+export const classicWings = ['petal', 'luna', 'flutter'] as const
+export type ClassicWing = typeof classicWings[number]
 // body: false leaves out the body below the head, for the body study (src/body-study).
 export function createFairyRig({ withTrail = true, body: withBody = true } = {}) {
   const root = new THREE.Group()
@@ -96,11 +101,13 @@ export function createFairyRig({ withTrail = true, body: withBody = true } = {})
   })
   const wingEdge = new THREE.LineBasicMaterial({ color: 0xb0e0d7, transparent: true, opacity: 0.9 })
   const wings: { pivot: THREE.Group; side: number; lower: boolean }[] = []
-  const wingStyles = {} as Record<WingStyle, THREE.Group>
-  for (const { id: style } of wingOptions) {
+  // The three wings of before stay in the rig, hidden. Their pivots give the wing beat to the wings
+  // of the look, and the studies measure and show their shapes.
+  const wingStyles = {} as Record<ClassicWing, THREE.Group>
+  for (const style of classicWings) {
     const group = new THREE.Group()
     group.name = `wings-${style}`
-    group.visible = style === 'petal'
+    group.visible = false
     wingStyles[style] = group
     body.add(group)
   for (const side of [-1, 1]) {
@@ -137,10 +144,12 @@ export function createFairyRig({ withTrail = true, body: withBody = true } = {})
   }
 
   }
+  const fairyWings = createFairyWings(body, wingStyles.petal.children)
 
   function applyLook(look: FairyLook) {
     for (const [name, group] of Object.entries(hairStyles.groups)) group.visible = name === look.hair
-    for (const [name, group] of Object.entries(wingStyles)) group.visible = name === look.wings
+    for (const group of Object.values(wingStyles)) group.visible = false
+    fairyWings.show(designById(look.wings)!, look)
     const colors = lookColors(look)
     skin.color.setHex(colors.skin)
     dress.color.setHex(colors.dress)
@@ -175,6 +184,7 @@ export function createFairyRig({ withTrail = true, body: withBody = true } = {})
       else object.material = enabled ? silhouetteMaterial : material
     })
     dust.visible = withTrail && !enabled
+    fairyWings.setSilhouette(enabled ? silhouetteMaterial : null)
   }
 
   function pose(preset: Direction, boost: number, time: number, leanOverride?: number, wingPhase?: number) {
@@ -188,6 +198,9 @@ export function createFairyRig({ withTrail = true, body: withBody = true } = {})
       pivot.rotation.z = side * (lower ? -0.03 : 0.05) + side * Math.sin(wingBeat - 0.2) * 0.045
       pivot.scale.set(preset.wingWidth, 1, 1)
     })
+    // The speed of the beat of the upper and the lower wings, for the bend of the wing tips.
+    const beatRate = Math.PI * 2 * THREE.MathUtils.lerp(preset.rate, preset.fastRate, boost) * THREE.MathUtils.lerp(0.55, 0.35, boost)
+    fairyWings.update(time, Math.cos(wingBeat) * beatRate, Math.cos(wingBeat - 0.45) * beatRate)
     poseTargets(preset, boost, time, targets)
     storybook?.update(boost, time, wingBeat, lean, targets)
     for (let i = 0; withTrail && i < 48; i++) {
@@ -210,7 +223,8 @@ export function createFairyRig({ withTrail = true, body: withBody = true } = {})
     }
   }
   // joints, targets and materials are read access for studies (src/body-study).
-  return { root, pose, setSilhouette, applyLook, animateHair, joints, targets, materials }
+  // wings and classicWings are for the wing study and for the daylight of the game.
+  return { root, pose, setSilhouette, applyLook, animateHair, joints, targets, materials, wings: fairyWings, classicWings: wingStyles }
 }
 
 

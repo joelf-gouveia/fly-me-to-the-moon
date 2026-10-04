@@ -135,8 +135,16 @@ plays. Each creature says hello again only after 8 s.
   three hearts.
 - Note: `creatures.update()` puts each model back on its route at each frame. The hop
   must come after it: in the game, `greet()` runs after `update()`.
+- Status: in the game. `greet()` of `createPopulation()` and `src/creatures/hello.ts`
+  hold the feature. It works on Earth and on Blossom Haven. Ducks and Frog Princes bob.
+  The hearts are one point cloud (one draw call), half on a phone.
+  `scripts/creature-hello-smoke.mjs` checks it in the game.
 
 ### F4 · Sparkle rings
+
+Status: in the game. Earth has five lines of rings, Blossom Haven and the Moon have three.
+The code is in `src/rings.ts`, and the check is `scripts/sparkle-rings-smoke.mjs`. See the
+Sparkle rings part of `README.md`.
 
 A short line of glowing rings floats over the meadow. The fairy flies through a ring: a
 burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes back after
@@ -151,6 +159,11 @@ burst of sparkles, a two-note chime, and a longer trail for 4 s. A ring comes ba
   colours. Each ring gives a burst, a chime and a longer trail.
 
 ### F5 · Postcard camera
+
+Status: in the game on 3 October 2026. See "Postcard camera" in `README.md`. The game
+flight waits while the postcard is open, as for Settings; the clip shows the flight behind
+the card. On a touch screen the camera is **Postcard** in **Menu**. **Save** downloads a PNG
+of the whole card; the note says "Saved to Downloads". `scripts/postcard-smoke.mjs` checks it.
 
 A camera button, a soft flash, and a postcard with the picture, a frame and the name of
 the world. **Save** keeps it on the device; **Share** sends it to Photos on an iPad.
@@ -210,6 +223,10 @@ The left stick steers, A boosts, B pauses and X toggles hover.
 
 A comet with a tail that always points away from the Sun, and shooting stars in the
 night sky of Earth.
+
+Status: in the game on 3 October 2026. One pass of the comet takes 600 s at 1× World
+speed. The comet is not a sticker. Shooting stars show in the air of each world with air.
+See the Comet and shooting stars section of `README.md`.
 
 - Change: a new `src/comet.ts`, updated next to `orbits.update()`. The shooting stars use
   `skyVisibility` of `updateEnvironment()`, so they show only in a dark sky.

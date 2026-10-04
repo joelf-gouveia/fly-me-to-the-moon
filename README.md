@@ -40,21 +40,26 @@ A study can use code from `src/`. The code in `src/` does not use code from
 - Release the controls near a planet to cruise along its curvature.
 - Shift: faster flight; Q: hover; Space or the pause button: pause.
 - On a computer the screen has **Worlds** at the top left, with the sticker
-  count, and three round buttons at the bottom right: **Your fairy**, **Settings**
-  and pause. **Settings** has the sound, the sky switches, World speed and the keys.
+  count, and four round buttons at the bottom right: **Your fairy**, the camera
+  (**Postcard**), **Settings** and pause. **Settings** has the sound, the sky switches,
+  World speed and the keys. See [Postcard camera](#postcard-camera).
 - Open **Worlds**, tap a world, then **Fly there** for a guided journey. A new book
   opens Earth, Blossom Haven and the Moon; each new sticker opens the next world
   (see [Sticker book](#sticker-book)). Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
   a held **Boost** button and a **Hover / Fly** toggle. **Menu** holds the extra
-  controls and flight details. Switching apps pauses until **Keep flying** is tapped.
+  controls (**Your fairy**, **Postcard** and **Settings**) and flight details. Switching apps pauses until **Keep flying** is tapped.
 
 For phone/iPad play on home Wi-Fi, run `npm run play:lan` and open the printed
 Network URL on the device. See [Mobile play](docs/mobile-play.md) for controls,
 performance settings and the remaining physical-device validation.
 
-Earth has raised terrain, meadows, trees, sea-level rivers and oceans, and a
-cloud layer. Leaving well beyond the atmosphere arms a new visit; descending
+Earth has raised terrain, meadows, sea-level rivers and oceans, and a cloud layer. Its
+plants follow the climate (look B of the [foliage study](#foliage-study)): palm beaches,
+jungle, savanna and desert near the equator, then leaf forest, pine forest, and snow pines
+near the snow. The trees stand in woods with glades between them, the grass has the
+colour of its belt, and the plants move in the wind. The flight panel names the belt
+below the fairy. The plants are in `src/foliage/`. Leaving well beyond the atmosphere arms a new visit; descending
 back into the upper atmosphere regenerates the landscape once. Flying through
 clouds alone does not change it. Other natural planets also regenerate on arrival;
 Blossom Haven keeps the same familiar landscape.
@@ -65,6 +70,12 @@ rather than a rocky surface. All scales and atmospheric effects are stylized:
 Earth is 550 game metres across, and cruising around it takes about 2.7 minutes.
 Travel speed grows outside the atmosphere to keep the solar system reachable:
 up to 968 m/s in open space, or 2,226 m/s with Shift.
+
+A world carries the fairy along its orbit while she is close to it: fully below 600 m
+above the world, and less and less up to 1,500 m. Near a world she flies as slowly as
+32 m/s, and Blossom Haven moves at about 59 m/s on its orbit. Without the carry, a fairy
+who follows a world from behind stays about 158 m above it. Inside the air of a world she
+also turns with it, as before. The numbers are `WORLD_CARRY` in `src/flight.ts`.
 
 The sizes and distances come from the [proportions study](#proportions-study).
 World data is in base units; `src/proportions.ts` multiplies every radius, air and
@@ -96,6 +107,34 @@ when it is low. The blue sky hides the corona and the loops, as in the real sky.
 use a lighter shader, and reduced motion stops the Sun. The numbers are in
 `src/sun-look.ts`; the shaders are in `src/sun-paint.ts`.
 
+## Sparkle rings
+
+Short lines of glowing rings in candy colours float 5 to 12 m over the ground of Earth,
+Blossom Haven and the Moon. Fly through a ring: a burst of sparkles, a two-note chime
+(when Sound is on), and a trail that is twice as long and brighter for 4 s. A taken ring
+fades and comes back after 30 s of flight. There is no score, no fail and no counter.
+
+- Each line has 5 to 7 rings on a smooth, gentle curve. Earth has five lines, Blossom
+  Haven and the Moon have three. The first line of Earth starts near the first meadow,
+  ahead of the fairy. The first line of Blossom Haven is behind the cottage. The first
+  line of the Moon is on its near side.
+- Each ring is clear of the ground, the trees, the candy, the cottage and the water edge.
+  The rings of Blossom Haven are higher (9 to 11 m), over the candy canes.
+- The rings are in the group of their world, so they turn and move with it, also when
+  Blossom Haven moves. A new Earth landscape gets new lines. The same seed gives the same
+  lines.
+- The ring test uses the path of the fairy between two frames, so a fast fairy cannot skip
+  a ring.
+- One torus, one glow quad and three materials serve all rings: two draw calls for each
+  world. A phone gets 24 sparkles in a burst instead of 48.
+
+The placement and the ring test are in `src/rings.ts`; the tests are in
+`tests/rings.test.ts`. Run `node scripts/sparkle-rings-smoke.mjs "path/to/chrome.exe"`
+against the dev server for the rings on each world, a pass with the chime, the burst and
+the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
+Blossom Haven, new rings after a new Earth landscape, and the phone layout. An optional
+second argument sets the server origin.
+
 ## Asteroid belt
 
 The asteroid belt fills the space between Mars and Jupiter, 12,125 to 13,875 m from
@@ -116,6 +155,43 @@ Run `node scripts/asteroid-belt-smoke.mjs "path/to/chrome.exe"` against the dev
 server for a guided trip through the belt to Ceres and Vesta, the Worlds
 pictures, the home check and the phone budget. An optional second argument sets
 the server origin, for example a server without file watching.
+
+## Comet and shooting stars
+
+A comet goes around the Sun on a long ellipse through the inner solar system: from
+2,200 m (between the Sun and Mercury) to 14,000 m (the outer edge of the asteroid belt).
+Its orbit is tilted 20°, so it passes 1,900 m above or below the orbit of Earth. One pass
+takes 600 s (10 minutes) at 1× World speed, so a child sees it often. Six passes fill one
+game year, so the comet comes back with the planets. World speed makes it faster. It is
+fast near the Sun and slow far from it. The first pass near Earth comes about 90 s after
+the start.
+
+The comet has an icy nucleus, a glowing coma, a warm dust tail and a faint blue ion tail.
+Both tails point away from the Sun, and they are longer near the Sun (450 to 2,000 m for
+the dust tail). The dust tail bends back along the orbit. The comet fades inside
+atmospheres, as the stars and the belt do. It is not a world: it has no sticker, it is not
+in **Worlds**, and the fairy flies through it.
+
+When the fairy flies through a tail, sparkles burst around her and stream behind her, and
+her trail grows. The sparkles and the larger trail stay for 4 s after the tail. A soft
+chime plays when the sound is on. The flight panel says **Comet tail**.
+
+Shooting stars cross the night sky inside the air of each world with air, for example
+Earth, Blossom Haven, Mars and Venus. A shooting star is a thin bright streak with a
+glowing head, and it fades in 0.8 s. One comes every 2.5 to 6.5 s, at random. There are
+none by day, none in open space and none in a light sky. Venus counts as dark at night
+under its haze.
+
+Blossom Haven never relocates into the path of the comet or into its tails. The comet
+does not turn with the planets, so the check uses the whole path. Phones draw half of the
+tail particles and sparkles. With reduced motion, the tail is still and there are no
+shooting stars. The comet data and rules are in `src/comet.ts`; the comet scene is in
+`src/comet-sky.ts`; the shooting stars are in `src/shooting-stars.ts`.
+
+Run `node scripts/comet-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+comet from space, the tails away from the Sun, a pass through the tail, shooting stars on
+Earth at night and none by day, in open space or with reduced motion, and the phone budget
+at 390 px. An optional second argument sets the server origin.
 
 ## The Moon
 
@@ -149,11 +225,101 @@ picture nearest the middle of the view shows a caption with its ESA/Webb credit;
 **Settings** lists every credit. Sources and
 limits are in [Star scenery data](docs/star-data.md).
 
+## Seasons
+
+Earth has seasons. Its axis leans 23.4°, as the axis of the real Earth does, and one orbit
+is one year: 60 minutes at 1× World speed. The year starts at the real date of the device,
+so in October the north of the game is in autumn. The place changes the season: the north
+has summer while the south has winter, the lands near the equator have no season, and near
+a pole the Sun does not set in summer and does not rise in winter. The noon Sun is high
+in summer and low in winter, and the days are long in summer and short in winter.
+
+The grass takes the colour of its season. The broadleaf trees, the birches and the bushes
+get blossom in spring and gold and red leaves in autumn, and they are bare in winter. The
+pines, the palms and the cactus stay green. The flowers are out in spring and summer. The
+snow line comes down to 28° in winter, mountains get snow first, and the sea near a cold
+pole has ice. Petals, leaves or snow fall near the fairy. The flight starts in the leaf
+forest of the north, from 24° to 34°. The season code is in `src/seasons.ts` and
+`src/season-air.ts`; the [seasons study](docs/seasons-study.md) gives the model and the
+decisions.
+
+Run `node scripts/seasons-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+lean, the year from the real date, the start in each season and the air. On the dev
+server, `/?test&year=0.875` starts in the winter of the north.
+
+Blossom Haven has magic seasons of its own. They are not the seasons of Earth: the planet
+does not lean, and the Sun does not make them. There are four, in this order:
+
+| Season | Ground | Plants that grow in this season | Air |
+| --- | --- | --- | --- |
+| Blossom time | The colours of the four gardens | Blossom trees and giant flowers | Petals |
+| Bubble time | Mint green | Bubble blooms: clear bubbles on thin stems | Bubbles |
+| Lantern time | Violet | Giant toadstools that glow | Fireflies |
+| Crystal time | Frost white | Sugar crystals | Glitter |
+
+A visit starts in Blossom time. Each hop of the planet (each 5 minutes) brings the next
+season, so a magic year is 20 minutes, and the look changes in about 20 s. A new season
+starts at the cottage and goes out over the planet in a ring: the far side gets it three
+seasons later, so the planet shows two or three seasons at one time. The plants of a
+season grow from the ground when it comes and go back when it leaves; the candy of the
+four gardens stays all year. A season plant does not stand in a plant of the gardens or on
+the path of a creature. The toadstools of Lantern time glow softly by day and fully at
+night. The flight panel shows the season below the fairy, for example "Bubble time ·
+Lollipop grove". A phone gets half of the season plants. The code is in
+`src/magic-seasons.ts`.
+
+Run `node scripts/magic-seasons-smoke.mjs "path/to/chrome.exe"` against the dev server for
+the four seasons at the cottage, the next season after a hop, a pause and the phone. On
+the dev server, `/?test&magic=0.5` starts in Lantern time.
+
+
+## Weather
+
+Earth has weather. Four things make the weather of a place: the place (the moisture of
+its climate belt), the season, the hour and the fronts that move around the planet. So the
+jungle has warm rain, the desert has a clear sky, the rain belt of the tropics follows
+the Sun, and the rain is snow where the air is cold. The weather is calm: the planet has
+only one or two fronts at a time, and about 87% of it has Sun, with groups of small clouds
+in the clear sky. A front goes around the planet in 40 minutes, and a shower passes a
+place in about 3 minutes. Each new Earth has new weather.
+
+One small weather map (128 × 64, and 64 × 32 on a phone) holds the cloud, the rain, the
+snow and the wet ground of each place. The game calculates one sixteenth of it on each
+frame. Each part of Earth reads it:
+
+- **Clouds.** Solid heap clouds with a flat base take the place of the puffs. They are
+  small in fair weather and tall and grey in the rain. High wisps are above them, a grey
+  layer closes the sky under a front, and a soft rain curtain shows the rain from far away.
+- **Rain and snow.** Rain lines fall near the fairy, and the wind leans them. Snow falls
+  only under a snow cloud.
+- **Sky and light.** Under a cloud the sky is grey and the light is soft. Rain and mist
+  make the view shorter. Mist lies on low ground at dawn. A rainbow stands opposite to a
+  Sun that is lower than 42°. Thunder is a glow in a cloud far away.
+- **Ground, water and plants.** A cloud makes a shadow. Rain makes the ground dark and
+  wet and the water dull, and fresh snow stays in the cold. The wind of the plants is
+  calm under a clear sky and strong in a front.
+- **Stars.** The stars, the asteroid belt, the comet and the shooting stars show only
+  where the night sky is clear.
+
+With reduced motion the rain stands still and the thunder does not flash. A phone gets
+half the heap clouds and half the rain lines, and no high wisps. The weather code is in
+`src/weather.ts`, `src/weather-clouds.ts` and `src/weather-air.ts`; the
+[weather study](docs/weather-study.md) gives the model and the decisions. The sound of
+the weather, the creatures and the sticker tasks are the next step. The other worlds
+keep their puffs.
+
+Run `node scripts/weather-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+browser check. `/?test&weather=rain` gives the whole planet one weather (`clear`, `rain`,
+`storm` or `mist`) on the dev server.
+
 ## Blossom Haven
 
 The flower button leads to a candy home with half Earth's diameter (radius 137.5,
-diameter 275 game metres): spiral lollipops, striped candy canes, marshmallow
-stones, mint-blue soda water and bubbles, and a flower cottage. Fairytale
+diameter 275 game metres), with mint-blue soda water and bubbles, and a flower cottage.
+It has four gardens (look B of the [foliage study](#foliage-study)): a lollipop grove
+with spiral lollipops and candy canes, also around the cottage; a cotton candy orchard
+with ice cream trees; a mushroom glade with toadstools as tall as trees; and crystal
+peaks on the high ground. The toadstools and the crystals glow at night. Fairytale
 creatures live there: unicorns, dragonlings, kitsune kits, Frog Princes on lily
 pads, and five pegasus foals that circle over the cottage garden.
 
@@ -167,7 +333,8 @@ not beside it. The flower marks the cottage on Blossom Haven, including when
 exploring its surface; fireflies show the safe route around intervening terrain.
 Home teleports every **five minutes of active, unguided play** to a clear position
 anywhere within the compact solar-system play area. Candidate positions avoid
-other planets, their atmospheres, Saturn's rings, the Sun, and a nearby fairy.
+other planets, their atmospheres, Saturn's rings, the Sun, the path and the tails of the
+comet, and a nearby fairy.
 The clock stops for the flower guide, including temporary
 steering overrides while that guide remains enabled. Use **Stop following** to
 return to manual flight and resume the relocation clock. Manual approach does
@@ -196,7 +363,9 @@ when the sound is on. Every fourth sticker has a bigger note.
 
 The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
 for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
-card to read its fact or a hint, then **Fly there** for a guided flight. A card with its
+card to read its fact or a hint, then **Fly there** for a guided flight. The card of a world
+says "You are here" only when the fairy is near that world, as the flight panel says. In open
+space each open world has **Fly there**, also the nearest one, so Earth is always a way home. A card with its
 sticker looks like a sticker.
 
 The worlds open one at a time. A new book opens Earth, Blossom Haven and the Moon. The
@@ -250,9 +419,44 @@ on seven worlds, the gold star in the world and on the sticker, the saved book, 
 the phone layout. A test move puts the fairy at each place. An optional second argument sets
 the server origin.
 
+## Postcard camera
+
+The camera button takes a picture of the flight (F5 of the
+[feature ideas study](#feature-ideas-study)). A soft white flash shows, then a postcard:
+the picture in a white border with a small tilt, the name of the nearest world in the
+display font, "A POSTCARD FROM YOUR JOURNEY", and the sticker picture of the world as a
+stamp. The picture is the 3D view only. The panels and the buttons of the screen are not
+in it.
+
+- On a computer the camera is the second round button of the toolbar. On a touch screen
+  it is **Postcard** in **Menu**, as the other extra controls of the screen study. The
+  top row of a phone has no space for a fourth button at 320 px.
+- **Save** downloads a PNG of the whole card, for example `fairy-postcard-earth.png`. The
+  card is 1280 pixels wide from a wide screen (1280 × 950 from a 16:10 screen), and
+  980 × 1400 pixels from a phone that is upright.
+- **Share** shows only when the device can share a picture file
+  (`navigator.canShare({ files })`). It opens the share sheet of the device.
+- Nothing leaves the device without a tap on **Save** or **Share**.
+- Flight waits while the postcard is open. Escape, the × button or a tap outside the card
+  closes it. The focus goes to **Save**, and then back to the camera button (to **Menu** on
+  a touch screen).
+- With reduced motion, the flash and the slide do not show. The card keeps its tilt.
+
+The renderer clears its picture after each frame, so the camera renders a new frame and
+copies the canvas in the same call. The game does not use `preserveDrawingBuffer`. The
+picture keeps the shape of the view from 3:4 to 16:9 and cuts the rest at the middle. The
+layout numbers, the file name and the drawing of the card are in `src/postcard.ts`; the
+button and the dialog are in `src/postcard-camera.ts`.
+
+Run `node scripts/postcard-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+button, the flash, a real picture, Save, Share, the wait of the flight, Escape, the focus,
+reduced motion, a postcard from the Moon and the phone Menu at 390 and 320 px. An optional
+second argument sets the server origin. Screenshots and the saved cards are written to
+`artifacts.local/postcard/`.
+
 ## Settings
 
-The gear button beside the fairy button opens **Settings**, a panel for
+The gear button beside the camera button opens **Settings**, a panel for
 grown-ups. On a touch screen, **Settings** is in Menu. Flight waits while it is
 open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts:
 
@@ -275,7 +479,7 @@ The reset also closes the worlds again: only Earth, Blossom Haven and the Moon s
 open. The fairy look and the home discovery stay.
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
-for the panel, the confirmation, the reset at the Moon, Escape, the three toolbar
+for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
 buttons, the sky switches, World speed, the sound, the saved switches and the phone menu.
 An optional second argument sets the server origin.
 
@@ -283,8 +487,10 @@ An optional second argument sets the server origin.
 
 Choose **Choose your look** on the welcome card, or the palette button during
 flight. Pick one of nine hair styles (Bun, Bob, Tails, Space buns, Cloud curls,
-Ponytail, Long braid, Twin braids, Long waves) and one wing shape (Petal, Luna,
-Flutter). Then pick one of ten colors each for the hair, dress, wings and skin.
+Ponytail, Long braid, Twin braids, Long waves) and one of twelve wings (Dew glass,
+Glitter vein, Leaf glass, Silk pleats, Rainbow cells, Swirl and gems, Monarch,
+Swallowtail, Frost, Starlight, Autumn leaf, Aurora). Then pick one of ten colors each for the hair, dress, wings and skin,
+and one of four sparkle trails (Pixie dust, Comet tail, Sparkle halo, Shimmer steps).
 Each choice applies instantly and is saved in this browser. The camera moves
 closer and flight waits while the panel is open; close it or press Escape to return.
 
@@ -298,8 +504,25 @@ The leggings and shoes use a deep shade of the dress color. Each wing color
 has a matching sparkle for the glow and trail. Option names, colors and
 defaults live in `src/customization.ts`. Looks saved with the old Rose, Moon
 and Fern palettes convert to the matching colors on load.
-The body, hair and wing geometry is built once in `createFairyRig` in `src/fairy.ts`; switching
-styles changes visibility, and switching colors updates shared materials. The hair
+The body and hair geometry is built once in `createFairyRig` in `src/fairy.ts`; switching
+styles changes visibility, and switching colors updates shared materials. The wings are
+in `src/fairy-wings/` (see the [fairy wing study](#fairy-wing-study)): each wing is a set
+of painted panels with a shader for the colour shift, the glitter and the light through
+the wing. Each wing takes the wing color. A look saved
+with Petal, Luna or Flutter gets Dew glass, Glitter vein or Swirl and gems.
+
+The sparkle trail is in `src/fairy-trail.ts` (see the [fairy trail study](#fairy-trail-study)).
+Pixie dust is fine dust that twinkles and falls slowly behind her. Comet tail is a cone of
+sparkles that is fixed to her back. Sparkle halo has no trail: stars flash around her.
+Shimmer steps is a faint shimmer from her two feet that becomes strong in a boost. Each
+trail uses the sparkle colour of the wing color. The points of Pixie dust and of Shimmer
+steps stay with the world that carries her, so the trail is on the path that she flew. A
+sparkle ring and a comet tail make each trail stronger for 4 s. With reduced motion the
+points do not twinkle. A look that was saved with no trail gets Pixie dust. While the
+look menu is open, the trail of the look continues behind the fairy, so each trail shows
+when you select it.
+
+The hair
 styles are in `src/fairy-hair.ts`. The Ponytail, Long braid, Twin braids and Long
 waves swing gently with the flight and straighten along her body in boost. The six
 newer styles stay clear of the wings and the pointed ears in every wing shape.
@@ -391,6 +614,33 @@ Run `node studies/creature-study/creature-smoke.mjs "path/to/chrome.exe"` for it
 Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
 the actual game, including movement, pause, both populations, the fairytale
 residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
+
+### Creature hello
+
+The creatures say hello to the fairy. Fly low near an animal on Earth or a
+fairytale creature on Blossom Haven. When the fairy is 6 m or nearer, or comes that near in the next second, the
+creature turns to her and hops two times on its ground. Ducks and Frog Princes
+bob on the water. Two or three small pink hearts float up from the head, sway
+and fade. A soft two-note chime plays when Sound is on. Hellos that come close
+together share one chime. Each creature says hello again only after 8 s. The
+pegasus foals in the air do not say hello.
+
+- `greet()` of the population (`src/creatures/population.ts`) runs after
+  `update()`, because `update()` puts each model back on its route. The hop goes
+  along the ground normal in the frame of the world. Thus the creature stays on
+  its ground when the world turns and when Blossom Haven moves.
+- The rules and the hearts are in `src/creatures/hello.ts`. All the hearts of a
+  world are one point cloud with one shared texture: one draw call. A phone
+  shows half the hearts (1 or 2 for each hello, 12 in the pool instead of 24).
+- Pause stops the hellos, as it stops the creatures.
+- The test snapshot gives `hellos` (the total) and, for each world in
+  `wildlife`, `hellos` with the count, the hearts and the active hellos.
+
+Run `node scripts/creature-hello-smoke.mjs "path/to/chrome.exe" [origin]` against
+the dev server to check the hello in the game: a low pass on Earth, the hop, the
+hearts, the chime, the pause, the rest time, a fairytale creature on Blossom
+Haven, a Frog Prince bob when one is near, and a phone at 390 px. The
+screenshots go to `artifacts.local/creature-hello/`.
 
 ## Fairytale creature study
 
@@ -731,7 +981,180 @@ clips are in `public/studies/feature-ideas/`. Run
 `node studies/feature-ideas-study/feature-ideas-study-capture.mjs "path/to/chrome.exe" F1,F2`
 against port 5174 to record the clips of F1 and F2 again.
 
+## Seasons study
+
+Visit `/studies/seasons-study.html` for **A year on two worlds**, a study of seasons on
+Earth and on Blossom Haven. Earth gets the seasons of the real world, and the place
+changes the season: the north has summer while the south has winter, the equator has no
+season, and the poles have one long day and one long night. Blossom Haven gets four magic
+seasons of its own, each with its own plants: **Blossom time** (blossom trees and giant
+flowers), **Bubble time** (bubble blooms), **Lantern time** (giant toadstools that glow)
+and **Crystal time** (sugar crystals). A magic season starts at the cottage and goes out
+over the planet in a ring. Eight clips from the engine of the game show the two worlds
+from space and from one place. **Try it live** gives you the world, the place, the year
+and free flight. Its controls do not change the game.
+
+For Earth the study compares **A — Real tilt** (the axis leans 23.4° and the orbit makes
+the year) with **B — Painted year** (no tilt; a season clock paints each latitude). The
+game now uses A, with the year started at the real date; see [Seasons](#seasons). For
+Blossom Haven the decision is the four magic seasons with no tilt, and the next season at
+each hop of the planet. The game now has them too. The [technical study](docs/seasons-study.md) gives the findings, the model,
+the change for each part and the limits. The clips are in `public/studies/seasons/`. Run
+`node studies/seasons-study/seasons-study-capture.mjs "path/to/chrome.exe" E1,E2` against
+port 5174 to record the clips of E1 and E2 again.
+
+## Foliage study
+
+Visit `/studies/foliage-study.html` for **Each plant, a place to grow**, a study of the
+trees and the small plants of Earth and of Blossom Haven. Before the study, Earth had one
+cone tree, and Blossom Haven had one mix of candy. The study has 25 kinds of plants and three looks
+for each world. Earth: **A — Mixed wood**, **B — Climate belts** (jungle, savanna, desert,
+leaf forest, pine forest, snow line) and **C — Four seasons**. Blossom Haven:
+**A — Sweet shop**, **B — Four gardens** (lollipop grove, cotton candy orchard, mushroom
+glade, crystal peaks) and **C — Blossom orchard**. Each look has a clip from the engine of
+the game, on the real terrain, next to the plants from before on the same flight path.
+**Fly it live** runs a look in live 3D, with a switch for each of the five levers: woods
+and glades, size and colour, wind, ground colours and night. Its controls do not change
+the game.
+
+The game now uses B for both worlds, with all the levers. The study keeps the plants
+from before as **Before**. The [technical study](docs/foliage-study.md) gives the
+findings, each plant, the rule of each zone, the cost and what changed in the game. The clips are in
+`public/studies/foliage/`. Run
+`node studies/foliage-study/foliage-study-capture.mjs "path/to/chrome.exe" E2,H2` against
+port 5174 to record the clips of E2 and H2 again.
+
+## Earth landmarks study
+
+Visit `/studies/earth-landmarks-study.html` for **Twelve wonders, on one small Earth**, a
+study of famous landscapes of the real Earth on the Earth of the game: the Grand Canyon,
+Mount Fuji, the dunes of the Sahara, Ha Long Bay, a coral atoll, the ice of Antarctica,
+Angel Falls, Monument Valley, the Giant's Causeway, a fjord, a rainbow hot spring and the
+rainbow mountains. Each landmark has a clip from the engine of the game, next to a photo
+of the real place. **Fly it live** runs the Earth of the study in live 3D. Each landmark
+is a patch of fine ground at a place that a search finds, with objects on it: trees, stone
+columns, penguins, a lagoon, waterfalls, steam and a geyser. Its controls do not change
+the game.
+
+The study is kept, and the landmarks are not built: fixed landmarks make an Earth that
+is new at each visit more rigid. The game keeps its Earth of today. The
+[technical study](docs/earth-landmarks-study.md) gives the findings, the method, each
+landmark, the cost and the photo credits. The clips are in
+`public/studies/earth-landmarks/`. Run
+`node studies/earth-landmarks-study/earth-landmarks-study-capture.mjs "path/to/chrome.exe" L1,L2`
+against port 5174 to record the clips of L1 and L2 again.
+
+## Fairy wing study
+
+Visit `/studies/fairy-wing-study.html` for **Wings that catch the light**, a study of
+twenty new wings for the fairy and of six changes to how the game draws a wing. Before the
+study, the game had three wings (Petal, Luna and Flutter), each a flat shape of one pale
+colour; the study shows them as **Before**. The twenty wings are in five families: glass (Dew glass,
+Glitter vein, Leaf glass, Dragonfly), butterfly (Rainbow cells, Swirl and gems, Monarch,
+Peacock eye, Moon moth, Swallowtail), fabric (Silk pleats, Feather), nature (Frost, Petal
+bloom, Autumn leaf) and magic (Stained glass, Starlight, Soap bubble, Candy swirl,
+Aurora). Each wing has a clip from the engine of the game. **See it live** runs a wing in
+live 3D, with the ten wing colours of the menu, day and night, and a switch for each of
+the six changes: painted membrane, veins and edges, colour shift, glitter, light through
+the wing and soft wing beat. Its controls do not change the game.
+
+Twelve wings are selected for the game: Dew glass, Glitter vein, Leaf glass, Silk pleats,
+Rainbow cells, Swirl and gems, Monarch, Swallowtail, Frost, Starlight, Autumn leaf and
+Aurora. The game now has these twelve wings with the new rendering, in place of the three
+wings from before. The other eight wings stay in the study. The
+[technical study](docs/fairy-wing-study.md) gives the findings, each wing, the method,
+the cost and the limits. The clips are in `public/studies/fairy-wings/`. Run
+`node studies/fairy-wing-study/fairy-wing-study-capture.mjs "path/to/chrome.exe" dew,glitter http://localhost:5174`
+to record the clips of Dew glass and Glitter vein again.
+
+## Weather study
+
+Visit `/studies/weather-study.html` for **A sky that changes**, a study of weather on
+Earth: rain, snow that falls from a cloud, wind, morning mist, a rainbow and thunder far
+away, with new clouds in place of the puffs of the game. In the study, four things make the weather of a place: the
+place (the climate belts of the game), the season, the hour and the fronts that move
+around the planet. So the jungle has warm rain, the desert has a clear sky, the rain belt
+of the tropics follows the Sun, and rain becomes snow in the cold. One small weather map
+holds the cloud, the rain and the wet ground of each place. The clouds, the light, the
+fog, the ground, the water, the plants and the stars read it. The new clouds are solid heap clouds, high wisps, a grey
+layer under a front and rain curtains. Ten clips from the engine
+of the game show the weather from space and from the ground. **Try it live** gives you
+the place, the day, the hour, the sky and free flight. Its controls do not change the
+game. The study does not include Blossom Haven.
+
+The study compares **A — A weather map** (each place has its own weather) with
+**B — One sky** (the whole planet has one weather at a time). The decision of 3 October 2026 is A, with
+all six kinds of weather and all the new clouds; the game now has them, see [Weather](#weather). The
+[technical study](docs/weather-study.md) gives the findings, the model, the change for
+each part, the cost and the limits. The clips are in `public/studies/weather/`. Run
+`node studies/weather-study/weather-study-capture.mjs "path/to/chrome.exe" W1,W2` against
+port 5174 to record the clips of W1 and W2 again, and
+`node studies/weather-study/weather-study-smoke.mjs "path/to/chrome.exe"` for the browser
+check of the page.
+
+## Fairy trail study
+
+Visit `/studies/fairy-trail-study.html` for **A trail that stays behind her**, a study of
+the sparkle trail of the fairy. The trail of the game goes off at an angle: near a world,
+the game carries the fairy with the spin and the orbit of that world, and the dots of the
+trail stay in space. The study gives five rules for a trail that is the same on each
+screen, at each speed and on each world, and fifteen options for its look: No trail,
+Today repaired, Pixie dust, Star glints, Ribbon of light, Wing-tip streams, Comet tail,
+Sparkle halo, Ribbon and stars, Rainbow dust, Blossom confetti (a magic trail for Blossom
+Haven), Only when it counts, Shimmer to sparkle, Shimmer from her feet and Shimmer from her wings. Each option has a clip of the same
+flight of 14 s from
+the engine of the game: a cruise, two turns, a boost, a hover and the 4 s after a sparkle
+ring. **See it live** runs an option in live 3D, with the flight, the camera, day and
+night, the ten sparkle colours and a switch that stops the motion of the world. Its
+controls do not change the game.
+
+On 4 October 2026 four options were selected for the game: Pixie dust, Comet tail,
+Sparkle halo and Shimmer from her feet. The player selects one of them in the look menu
+(see [Character customization](#character-customization)); the study keeps the trail from
+before as **The trail of today**. The
+[technical study](docs/fairy-trail-study.md) gives the cause, the rules, each option, the
+cost and the limits. The clips are in `public/studies/fairy-trail/`. Run
+`node studies/fairy-trail-study/fairy-trail-study-capture.mjs "path/to/chrome.exe" today,pixie http://localhost:5174`
+to record the clips of the trail of today and of Pixie dust again.
+
 ## Browser checks
+
+Each feature has a browser check in `scripts/`. One command runs them all at the same time:
+
+```
+node scripts/run-checks.mjs "path/to/chrome.exe"
+```
+
+The command starts its own dev server on a free port, runs the 20 checks (4 at the same
+time), and prints one line for each check with its time and its error. All the checks take
+about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
+`artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same
+command, and the variable `CHROME_PATH` can give the browser path.
+
+| Option | Effect |
+| --- | --- |
+| `--changed [base]` | Only the checks for the files that changed from `base` (default `master`), with the files that are not committed. |
+| `--files a,b` | Only the checks for these files. |
+| `--only a,b` | Only these checks, by name. |
+| `--list` | Shows each check and the files that it covers. |
+| `--dry-run` | Shows the selected checks, and stops. |
+| `--jobs n` | The number of checks at the same time. The default is 4. |
+| `--origin url` | Uses a dev server that runs already. |
+| `--swiftshader` | Software graphics, for a machine with no graphics card. |
+
+While you work on one feature, run `--changed`. A change to `src/rings.ts` runs only the
+sparkle rings check; a change to `src/main.ts`, `src/worlds.ts` or another core file runs all
+the checks, and so does a game file that no check covers. A change to a document or a study
+runs no check. The list of the files of each check is `CHECKS` in `scripts/run-checks.mjs`:
+add a new check and its files there. Run all the checks before a merge into `master`.
+
+The checks use the graphics card. With software graphics a check that takes 30 s can take
+30 minutes, because the worlds have many plants. `FAIRY_SWIFTSHADER=1` selects software
+graphics for one script; `--swiftshader` does the same for the runner and for the three
+scripts that have this option. Each script starts its own Chrome on a free debug port, so
+many checks can run at the same time.
+
+One check alone runs against a dev server:
 
 With the dev server at `http://127.0.0.1:5174`, run
 `node scripts/browser-smoke.mjs "path/to/chrome.exe"` using an installed Chromium

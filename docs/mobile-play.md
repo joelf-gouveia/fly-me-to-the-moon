@@ -10,7 +10,7 @@ browser use, existing local saves, and explicit resume after backgrounding.
 On touch devices the arrows sit on the left. Hold **Boost** on the right to fly
 faster; releasing it returns to normal speed. **Hover** stops flight; its label
 changes to **Fly** so you can start moving again. **Worlds**, **Menu**, and pause
-stay at the top. Menu contains appearance, **Settings** (sound, star
+stay at the top. Menu contains appearance, **Postcard** (the camera), **Settings** (sound, star
 pictures, orbit paths and world speed), **Stop following** while the flower guide is
 on, and flight details. Opening the menu pauses
 flight and the home relocation clock; closing it returns to the preceding pause
@@ -54,6 +54,8 @@ candy objects, simpler candy curves, and at most 14 visible wildlife models
 instead of 28. Residents still exist when not drawn. Ground geometry, terrain
 sampling, collision rules, cottage placement and day/night mechanics retain
 their existing precision. The mobile scenery budget survives planet regeneration.
+The comet draws half of its tail particles (2,600 dust and 1,100 ion) and half of
+its sparkles (96) on a phone.
 Paused/welcome/menu rendering is limited to roughly 10 fps; hidden tabs skip
 scene work. Customization and the moving Worlds map remain animated.
 

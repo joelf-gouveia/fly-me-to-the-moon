@@ -1,0 +1,255 @@
+{
+  "B1": {
+    "panels": 2,
+    "drawCalls": 12,
+    "pictures": 0,
+    "megabytes": 0,
+    "ms": 0,
+    "drawn": {
+      "calls": 110,
+      "triangles": 2273385
+    }
+  },
+  "B2": {
+    "panels": 2,
+    "drawCalls": 8,
+    "pictures": 0,
+    "megabytes": 0,
+    "ms": 0,
+    "drawn": {
+      "calls": 106,
+      "triangles": 2273385
+    }
+  },
+  "B3": {
+    "panels": 2,
+    "drawCalls": 8,
+    "pictures": 0,
+    "megabytes": 0,
+    "ms": 0,
+    "drawn": {
+      "calls": 106,
+      "triangles": 2273385
+    }
+  },
+  "aurora": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 131,
+    "drawn": {
+      "calls": 101,
+      "triangles": 2193273
+    }
+  },
+  "autumn": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 92,
+    "drawn": {
+      "calls": 129,
+      "triangles": 2197977
+    }
+  },
+  "blossom": {
+    "panels": 4,
+    "drawCalls": 8,
+    "pictures": 8,
+    "megabytes": 10.7,
+    "ms": 150,
+    "drawn": {
+      "calls": 110,
+      "triangles": 2276281
+    }
+  },
+  "bubble": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 135,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "candy": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 106,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "dew": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 130,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "dragonfly": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 54,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "feather": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 97,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "frost": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 108,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "glitter": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 175,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "leaf": {
+    "panels": 3,
+    "drawCalls": 6,
+    "pictures": 6,
+    "megabytes": 8,
+    "ms": 193,
+    "drawn": {
+      "calls": 106,
+      "triangles": 2275481
+    }
+  },
+  "monarch": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 103,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "moth": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 76,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "peacock": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 104,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "rainbow": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 81,
+    "drawn": {
+      "calls": 104,
+      "triangles": 2275017
+    }
+  },
+  "silk": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 144,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "star": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 125,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "swallowtail": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 85,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "swirl": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 96,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  },
+  "window": {
+    "panels": 2,
+    "drawCalls": 4,
+    "pictures": 4,
+    "megabytes": 5.3,
+    "ms": 112,
+    "drawn": {
+      "calls": 102,
+      "triangles": 2274681
+    }
+  }
+}

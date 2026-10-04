@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -7,7 +7,7 @@ const browserPath = process.argv[2]
 const origin = process.argv[3] ?? 'http://127.0.0.1:5174'
 if (!browserPath) throw new Error('Pass a Chromium browser executable')
 const profile = await mkdtemp(join(tmpdir(), 'world-book-study-browser-'))
-const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=9353', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
+const browser = spawn(browserPath, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -15,7 +15,7 @@ let ws
 try {
   let tabs
   for (let i = 0; i < 40; i++) {
-    try { tabs = await (await fetch('http://127.0.0.1:9353/json')).json(); break } catch { await delay(250) }
+    try { tabs = await (await fetch(`http://127.0.0.1:${(await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]}/json`)).json(); break } catch { await delay(250) }
   }
   if (!tabs?.length) throw new Error(`Browser did not start: ${browserErrors}`)
   ws = new WebSocket(tabs.find(tab => tab.type === 'page').webSocketDebuggerUrl)

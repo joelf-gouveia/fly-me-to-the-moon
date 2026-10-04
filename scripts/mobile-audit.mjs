@@ -1,6 +1,6 @@
 // Layout/input evidence from desktop Chromium emulation, not a device benchmark.
 import { spawn } from 'node:child_process'
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -9,13 +9,13 @@ if (!executable) throw new Error('Pass a Chrome/Chromium executable')
 const base = process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174/'
 const studyOnly = process.argv.includes('--study')
 const profile = await mkdtemp(join(tmpdir(), 'fairy-mobile-audit-'))
-const browser = spawn(executable, ['--headless', '--remote-debugging-port=9341', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
+const browser = spawn(executable, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 let ws
 try {
   let tabs
   for (let i = 0; i < 60; i++) {
-    try { tabs = await (await fetch('http://127.0.0.1:9341/json')).json(); break } catch { await delay(250) }
+    try { tabs = await (await fetch(`http://127.0.0.1:${(await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]}/json`)).json(); break } catch { await delay(250) }
   }
   if (!tabs?.length) throw new Error('Browser did not start')
   ws = new WebSocket(tabs.find(tab => tab.type === 'page').webSocketDebuggerUrl)
@@ -120,7 +120,7 @@ try {
   await send('Input.dispatchTouchEvent', { type:'touchStart', touchPoints:[{...point,id:1}] })
   await send('Input.dispatchTouchEvent', { type:'touchEnd', touchPoints:[] })
   const touchEvents = await evaluate('window.auditEvents')
-  const report = { date:new Date().toISOString(), url:base, method:'Desktop Chrome; touch/viewport emulation; SwiftShader; animation advanced one frame per layout; not physical hardware or iOS WebKit', results, touchEvents, errors }
+  const report = { date:new Date().toISOString(), url:base, method:`Desktop Chrome; touch/viewport emulation; ${process.env.FAIRY_SWIFTSHADER ? 'SwiftShader' : 'graphics card'}; animation advanced one frame per layout; not physical hardware or iOS WebKit`, results, touchEvents, errors }
   await writeFile('artifacts.local/mobile-audit/results.json', JSON.stringify(report,null,2))
   console.log(JSON.stringify(report,null,2))
   if (errors.length) throw new Error('Browser runtime errors; see report')

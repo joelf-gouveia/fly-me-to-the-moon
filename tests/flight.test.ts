@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three'
 import { createTerrain, groundHeight, visitTransition } from '../src/terrain'
-import { hoverFlight, orientFlight, stepFlight } from '../src/flight'
+import { hoverFlight, orientFlight, SPACE_SPEED, stepFlight, WORLD_CARRY, worldCarry } from '../src/flight'
 import type { World } from '../src/worlds'
 
 function testWorld(): World {
@@ -101,5 +101,23 @@ describe('spherical flight', () => {
       const height = groundHeight('earth', world.sample(normal.x, normal.y, normal.z))
       expect(position.length()).toBeGreaterThanOrEqual(world.radius + height + 2.29)
     }
+  })
+})
+
+describe('the carry of a world', () => {
+  it('is full near the world and fades out higher up', () => {
+    expect(worldCarry(0)).toBe(1)
+    expect(worldCarry(WORLD_CARRY.full)).toBe(1)
+    expect(worldCarry((WORLD_CARRY.full + WORLD_CARRY.none) / 2)).toBeCloseTo(0.5)
+    expect(worldCarry(WORLD_CARRY.none)).toBe(0)
+    expect(worldCarry(20000)).toBe(0)
+  })
+
+  it('is full where the fairy is slower than the fastest world', () => {
+    // Near a world the flight speed is 32 m/s plus a part of the space speed (stepFlight()).
+    // Blossom Haven moves at about 59 m/s on its orbit, and Neptune at about 63 m/s.
+    const speedAt = (altitude: number) => THREE.MathUtils.lerp(32, SPACE_SPEED, THREE.MathUtils.smoothstep(altitude, 65, 1000))
+    expect(speedAt(150)).toBeLessThan(63)
+    expect(speedAt(WORLD_CARRY.full)).toBeGreaterThan(63 * 5)
   })
 })

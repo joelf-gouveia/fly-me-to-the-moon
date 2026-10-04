@@ -15,7 +15,7 @@ const profile = await mkdtemp(join(tmpdir(), 'settings-browser-'))
 const browser = spawn(browserPath, [
   // Port 0: Chrome picks a free port, so parallel test runs do not share a browser.
   '--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`,
-  '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank',
+  ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank',
 ], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] })
 let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
@@ -144,9 +144,9 @@ try {
   await delay(100)
   assert(!(await snapshot()).settingsOpen && !(await evaluate('document.querySelector("#settings").open')), 'Escape does not close Settings')
 
-  // Option C of docs/ui-simplify-study.md, and the book in Worlds (docs/world-book-study.md): three toolbar buttons, and the grown-up controls in Settings.
+  // Option C of docs/ui-simplify-study.md, the book in Worlds (docs/world-book-study.md) and the postcard camera: four toolbar buttons, and the grown-up controls in Settings.
   step('option C')
-  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,settings-toggle,pause-toggle', `The toolbar is not the three buttons: ${await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()')}`)
+  assert(await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()') === 'customize-toggle,postcard-toggle,settings-toggle,pause-toggle', `The toolbar is not the four buttons: ${await evaluate('[...document.querySelectorAll(".toolbar button")].map(b => b.id).join()')}`)
   assert(await evaluate('["#follow-home", "#show-stars", "#show-orbits", "#sound-toggle", "#orbit-speed-toggle", ".journey-picker", ".controls-copy"].every(s => !document.querySelector(s))'), 'A removed control is still in the game')
   assert(await evaluate('document.querySelector("#home-help").hidden'), 'The guide help shows with no guide')
   assert(!(await text('#flight-region')).includes('landscape'), 'The world panel still shows the landscape number')
@@ -194,7 +194,7 @@ try {
     await evaluate('advanceFlight(0.2)')
     state = await snapshot()
     assert(state.settingsOpen && !state.menuOpen, 'The Settings button does not swap the menu for Settings')
-    assert(await evaluate('[...document.querySelectorAll(".menu-actions button")].map(b => b.id).join()') === 'customize-toggle,settings-toggle', 'The phone menu is not the two buttons')
+    assert(await evaluate('[...document.querySelectorAll(".menu-actions button")].map(b => b.id).join()') === 'customize-toggle,postcard-toggle,settings-toggle', 'The phone menu is not the three buttons')
     assert(await evaluate('getComputedStyle(document.querySelector(".how-touch")).display !== "none" && getComputedStyle(document.querySelector(".how-keys")).display === "none"'), 'How to fly does not show the touch help on a phone')
     assert(!(await evaluate('document.documentElement.scrollWidth > innerWidth')), `Overflow at ${width}px`)
     assert(await evaluate('(() => { const d = document.querySelector("#settings").getBoundingClientRect(); return d.left >= 0 && d.right <= innerWidth })()'), `Settings is wider than the screen at ${width}px`)
@@ -204,7 +204,7 @@ try {
   }
 
   assert(errors.length === 0, `Browser errors: ${JSON.stringify(errors)}`)
-  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, the three toolbar buttons, the removed controls, the map paths, the sky switches, World speed, the sound, the saved switches after a reload, How to fly, and the 390/320 px phone menu. No browser errors.')
+  console.log('Verified Settings: the gear button, the wait of the flight, the count, Cancel with the focus, the reset and the saved empty book, no Moon sticker again at the Moon, Escape, the four toolbar buttons, the removed controls, the map paths, the sky switches, World speed, the sound, the saved switches after a reload, How to fly, and the 390/320 px phone menu. No browser errors.')
 } finally {
   ws?.close(); browser.kill()
 }

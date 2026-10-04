@@ -1,5 +1,5 @@
 import { spawn } from 'node:child_process'
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
@@ -7,12 +7,12 @@ const executable = process.argv[2]
 if (!executable) throw new Error('Pass a Chrome executable')
 const base = process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174/'
 const profile = await mkdtemp(join(tmpdir(), 'fairy-mobile-play-'))
-const browser = spawn(executable, ['--headless', '--remote-debugging-port=9342', `--user-data-dir=${profile}`, '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-first-run', 'about:blank'], {windowsHide:true,stdio:'ignore'})
+const browser = spawn(executable, ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], {windowsHide:true,stdio:'ignore'})
 const delay = ms => new Promise(resolve => setTimeout(resolve,ms))
 let ws
 try {
   let tabs
-  for (let i=0;i<60;i++) { try { tabs=await(await fetch('http://127.0.0.1:9342/json')).json(); break } catch { await delay(250) } }
+  for (let i=0;i<60;i++) { try { tabs=await(await fetch(`http://127.0.0.1:${(await readFile(join(profile, 'DevToolsActivePort'), 'utf8')).split('\n')[0]}/json`)).json(); break } catch { await delay(250) } }
   if (!tabs) throw new Error('Browser did not start')
   ws = new WebSocket(tabs.find(t=>t.type==='page').webSocketDebuggerUrl)
   await new Promise((resolve,reject)=>{ws.onopen=resolve;ws.onerror=reject})
