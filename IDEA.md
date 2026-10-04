@@ -37,7 +37,7 @@ README part and a status note in the study document.
 
 ### F1 · Search stars
 
-- **Branch:** `features/f1-search-stars` (`fb0aedb`). Not on GitHub. The branch has
+- **Branch:** `features/f1-search-stars` (`87b6f47`). Not on GitHub. The branch has
   `master` of 4 October 2026 (`6364f6e`) in it.
 - **What it does:** after the hello sticker of a world, the note gives one small
   task, for example "Find the big red storm." When the fairy does it, a gold star
@@ -71,9 +71,8 @@ README part and a status note in the study document.
     arrival.
   - A rainbow needs rain, sunshine and a low Sun. The weather is mostly sunny, so
     the task of Earth can take some time. Decide if this is acceptable.
-  - The soda bubbles are small and clear. Decide if they must be larger or
-    brighter for the task.
-  - A soda bubble does not pop: only the gold star shows.
+  - The soda bubbles are small and clear. They pop when the fairy touches them.
+    Decide if they must be larger or brighter for the task.
 - **To check on a real phone:** the 3D star, the chime and the note colours.
 
 ### F2 · Spoken facts
