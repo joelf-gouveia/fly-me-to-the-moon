@@ -15,20 +15,18 @@ Last update: 4 October 2026.
 | Idea | State | Branch |
 | --- | --- | --- |
 | F1 Search stars | In `master` | Merged in `c83f7d7` |
-| F2 Spoken facts | Code complete, not merged | `features/f2-spoken-facts` |
+| F2 Spoken facts | Built, tested and rejected on 4 October 2026. Needs a new design | Deleted |
 | F3 Creature hello | In `master` | Merged in `00af6ea` |
 | F4 Sparkle rings | In `master` | Merged, branch closed |
 | F5 Postcard camera | In `master` | Merged, branch closed |
-| F6 A song for each world | Code complete, not merged | `features/f6-world-songs` |
+| F6 A song for each world | Built, tested and rejected on 4 October 2026. Needs a new design | Deleted |
 | F7 Game controller | Dropped | None |
 | F8 Comets and shooting stars | In `master` | Merged in `30561c9` |
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
 
-Each open branch has a worktree folder with the same name in
-`C:\Users\joel_\Documents\GitHub\fly-me-to-the-moon-worktrees\`. To see an idea, run
-`npm run dev` in its folder.
+No idea has an open branch.
 
 ## Open features
 
@@ -76,7 +74,9 @@ README part and a status note in the study document.
 
 ### F2 · Spoken facts
 
-- **Branch:** `features/f2-spoken-facts` (`7cc7214`). On GitHub.
+- **State:** rejected as built. The player tested it on 4 October 2026 and does not want
+  it in this form. The branch is deleted (last commit `7cc7214`). The text below is the
+  first version, as a record for a new design.
 - **What it does:** with **Sound** on, a recorded English voice says the name and
   the fact of each new sticker, 0.5 s after the chime. A speaker mark moves in the
   note, and each word lights up in time. The voice stops at a pause, when the page
@@ -114,7 +114,9 @@ README part and a status note in the study document.
 
 ### F6 · A song for each world
 
-- **Branch:** `features/f6-world-songs` (`5a063f9`). Not on GitHub.
+- **State:** rejected as built. The player tested it on 4 October 2026 and does not want
+  it in this form. The branch is deleted (last commit `5a063f9`). The text below is the
+  first version, as a record for a new design.
 - **What it does:** each of the 13 worlds has a chord of three notes. The hum
   glides to the chord of a world in about 2 s when the fairy comes near it. Earth
   keeps the hum of today. In open space the hum keeps the chord of the last world.

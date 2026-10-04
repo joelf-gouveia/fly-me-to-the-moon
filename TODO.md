@@ -204,23 +204,22 @@ card each check takes 10 to 30 s. A screenshot can also go over the 90 s limit o
   Moon, asteroid belt, sticker book, Settings, sparkle rings, comet, creature hello, postcard
   and the general check.
 
-Three feature branches are complete and not merged: F1, F2 and F6. Each branch has a worktree folder
-with the same name in `C:\Users\joel_\Documents\GitHub\fly-me-to-the-moon-worktrees\`.
-The branches all change `src/main.ts`, so a merge can have a conflict there. Merge
-only when the main folder has no uncommitted work.
+No feature branch is open. F1 is in `master`. F2 and F6 are rejected as built: see
+"Spoken facts and a song for each world: design again" in the next steps.
 
 ### `features/f1-search-stars`
 
 - [x] Run `scripts/settings-smoke.mjs` again (item 5). Not run on this branch; the check
   passes three times on newer code, and the old failure was timing.
 - [x] Run the unit tests with the usual 5 s time limit (item 7): 243 pass.
-- [ ] Push the branch.
-- [ ] Merge into `master`, then delete the worktree and the branch.
+- [x] Push the branch.
+- [x] Merge into `master`: merge `c83f7d7` of 4 October 2026, with the nine new tasks and
+  the soda bubbles that pop. The worktree and the branch are deleted, also on GitHub.
 
 ### `features/f2-spoken-facts`
 
-- [ ] Merge into `master`, then delete the worktree and the branch. The branch is on
-  GitHub.
+- [x] Not merged. The player tested the branch on 4 October 2026 and does not want the
+  feature as built. The worktree and the branch are deleted, also on GitHub.
 
 ### `features/f3-creature-hello`
 
@@ -232,9 +231,9 @@ only when the main folder has no uncommitted work.
 
 - [x] Find why the second run of `scripts/world-songs-smoke.mjs` failed (item 6): the
   machine was busy. Four runs pass.
-- [ ] Run `scripts/moon-smoke.mjs`.
-- [ ] Push the branch.
-- [ ] Merge into `master`, then delete the worktree and the branch.
+- [x] Not merged. The player tested the branch on 4 October 2026 and does not want the
+  feature as built. The worktree and the branch are deleted. The branch was never on
+  GitHub.
 
 ### `features/f8-comets`
 
@@ -284,6 +283,20 @@ Open points of steps 1 to 4:
 
 Not selected in the study (decision 7): the name of the weather in the flight panel, and a
 wind that carries the fairy.
+
+### Spoken facts and a song for each world: design again
+
+The player tested F2 (spoken facts) and F6 (a song for each world) on 4 October 2026 and
+does not want them as built. The reasons are not recorded.
+
+- [ ] Ask the player what was wrong with the voice of F2 and with the songs of F6.
+- [ ] Make a new study for each feature, with sound samples, before new code.
+- [ ] For the voice: the search stars have new task lines and found lines for nine worlds
+  since 4 October 2026. A new voice needs a line for each of them.
+
+The old code is not in a branch. The last commits were `7cc7214` (F2, with the recordings
+in `public/voice/`) and `5a063f9` (F6). Git keeps a commit with no branch for a limited
+time only, so do not rely on them.
 
 ### The weather of Blossom Haven
 
