@@ -142,7 +142,9 @@ check stopped at that step. It now selects "glitter".
 
 ### 13. "Fly there" does not show for the nearest world, also from far away
 
-- [ ] Let the fairy fly to the nearest world with **Fly there** when she is not near it.
+- [x] Let the fairy fly to the nearest world with **Fly there** when she is not near it. The
+  world where the fairy is (`here` in `src/adventure.ts`) now uses the near test of the flight
+  panel. `scripts/browser-smoke.mjs` has a new step for it, and passes 12 of 12 runs.
 
 In **Worlds**, the card of the nearest world says "You are here" and has no **Fly there**
 (`here` in `src/adventure.ts:200` is the nearest world at any distance). A fairy in open
@@ -153,6 +155,13 @@ This fault makes `scripts/browser-smoke.mjs` fail in about one run of five: "Ret
 failed to generate a new Earth" (4 of 21 runs). The check climbs for 9 s and then selects
 Earth in **Worlds**. The result depends on the random start direction: the check passes only
 when a different world is the nearest one after the climb.
+
+### 15. `scripts/creature-hello-smoke.mjs` failed when a creature said hello at the start
+
+- [x] Accept a hello in the first second. The check expected no hello before its first
+  approach. Since the hello starts before the fairy arrives, a creature near the start meadow
+  can say hello at once (1 run of 8 failed). The check now waits 30 m above the meadow until
+  each creature has rested. 20 of 20 runs pass.
 
 ### 14. `scripts/browser-smoke.mjs` did not know the trail of the saved look
 

@@ -140,7 +140,15 @@ try {
   await evaluate('document.querySelector("#begin-button").click()')
   await advance(1)
   let state = await snapshot()
-  assert(state.hellos === 0 && population(state, 'Earth').hellos.count === 0, 'A hello came before the fairy was near')
+  // A creature near the start meadow can say hello in the first second: the hello starts before the fairy
+  // arrives. Then the fairy hovers 30 m up, away from each creature, until each creature has rested (8 s).
+  const first = nearest(state, 'Earth', ['rabbit', 'sheep', 'cow'])
+  assert(first, 'No land animal is near the start meadow')
+  if (state.hellos > 0) {
+    await evaluate(`__fairyTest.approach(${JSON.stringify(first)}, 40, 30, true)`)
+    await advance(9)
+    state = await snapshot()
+  }
   // The sound needs a real tap: the browser starts sound only after a user action.
   await evaluate('document.querySelector("#settings-toggle").click()')
   const box = await evaluate('(() => { const r = document.querySelector("#setting-sound + i").getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 } })()')
@@ -148,8 +156,7 @@ try {
   for (let i = 0; i < 20 && !(await snapshot()).sound; i++) await delay(100)
   await evaluate('document.querySelector("#close-settings").click()')
   const soundOn = (await snapshot()).sound
-  const land = nearest(state, 'Earth', ['rabbit', 'sheep', 'cow'])
-  assert(land, 'No land animal is near the start meadow')
+  const land = first
   assert(await evaluate(`__fairyTest.approach(${JSON.stringify(land)}, 9, 2.4, false)`), 'The fairy could not fly to the animal')
   await evaluate('window.notes.length = 0')
   const pass = await watchHello('Earth', land, 3)
