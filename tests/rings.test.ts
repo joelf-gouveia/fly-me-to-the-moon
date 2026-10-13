@@ -6,7 +6,7 @@ import { MOON } from '../src/moon'
 import { PROPORTIONS } from '../src/proportions'
 import { homeCottageNormal, meadowNormal, regenerateWorld, surfaceRadius } from '../src/worlds'
 import type { World } from '../src/worlds'
-import { RING, RING_LINE_MAX, ringLine, ringLines, ringPass, sceneryObstacles } from '../src/rings'
+import { RING, RING_CHIME, RING_LINE_MAX, RING_SCALE, ringLine, ringLines, ringNotes, ringNumbers, ringPass, sceneryObstacles } from '../src/rings'
 import type { RingObstacle, RingPlacement } from '../src/rings'
 
 function world(kind: PlanetKind, seed: number, mobile = false): World {
@@ -194,5 +194,52 @@ describe('sparkle ring pass', () => {
   it('takes a ring when the fairy stops in it, near its plane', () => {
     expect(ringPass(point(9.5), point(9.5), centre, axis)).toBe(true)
     expect(ringPass(point(8), point(8), centre, axis)).toBe(false)
+  })
+})
+
+describe('the count of a ring line', () => {
+  const free = (length: number) => Array.from({ length }, () => false)
+
+  it('counts a new line from the ring nearest to the fairy, from each end', () => {
+    expect(ringNumbers(free(5), 0, 0)).toEqual([1, 2, 3, 4, 5])
+    expect(ringNumbers(free(5), 4, 0)).toEqual([5, 4, 3, 2, 1])
+    expect(ringNumbers(free(7), 0, 0)).toEqual([1, 2, 3, 4, 5, 6, 7])
+  })
+
+  it('counts from the middle of a line to the two sides', () => {
+    expect(ringNumbers(free(5), 2, 0)).toEqual([3, 2, 1, 2, 3])
+  })
+
+  it('goes on from the last ring that the fairy took', () => {
+    // She took rings 0 and 1 as 1 and 2.
+    expect(ringNumbers([true, true, false, false, false], 1, 2)).toEqual([0, 0, 3, 4, 5])
+    // She started in the middle, flew to the end, and comes back: the rings on the way are gone.
+    expect(ringNumbers([false, false, true, true, true], 4, 3)).toEqual([5, 4, 0, 0, 0])
+  })
+
+  it('never gives a number above the length of the line', () => {
+    for (let length = 5; length <= RING_LINE_MAX; length++) for (let from = 0; from < length; from++) {
+      expect(Math.max(...ringNumbers(free(length), from, 0))).toBeLessThanOrEqual(length)
+    }
+  })
+
+  it('counts on past a ring that she missed, when that ring is behind her', () => {
+    // She took ring 0 as 1 and ring 2 as 2. Ring 1 is behind her: it is 3 if she turns back.
+    expect(ringNumbers([true, false, true, false, false], 2, 2)).toEqual([0, 3, 0, 3, 4])
+  })
+
+  it('gives a rising scale, with the notes of before for the third ring', () => {
+    expect(RING_SCALE).toHaveLength(RING_LINE_MAX)
+    RING_SCALE.slice(1).forEach((note, index) => expect(note).toBeGreaterThan(RING_SCALE[index]))
+    for (let number = 1; number <= RING_LINE_MAX; number++) {
+      const [note, fifth] = ringNotes(number)
+      expect(note).toBe(RING_SCALE[number - 1])
+      expect(fifth / note).toBeCloseTo(1.5, 2)
+    }
+    expect(ringNotes(3)[0]).toBe(RING_CHIME[0])
+    expect(ringNotes(3)[1]).toBeCloseTo(RING_CHIME[1], -1)
+    // A number outside the scale takes the nearest note.
+    expect(ringNotes(0)).toEqual(ringNotes(1))
+    expect(ringNotes(9)).toEqual(ringNotes(RING_LINE_MAX))
   })
 })

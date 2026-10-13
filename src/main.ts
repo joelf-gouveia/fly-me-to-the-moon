@@ -54,7 +54,7 @@ import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
 import { createPostcardCamera } from './postcard-camera'
-import { createSparkleRings, RING, RING_CHIME, ringGlowTexture } from './rings'
+import { createSparkleRings, RING, ringDotsTexture, ringGlowTexture, ringNotes } from './rings'
 import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 
@@ -178,6 +178,7 @@ app.innerHTML = `
     </section>
 
     <div id="arrival-note" role="status"></div>
+    <div id="ring-count" role="status"><b></b><span aria-hidden="true"></span></div>
     <div id="pause-label" class="pause-label"><span>A moment of stillness</span><button id="resume-flight" type="button">▶ Keep flying</button></div>
 
     <nav class="touch-controls" aria-label="Flight controls">
@@ -293,7 +294,7 @@ const fullDay = daylightAt(90)
 let daylight = fullDay
 const cottageWindow = (home.surface.getObjectByName('cottage-window') as THREE.Mesh).material as THREE.MeshStandardMaterial
 // Sparkle rings over the meadows of Earth, Blossom Haven and the Moon (src/rings.ts).
-const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture() })
+const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture(), dots: ringDotsTexture() })
 // The longer, brighter trail after a ring ends at this time of active flight.
 let sparkleUntil = -Infinity
 
@@ -1027,7 +1028,11 @@ function animate(timestamp?: number) {
   // A ring that the fairy flies through gives a burst, a chime and a longer, brighter trail.
   const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
   if (ringsTaken.length) {
-    playChime(RING_CHIME)
+    // The rings count with the child: the number of the ring, the same dots, and its note of the scale.
+    const { number, complete } = ringsTaken[ringsTaken.length - 1]
+    // The last ring of a line adds the high C.
+    playChime(complete ? [...ringNotes(number), 1046.5] : ringNotes(number))
+    showRingCount(number)
     sparkleUntil = elapsed + RING.trailSeconds
   }
   updateCamera(rawDelta)
@@ -1095,6 +1100,20 @@ function animate(timestamp?: number) {
 }
 
 animate()
+
+const ringCount = document.querySelector<HTMLElement>('#ring-count')!
+let ringCountTimer = 0
+/** Shows the number of a ring for a moment, large, with the same number of dots. */
+function showRingCount(number: number) {
+  ringCount.querySelector('b')!.textContent = String(number)
+  ringCount.querySelector('span')!.replaceChildren(...Array.from({ length: number }, () => document.createElement('i')))
+  // The class goes off and on again, so the pop starts again for each ring.
+  ringCount.classList.remove('is-visible')
+  void ringCount.offsetWidth
+  ringCount.classList.add('is-visible')
+  clearTimeout(ringCountTimer)
+  ringCountTimer = window.setTimeout(() => ringCount.classList.remove('is-visible'), 1300)
+}
 
 /**
  * Test only: put the fairy `distance` m before ring `index` of a world, on its axis and facing along

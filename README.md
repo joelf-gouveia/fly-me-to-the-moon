@@ -112,7 +112,22 @@ use a lighter shader, and reduced motion stops the Sun. The numbers are in
 Short lines of glowing rings in candy colours float 5 to 12 m over the ground of Earth,
 Blossom Haven and the Moon. Fly through a ring: a burst of sparkles, a two-note chime
 (when Sound is on), and a trail that is twice as long and brighter for 4 s. A taken ring
-fades and comes back after 30 s of flight. There is no score, no fail and no counter.
+fades and comes back after 30 s of flight. There is no score and no fail.
+
+The rings count with the child (F12 of the [learn and play study](#learn-and-play-study)).
+Each ring shows its number as gold dots on a dark plate over the ring. When the fairy flies
+through a ring, the number shows large at the left of the screen for about one second, with
+the same number of dots, and the ring plays its note of the C major scale (C5 for 1 to B5 for
+7) with the fifth above it. The last ring of a line adds the high C.
+
+- The number of a ring is the count that the child gets when she flies to it and takes each
+  ring on the way. A line with no count starts at the ring nearest to the fairy: that ring is
+  1. So a line counts from each end, and from its middle.
+- After a ring, the other rings of the line count on from its number. A ring that she missed
+  counts on too, if she turns back.
+- The count of a line starts again at 1 after 12 s of flight with no ring of that line
+  (`RING.countGap`). The count is not saved, and it is not a score.
+- With reduced motion, the number shows with no bounce.
 
 - Each line has 5 to 7 rings on a smooth, gentle curve. Earth has five lines, Blossom
   Haven and the Moon have three. The first line of Earth starts near the first meadow,
@@ -125,13 +140,14 @@ fades and comes back after 30 s of flight. There is no score, no fail and no cou
   lines.
 - The ring test uses the path of the fairy between two frames, so a fast fairy cannot skip
   a ring.
-- One torus, one glow quad and three materials serve all rings: two draw calls for each
-  world. A phone gets 24 sparkles in a burst instead of 48.
+- One torus, one glow quad, one dots plate and four materials serve all rings: three draw
+  calls for each world. The dots of the seven numbers are one picture. A phone gets 24
+  sparkles in a burst instead of 48.
 
 The placement and the ring test are in `src/rings.ts`; the tests are in
 `tests/rings.test.ts`. Run `node scripts/sparkle-rings-smoke.mjs "path/to/chrome.exe"`
-against the dev server for the rings on each world, a pass with the chime, the burst and
-the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
+against the dev server for the rings on each world, the number of each ring, a pass with
+the number, the chime, the burst and the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
 Blossom Haven, new rings after a new Earth landscape, and the phone layout. An optional
 second argument sets the server origin.
 

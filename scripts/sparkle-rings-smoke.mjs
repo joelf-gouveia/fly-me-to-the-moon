@@ -119,6 +119,8 @@ try {
   assert(haven.lines === 3 && haven.count >= 15 && moon.lines === 3 && moon.count >= 15, `Blossom Haven or Moon rings: ${JSON.stringify(state.worlds)}`)
   assert(state.worlds.length === 3 && state.worlds.every(item => item.taken.length === 0), `Rings on other worlds, or taken at the start: ${JSON.stringify(state.worlds)}`)
   assert(state.worlds.map(item => item.world).join() === 'Earth,Moon,Blossom Haven' && state.worlds.every(item => item.inGroup), `The rings are not in the world groups: ${JSON.stringify(state.worlds)}`)
+  // Each ring shows a number from 1 to the length of its line.
+  assert(state.worlds.every(item => item.dotsInGroup && item.numbers.length === item.count && item.numbers.every(number => number >= 1 && number <= 7)), `The rings have no numbers: ${JSON.stringify(state.worlds.map(item => item.numbers))}`)
   await screenshot('start')
   await evaluate('__fairyTest.aimRing("earth", 0, 16)'); await evaluate('advanceFlight(0.2)')
   await screenshot('earth-rings')
@@ -136,6 +138,10 @@ try {
   await pass('earth', 1, 8)
   state = await rings()
   assert(ringsOf(state, 'Earth').taken.join() === '1', `The pass did not take ring 1: ${JSON.stringify(ringsOf(state, 'Earth'))}`)
+  // The count: the fairy started next to ring 1, so it is number 1, and the next ring of the line shows 2.
+  const counted = await evaluate('({ text: document.querySelector("#ring-count b").textContent, dots: document.querySelectorAll("#ring-count i").length, shown: document.querySelector("#ring-count").classList.contains("is-visible") })')
+  assert(counted.text === '1' && counted.dots === 1 && counted.shown, `The ring did not show the number 1: ${JSON.stringify(counted)}`)
+  assert(ringsOf(state, 'Earth').numbers[1] === 0 && ringsOf(state, 'Earth').numbers[2] === 2, `The next ring does not show 2: ${ringsOf(state, 'Earth').numbers.slice(0, 7)}`)
   const chime = await evaluate('window.oscillators') - before
   assert(chime === 2, `The ring did not play a two-note chime: ${chime} new oscillators`)
   assert(state.bursts > 0 && state.bursts <= state.burstSize && state.sparkle === 1 && state.trailBonus === 1, `No burst or no bright trail: ${JSON.stringify(state)}`)
@@ -154,6 +160,7 @@ try {
   assert(ringsOf(await rings(), 'Earth').taken.join() === '1', 'The ring came back before 30 s')
   await evaluate('advanceFlight(3, 60, false)')
   assert(ringsOf(await rings(), 'Earth').taken.length === 0, 'The ring did not come back after 30 s')
+  assert(!(await evaluate('document.querySelector("#ring-count").classList.contains("is-visible")')), 'The number of the ring did not go away')
   // 8 m before ring 1: two rings are 12 m or more apart, so this start is after ring 0 and takes no ring.
   await evaluate('__fairyTest.aimRing("earth", 1, 8)'); await evaluate('advanceFlight(0.3)')
   await screenshot('earth-ring-back')

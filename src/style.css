@@ -479,6 +479,20 @@ dialog[open] {
   font: 18px Georgia, serif; opacity: 0; transition: opacity 1s; pointer-events: none;
 }
 #arrival-note.is-visible { opacity: 1; }
+/* The number of a sparkle ring: large, with the same number of dots (F12). */
+#ring-count {
+  position: absolute; z-index: 3; top: 46%; left: 16%; transform: translate(-50%, -50%);
+  display: grid; justify-items: center; gap: 10px; min-width: 104px; padding: 10px 26px 18px;
+  border-radius: 26px; background: rgba(58, 29, 78, .85); color: #fff;
+  opacity: 0; transition: opacity .35s; pointer-events: none;
+}
+#ring-count b { font: 700 84px/1 'Manrope', sans-serif; font-variant-numeric: tabular-nums; }
+#ring-count span { display: flex; gap: 7px; }
+#ring-count i { width: 13px; height: 13px; border-radius: 50%; background: #ffd36e; box-shadow: 0 0 8px #ffd36e; }
+#ring-count.is-visible { opacity: 1; animation: ring-count-pop .45s cubic-bezier(.2, 1.5, .4, 1); }
+@keyframes ring-count-pop { from { transform: translate(-50%, -50%) scale(.6); } to { transform: translate(-50%, -50%) scale(1); } }
+.touch-ui #ring-count { top: 26%; left: 50%; min-width: 84px; padding: 6px 20px 12px; }
+.touch-ui #ring-count b { font-size: 60px; }
 .touch-controls { touch-action: none; }
 .touch-controls button:nth-child(2) { grid-column: 1; }
 .vignette {
@@ -526,4 +540,5 @@ dialog[open] {
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  #ring-count.is-visible { animation: none; }
 }

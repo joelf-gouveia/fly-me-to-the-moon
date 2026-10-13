@@ -25,6 +25,10 @@ export const RING = {
   returnSeconds: 30,
   /** The longer, brighter trail after a ring. */
   trailSeconds: 4,
+  /** The count of a line starts again at 1 after this time of flight with no ring of that line. */
+  countGap: 12,
+  /** The dots of a ring: the size of their plate, and its height above the ring centre. */
+  dotsSize: 1.9, dotsHeight: 4,
 } as const
 
 /** Candy colours: pink, lilac, mint, gold, sky blue and rose. */
@@ -32,6 +36,38 @@ export const RING_COLOURS = [0xff8fc8, 0xc59bff, 0x7fe3c4, 0xffd36e, 0x8fc9ff, 0
 
 /** The two notes of a ring: E5 and B5. */
 export const RING_CHIME = [659.25, 987.77]
+
+/** One note for each number of a ring: the C major scale from C5 to B5. */
+export const RING_SCALE = [523.25, 587.33, 659.25, 698.46, 783.99, 880, 987.77]
+
+/**
+ * The two notes of the ring with `number`: its note of the scale, and the fifth above it. So a line
+ * that the fairy flies in order plays a rising scale. Number 3 gives the notes of RING_CHIME.
+ */
+export function ringNotes(number: number) {
+  const note = RING_SCALE[THREE.MathUtils.clamp(Math.round(number), 1, RING_SCALE.length) - 1]
+  return [note, Math.round(note * 150) / 100]
+}
+
+/**
+ * The numbers of the rings of one line (F12 of docs/learn-and-play-study.md). The number of a ring
+ * is the count that the child gets when she flies to it from `from` and takes each ring on the way:
+ * `base`, plus the rings from `from` to that ring that are not taken. A line with no count has
+ * `base` 0 and `from` at the ring nearest to the fairy, so that ring is 1. A line with a count has
+ * `base` at the number of the last ring and `from` at its place. A taken ring has the number 0.
+ */
+export function ringNumbers(taken: boolean[], from: number, base: number) {
+  const numbers = taken.map(() => 0)
+  for (const step of [1, -1]) {
+    let number = base
+    for (let i = from; i >= 0 && i < taken.length; i += step) {
+      if (taken[i]) continue
+      number++
+      numbers[i] = number
+    }
+  }
+  return numbers
+}
 
 /** The number of ring lines on each world. The other worlds have no rings. */
 export const RING_WORLDS: Partial<Record<PlanetKind, number>> = { earth: 5, fairy: 3, moon: 3 }
@@ -47,6 +83,9 @@ export type RingPlacement = {
   colour: number
   line: number
 }
+
+/** A ring that the fairy took: its number in the count of its line, and if it is the last ring of the line. */
+export type RingTake = RingPlacement & { number: number; complete: boolean }
 
 /** A tall object on the ground: the direction from the world centre, its reach and its top (distance from the centre). */
 export type RingObstacle = { normal: THREE.Vector3; radius: number; top: number }
@@ -310,6 +349,45 @@ export function ringGlowTexture(size = 128) {
   return texture
 }
 
+/** The dots of the numbers 1 to RING_LINE_MAX on dark round plates, side by side in one picture. Browser only. */
+export function ringDotsTexture(size = 128) {
+  const canvas = document.createElement('canvas')
+  canvas.width = size * RING_LINE_MAX; canvas.height = size
+  const ctx = canvas.getContext('2d')!
+  // The places of the dots, as on a dice. Each pattern is the same in a mirror: the plate shows from two sides.
+  const places = [
+    [[.5, .5]], [[.3, .5], [.7, .5]], [[.5, .3], [.3, .68], [.7, .68]], [[.32, .32], [.68, .32], [.32, .68], [.68, .68]],
+    [[.3, .3], [.7, .3], [.5, .5], [.3, .7], [.7, .7]], [[.33, .27], [.67, .27], [.33, .5], [.67, .5], [.33, .73], [.67, .73]],
+    [[.33, .27], [.67, .27], [.26, .5], [.5, .5], [.74, .5], [.33, .73], [.67, .73]],
+  ]
+  for (let number = 1; number <= RING_LINE_MAX; number++) {
+    const left = (number - 1) * size
+    ctx.shadowBlur = 0
+    ctx.fillStyle = 'rgba(58,29,78,0.82)'
+    ctx.beginPath(); ctx.arc(left + size / 2, size / 2, size * 0.46, 0, Math.PI * 2); ctx.fill()
+    ctx.fillStyle = '#ffd36e'; ctx.shadowColor = '#ffd36e'; ctx.shadowBlur = size * 0.06
+    for (const [x, y] of places[number - 1]) { ctx.beginPath(); ctx.arc(left + x * size, y * size, size * 0.085, 0, Math.PI * 2); ctx.fill() }
+  }
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  return texture
+}
+
+/** The dots of each ring: its own fade, and the part of the dots picture for its number. Number 0 shows nothing. */
+function dotsShader(material: THREE.Material) {
+  material.onBeforeCompile = shader => {
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float ringFade;\nattribute float ringNumber;\nvarying float vRingFade;')
+      .replace('#include <uv_vertex>', `#include <uv_vertex>\nvMapUv.x = (vMapUv.x + max(ringNumber, 1.0) - 1.0) / ${RING_LINE_MAX}.0;`)
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRingFade = ringFade * step(0.5, ringNumber);')
+    shader.fragmentShader = shader.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vRingFade;')
+      .replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.a *= vRingFade;')
+  }
+  material.customProgramCacheKey = () => 'sparkle-ring-dots'
+  return material
+}
+
 /** Multiply the alpha of each ring by its own fade (0 to 1), from an instanced attribute. */
 function fadeShader(material: THREE.Material) {
   material.onBeforeCompile = shader => {
@@ -340,6 +418,11 @@ type WorldRings = {
   rings: THREE.InstancedMesh
   glow: THREE.InstancedMesh
   fade: THREE.InstancedBufferAttribute
+  /** The dots over each ring, and the number that each ring shows. */
+  dots: THREE.InstancedMesh
+  number: THREE.InstancedBufferAttribute
+  /** Each line: its first ring in `placements`, its length, and its count (the last ring taken, its number and the time). */
+  lines: { start: number; length: number; count: { index: number; number: number; at: number } | null }[]
 }
 
 export type SparkleRings = ReturnType<typeof createSparkleRings>
@@ -347,10 +430,12 @@ export type SparkleRings = ReturnType<typeof createSparkleRings>
 /**
  * The rings of the game. The rings of a world are children of its group, so they turn and move
  * with it (also when Blossom Haven moves). One torus geometry, one glow quad and three materials
- * serve all worlds. Each world has one draw call for its rings and one for their glow. A small pool
- * of burst sparkles follows the world of the last ring. A phone gets half the sparkles.
+ * serve all worlds. Each world has one draw call for its rings, one for their glow and one for their
+ * dots. A small pool of burst sparkles follows the world of the last ring. A phone gets half the sparkles.
+ *
+ * The rings count with the child (F12): each ring shows its number as dots, and a pass gives that number.
  */
-export function createSparkleRings(worlds: World[], options: { mobile: boolean; sparkle: THREE.Texture; glow: THREE.Texture }) {
+export function createSparkleRings(worlds: World[], options: { mobile: boolean; sparkle: THREE.Texture; glow: THREE.Texture; dots: THREE.Texture }) {
   const torus = new THREE.TorusGeometry(RING.radius, RING.tube, options.mobile ? 8 : 10, options.mobile ? 32 : 48)
   const quad = new THREE.PlaneGeometry((RING.radius + 1.1) * 2, (RING.radius + 1.1) * 2)
   // Candy colours stay bright by day and glow at night: no light, no tone mapping.
@@ -359,7 +444,10 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     map: options.glow, color: 0xffffff, transparent: true, opacity: 0.2, depthWrite: false, toneMapped: false,
     blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
   }))
+  const plate = new THREE.PlaneGeometry(RING.dotsSize, RING.dotsSize)
+  const dotsMaterial = dotsShader(new THREE.MeshBasicMaterial({ map: options.dots, transparent: true, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }))
   const tint = new THREE.Color(), matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), size = new THREE.Vector3()
+  const lift = new THREE.Vector3(), across = new THREE.Vector3(), basis = new THREE.Matrix4(), one = new THREE.Vector3(1, 1, 1)
 
   const sets: WorldRings[] = []
   for (const world of worlds) {
@@ -376,8 +464,14 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     rings.instanceMatrix.setUsage(THREE.DynamicDrawUsage)
     rings.setColorAt(0, tint.setHex(RING_COLOURS[0]))
     glow.instanceColor = rings.instanceColor
-    world.group.add(rings, glow)
-    const set: WorldRings = { world, placements: [], takenAt: [], rings, glow, fade }
+    const number = new THREE.InstancedBufferAttribute(new Float32Array(capacity), 1)
+    number.setUsage(THREE.DynamicDrawUsage)
+    const dotsGeometry = geometryView(plate, fade)
+    dotsGeometry.setAttribute('ringNumber', number)
+    const dots = new THREE.InstancedMesh(dotsGeometry, dotsMaterial, capacity)
+    dots.name = 'sparkle-ring-dots'
+    world.group.add(rings, glow, dots)
+    const set: WorldRings = { world, placements: [], takenAt: [], rings, glow, fade, dots, number, lines: [] }
     sets.push(set)
     build(set)
   }
@@ -391,8 +485,16 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
   function build(set: WorldRings) {
     set.placements = ringLines(set.world)
     set.takenAt = set.placements.map(() => -Infinity)
-    set.rings.count = set.glow.count = set.placements.length
+    set.rings.count = set.glow.count = set.dots.count = set.placements.length
+    set.lines = []
     set.placements.forEach((ring, index) => {
+      if (index === 0 || set.placements[index - 1].line !== ring.line) set.lines.push({ start: index, length: 0, count: null })
+      set.lines[set.lines.length - 1].length++
+      // The dots stand over the ring, in its plane, the right way up: the child reads them on the way to the ring.
+      lift.copy(ring.position).normalize()
+      lift.addScaledVector(ring.axis, -lift.dot(ring.axis)).normalize()
+      across.crossVectors(lift, ring.axis)
+      set.dots.setMatrixAt(index, matrix.compose(lift.clone().multiplyScalar(RING.dotsHeight).add(ring.position), rotation.setFromRotationMatrix(basis.makeBasis(across, lift, ring.axis)), one))
       place(set, index, 1)
       set.rings.setColorAt(index, tint.setHex(ring.colour))
       set.fade.setX(index, 1)
@@ -400,11 +502,37 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     set.rings.instanceMatrix.needsUpdate = true
     set.rings.instanceColor!.needsUpdate = true
     set.fade.needsUpdate = true
-    for (const mesh of [set.rings, set.glow]) {
+    set.dots.instanceMatrix.needsUpdate = true
+    renumber(set, null, 0)
+    for (const mesh of [set.rings, set.glow, set.dots]) {
       mesh.computeBoundingSphere()
       // Room for the pulse and the growth of a taken ring.
       mesh.boundingSphere!.radius += RING.radius + 2
     }
+  }
+
+  /**
+   * Gives each ring of a world its number. A line with no count starts at the ring nearest to the fairy
+   * (`fairy` in the frame of the world group), or at its first ring when the fairy is on a different world.
+   */
+  function renumber(set: WorldRings, fairy: THREE.Vector3 | null, time: number) {
+    let changed = false
+    for (const line of set.lines) {
+      if (line.count && time - line.count.at > RING.countGap) line.count = null
+      const taken = Array.from({ length: line.length }, (_, i) => time - set.takenAt[line.start + i] < RING.returnSeconds)
+      let from = line.count ? line.count.index - line.start : 0
+      if (!line.count && fairy) {
+        let nearest = Infinity
+        for (let i = 0; i < line.length; i++) {
+          const distance = set.placements[line.start + i].position.distanceToSquared(fairy)
+          if (distance < nearest) { nearest = distance; from = i }
+        }
+      }
+      ringNumbers(taken, from, line.count?.number ?? 0).forEach((value, i) => {
+        if (set.number.getX(line.start + i) !== value) { set.number.setX(line.start + i, value); changed = true }
+      })
+    }
+    if (changed) set.number.needsUpdate = true
   }
 
   // The burst: a small pool of sparkles in the frame of one world group.
@@ -474,7 +602,7 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
      * `time` is the time of active flight. Returns the rings that the fairy took in this frame.
      */
     update(delta: number, time: number, fairy: THREE.Vector3, nearest: World, motion: boolean) {
-      const taken: RingPlacement[] = []
+      const taken: RingTake[] = []
       now = time
       const set = sets.find(item => item.world === nearest)
       if (set && delta > 0) {
@@ -485,11 +613,17 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
           set.placements.forEach((ring, index) => {
             if (time - set.takenAt[index] < RING.returnSeconds) return
             if (!ringPass(previousLocal, fairyLocal, ring.position, ring.axis)) return
+            // The ring gives the number that its dots show.
+            const line = set.lines.find(item => index >= item.start && index < item.start + item.length)!
+            const count = Math.max(1, set.number.getX(index))
+            line.count = { index, number: count, at: time }
             set.takenAt[index] = time
-            taken.push(ring)
+            taken.push({ ...ring, number: count, complete: count === line.length })
             burst(set, ring)
+            renumber(set, fairyLocal, time)
           })
         }
+        renumber(set, fairyLocal, time)
         previousLocal.copy(fairyLocal)
         previousWorld = nearest
       } else if (!set) previousWorld = null
@@ -538,6 +672,9 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
           /** The index of the first ring of each line. */
           lineStarts: item.placements.flatMap((ring, index) => index === 0 || item.placements[index - 1].line !== ring.line ? [index] : []),
           taken: item.takenAt.flatMap((at, index) => now - at < RING.returnSeconds ? [index] : []),
+          /** The number that each ring shows. A taken ring has 0. */
+          numbers: item.placements.map((_, index) => item.number.getX(index)),
+          dotsInGroup: item.dots.parent === item.world.group,
           first: item.placements[0]?.position.toArray() ?? null,
           inGroup: item.rings.parent === item.world.group && item.glow.parent === item.world.group,
         })),
