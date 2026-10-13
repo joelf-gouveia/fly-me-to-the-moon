@@ -222,6 +222,19 @@ After five hellos, a small friend flies with the fairy. It has no task and no he
 - Limit: one creature is 14 to 21 draw calls. The friend must keep up in open space, and must
   stay out of the ground and out of the camera. A friend for Earth needs a bird model.
 - Clip: a pegasus foal follows the fairy over Blossom Haven, and makes one loop around her.
+- Status (13 October 2026): F19 is in the game code on the branch `features/f19-fairy-friend`, with
+  the three answers of the player (see "Decisions of 13 October 2026"). The game differs from the
+  clip in four points:
+  - The child selects the friend from the nine kinds that said hello to her, in the row **Friend**
+    of **Your fairy**. The first friend is the kind of the fifth hello.
+  - Earth needs no bird model. A kind with wings flies with its wings (pegasus foal, dragonling,
+    duck). Each other kind rides in a soap bubble in the sparkle colour of her wings.
+  - The pegasus foals say hello now, so the child can meet them.
+  - A computer and a phone have the same joined model: three draw calls, against 14 to 21 of a
+    resident. The joined model stands still, with no walk and no magic particles.
+
+  The friend is never more than 2.5 m from the fairy, at each speed from 11 m/s to 2,226 m/s and
+  when a world carries her. See the Fairy friend part of `README.md`.
 
 ### F20 · Postcard album
 

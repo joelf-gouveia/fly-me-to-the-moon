@@ -498,7 +498,9 @@ undone." The reset removes the search stars too: "Remove all 5 stickers and 2 se
 stars?" **Keep the stickers** has the focus, so an extra Enter changes nothing.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
 The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
-open. The fairy look and the home discovery stay.
+open. The fairy look and the home discovery stay. The reset also removes the
+[fairy friend](#fairy-friend), the kinds that she met and the count of the hellos;
+with an empty book and a friend, the question is "Remove the fairy friend?".
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
 for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
@@ -551,6 +553,81 @@ newer styles stay clear of the wings and the pointed ears in every wing shape.
 
 Run `node scripts/browser-smoke.mjs "path/to/chrome.exe" --customization`
 for the focused desktop/mobile check, including saved selections after reload.
+
+## Fairy friend
+
+A small friend flies with the fairy (F19 of the [learn and play study](#learn-and-play-study)).
+The friend has no task and no health: it is company. The game has no count of friends and no
+score.
+
+- **When.** The friend comes at the fifth hello of a creature. A note shows for 6 s: a picture
+  of the friend, its name and "A friend flies with you now". A soft chime plays when Sound is on.
+  The first friend is the kind of the creature of the fifth hello. The game does not show the
+  number of hellos.
+- **Who.** The child selects the friend from the kinds that said hello to her: cow, rabbit, sheep
+  and duck on Earth, and unicorn, dragonling, kitsune kit, Frog Prince and pegasus foal on
+  Blossom Haven. The pegasus foals over the cottage garden say hello too.
+- **Where to select.** **Your fairy** has the row **Friend** after the friend came: one picture
+  button for each kind that she met, and **No friend**. A soft "?" with the words "Say hello"
+  shows while she can meet more kinds. Each picture is a render of the model of the friend.
+- **How a cow flies.** A kind with wings flies with its wings: the pegasus foal, the dragonling
+  and the duck. Each other kind rides in a soap bubble that the fairy made. The bubble and its
+  fairy dust have the sparkle colour of her wings, so the bubble is her magic. The friend is
+  small: its body is 1.1 m across.
+- **Reset.** **Reset sticker book** in Settings also removes the friend, the kinds that she met
+  and the count of the hellos. The text of the reset says so.
+
+How the friend flies:
+
+- **It keeps up at each speed.** In each frame the friend takes the full move of the fairy, and
+  then it comes to its place at her side (`createFriendFollow()` in `src/friend.ts`). The move
+  includes the orbit and the spin of a world that carries her, a boost and a guided flight. Thus
+  the friend is never behind her, at 11 m/s and at 2,226 m/s. It comes a little late only in a
+  turn. The friend is never more than 2.5 m from her; the limit of the tests is 4 m.
+- **A jump.** A move of the fairy of more than 150 m in one frame without a world, or a turn of
+  more than 0.5 radians in one frame, puts the friend at its place at once. This is the case for
+  a hop of Blossom Haven and for the test hooks.
+- **Its place.** The friend is at her right side: 2.2 m to the right and 0.5 m up on a wide
+  screen. A phone in portrait shows less than 2 m to each side of her, so there the place is
+  1.2 m to the right and 1.3 m up, and the friend is 20% smaller (`friendPlace()`).
+- **The ground and the camera.** The middle of the friend stays 1.05 m over the ground and the
+  water. The friend stays 0.95 m from the line between the camera and the fairy, and 2.2 m from
+  the camera, so it does not cover her.
+- **Life.** The wings beat, faster in a boost and in open space. A friend in a bubble floats in
+  it, and the bubble wobbles. The friend looks where she flies, with its nose a little toward
+  her, and looks back at her for 2 s in each 12 s. It makes a happy loop around her after a
+  sparkle ring, a hello, a new sticker or a search star, not more often than each 20 s. With
+  reduced motion the friend makes no loop, no bob and no wing beat.
+- **Hover, pause and the menus.** In a hover the friend stays at her side. In a pause it holds
+  its pose. While Worlds is open the worlds still move, and the friend stays with her. In
+  **Your fairy** on a computer the friend comes near and turns to the camera, so the child sees
+  her choice. On a phone the panel covers the view, and the marked button shows the choice.
+- **Not a resident.** The friend is not part of the creatures of a world. It says no hello, and
+  the search tasks do not see it. The friend is in each postcard.
+
+The friend is three draw calls on a phone and on a computer: the body with its parts joined,
+the two wings or the bubble, and the fairy dust (`createFriendModel()`). The joined model stands
+still: it has no walk and no magic particles. A resident of a world is 14 to 21 draw calls.
+
+- The saved state, the follow rule and the model are in `src/friend.ts`. The note, the Friend
+  row and the storage are in `src/friend-ui.ts` and `src/friend.css`. The state is `fairy-friend`
+  in `localStorage`: the count of the hellos to five, the kinds that she met and the friend. A
+  missing or broken value gives a game with no friend.
+- `greet()` of the population (`src/creatures/population.ts`) gives the kind of each creature
+  that starts a hello. `greetFoals()` in `src/candy.ts` is the hello of the pegasus foals.
+- The test snapshot gives `friend` (the state, the place on the screen, the distance to the
+  fairy and the largest distance since the last snapshot) and `foalHellos`. The test hooks are
+  `meet(...kinds)`, `chooseFriend(kind)` and `cheer()`.
+- On the dev server, `?friend=all` gives a hello of each kind at the start: the friend comes at
+  once, and the row has the nine kinds.
+
+Run `node scripts/friend-smoke.mjs "path/to/chrome.exe" [origin]` against the dev server to
+check the friend in the game: five hellos on Earth and the note, the friend is no resident, a
+happy loop, the Friend row with a different friend and **No friend**, a reload, a broken saved
+value, each of the nine kinds, a low flight with turns, a climb from the meadow to open space
+with a boost and a guided flight back, reduced motion, the reset in Settings, the hello of a
+pegasus foal, a hop of Blossom Haven, and a phone at 390 px. The check prints the draw calls
+with and without the friend. The screenshots go to `artifacts.local/friend/`.
 
 ## Fairy flight pose study
 
@@ -645,7 +722,9 @@ creature turns to her and hops two times on its ground. Ducks and Frog Princes
 bob on the water. Two or three small pink hearts float up from the head, sway
 and fade. A soft two-note chime plays when Sound is on. Hellos that come close
 together share one chime. Each creature says hello again only after 8 s. The
-pegasus foals in the air do not say hello.
+pegasus foals in the air say hello too: a foal turns to the fairy, makes two
+small jumps in the air and sends up hearts (`greetFoals()` in `src/candy.ts`).
+The hellos bring the [fairy friend](#fairy-friend).
 
 - `greet()` of the population (`src/creatures/population.ts`) runs after
   `update()`, because `update()` puts each model back on its route. The hop goes
