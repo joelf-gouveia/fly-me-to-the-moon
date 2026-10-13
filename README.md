@@ -441,6 +441,56 @@ the phone layout. A test move puts the fairy at each place, and the check uses
 dark in the canyon of Mars and bright at the middle of each ray crater of Mercury. An optional
 second argument sets the server origin.
 
+## Picture thermometer
+
+A thermometer with a face shows if a world is hot or cold. It has no numbers: the level in
+the tube, the colour, the face in the bulb and one word give the answer. The colour is never
+the only sign. The faces are drawings of the game, not emoji, because an emoji looks different
+on each device. This is idea F16 of the [learn and play study](#learn-and-play-study).
+
+| Word | Face | Colour | Worlds, from the hottest |
+| --- | --- | --- | --- |
+| HOT | Red cheeks, an open mouth, a sweat drop | Red | The Sun, Venus, Mercury |
+| WARM | Small cheeks, a small smile | Orange | No world now |
+| NICE | Happy eyes, a wide smile | Green | Earth, Blossom Haven |
+| COOL | A flat mouth | Teal | The Moon, Mars, Vesta, Ceres |
+| COLD | A mouth that shivers, a snowflake, shiver lines | Blue | Jupiter, Saturn, Neptune, Uranus |
+
+Each world has one level, from 0 to 1 (`WARMTH` in `src/warmth.ts`). A world has no day level
+and no night level. The order follows the real temperatures, and the Sun is the top. Venus
+is the hottest planet and Uranus the coldest, below Neptune, as their sticker facts say. The
+five colours have a contrast of 3 or more with the dark panel of **Worlds** and with the pink
+sticker card, and the lines of the thermometer are dark on a sticker card.
+
+The thermometer is in two places. It is not a permanent part of the flight screen.
+
+- **Worlds.** The card of each known world shows its thermometer and its word, under the name.
+  A mystery world, the grey "?", shows no thermometer.
+- **The arrival.** When the fairy arrives at a world, a small note shows the thermometer, the
+  name of the world and the word for 5 seconds, and the level goes up in the tube. With reduced
+  motion the level does not move. The note makes no sound.
+
+The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
+
+- An arrival is the moment when the flight panel says that the fairy is near a world: the
+  same test as for a sticker. The start on Earth is no arrival.
+- The note shows at each arrival, not only at the first visit. The same world shows again
+  only after 10 seconds away from it, so a short flight out and back gives no new note.
+- One note at a time. The thermometer waits while the sticker note, the search-star note, the
+  note of the found home or the note of a hop shows. It comes when that note is gone, if the
+  fairy is still near the world. It leaves at once when one of those notes comes.
+- The note and its time wait behind **Worlds**, Settings, Menu and the pause.
+- With a mouse and keys the note is in the place of the sticker note, above the toolbar. On a
+  touch screen it is at the right edge, below the place of the "A new world to explore" note
+  and above **Boost**, because that note can show at the same time.
+
+`src/warmth.ts` has the levels, the steps, the SVG and the rule. `src/warmth-note.ts` has the
+arrival note, and `src/warmth.css` has the styles. Run
+`node scripts/thermometer-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+thermometers in **Worlds**, the arrival note at Venus and at the Moon, its rule and the phone
+layout at 390 px and 320 px. An optional second argument sets the server origin. The pictures
+are in `artifacts.local/thermometer/`.
+
 ## Postcard camera
 
 The camera button takes a picture of the flight (F5 of the

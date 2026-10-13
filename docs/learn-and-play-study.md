@@ -189,6 +189,17 @@ A thermometer with a face shows hot or cold near each world. It has no numbers.
 - Clip: the fairy comes to Venus, and the level goes up to red. Then she comes to Uranus, and
   the level goes down to blue.
 - Note: Uranus is below Neptune in the table, as the fact of the Uranus sticker says.
+- Status: F16 is in the game code on the branch `features/f16-thermometer`, with the
+  recommendation of its study for each open decision: the card of a world in Worlds and a note
+  for a moment at the arrival, the level, the colour and the face with one word, and one level
+  for each world. See the Picture thermometer part of `README.md`. Four things differ from the
+  study:
+  - The levels are in a new `src/warmth.ts`, not in `src/stickers.ts`.
+  - The face is in the bulb of the thermometer, so one small SVG has the level and the face.
+  - Each of the five words has one colour. The colours of the study clip did not have enough
+    contrast on the pink sticker card.
+  - The Moon is COOL, not NICE: its level is 0.4, not 0.45. NICE is for Earth and Blossom
+    Haven, the worlds with plants and animals. No world is WARM now.
 
 ### F17 · Cottage garden
 
