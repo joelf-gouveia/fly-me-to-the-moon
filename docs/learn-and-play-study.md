@@ -163,6 +163,24 @@ that the child sees from Earth gets its place.
   Moon away from the sunset in 11 s, so three shapes show: crescent, half Moon and almost full.
   In the game the Moon needs 300 s for one cycle. The Moon of the clip is at its real size in the
   sky; the camera has a narrow view (26°).
+- Status: F14 is in the game code on the branch `features/f14-moon-diary`, with the
+  recommendation of its study for each open decision: a shape counts when the fairy is in the
+  air of Earth, the Moon is in the view, and the sky is clear; the new Moon fills its place when
+  the Moon is next to the Sun, with the line "The Moon hides today"; the diary has five shapes.
+  The diary is a block in Worlds below the cards, and only the note of a new shape shows in the
+  flight. See the Moon diary part of `README.md` for the rule and the measured numbers.
+
+Three things in the game are different from the study:
+
+- The shape comes from the lit part of the disc that the fairy sees, not from the angle
+  between the Moon and the Sun. The orbit of the Moon leans 28°, so in some months the new Moon
+  stays 28° from the Sun. The limits are 10%, 35%, 65% and 88% lit, and each month has each shape.
+- "The sky is clear" has three parts: the cloud cover, the air and the eclipse. The air of the
+  game hides a Moon on the horizon from near the ground, and the shadow of Earth is on 8 of the
+  12 full Moons of a game year, for 21 s to 39 s. These Moons give no shape.
+- By day the dark side of the Moon shows as a grey ball, so a shape is hard to read by day, and
+  the new Moon does not hide in the picture. The diary counts the day and the night the same.
+  This is an open decision for the player.
 
 ### F15 · Nature stamps
 

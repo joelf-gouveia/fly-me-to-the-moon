@@ -213,6 +213,87 @@ Run `node scripts/moon-smoke.mjs "path/to/chrome.exe"` against the dev server fo
 the orbit, the Worlds picture and map, a guided trip to the Moon, the carry at
 8× and the phone layout. An optional second argument sets the server origin.
 
+## Moon diary
+
+The Moon diary (F14 of the [learn and play study](#learn-and-play-study)) keeps each shape of the
+Moon that the child sees from Earth. It has five places: **New Moon**, **Crescent**, **Half Moon**,
+**Almost full** and **Full Moon**. A new shape gives a note in the flight, in the look and at the
+place of the sticker note: a drawing of the shape, its name and one short line, for example
+"One half is bright." A soft chime plays when the sound is on. The note waits while a sticker
+note shows, and a search star waits for the note. No strip shows in the flight.
+
+The diary is in **Worlds**, below the cards: one place for each shape, with the count next to the
+sticker count ("2 of 5 Moon shapes"). An empty place shows its shape as a faint drawing. A tap
+on a place gives its line, or a hint for an empty place. While a place is empty, the line of
+the diary says where the Moon is now: "The Moon is in the sky now. Look up!" or "The Moon is on
+the other side of Earth now. It comes back soon." The diary saves in the browser
+(`fairy-moon-diary` in `localStorage`), and **Reset sticker book** in Settings removes it.
+
+The shape comes from the lit part of the disc of the Moon that the fairy sees:
+
+| Shape | Lit part | Line |
+| --- | --- | --- |
+| New Moon | less than 10%: the Moon is less than about 37° from the Sun | The Moon hides today. |
+| Crescent | 10% to 35% | A thin curve of light. |
+| Half Moon | 35% to 65% | One half is bright. |
+| Almost full | 65% to 88% | Almost a full circle. |
+| Full Moon | 88% or more | A round, bright Moon! |
+
+A shape counts when the child sees it for 0.8 s of flight with no break:
+
+- The fairy is in the air of Earth, and Earth is the nearest world.
+- The middle of the Moon is in the picture of the camera, not at its edge.
+- The Moon is above the horizon: Earth does not hide it.
+- The clouds do not hide the sky: the cloud cover over the camera is below 0.5. Above the
+  clouds the cover is 0.
+- The Moon shows through the air. The air of the game is thick along the horizon, as the picture
+  shows it, so near the ground a Moon on the horizon is faint and does not count. A Moon higher
+  in the sky counts, and from above the clouds each Moon above the horizon counts.
+- The shadow of Earth does not touch the Moon. In an eclipse the full Moon is dark, so it gives
+  no shape. 8 of the 12 full Moons of a game year have an eclipse of 21 s to 39 s; the Moon is
+  full before it and after it.
+- The new Moon has no light to see. It counts when the Sun is up and the place of the Moon next
+  to the Sun is in the picture. The thick air changes nothing for it.
+
+The day and the night count the same. By day the dark side of the Moon shows as a grey ball, so
+the shape is easier to read at night. The Moon is near Earth, so the lit part changes a little
+with the place of the fairy on Earth.
+
+A lunar month is 300 s at 1× World speed. From the middle of Earth, each month has 29 s or more
+of the new Moon, 36 s or more of the full Moon outside the eclipse, and 56 s or more of each
+other shape. `month` as a third argument of the check flies scripted children for 900 s with
+the real weather. One run on 13 October 2026 gave these counts at the end of the first, second
+and third month. The game is not the same at each run, so a second run changes a count by one
+or two.
+
+| The child | Shapes after 1, 2 and 3 months | The first note |
+| --- | --- | --- |
+| She does not steer: a low, level flight | 1, 2, 2 | 151 s |
+| She turns, climbs and dives at random, flight 1 | 3, 3, 3 | 23 s |
+| The same, flight 2 | 0, 4, 5 | 329 s |
+| The same, flight 3 | 3, 3, 3 | 2 s |
+| She flies to the Moon when it is in the sky | 5, 5, 5 | 2 s |
+
+A child who looks for the Moon fills the diary in one month. A child who does not look at the
+sky gets 0 to 3 shapes in one month: the camera looks along the flight, and the Moon is in the
+picture for 3% to 10% of the time.
+
+The game starts with a half Moon high in the morning sky, above the picture. A climb brings it
+into the picture: with W or ↑ from the start, the note of the half Moon comes after 1.5 s. A
+guided flight from Earth to the Moon can also give a shape on the way. With 8× World speed in
+Settings a month is 38 s.
+
+The rules and the saved diary are in `src/moon-diary.ts`, with no browser code. The note and the
+diary in Worlds are in `src/moon-diary-ui.ts`. Run
+`node scripts/moon-diary-smoke.mjs "path/to/chrome.exe"` against the dev server for the rules,
+the five notes, the wait for a sticker note, the saved diary, the diary in Worlds, the reset,
+reduced motion and the 390/320 px phone layouts. An optional second argument sets the server
+origin. On the dev server, `?test&moon=190` starts the game at 190 s of the orbits: a full
+Moon. 75 is a new Moon, 105 a crescent, 150 a half Moon and 172 an almost full Moon;
+`&weather=clear` removes the clouds. The Moon is not above the horizon of the meadow at each of
+these times. The test hook `__fairyTest.spin(seconds)` turns Earth to a later time of the day,
+and `__fairyTest.faceMoon()` turns the fairy to the Moon and holds her in a hover.
+
 ## Night sky
 
 The sky has the 2,887 brightest real stars from the NASA Bright Star Catalog
@@ -496,6 +577,8 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
 confirmation before it removes them: "Remove all 5 stickers? This cannot be
 undone." The reset removes the search stars too: "Remove all 5 stickers and 2 search
 stars?" **Keep the stickers** has the focus, so an extra Enter changes nothing.
+The reset also removes the Moon diary, and the question counts its shapes: "Remove the
+sticker, and the Moon shape?" With no sticker, a diary with a shape can also be reset.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
 The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
 open. The fairy look and the home discovery stay.
