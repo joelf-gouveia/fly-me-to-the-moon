@@ -147,9 +147,9 @@ line of each world, such as the line at the start meadow of Earth, is a count li
   place of the number, for example a gold triangle and the word **Triangle**. Each shape has
   its own two notes (C for the circle to G for the heart). The last ring of the line adds
   the high C.
-- The first shape line of a world starts 40 to 110 m after the last ring of the first line,
-  in the direction of that line. The child who flies on from the count line comes to the
-  shapes.
+- The first shape line of a world starts after the last ring of the first line, 42 m or more
+  from it, in the direction of that line. The child who flies on from the count line comes
+  to the shapes. If the land there has no room, the line can be at a different place.
 - Each shape is about the size of the round ring (`ringShapePoints()`). The ring test is the
   same disc for each ring, so a corner of a shape is never more than 0.15 m outside the disc,
   and the middle of each shape has room for the fairy.
