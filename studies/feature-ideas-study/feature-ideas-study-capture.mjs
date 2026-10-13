@@ -18,7 +18,8 @@ const [browserPath, only, origin = 'http://127.0.0.1:5174'] = args.filter(arg =>
 const stillTimes = process.env.STILLS?.split(',').map(Number)
 if (!browserPath) throw new Error('Pass a Chromium browser executable as the first argument')
 const FPS = 30, WIDTH = 1280, HEIGHT = 720
-const out = join(process.cwd(), 'public', 'studies', 'feature-ideas')
+// A different study that uses the lab sets STUDY_OUT (the folder in public/studies/) and STUDY_PAGE (its page).
+const out = join(process.cwd(), 'public', 'studies', process.env.STUDY_OUT ?? 'feature-ideas')
 await mkdir(out, { recursive: true })
 
 async function findFfmpeg() {
@@ -87,7 +88,7 @@ try {
   }
   await send('Runtime.enable'); await send('Log.enable'); await send('Page.enable')
   await send('Emulation.setDeviceMetricsOverride', { width: WIDTH, height: HEIGHT, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${origin}/studies/feature-ideas-study.html?capture` })
+  await send('Page.navigate', { url: `${origin}/studies/${process.env.STUDY_PAGE ?? 'feature-ideas-study'}.html?capture` })
   for (let i = 0; i < 120 && !(await evaluate('Boolean(window.__capture)').catch(() => false)); i++) await delay(250)
   console.log('Page ready:', await evaluate('Boolean(window.__capture)'))
   const ids = only ? only.split(',') : await evaluate('window.__capture.features')

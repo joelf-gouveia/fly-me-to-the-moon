@@ -1,0 +1,24 @@
+/* The parts of this page that the page look of the feature ideas study does not have. */
+.study { display: grid; gap: 0; min-width: 0 }
+.study-head { margin: 56px 0 8px; padding-top: 28px; border-top: 1px solid #e5c28e55 }
+.study-head h2 { margin: 6px 0 10px; font: 400 clamp(30px, 4.4vw, 46px)/1.1 Georgia, 'Times New Roman', serif; color: #f4f6fb; text-wrap: balance }
+.study-question { margin: 0; max-width: 62ch; font: italic 400 clamp(17px, 2vw, 21px)/1.5 Georgia, 'Times New Roman', serif; color: #f6d9aa; text-wrap: balance }
+.block-title { margin: 4px 0 14px; font: 400 22px/1.25 Georgia, 'Times New Roman', serif; color: #f4f6fb }
+.moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 14px }
+.moments figure { margin: 0; min-width: 0 }
+.moments img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid #263049; background: #02030f }
+.moments figcaption { margin-top: 8px; font-size: 13.5px; line-height: 1.5; color: #c1cadb }
+.moments figcaption b { display: inline-block; margin-right: 6px; font: 400 11px 'DM Mono', monospace; letter-spacing: .08em; color: #f6d9aa; font-variant-numeric: tabular-nums }
+.plan { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; margin-top: 8px }
+.plan > div { min-width: 0 }
+.plan h3 { margin: 14px 0 6px; font: 600 12px 'Manrope', sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #9aa6bf }
+.plan ol, .plan ul { margin: 0; padding-left: 20px; display: grid; gap: 8px; font-size: 14.5px; color: #dfe5f0 }
+.plan p { margin: 0; font-size: 14.5px; color: #dfe5f0 }
+.study-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 28px 0 0 }
+.study-nav button { padding: 10px 16px; border-radius: 22px; border: 1px solid #36405a; background: #0f1528; color: #dfe5f0; font: 500 13px 'Manrope', sans-serif; cursor: pointer }
+.study-nav button:hover, .study-nav button:focus-visible { border-color: #e5c28e; color: #f6d9aa }
+.together { margin: 72px 0 0; padding-top: 28px; border-top: 1px solid #e5c28e55 }
+.together h2 { margin: 6px 0 0; font: 400 clamp(26px, 3.6vw, 38px)/1.15 Georgia, 'Times New Roman', serif; color: #f4f6fb }
+@media (max-width: 760px) { .moments, .plan { grid-template-columns: minmax(0, 1fr) } }
+.pill.group-learn { color: #9fd8ff; border-color: #9fd8ff55; }
+.pill.group-play { color: #ffb3d6; border-color: #ffb3d655; }

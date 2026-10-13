@@ -1139,6 +1139,27 @@ cost and the limits. The clips are in `public/studies/fairy-trail/`. Run
 `node studies/fairy-trail-study/fairy-trail-study-capture.mjs "path/to/chrome.exe" today,pixie http://localhost:5174`
 to record the clips of the trail of today and of Pixie dust again.
 
+## Learn and play study
+
+Visit `/studies/learn-and-play-study.html` for **Ten ideas to learn and to come back**, a study
+of ten features for a child of 5 and up (F11 to F20). Six teach: an animal book, rings that
+count, a size line-up of the worlds, a diary of the Moon shapes, nature stamps for the climate
+belts, and a picture thermometer. Four give a reason to come back: a garden at the cottage, looks
+to earn, a fairy friend and a postcard album. Each idea has a clip from the engine of the game,
+with the idea added by study code, and the pictures in the cards come from the engine too.
+**Fly it live** runs the idea in live 3D. Each idea has its own study on the page: three moments
+of its clip, what the game has today, three decisions and a build plan
+(`studies/learn-and-play-study/studies.ts`). Pick the ideas at the end of the page. Its controls
+do not change the game.
+
+The study uses the lab and the page look of the [feature ideas study](#feature-ideas-study). The
+recommendation is F12, F15, F11 and F17 first. The
+[technical study](docs/learn-and-play-study.md) gives the rules that each idea obeys, the
+findings, the place of each change, the limits and how the clips were made. The clips are in
+`public/studies/learn-and-play/`. Run
+`node studies/learn-and-play-study/learn-and-play-study-capture.mjs "path/to/chrome.exe" F11,F12`
+against port 5174 to record the clips of F11 and F12 again.
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:

@@ -1,0 +1,83 @@
+/* The layers of the ten features (F11 to F20). 1 em is 16 px in the 1280 px wide clip (shared.ts). */
+.lp-root { position: absolute; inset: 0; container-type: size; pointer-events: none; }
+.lp-scale { position: absolute; inset: 0; font: 500 1.25cqw 'Manrope', system-ui, sans-serif; color: #59304c; }
+.lp-scale small { display: block; font: .56em 'DM Mono', monospace; letter-spacing: .2em; }
+.lp-scale h2 { margin: .1em 0 .15em; font: 1.6em 'Italiana', Georgia, serif; }
+.lp-scale p { margin: 0; font-size: .78em; line-height: 1.45; }
+.lp-scale img { display: block; }
+
+/* A book: a row of slots at the bottom of the view, between the speed panel and the round buttons. */
+.lp-strip { position: absolute; left: 50%; bottom: 1.4em; translate: -50% 0; display: flex; align-items: center; gap: .7em; padding: .55em 1em .55em .9em; border: 1px solid #ffcfdf99; border-radius: 1.5em; background: #ffe1eef2; box-shadow: 0 .6em 3em #6f3c6230; }
+.lp-strip-title { margin-right: .3em; }
+.lp-strip-title b { display: block; margin-top: .15em; font: 600 1em 'Manrope', sans-serif; }
+.lp-slot { position: relative; display: grid; place-items: center; width: 3.5em; height: 3.5em; border-radius: 50%; border: .12em dashed #c9a2b8; background: #fff6; font-size: 1em; overflow: hidden; }
+.lp-slot > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.lp-slot > span { font-size: 1.5em; }
+.lp-slot.is-empty > img, .lp-slot.is-empty > span { filter: grayscale(1) brightness(.72) contrast(.7); opacity: .34; }
+.lp-slot.is-full { border: .14em solid #fff; box-shadow: 0 0 0 .1em #f29ac0, 0 .2em .8em #a2406a55; }
+.lp-slot-wrap { display: grid; justify-items: center; gap: .2em; }
+.lp-slot-wrap > em { font: 500 .6em 'Manrope', sans-serif; font-style: normal; opacity: .8; }
+
+/* A note: the look of the sticker note of the game, at the same place. */
+.lp-card { position: absolute; right: 2.5em; bottom: 6em; display: flex; align-items: center; gap: .9em; max-width: 24em; padding: .85em 1.25em .85em .85em; border: 1px solid #ffcfdf99; border-radius: 1.5em; background: #ffe1eef2; box-shadow: 0 .6em 3em #6f3c6230; transform-origin: 90% 100%; visibility: hidden; }
+.lp-card > img, .lp-card > .lp-art { flex-shrink: 0; width: 5.2em; height: 5.2em; border-radius: 1em; object-fit: cover; }
+.lp-card > .lp-art { display: grid; place-items: center; font-size: 1em; background: #fff8; }
+.lp-card > .lp-art > span { font-size: 2.8em; }
+.lp-icons { display: flex; gap: .5em; margin-top: .4em; font-size: 1.25em; }
+.lp-icons > span { display: grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: #fff9; }
+.lp-pill { display: inline-block; margin-top: .45em; padding: .15em .7em; border-radius: 1em; background: #7fc59a; color: #fff; font: 600 .62em 'Manrope', sans-serif; letter-spacing: .08em; }
+
+/* F12: the number of a ring, large, at the top of the view. */
+.f12-number { position: absolute; left: 20%; top: 30%; translate: -50% -50%; display: grid; justify-items: center; padding: .6em 1.6em 1em; border-radius: 1.6em; background: #3a1d4ed9; visibility: hidden; color: #fff; }
+.f12-number b { font: 700 7em/1 'Manrope', sans-serif; }
+.f12-number span { display: flex; gap: .45em; margin-top: .3em; }
+.f12-number i, .f12-dots i { display: block; width: 1em; height: 1em; border-radius: 50%; background: #ffd36e; box-shadow: 0 0 .5em #ffd36e; }
+.f12-count { width: 3em; height: 3em; border-style: solid; border-color: #e9c3d6; font: 700 1.5em 'Manrope', sans-serif; color: #c9a2b8; }
+.f12-count.is-full { color: #fff; background: var(--ring); }
+
+/* F13: two worlds side by side at their real proportions. */
+.f13-card { position: absolute; left: 50%; top: 50%; translate: -50% -52%; width: 44em; padding: 1.1em 1.6em 1.2em; border: 1px solid #ffcfdf99; border-radius: 1.8em; background: #ffe9f2f5; box-shadow: 0 1em 4em #2a123a66; text-align: center; visibility: hidden; }
+.f13-stage { position: relative; height: 15.5em; margin: .5em 0 .3em; }
+.f13-stage img { position: absolute; top: 50%; border-radius: 50%; translate: -50% -50%; box-shadow: 0 .3em 1.4em #2a123a44; }
+.f13-row { position: absolute; top: 50%; translate: 0 -50%; display: flex; }
+.f13-row img { position: static; translate: none; box-shadow: 0 0 0 .08em #fff; visibility: hidden; }
+.f13-names { display: flex; justify-content: space-between; padding: 0 4em; font: 1.5em 'Italiana', Georgia, serif; }
+.f13-line { margin-top: .4em; font-size: 1.05em; font-weight: 600; }
+.f13-line b { display: inline-grid; place-items: center; min-width: 1.9em; height: 1.9em; margin: 0 .2em; border-radius: 1em; background: #f29ac0; color: #fff; }
+
+/* F14: the diary of the Moon. */
+.f14-slot svg { width: 100%; height: 100%; }
+.f14-slot { border-style: solid; border-color: #3b4260; background: #1b2140; }
+.f14-slot.is-empty svg { opacity: .22; }
+.f14-slot.is-full { box-shadow: 0 0 0 .1em #ffe9a8, 0 0 1em #ffe9a8aa; }
+.f14-strip { background: #232a4eee; border-color: #6f79b055; color: #e9ecff; }
+
+/* F15: the stamp of a belt. */
+.f15-stamp { position: absolute; left: 50%; top: 5em; translate: -50% 0; display: grid; justify-items: center; gap: .1em; width: 11em; height: 11em; padding-top: 1.5em; border: .35em double #fff; border-radius: 50%; background: var(--belt); color: #fff; box-shadow: 0 .6em 2.4em #2a123a55; visibility: hidden; }
+.f15-stamp span { font-size: 4em; line-height: 1; }
+.f15-stamp b { font: 1.25em 'Italiana', Georgia, serif; }
+.f15-stamp small { opacity: .9; }
+.f15-slot.is-full { background: var(--belt); }
+
+/* F16: the picture thermometer, under the nearest-world panel. */
+.f16-meter { position: absolute; right: 2.6em; top: 10em; display: flex; align-items: center; gap: .9em; padding: .9em 1.2em .9em 1em; border-radius: 1.4em; background: #10162eb8; border: 1px solid #ffffff22; color: #fff; backdrop-filter: blur(6px); }
+.f16-meter svg { width: 3.2em; height: 11em; }
+.f16-face { display: grid; justify-items: center; gap: .3em; width: 6.5em; }
+.f16-face span { font-size: 3.6em; line-height: 1; }
+.f16-face b { font: 600 1.2em 'Manrope', sans-serif; letter-spacing: .12em; }
+
+/* F18: the gift of a new look. */
+.f18-gift { background: linear-gradient(135deg, #fff3c9, #ffd9ec); }
+.f18-gift > .lp-art { background: #fff; }
+
+/* F19: the friend card. */
+.f19-card { left: 2.5em; right: auto; bottom: 6.2em; transform-origin: 10% 100%; }
+
+/* F20: the flash, the postcard and the album. */
+.f20-flash { position: absolute; inset: 0; background: #fff; opacity: 0; }
+.f20-post { position: absolute; left: 50%; top: 46%; width: 26em; padding: .8em .8em 0; background: #fff; border-radius: .5em; box-shadow: 0 1em 4em #1a0f2e88; text-align: center; visibility: hidden; transform-origin: 50% 50%; translate: -50% -50%; }
+.f20-post img { width: 100%; border-radius: .25em; }
+.f20-post b { display: block; padding: .35em 0 .5em; font: 1.5em 'Italiana', Georgia, serif; }
+.f20-slot { width: 5.4em; height: 3.6em; border-radius: .6em; }
+.f20-slot.is-full { border-radius: .5em; }
+.f20-slot .f20-tick { position: absolute; right: .1em; bottom: .05em; font-size: 1em; }

@@ -8,7 +8,11 @@ The feature study is the source of F1 to F10:
 [docs/feature-ideas-study.md](docs/feature-ideas-study.md) and
 `/studies/feature-ideas-study.html`.
 
-Last update: 4 October 2026.
+The learn and play study is the source of F11 to F20:
+[docs/learn-and-play-study.md](docs/learn-and-play-study.md) and
+`/studies/learn-and-play-study.html`.
+
+Last update: 13 October 2026.
 
 ## State of each idea
 
@@ -24,9 +28,19 @@ Last update: 4 October 2026.
 | F8 Comets and shooting stars | In `master` | Merged in `30561c9` |
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
+| F11 Animal book | Study only. Not selected on 13 October 2026 | None |
+| F12 Count and shape rings | Selected. The count is built, with no commit yet. The shape lines are not built | `features/f12-count-rings` |
+| F13 Size line-up | Study only. Not selected on 13 October 2026 | None |
+| F14 Moon shapes diary | Selected. Not started | None |
+| F15 Nature stamps | Study only. Not selected on 13 October 2026 | None |
+| F16 Picture thermometer | Selected. Not started | None |
+| F17 Cottage garden | Study only. Not selected on 13 October 2026 | None |
+| F18 Looks to earn | Study only. Not selected on 13 October 2026 | None |
+| F19 Fairy friend | Selected. Not started | None |
+| F20 Postcard album | Study only. Not selected on 13 October 2026 | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
 
-No idea has an open branch.
+One idea has an open branch: F12.
 
 ## Open features
 
@@ -163,6 +177,43 @@ A home-screen icon, full screen, and play with no Wi-Fi (a web manifest and a
 service worker). It needs an HTTPS host, and `docs/mobile-play.md` says that the
 game has no public host and no offline cache. The game also needs its own icon:
 `public/favicon.svg` is the default Vite logo. Size: medium. Not started.
+
+### F11 to F20 · Learn and play
+
+The player selected these ten ideas on 13 October 2026 from a list of 15: ideas that teach a
+child of 5 and up, and ideas that give a reason to come back. Each one has a clip and a study
+in the learn and play study. Each idea obeys the rules of the search tasks: no score, no timer
+and no fail.
+
+Decisions of the player, 13 October 2026:
+
+- **In the game:** F12, F14, F16 and F19. F12 comes first.
+- **The new books** (the Moon diary) are pages in Worlds, next to the stickers.
+- **A card** has a picture, a name and picture facts.
+- **In the flight** only the note of a new card shows. The book is in Worlds.
+- **F19:** the child selects the friend from the creatures that she met. The friend comes
+  after five hellos. A phone gets a friend model with its parts joined.
+- **Open:** the three decisions of F12, of F14 and of F16 have no answer. F12 uses the
+  recommendation of its study for each one.
+
+| Idea | Kind | What the child gets | Size |
+| --- | --- | --- | --- |
+| F11 Animal book | Learn | A card for each kind of animal, at its first hello | M |
+| F12 Count and shape rings | Learn | The sparkle rings count from one to five | S |
+| F13 Size line-up | Learn | Two worlds at their real proportions, in Worlds | S |
+| F14 Moon shapes diary | Learn | A place for each shape of the Moon | M |
+| F15 Nature stamps | Learn | A stamp for each belt, garden and season | M |
+| F16 Picture thermometer | Learn | A level, a colour and a face for hot and cold | S |
+| F17 Cottage garden | Play | A flower of each world next to the cottage | M |
+| F18 Looks to earn | Play | A new look as a gift for each search star | M |
+| F19 Fairy friend | Play | A small friend that flies with the fairy | L |
+| F20 Postcard album | Play | The postcards stay in the game, with pictures to find | M |
+
+F15 includes "a sticker for each season", which is an open item of the weather in `TODO.md`.
+
+Not selected from the list of 15: star picture tracing (the stars of a star picture light one at
+a time), colour mixing clouds on Blossom Haven, a daily gift at the cottage, a flight with a
+flock, and helper deliveries for the creatures.
 
 ## New ideas
 

@@ -2,9 +2,11 @@ import './style.css'
 import { createElement, Palette, Pause, Settings } from 'lucide'
 import * as THREE from 'three'
 import { createLab } from './lab'
+import type { Feature } from './lab'
 import { FEATURES } from './features'
 import { setSoundOn, startRecording, takeRecording } from './features/sound'
 import { surfaceRadius } from '../../src/worlds'
+import { zoneNameAt } from '../../src/foliage/build'
 import gameStyle from '../../src/style.css?inline'
 import adventureStyle from '../../src/adventure.css?inline'
 import stickerStyle from '../../src/sticker-book.css?inline'
@@ -14,9 +16,9 @@ import settingsStyle from '../../src/settings.css?inline'
  * The capture page: the screen of the game at 1280 × 720, with the panels of src/main.ts
  * and the Worlds button of src/adventure.ts, and the lab in place of the game scene. The
  * capture script (feature-ideas-study-capture.mjs) asks for each frame, so each clip has
- * 30 frames in each second, also on a slow computer.
+ * 30 frames in each second, also on a slow computer. A different study gives its own features.
  */
-export async function startCapture(root: HTMLElement) {
+export async function startCapture(root: HTMLElement, features: Record<string, Feature> = FEATURES) {
   // The game styles load only for the capture page: src/style.css sets the page to one screen with no scroll.
   for (const css of [gameStyle, adventureStyle, stickerStyle, settingsStyle]) {
     const style = document.createElement('style')
@@ -55,15 +57,17 @@ export async function startCapture(root: HTMLElement) {
     hud.distance.textContent = near ? `${Math.round(Math.max(0, clearance))} m above ${world.gas ? 'deep clouds' : 'surface'}` : `${(distance / 1000).toFixed(1)} km away`
     hud.region.textContent = !near ? 'Open space' : world.kind === 'moon' ? 'Airless · grey dust and dark seas'
       : world.kind === 'fairy' ? 'Candy groves · sparkling soda rivers'
-      : world.cloudHeight && distance > world.cloudHeight + 12 ? 'Above the clouds' : 'Below the clouds'
+      : world.cloudHeight && distance > world.cloudHeight + 12 ? 'Above the clouds'
+      // The climate belt of Earth below the fairy, as the flight panel of the game shows it.
+      : world.kind === 'earth' ? zoneNameAt(world, lab.fairy.position) ?? 'Below the clouds' : 'Below the clouds'
     hud.speed.textContent = String(Math.round(lab.speed))
   }
   Object.defineProperty(window, '__capture', { value: {
-    features: Object.keys(FEATURES),
+    features: Object.keys(features),
     load(id: string) {
       // The recording starts first, so a sound at clip time 0 is in the cue list.
       startRecording()
-      lab.load(FEATURES[id])
+      lab.load(features[id])
       updateHud()
       const run = lab.run!
       return { duration: run.duration, still: run.still ?? run.duration * 0.6 }
