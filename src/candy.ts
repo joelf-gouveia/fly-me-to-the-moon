@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { createFairytaleCreature } from './creatures/fairytale-models'
+import { canSayHello, createHeartPool, heartCount, heartPose, HELLO, helloLength, helloLift, helloTurn } from './creatures/hello'
+import type { HeartPose } from './creatures/hello'
 import { seededRandom } from './terrain'
 import type { World } from './worlds'
 
@@ -12,6 +14,15 @@ export const BUBBLE_POP = { reach: 1.5, drops: 10, spread: 1.1, seconds: 0.45 } 
  */
 export function popSodaBubble(world: World, position: THREE.Vector3): boolean {
   return world.surface.getObjectByName('soda-bubbles')?.userData.pop?.(position) ?? false
+}
+
+/**
+ * The pegasus foals of `world` say hello to the fairy, as the creatures of the ground do (src/creatures/hello.ts).
+ * Call it after world.animate(), because that puts each foal back on its circle. A delta of 0 (pause) starts no
+ * hello and holds each pose. It returns the number of new hellos.
+ */
+export function greetFoals(world: World, delta: number, position: THREE.Vector3): number {
+  return world.surface.getObjectByName('pegasus-foals')?.userData.greet?.(delta, position) ?? 0
 }
 
 /**
@@ -118,6 +129,51 @@ export function buildCandyEcosystem(world: World) {
       model.animate(time + i, true, allMagic)
     })
   }
+  // The hello of a foal: it turns to the fairy, makes two small jumps in the air, and hearts float up from its head.
+  const hearts = createHeartPool(flyers.length * HELLO.hearts)
+  world.surface.add(hearts.points)
+  const hellos = new Map<number, { at: number; hearts: number; side: THREE.Vector3 }>(), lastHello = new Map<number, number>()
+  const toFairy = new THREE.Vector3(), facing = new THREE.Quaternion(), point = new THREE.Vector3()
+  const pose: HeartPose = { rise: 0, sway: 0, size: 0, alpha: 0, spin: 0 }
+  let helloClock = 0, helloCount = 0
+  foals.userData.greet = (delta: number, position: THREE.Vector3) => {
+    world.surface.worldToLocal(local.copy(position))
+    helloClock += delta
+    let started = 0
+    hearts.begin()
+    flyers.forEach(({ model, normal: n }, i) => {
+      const root = model.root
+      if (delta > 0 && !hellos.has(i) && canSayHello(root.position.distanceTo(local), helloClock, lastHello.get(i))) {
+        lastHello.set(i, helloClock)
+        const side = new THREE.Vector3().crossVectors(n, toFairy.copy(local).sub(root.position))
+        if (side.lengthSq() < 1e-6) side.set(1, 0, 0).applyQuaternion(root.quaternion)
+        hellos.set(i, { at: helloClock, hearts: heartCount(helloCount++, Boolean(world.mobile)), side: side.normalize() })
+        started++
+      }
+      const hello = hellos.get(i)
+      if (!hello) return
+      const age = helloClock - hello.at
+      if (age > helloLength(hello.hearts)) { hellos.delete(i); return }
+      toFairy.copy(local).sub(root.position)
+      toFairy.addScaledVector(n, -toFairy.dot(n))
+      const turn = helloTurn(age)
+      if (turn > 0 && toFairy.lengthSq() > 0.01) {
+        forward.copy(toFairy).normalize()
+        right.crossVectors(n, forward).normalize()
+        root.quaternion.slerp(facing.setFromRotationMatrix(basis.makeBasis(right, n, forward)), turn)
+      }
+      point.copy(root.position)
+      root.position.addScaledVector(n, helloLift(age, false) * 0.6)
+      for (let k = 0; k < hello.hearts; k++) {
+        if (!heartPose(age, k, pose)) continue
+        const spread = (k - (hello.hearts - 1) / 2) * 0.42 + pose.sway
+        if (!hearts.add(dummy.position.copy(point).addScaledVector(n, 0.8 + pose.rise).addScaledVector(hello.side, spread), pose)) break
+      }
+    })
+    hearts.end()
+    return started
+  }
+  foals.userData.helloState = () => ({ count: helloCount, active: [...hellos.keys()].map(i => flyers[i].model.root.name) })
   update(0)
   return update
 }

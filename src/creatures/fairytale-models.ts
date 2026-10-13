@@ -148,7 +148,7 @@ export function createFairytaleCreature(kind: Fairytale, { merge = false } = {})
       nub.rotation.set(-0.4, 0, side * -0.2)
       blob(head, wing, side * 0.32, 0.06, -0.08, 0.13, 0.05, 0.08).rotation.z = side * 0.5
       const pivot = new THREE.Group()
-      pivot.position.set(side * 0.28, 0.78, -0.18); body.add(pivot); wings.push(pivot)
+      pivot.position.set(side * 0.28, 0.78, -0.18); pivot.name = 'wing'; body.add(pivot); wings.push(pivot)
       blob(pivot, wing, side * 0.22, 0.14, -0.04, 0.24, 0.035, 0.17).rotation.z = side * 0.45
       blob(pivot, wing, side * 0.16, 0.06, -0.18, 0.17, 0.03, 0.12).rotation.z = side * 0.35
       blob(pivot, scales, side * 0.18, 0.17, 0.06, 0.2, 0.04, 0.04).rotation.z = side * 0.45
@@ -255,7 +255,7 @@ export function createFairytaleCreature(kind: Fairytale, { merge = false } = {})
     for (const side of [-1, 1]) {
       blob(head, coat, side * 0.09, 0.19, -0.05, 0.045, 0.1, 0.04).rotation.z = side * -0.3
       const pivot = new THREE.Group()
-      pivot.position.set(side * 0.2, 0.16, 0.06); body.add(pivot); wings.push(pivot)
+      pivot.position.set(side * 0.2, 0.16, 0.06); pivot.name = 'wing'; body.add(pivot); wings.push(pivot)
       blob(pivot, feather, side * 0.32, 0.04, 0.02, 0.32, 0.04, 0.14)
       blob(pivot, under, side * 0.3, 0.02, -0.13, 0.29, 0.035, 0.12)
       blob(pivot, under, side * 0.24, 0, -0.26, 0.22, 0.03, 0.1)

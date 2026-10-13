@@ -5,7 +5,8 @@ import './settings.css'
 
 type Actions = {
   open: (open: boolean) => void
-  stickers: { readonly count: number; readonly stars: number; reset: () => void }
+  /** `friend` is true when the game has a fairy friend or a counted hello (F19). The reset removes it with the book. */
+  stickers: { readonly count: number; readonly stars: number; readonly friend?: boolean; reset: () => void }
   /** Turns the sound on or off. It gives the state that the browser allows. */
   sound: (on: boolean) => Promise<boolean>
   stars: (show: boolean) => void
@@ -66,7 +67,7 @@ export function createSettings(actions: Actions) {
         <button id="reset-stickers" type="button">Reset sticker book</button>
         <div id="reset-confirm" class="reset-confirm" role="alertdialog" aria-labelledby="reset-question" aria-describedby="reset-detail" hidden>
           <p id="reset-question"></p>
-          <p id="reset-detail">Your child starts again with an empty book, and the worlds close again. This cannot be undone.</p>
+          <p id="reset-detail">Your child starts again with an empty book, and the worlds close again. The fairy friend goes too, with the friends that she met. This cannot be undone.</p>
           <div><button id="reset-cancel" type="button">Keep the stickers</button><button id="reset-yes" type="button" class="danger">Reset the book</button></div>
         </div>
         <p id="reset-status" role="status"></p>
@@ -125,7 +126,7 @@ export function createSettings(actions: Actions) {
   function render() {
     const count = actions.stickers.count
     get('sticker-summary').textContent = count ? `The book has ${count} of ${STICKERS.length} stickers${starText(actions.stickers.stars)}.` : 'The book is empty.'
-    reset.disabled = count === 0
+    reset.disabled = count === 0 && !actions.stickers.friend
   }
   function ask(show: boolean) {
     confirm.hidden = !show
@@ -133,7 +134,7 @@ export function createSettings(actions: Actions) {
     if (show) {
       const count = actions.stickers.count
       const stars = starText(actions.stickers.stars)
-      get('reset-question').textContent = count === 1 ? `Remove the sticker${stars}?` : `Remove all ${count} stickers${stars}?`
+      get('reset-question').textContent = count === 0 ? 'Remove the fairy friend?' : count === 1 ? `Remove the sticker${stars}?` : `Remove all ${count} stickers${stars}?`
       // The safe answer has the focus, so an extra Enter keeps the stickers.
       get('reset-cancel').focus()
     }
@@ -166,7 +167,7 @@ export function createSettings(actions: Actions) {
     const count = actions.stickers.count, stars = starText(actions.stickers.stars)
     actions.stickers.reset()
     ask(false); render()
-    get('reset-status').textContent = `${plural(count)}${stars} removed. The next world the fairy visits gives the first sticker.`
+    get('reset-status').textContent = count ? `${plural(count)}${stars} removed. The next world the fairy visits gives the first sticker.` : 'The fairy friend is removed. Five hellos bring a new friend.'
     get('close-settings').focus()
   })
   // A press that starts and ends outside the dialog closes it, as the flight menu does.

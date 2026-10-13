@@ -1,0 +1,26 @@
+/* F19 · Fairy friend (src/friend-ui.ts): the note of the new friend, and the Friend row of the look menu. */
+
+/* The note has the look of the new-sticker note (src/sticker-book.css). It shows over the fairy,
+   at the top middle of the view, so it never covers the sticker note. */
+#friend-note { position: absolute; z-index: 4; top: 17%; left: 50%; display: flex; align-items: center; gap: 14px; width: max-content; max-width: min(360px, calc(var(--view-width, 100vw) - 32px)); padding: 12px 24px 12px 12px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eef2; box-shadow: 0 10px 50px #6f3c6230; pointer-events: none; transform: translateX(-50%); animation: friend-note-on .6s cubic-bezier(.2, 1.4, .4, 1) both; transition: opacity .6s; }
+#friend-note[hidden] { display: none; }
+#friend-note.is-leaving { opacity: 0; }
+#friend-note img { flex: none; width: 64px; height: 64px; border-radius: 50%; box-shadow: 0 0 0 3px #fff, 0 4px 14px #6f3c6240; }
+#friend-note small { font: 9px 'DM Mono', monospace; letter-spacing: .2em; }
+#friend-note h2 { margin: 3px 0 4px; font: 26px 'Italiana', Georgia, serif; }
+#friend-note p { margin: 0; font-size: 12px; line-height: 1.5; }
+@keyframes friend-note-on { from { transform: translateX(-50%) scale(1.3) rotate(-6deg); opacity: 0; } }
+.is-map-open #friend-note, .is-settings-open #friend-note, .is-postcard-open #friend-note, .is-customizing #friend-note { visibility: hidden; }
+
+/* The Friend row: a round picture of each friend from its model. */
+.friend-preview { display: block; width: 38px; height: 38px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.38); }
+/* "No friend" is an empty bubble. */
+.friend-preview--none { background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.75) 0 7%, transparent 9%), radial-gradient(circle at 50% 50%, transparent 52%, rgba(190,225,255,.5) 70%); }
+/* A creature that she did not meet yet: a soft question mark. It is not a button. */
+.friend-more { min-width: 0; height: 68px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; padding: 5px; color: rgba(255,255,255,.4); border: 1px dashed rgba(255,255,255,.16); border-radius: 12px; font-size: 9px; letter-spacing: .02em; }
+.friend-preview--more { display: grid; place-items: center; color: rgba(255,255,255,.55); background: rgba(255,255,255,.06); font: 22px 'Italiana', Georgia, serif; }
+.friend-grid button, .friend-more { height: 74px; }
+
+@media (prefers-reduced-motion: reduce) {
+  #friend-note { animation: none; }
+}
