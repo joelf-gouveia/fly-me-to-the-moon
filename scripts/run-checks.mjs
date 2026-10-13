@@ -38,6 +38,7 @@ const CHECKS = [
   { name: 'wildlife', script: 'scripts/wildlife-smoke.mjs', url: 'origin', files: ['src/creatures/'] },
   { name: 'creature-hello', script: 'scripts/creature-hello-smoke.mjs', url: 'arg', files: ['src/creatures/'] },
   { name: 'moon', script: 'scripts/moon-smoke.mjs', url: 'arg', files: ['src/moon.ts', 'src/orbits.ts'] },
+  { name: 'moon-diary', script: 'scripts/moon-diary-smoke.mjs', url: 'arg', files: ['src/moon-diary', 'src/moon.ts', 'src/orbits.ts', 'src/sticker-book', 'src/settings', 'src/adventure'] },
   { name: 'asteroid-belt', script: 'scripts/asteroid-belt-smoke.mjs', url: 'arg', files: ['src/belt.ts', 'src/asteroid-belt.ts', 'src/orbits.ts', 'src/relocation.ts'] },
   { name: 'comet', script: 'scripts/comet-smoke.mjs', url: 'arg', files: ['src/comet', 'src/shooting-stars.ts', 'src/relocation.ts', 'src/orbits.ts'] },
   { name: 'star-sky', script: 'scripts/star-sky-smoke.mjs', url: 'arg', files: ['src/stars.ts', 'src/star-', 'src/sky-labels'] },

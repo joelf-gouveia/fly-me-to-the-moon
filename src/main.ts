@@ -49,6 +49,8 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { moonSight } from './moon-diary'
+import { createMoonDiary } from './moon-diary-ui'
 import { popSodaBubble } from './candy'
 import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
@@ -268,6 +270,9 @@ const skyLabels = createSkyLabels(document.querySelector<HTMLElement>('.game-she
 // The renderer paints the maps of the seven planets (src/planet-paint.ts).
 const worlds = createWorlds(scene, touchDevice, renderer)
 const orbits = createPlanetaryOrbits(scene, worlds)
+// A browser check can give the time of the orbits in seconds: ?test&moon=190 starts with a full Moon (src/moon.ts).
+const testMoon = import.meta.env.DEV ? Number(new URLSearchParams(location.search).get('moon')) : 0
+if (testMoon > 0) orbits.update(testMoon)
 const belt = createAsteroidBelt(scene, touchDevice)
 // F8: a comet on a long orbit, and shooting stars in a dark sky inside the air.
 const comet = createComet(scene, touchDevice)
@@ -485,10 +490,13 @@ const adventure = createAdventure(worlds, stickerBook, {
   travel: travelTo,
   map: open => { mapOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-map-open', open) },
 })
+// F14 · The Moon shapes diary: a place in Worlds for each shape of the Moon that she sees from Earth.
+const moonDiary = createMoonDiary({ chime: full => playChime(full ? [587.33, 739.99, 880, 1174.66] : [587.33, 880], 0.045) })
 // Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
-  stickers: stickerBook,
+  // Reset sticker book also removes the Moon diary.
+  stickers: { get count() { return stickerBook.count }, get stars() { return stickerBook.stars }, get shapes() { return moonDiary.count }, reset: () => { stickerBook.reset(); moonDiary.reset() } },
   sound: setSound,
   stars: show => stars.setConstellations(show),
   // The switch shows the paths in the sky only. The Worlds map always shows them.
@@ -730,7 +738,7 @@ function updateNearestWorld() {
   // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
   // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
   const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
-  if (flying && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
+  if (flying && !moonDiary.busy && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
     const creature = SEARCH_CREATURE[world.kind]
     searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
   }
@@ -1032,6 +1040,8 @@ function animate(timestamp?: number) {
   }
   updateCamera(rawDelta)
   updateEnvironment()
+  // The Moon diary reads the picture of this frame: the Moon in the view, above the horizon, in a clear sky.
+  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active)
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
   // The comet follows the orbit time, so World speed makes it faster. Reduced motion stills the tail.
   comet.update(orbits.elapsed, sun.group.position, camera, fairy.position, forward, reducedMotion.matches ? 0 : elapsed, delta,
@@ -1148,6 +1158,14 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   },
   /** The middles of the ray craters of Mercury, as local directions, for the search star check. */
   rayCraters: () => rayCraters(worlds.find(world => world.kind === 'mercury')!.seed).map(crater => crater.centre.toArray()),
+  /** Turns the fairy to the Moon and holds her in a hover, for the Moon diary check. */
+  faceMoon: () => {
+    destination = null
+    homeGuide.stop()
+    if (!hoverHeld) toggleHover()
+    orientFlight(fairy.quaternion, moon.group.position.clone().sub(fairy.position).normalize(), fairy.position.clone().sub(nearestWorld.group.position).normalize())
+    snapCamera()
+  },
   /** A world object, to read its terrain (`sample`) and its creatures in a browser check. */
   world: (kind: string) => worlds.find(world => world.kind === kind),
   /** Moves the fairy to `height` metres above the ground of a world, over a local direction. The camera moves with her. */
@@ -1181,6 +1199,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     postcard: postcard.state,
+    // `aim` is the place of the Moon in the picture: x and y from -1 to 1, and z above 1 when the Moon is behind the camera.
+    moonDiary: { ...moonDiary.state, sight: moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), aim: moon.group.position.clone().project(camera).toArray(), altitude: nearestDistance },
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },
     moon: {
       position: moon.group.position.toArray(), earth: earth.group.position.toArray(), orbitTime: orbits.elapsed,
