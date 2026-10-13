@@ -49,6 +49,7 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { createWarmthNote } from './warmth-note'
 import { popSodaBubble } from './candy'
 import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
@@ -478,6 +479,8 @@ const stickerBook = createStickerBook(worlds, {
 // The gold star of a find (F1). After a reset of the book, a star in the sky goes too.
 const searchStar = createSearchStar(scene, makeSoftDiscTexture('rgba(255,255,255,1)'), touchDevice)
 stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
+// F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
+const warmthNote = createWarmthNote()
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
@@ -1020,6 +1023,8 @@ function animate(timestamp?: number) {
   trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
+  // The thermometer of the world waits for the sticker note, the search-star note and the notes of the fairy home.
+  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown)
   // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
   // updateNearestWorld() reads the bubble first.
   if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
@@ -1177,7 +1182,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     postcard: postcard.state,
