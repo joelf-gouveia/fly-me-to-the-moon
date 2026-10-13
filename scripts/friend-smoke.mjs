@@ -116,18 +116,11 @@ try {
   }
   /** True when the friend is in the picture: its middle is inside the view. */
   const inView = friend => Math.abs(friend.screen[0]) < 0.96 && Math.abs(friend.screen[1]) < 0.96 && friend.screen[2] < 1
-  /** The draw calls of a frame with the friend and with no friend, at the same place. The fairy hovers, so the view stays. */
+  /** The draw calls of the view with the friend and with no friend: two renders of the same moment (renderer.info.render.calls). */
   async function drawCalls(kind) {
-    const read = async value => { await choose(value); await advance(0.5); return (await snapshot()).graphics.calls }
-    let best = null
-    for (let i = 0; i < 4; i++) {
-      const without = await read(null), friend = await read(kind), again = await read(null)
-      best = { with: friend, without }
-      // The view did not change between the two reads with no friend: the difference is the friend.
-      if (without === again) break
-    }
     await choose(kind)
-    return best
+    await advance(0.5)
+    return evaluate('__fairyTest.friendCalls()')
   }
 
   // ---- Earth: five hellos give the friend and the note -----------------------------------------
@@ -266,7 +259,7 @@ try {
     await capture(`earth-${kind}`)
   }
   const computer = await drawCalls('cow')
-  assert(computer.with - computer.without <= 3 && computer.with > computer.without, `Wrong draw calls of the friend on a computer: ${JSON.stringify(computer)}`)
+  assert(computer.with - computer.without === 3, `Wrong draw calls of the friend on a computer: ${JSON.stringify(computer)}`)
 
   // A low flight over the ground: the friend stays out of the ground and near her.
   step('low flight')
@@ -395,8 +388,16 @@ try {
   await capture('haven-foal-hello')
   // Each kind that lives here: a unicorn, a pegasus foal and a guest from Earth over the candy gardens.
   await evaluate(`__fairyTest.meet(${KINDS.map(kind => JSON.stringify(kind)).join(', ')})`)
+  // The home card and the sticker note show now. The note of the friend waits for them, and then it shows.
+  await advance(0.2)
+  const otherNote = () => evaluate('!document.querySelector("#sticker-toast").hidden || !document.querySelector("#home-celebration").hidden')
+  const waited = await otherNote()
+  state = await snapshot()
+  assert(state.friend.shown && (!waited || !state.friend.note), 'The note of the friend covers a different note')
   await over('fairy', 9)
   await advance(8)
+  for (let i = 0; i < 150 && !(await snapshot()).friend.note; i++) { await delay(100); await advance(0.1) }
+  assert((await snapshot()).friend.note && !(await otherNote()), 'The note of the friend did not show after the other notes')
   for (const kind of ['pegasus', 'unicorn', 'frogPrince', 'sheep']) {
     await choose(kind)
     await advance(1.2)
@@ -434,7 +435,7 @@ try {
     await capture(`phone-${kind}`)
   }
   const phone = await drawCalls('cow')
-  assert(phone.with - phone.without <= 3 && phone.with > phone.without, `Wrong draw calls of the friend on a phone: ${JSON.stringify(phone)}`)
+  assert(phone.with - phone.without === 3, `Wrong draw calls of the friend on a phone: ${JSON.stringify(phone)}`)
   await click('#customize-toggle')
   await advance(1.5)
   state = await snapshot()
@@ -454,7 +455,7 @@ try {
     farthest: { lowTurn: 'below 4', climb: metres(climb.near), openSpace: metres(climb.space), boost: metres(climb.boost), guidedReturn: metres(climb.back), topSpeed: climb.speed, hop: Math.round(hop) },
     lowestOverGround: metres(lowest),
     drawCalls: { computer, phone },
-    foalHello: 'passed', reset: 'passed', reducedMotion: 'passed', loop: metres(looped),
+    foalHello: 'passed', noteWaits: waited ? 'passed' : 'no other note', reset: 'passed', reducedMotion: 'passed', loop: metres(looped),
     screenshots: folder, runtimeExceptions: errors.length,
   }))
 } finally { ws?.close(); browser.kill() }

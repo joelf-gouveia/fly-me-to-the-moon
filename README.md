@@ -562,6 +562,7 @@ score.
 
 - **When.** The friend comes at the fifth hello of a creature. A note shows for 6 s: a picture
   of the friend, its name and "A friend flies with you now". A soft chime plays when Sound is on.
+  The note waits while a sticker note or the home card shows, and a search star waits for the note.
   The first friend is the kind of the creature of the fifth hello. The game does not show the
   number of hellos.
 - **Who.** The child selects the friend from the kinds that said hello to her: cow, rabbit, sheep
@@ -617,7 +618,8 @@ still: it has no walk and no magic particles. A resident of a world is 14 to 21 
   that starts a hello. `greetFoals()` in `src/candy.ts` is the hello of the pegasus foals.
 - The test snapshot gives `friend` (the state, the place on the screen, the distance to the
   fairy and the largest distance since the last snapshot) and `foalHellos`. The test hooks are
-  `meet(...kinds)`, `chooseFriend(kind)` and `cheer()`.
+  `meet(...kinds)`, `chooseFriend(kind)`, `cheer()` and `friendCalls()`, which renders the view of one
+  moment with no friend and with the friend and gives the two draw-call counts.
 - On the dev server, `?friend=all` gives a hello of each kind at the start: the friend comes at
   once, and the row has the nine kinds.
 

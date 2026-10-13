@@ -1278,6 +1278,13 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   meet: (...kinds: string[]) => fairyFriend.hello(kinds),
   /** F19: selects a friend that she met, or null for no friend, as the Friend row of the look menu does. */
   chooseFriend: (kind: string | null) => fairyFriend.choose(kind as Parameters<typeof fairyFriend.choose>[0]),
+  /** F19: the draw calls of the view of this moment with no friend and with the friend. The two renders have the same scene. */
+  friendCalls: () => {
+    const shown = fairyFriend.holder.visible
+    const calls = (visible: boolean) => { fairyFriend.holder.visible = visible; renderer.render(scene, camera); return renderer.info.render.calls }
+    const result = { without: calls(false), with: calls(shown) }
+    return result
+  },
   /** F19: a happy loop of the friend. False when the last loop was less than 20 s before, and with reduced motion. */
   cheer: () => fairyFriend.cheer(reducedMotion.matches),
   /**

@@ -70,6 +70,11 @@ export function createFairyFriend({ scene, renderer, sparkle, row, chime }: Opti
     clearTimeout(noteTimer)
     noteTimer = window.setTimeout(() => { note.classList.add('is-leaving'); noteTimer = window.setTimeout(() => { note.hidden = true }, 600) }, 6000)
   }
+  /** True while a different note shows: a new sticker, the home card, or the note of a new landscape. The last two are at the place of this note. */
+  function otherNote() {
+    const shown = (id: string) => { const element = document.getElementById(id); return Boolean(element) && !element!.hidden }
+    return shown('sticker-toast') || shown('home-celebration') || Boolean(document.getElementById('arrival-note')?.classList.contains('is-visible'))
+  }
   function hideNote() {
     pending = null
     clearTimeout(noteTimer)
@@ -155,13 +160,15 @@ export function createFairyFriend({ scene, renderer, sparkle, row, chime }: Opti
       renderRow()
     },
     update(frame: FriendUpdate) {
-      // The note waits for the flight and for the end of a sticker note, so each note has its time.
-      if (pending && frame.flying && (document.getElementById('sticker-toast')?.hidden ?? true)) { showNote(pending); pending = null }
+      // The note waits for the flight and for the end of a different note, so each note has its time.
+      if (pending && frame.flying && !otherNote()) { showNote(pending); pending = null }
       // A delta of 0 (a pause, or Worlds, where the worlds still move) holds the pose of the friend and keeps it with her.
       friendPlace(frame.aspect, frame.menu, place)
       friend.update({ ...frame, place, size: friendSize(frame.aspect, frame.menu) })
       if (friend.kind) farthest = Math.max(farthest, friend.holder.position.distanceTo(frame.fairy))
     },
+    /** The friend in the scene. A browser check hides it to count its draw calls. */
+    holder: friend.holder,
     /** True when the game has a friend, a met kind or a counted hello: Settings can remove it. */
     get has() { return state.hellos > 0 },
     /** True while the note of the new friend shows or waits. A search star waits for it. */

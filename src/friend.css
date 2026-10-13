@@ -1,7 +1,7 @@
 /* F19 · Fairy friend (src/friend-ui.ts): the note of the new friend, and the Friend row of the look menu. */
 
-/* The note has the look of the new-sticker note (src/sticker-book.css). It shows over the fairy,
-   at the top middle of the view, so it never covers the sticker note. */
+/* The note has the look of the new-sticker note (src/sticker-book.css). It shows over the fairy, at the
+   top middle of the view, clear of the sticker note. It waits while the home card shows at this place. */
 #friend-note { position: absolute; z-index: 4; top: 17%; left: 50%; display: flex; align-items: center; gap: 14px; width: max-content; max-width: min(360px, calc(var(--view-width, 100vw) - 32px)); padding: 12px 24px 12px 12px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eef2; box-shadow: 0 10px 50px #6f3c6230; pointer-events: none; transform: translateX(-50%); animation: friend-note-on .6s cubic-bezier(.2, 1.4, .4, 1) both; transition: opacity .6s; }
 #friend-note[hidden] { display: none; }
 #friend-note.is-leaving { opacity: 0; }
