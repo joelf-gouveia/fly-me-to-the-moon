@@ -293,8 +293,16 @@ F12 is in the game code on the branch `features/f12-count-rings`, with the recom
 study for each open decision: each line counts to its own length (5 to 7 rings), dots over the
 ring and the numeral at the pass, and a count that follows the order of the rings she takes.
 One rule is more exact than the study: the number of a ring is the count that she gets when she
-flies to it, so the dots and the count always agree. See the Sparkle rings part of `README.md`.
-The shape lines are not built.
+flies to it from her place, so the dots and the count always agree, and the count is always the
+number of rings that she took. See the Sparkle rings part of `README.md`.
+
+The shape lines are in the game code too. The second and the fourth line of a world are shape
+lines: two on Earth, one on Blossom Haven and one on the Moon. Each ring of a shape line is a
+circle, a triangle, a square, a star or a heart, and its plate shows the picture of the shape.
+A pass shows the picture and the name of the shape in the place of the numeral, with the two
+notes of that shape. The first shape line of a world starts after the end of its first line.
+These rules have no decision of the player yet: which lines are shape lines, the heart as a
+fifth shape, and the notes of a shape.
 
 ## Limits of this study
 
