@@ -28,7 +28,7 @@ export const RING = {
   /** The count of a line starts again at 1 after this time of flight with no ring of that line. */
   countGap: 12,
   /** The dots of a ring: the size of their plate, and its height above the ring centre. */
-  dotsSize: 1.9, dotsHeight: 4,
+  dotsSize: 1.9, dotsHeight: 4.4,
 } as const
 
 /** Candy colours: pink, lilac, mint, gold, sky blue and rose. */
@@ -63,10 +63,103 @@ export function ringNumbers(taken: boolean[], from: number, base: number) {
     for (let i = from; i >= 0 && i < taken.length; i += step) {
       if (taken[i]) continue
       number++
-      numbers[i] = number
+      // A ring that came back in a long, slow count: no number goes above the length of the line.
+      numbers[i] = Math.min(number, taken.length)
     }
   }
   return numbers
+}
+
+/** The count of a line: the number of the last ring that the fairy took, and the time of that pass. */
+export type RingCount = { number: number; at: number }
+
+/**
+ * The number from which a line counts on at `time`: the number of its last ring. It is 0, so the next
+ * ring is 1, for a line with no count, after RING.countGap seconds with no ring of the line, and after
+ * the full count of a line of `length` rings.
+ */
+export function ringCountBase(count: RingCount | null, length: number, time: number) {
+  return count && time - count.at <= RING.countGap && count.number < length ? count.number : 0
+}
+
+/** The shapes of a shape line (F12), in the order of the line. Each shape is the same in a mirror. */
+export const RING_SHAPES = ['circle', 'triangle', 'square', 'star', 'heart'] as const
+export type RingShape = typeof RING_SHAPES[number]
+
+/** The word that the game shows for each shape. */
+export const RING_SHAPE_NAMES: Record<RingShape, string> = { circle: 'Circle', triangle: 'Triangle', square: 'Square', star: 'Star', heart: 'Heart' }
+
+/**
+ * True when a line is a shape line: the second and the fourth line of a world. The other lines count.
+ * So the first line of each world, such as the line at the start meadow of Earth, is a count line.
+ */
+export function shapeLine(line: number) {
+  return line % 2 === 1
+}
+
+/** The shape of ring `index` of a line, or null for a ring of a count line. The second shape line of a world starts at the triangle. */
+export function ringShapeAt(line: number, index: number): RingShape | null {
+  return shapeLine(line) ? RING_SHAPES[(index + (line >> 1)) % RING_SHAPES.length] : null
+}
+
+/** The two notes of a shape: each shape has its own note, in the order of RING_SHAPES. */
+export function ringShapeNotes(shape: RingShape) {
+  return ringNotes(RING_SHAPES.indexOf(shape) + 1)
+}
+
+/**
+ * The outline of a shape, in metres from the ring centre: x to the side, y up, counter-clockwise.
+ * Each shape is about the size of the torus, so the disc of ringPass() is a fair test: the corners
+ * stay in the disc (RING.radius + RING.reach, with a small margin), and the fairy fits in the middle.
+ * The ring geometry, the picture on the plate and the picture at the pass all come from this outline.
+ */
+export function ringShapePoints(shape: RingShape): [number, number][] {
+  const turn = (count: number, radius: (i: number) => number, start = Math.PI / 2) => Array.from({ length: count }, (_, i): [number, number] => {
+    const angle = start + i * Math.PI * 2 / count
+    return [Math.cos(angle) * radius(i), Math.sin(angle) * radius(i)]
+  })
+  if (shape === 'circle') return turn(48, () => RING.radius)
+  if (shape === 'triangle') return turn(3, () => 3)
+  if (shape === 'square') return turn(4, () => 3, Math.PI / 4)
+  // A fat star: the fairy fits between its inner corners.
+  if (shape === 'star') return turn(10, i => i % 2 ? 1.5 : 2.9)
+  // The heart curve, from its notch. The curve is very sharp in the notch and at the tip, which twists a tube:
+  // one higher point makes a wider notch, and the tip has no points next to it.
+  // The box of the heart has the ring centre in the middle and the height of the torus.
+  const heart: [number, number][] = [[0, 6.2]]
+  for (let i = 2; i <= 30; i++) {
+    if (i === 15 || i === 17) continue
+    const t = -i * Math.PI * 2 / 32
+    heart.push([16 * Math.sin(t) ** 3, 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t)])
+  }
+  const low = Math.min(...heart.map(point => point[1])), high = Math.max(...heart.map(point => point[1]))
+  const scale = RING.radius * 2 / (high - low)
+  return heart.map(([x, y]) => [x * scale, (y - (low + high) / 2) * scale])
+}
+
+/**
+ * A tube along the outline of a shape, in the plane of the torus (the axis is Z): the positions and the
+ * index of its triangles. A sharp corner gets a mitre, so the tube keeps its width there.
+ */
+export function ringShapeTube(shape: RingShape, sides = 6, tube: number = RING.tube) {
+  const points = ringShapePoints(shape), positions: number[] = [], index: number[] = []
+  points.forEach(([x, y], i) => {
+    const [ax, ay] = points[(i + points.length - 1) % points.length], [bx, by] = points[(i + 1) % points.length]
+    const before = Math.hypot(x - ax, y - ay), after = Math.hypot(bx - x, by - y)
+    const d1x = (x - ax) / before, d1y = (y - ay) / before, d2x = (bx - x) / after, d2y = (by - y) / after
+    const length = Math.hypot(d1x + d2x, d1y + d2y)
+    // The normal of the corner, to the inner side, and the longer reach of a mitre (at most 2.2 times the tube).
+    const nx = -(d1y + d2y) / length, ny = (d1x + d2x) / length
+    const reach = tube * Math.min(2.2, 1 / Math.max(1e-3, nx * -d1y + ny * d1x))
+    for (let k = 0; k < sides; k++) {
+      const angle = k * Math.PI * 2 / sides
+      positions.push(x + nx * reach * Math.cos(angle), y + ny * reach * Math.cos(angle), tube * Math.sin(angle))
+      const a = i * sides + k, b = i * sides + (k + 1) % sides
+      const c = ((i + 1) % points.length) * sides + (k + 1) % sides, d = ((i + 1) % points.length) * sides + k
+      index.push(a, b, c, a, c, d)
+    }
+  })
+  return { positions, index }
 }
 
 /** The number of ring lines on each world. The other worlds have no rings. */
@@ -82,6 +175,8 @@ export type RingPlacement = {
   axis: THREE.Vector3
   colour: number
   line: number
+  /** The shape of the ring in a shape line. A ring of a count line has null: it is a torus with dots. */
+  shape: RingShape | null
 }
 
 /** A ring that the fairy took: its number in the count of its line, and if it is the last ring of the line. */
@@ -89,8 +184,6 @@ export type RingTake = RingPlacement & { number: number; complete: boolean }
 
 /** A tall object on the ground: the direction from the world centre, its reach and its top (distance from the centre). */
 export type RingObstacle = { normal: THREE.Vector3; radius: number; top: number }
-
-const Z = new THREE.Vector3(0, 0, 1)
 
 /** The distance from the world centre to the ground, for a direction in the frame of the world group. */
 function groundRadius(world: World, local: THREE.Vector3) {
@@ -211,6 +304,8 @@ export type RingLineOptions = {
   avoid?: THREE.Vector3[]
   /** The distance to the rings of the other lines. The default is 40 m. */
   gap?: number
+  /** The least distance from the anchor to the first ring. The default is 20 m. */
+  ahead?: number
   line?: number
 }
 
@@ -233,7 +328,7 @@ export function ringLine(world: World, seed: number, options: RingLineOptions = 
       // Start just ahead of the anchor first, then slowly try wider turns and farther away.
       const spread = Math.min(Math.PI, 0.35 + attempt * 0.01)
       const side = tangentAt(options.anchor, options.heading).applyAxisAngle(options.anchor, (random() * 2 - 1) * spread)
-      normal = along(options.anchor, side, 20 + random() * (25 + attempt * 0.3), world.radius)
+      normal = along(options.anchor, side, (options.ahead ?? 20) + random() * (25 + attempt * 0.3), world.radius)
       heading = tangentAt(normal, side.applyAxisAngle(options.anchor, (random() * 2 - 1) * 0.3))
     } else {
       // Anywhere but the poles: the snow of Earth and the cottage of Blossom Haven.
@@ -274,6 +369,7 @@ export function ringLine(world: World, seed: number, options: RingLineOptions = 
       axis: centres[Math.min(i + 1, centres.length - 1)].clone().sub(centres[Math.max(i - 1, 0)]).normalize(),
       colour: RING_COLOURS[(i + line) % RING_COLOURS.length],
       line,
+      shape: ringShapeAt(line, i),
     }))
   }
   return []
@@ -282,7 +378,9 @@ export function ringLine(world: World, seed: number, options: RingLineOptions = 
 /**
  * All the ring lines of a world, the same for the same seed and scenery. The first line starts
  * where the child arrives: ahead of the fairy at the Earth meadow, behind the cottage of
- * Blossom Haven, and on the near side of the Moon, which a trip from Earth reaches.
+ * Blossom Haven, and on the near side of the Moon, which a trip from Earth reaches. The second
+ * line, the first shape line (shapeLine()), starts after the end of the first line, so the child
+ * who flies on from the count line comes to the shapes.
  */
 export function ringLines(world: World, seed = world.seed, obstacles = sceneryObstacles(world)): RingPlacement[] {
   const lines = RING_WORLDS[world.kind as PlanetKind] ?? 0
@@ -300,6 +398,10 @@ export function ringLines(world: World, seed = world.seed, obstacles = sceneryOb
     } else if (line === 0 && world.kind === 'moon') {
       // +X faces Earth (src/moon.ts).
       options.anchor = new THREE.Vector3(1, 0.15, 0.2).normalize()
+    } else if (line === 1 && placements.length) {
+      // On from the last ring of the first line, beyond the gap between two lines.
+      const last = placements[placements.length - 1]
+      Object.assign(options, { anchor: last.position.clone().normalize(), heading: last.axis, ahead: 42 })
     }
     const lineSeed = (seed ^ 0x5a17) + line * 7919
     let rings = ringLine(world, lineSeed, options)
@@ -349,10 +451,16 @@ export function ringGlowTexture(size = 128) {
   return texture
 }
 
-/** The dots of the numbers 1 to RING_LINE_MAX on dark round plates, side by side in one picture. Browser only. */
+/** The cells of the plate picture: one for each number, then one for each shape. */
+const PLATE_CELLS = RING_LINE_MAX + RING_SHAPES.length
+
+/**
+ * The plates of the rings, side by side in one picture: the dots of the numbers 1 to RING_LINE_MAX,
+ * then the picture of each shape of RING_SHAPES, each on a dark round plate. Browser only.
+ */
 export function ringDotsTexture(size = 128) {
   const canvas = document.createElement('canvas')
-  canvas.width = size * RING_LINE_MAX; canvas.height = size
+  canvas.width = size * PLATE_CELLS; canvas.height = size
   const ctx = canvas.getContext('2d')!
   // The places of the dots, as on a dice. Each pattern is the same in a mirror: the plate shows from two sides.
   const places = [
@@ -360,25 +468,42 @@ export function ringDotsTexture(size = 128) {
     [[.3, .3], [.7, .3], [.5, .5], [.3, .7], [.7, .7]], [[.33, .27], [.67, .27], [.33, .5], [.67, .5], [.33, .73], [.67, .73]],
     [[.33, .27], [.67, .27], [.26, .5], [.5, .5], [.74, .5], [.33, .73], [.67, .73]],
   ]
-  for (let number = 1; number <= RING_LINE_MAX; number++) {
-    const left = (number - 1) * size
+  // A dark round plate with a pale rim: the rim shows the plate against a dark sky.
+  const plate = (middle: number) => {
     ctx.shadowBlur = 0
     ctx.fillStyle = 'rgba(58,29,78,0.82)'
-    ctx.beginPath(); ctx.arc(left + size / 2, size / 2, size * 0.46, 0, Math.PI * 2); ctx.fill()
+    ctx.beginPath(); ctx.arc(middle, size / 2, size * 0.46, 0, Math.PI * 2); ctx.fill()
+    ctx.strokeStyle = 'rgba(226,205,255,0.7)'; ctx.lineWidth = size * 0.025
+    ctx.beginPath(); ctx.arc(middle, size / 2, size * 0.45, 0, Math.PI * 2); ctx.stroke()
+  }
+  for (let number = 1; number <= RING_LINE_MAX; number++) {
+    const left = (number - 1) * size
+    plate(left + size / 2)
     ctx.fillStyle = '#ffd36e'; ctx.shadowColor = '#ffd36e'; ctx.shadowBlur = size * 0.06
     for (const [x, y] of places[number - 1]) { ctx.beginPath(); ctx.arc(left + x * size, y * size, size * 0.085, 0, Math.PI * 2); ctx.fill() }
   }
+  RING_SHAPES.forEach((shape, index) => {
+    const middle = (RING_LINE_MAX + index + 0.5) * size, scale = size * 0.1
+    plate(middle)
+    ctx.fillStyle = '#ffd36e'; ctx.shadowColor = '#ffd36e'; ctx.shadowBlur = size * 0.06
+    ctx.beginPath()
+    for (const [x, y] of ringShapePoints(shape)) ctx.lineTo(middle + x * scale, size / 2 - y * scale)
+    ctx.fill()
+  })
   const texture = new THREE.CanvasTexture(canvas)
   texture.colorSpace = THREE.SRGBColorSpace
   return texture
 }
 
-/** The dots of each ring: its own fade, and the part of the dots picture for its number. Number 0 shows nothing. */
+/**
+ * The plate of each ring: its own fade, and the part of the plate picture for its number, or for its
+ * shape in a shape line (`ringShape` is 0 for a count ring, or 1 + the index in RING_SHAPES). Number 0 shows nothing.
+ */
 function dotsShader(material: THREE.Material) {
   material.onBeforeCompile = shader => {
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float ringFade;\nattribute float ringNumber;\nvarying float vRingFade;')
-      .replace('#include <uv_vertex>', `#include <uv_vertex>\nvMapUv.x = (vMapUv.x + max(ringNumber, 1.0) - 1.0) / ${RING_LINE_MAX}.0;`)
+      .replace('#include <common>', '#include <common>\nattribute float ringFade;\nattribute float ringNumber;\nattribute float ringShape;\nvarying float vRingFade;')
+      .replace('#include <uv_vertex>', `#include <uv_vertex>\nvMapUv.x = (vMapUv.x + (ringShape > 0.5 ? ${RING_LINE_MAX}.0 + ringShape : max(ringNumber, 1.0)) - 1.0) / ${PLATE_CELLS}.0;`)
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRingFade = ringFade * step(0.5, ringNumber);')
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\nvarying float vRingFade;')
@@ -388,26 +513,56 @@ function dotsShader(material: THREE.Material) {
   return material
 }
 
-/** Multiply the alpha of each ring by its own fade (0 to 1), from an instanced attribute. */
-function fadeShader(material: THREE.Material) {
+/**
+ * Multiply the alpha of each ring by its own fade (0 to 1), from an instanced attribute. The `frame`
+ * of a ring shows only the part of the ring geometry for its shape (ringGeometry()). The `glow` is a
+ * round band: it shows for the torus only.
+ */
+function fadeShader(material: THREE.Material, kind: 'frame' | 'glow') {
   material.onBeforeCompile = shader => {
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float ringFade;\nvarying float vRingFade;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvRingFade = ringFade;')
+      .replace('#include <common>', '#include <common>\nattribute float ringFade;\nattribute float ringShape;\nattribute float ringPart;\nvarying float vRingFade;')
+      .replace('#include <begin_vertex>', kind === 'frame'
+        ? '#include <begin_vertex>\nvRingFade = ringFade;\ntransformed *= 1.0 - step(0.5, abs(ringPart - max(ringShape - 1.0, 0.0)));'
+        : '#include <begin_vertex>\nvRingFade = ringFade * (1.0 - step(1.5, ringShape));')
     shader.fragmentShader = shader.fragmentShader
       .replace('#include <common>', '#include <common>\nvarying float vRingFade;')
       .replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.a *= vRingFade;')
   }
-  material.customProgramCacheKey = () => 'sparkle-ring-fade'
+  material.customProgramCacheKey = () => `sparkle-ring-${kind}`
   return material
 }
 
-/** A view of `base` that shares its vertex data, with the fade of one world. */
-function geometryView(base: THREE.BufferGeometry, fade: THREE.InstancedBufferAttribute) {
+/**
+ * The frame of all rings in one geometry: the torus (part 0), then the tube of each shape but the circle
+ * (part 1 to 4, the index in RING_SHAPES). The shader of the frame keeps one part for each ring, so a
+ * world needs one draw call for the frames of all its rings.
+ */
+export function ringGeometry(mobile: boolean) {
+  const torus = new THREE.TorusGeometry(RING.radius, RING.tube, mobile ? 8 : 10, mobile ? 32 : 48)
+  const positions = [...torus.attributes.position.array as Float32Array], index = [...torus.index!.array], parts = positions.filter((_, i) => i % 3 === 0).map(() => 0)
+  torus.dispose()
+  RING_SHAPES.forEach((shape, part) => {
+    if (shape === 'circle') return
+    const tube = ringShapeTube(shape), first = positions.length / 3
+    positions.push(...tube.positions)
+    index.push(...tube.index.map(vertex => vertex + first))
+    for (let i = 0; i < tube.positions.length / 3; i++) parts.push(part)
+  })
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('ringPart', new THREE.Float32BufferAttribute(parts, 1))
+  geometry.setIndex(index)
+  return geometry
+}
+
+/** A view of `base` that shares its vertex data, with the fade and the shape of each ring of one world. */
+function geometryView(base: THREE.BufferGeometry, fade: THREE.InstancedBufferAttribute, shape: THREE.InstancedBufferAttribute) {
   const view = new THREE.BufferGeometry()
   view.setIndex(base.index)
   for (const [name, attribute] of Object.entries(base.attributes)) view.setAttribute(name, attribute)
   view.setAttribute('ringFade', fade)
+  view.setAttribute('ringShape', shape)
   return view
 }
 
@@ -418,35 +573,43 @@ type WorldRings = {
   rings: THREE.InstancedMesh
   glow: THREE.InstancedMesh
   fade: THREE.InstancedBufferAttribute
-  /** The dots over each ring, and the number that each ring shows. */
+  /** The plate over each ring, and the number of each ring. A count ring shows its number as dots. */
   dots: THREE.InstancedMesh
   number: THREE.InstancedBufferAttribute
-  /** Each line: its first ring in `placements`, its length, and its count (the last ring taken, its number and the time). */
-  lines: { start: number; length: number; count: { index: number; number: number; at: number } | null }[]
+  /** The shape of each ring for the shaders: 0 for a count ring, or 1 + the index in RING_SHAPES. */
+  shape: THREE.InstancedBufferAttribute
+  /** The turn of each ring: its axis along the line, the right way up. */
+  turns: THREE.Quaternion[]
+  /** Each line: its first ring in `placements`, its length, and its count. */
+  lines: { start: number; length: number; count: RingCount | null }[]
 }
 
 export type SparkleRings = ReturnType<typeof createSparkleRings>
 
 /**
  * The rings of the game. The rings of a world are children of its group, so they turn and move
- * with it (also when Blossom Haven moves). One torus geometry, one glow quad and three materials
- * serve all worlds. Each world has one draw call for its rings, one for their glow and one for their
- * dots. A small pool of burst sparkles follows the world of the last ring. A phone gets half the sparkles.
+ * with it (also when Blossom Haven moves). One ring geometry, one glow quad, one plate and three
+ * materials serve all worlds. Each world has one draw call for its rings, one for their glow and one for
+ * their plates. A small pool of burst sparkles follows the world of the last ring. A phone gets half the sparkles.
  *
- * The rings count with the child (F12): each ring shows its number as dots, and a pass gives that number.
+ * The rings count with the child (F12): each ring of a count line shows its number as dots, and a pass
+ * gives that number. Each ring of a shape line has a shape, and its plate shows the picture of the shape.
  */
 export function createSparkleRings(worlds: World[], options: { mobile: boolean; sparkle: THREE.Texture; glow: THREE.Texture; dots: THREE.Texture }) {
-  const torus = new THREE.TorusGeometry(RING.radius, RING.tube, options.mobile ? 8 : 10, options.mobile ? 32 : 48)
+  const frame = ringGeometry(options.mobile)
   const quad = new THREE.PlaneGeometry((RING.radius + 1.1) * 2, (RING.radius + 1.1) * 2)
   // Candy colours stay bright by day and glow at night: no light, no tone mapping.
-  const ringMaterial = fadeShader(new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false, toneMapped: false }))
+  const ringMaterial = fadeShader(new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95, depthWrite: false, toneMapped: false }), 'frame')
   const glowMaterial = fadeShader(new THREE.MeshBasicMaterial({
     map: options.glow, color: 0xffffff, transparent: true, opacity: 0.2, depthWrite: false, toneMapped: false,
-    blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
-  }))
+    blending: THREE.AdditiveBlending, side: THREE.DoubleSide, forceSinglePass: true,
+  }), 'glow')
   const plate = new THREE.PlaneGeometry(RING.dotsSize, RING.dotsSize)
-  const dotsMaterial = dotsShader(new THREE.MeshBasicMaterial({ map: options.dots, transparent: true, depthWrite: false, toneMapped: false, side: THREE.DoubleSide }))
-  const tint = new THREE.Color(), matrix = new THREE.Matrix4(), rotation = new THREE.Quaternion(), size = new THREE.Vector3()
+  // The plates write depth, so the plate of a near ring covers the plates of the rings behind it. Without it, the
+  // order of the rings in the line decides, and a far plate can cover the plate that the child reads next.
+  // A flat quad needs one pass for its two sides: without forceSinglePass, the glow and the plates take two draw calls each.
+  const dotsMaterial = dotsShader(new THREE.MeshBasicMaterial({ map: options.dots, transparent: true, alphaTest: 0.05, toneMapped: false, side: THREE.DoubleSide, forceSinglePass: true }))
+  const tint = new THREE.Color(), matrix = new THREE.Matrix4(), size = new THREE.Vector3()
   const lift = new THREE.Vector3(), across = new THREE.Vector3(), basis = new THREE.Matrix4(), one = new THREE.Vector3(1, 1, 1)
 
   const sets: WorldRings[] = []
@@ -456,8 +619,9 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     const capacity = lines * RING_LINE_MAX
     const fade = new THREE.InstancedBufferAttribute(new Float32Array(capacity).fill(1), 1)
     fade.setUsage(THREE.DynamicDrawUsage)
-    const rings = new THREE.InstancedMesh(geometryView(torus, fade), ringMaterial, capacity)
-    const glow = new THREE.InstancedMesh(geometryView(quad, fade), glowMaterial, capacity)
+    const shape = new THREE.InstancedBufferAttribute(new Float32Array(capacity), 1)
+    const rings = new THREE.InstancedMesh(geometryView(frame, fade, shape), ringMaterial, capacity)
+    const glow = new THREE.InstancedMesh(geometryView(quad, fade, shape), glowMaterial, capacity)
     rings.name = 'sparkle-rings'; glow.name = 'sparkle-ring-glow'
     // The glow uses the matrices and the colours of the rings.
     glow.instanceMatrix = rings.instanceMatrix
@@ -466,20 +630,18 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     glow.instanceColor = rings.instanceColor
     const number = new THREE.InstancedBufferAttribute(new Float32Array(capacity), 1)
     number.setUsage(THREE.DynamicDrawUsage)
-    const dotsGeometry = geometryView(plate, fade)
+    const dotsGeometry = geometryView(plate, fade, shape)
     dotsGeometry.setAttribute('ringNumber', number)
     const dots = new THREE.InstancedMesh(dotsGeometry, dotsMaterial, capacity)
     dots.name = 'sparkle-ring-dots'
     world.group.add(rings, glow, dots)
-    const set: WorldRings = { world, placements: [], takenAt: [], rings, glow, fade, dots, number, lines: [] }
+    const set: WorldRings = { world, placements: [], takenAt: [], rings, glow, fade, dots, number, shape, turns: [], lines: [] }
     sets.push(set)
     build(set)
   }
 
   function place(set: WorldRings, index: number, scale: number) {
-    const ring = set.placements[index]
-    rotation.setFromUnitVectors(Z, ring.axis)
-    set.rings.setMatrixAt(index, matrix.compose(ring.position, rotation, size.setScalar(scale)))
+    set.rings.setMatrixAt(index, matrix.compose(set.placements[index].position, set.turns[index], size.setScalar(scale)))
   }
 
   function build(set: WorldRings) {
@@ -487,21 +649,26 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
     set.takenAt = set.placements.map(() => -Infinity)
     set.rings.count = set.glow.count = set.dots.count = set.placements.length
     set.lines = []
+    set.turns = []
     set.placements.forEach((ring, index) => {
       if (index === 0 || set.placements[index - 1].line !== ring.line) set.lines.push({ start: index, length: 0, count: null })
       set.lines[set.lines.length - 1].length++
-      // The dots stand over the ring, in its plane, the right way up: the child reads them on the way to the ring.
+      // The ring and its plate stand the right way up: a shape has a top, and the child reads the plate on the way to the ring.
       lift.copy(ring.position).normalize()
       lift.addScaledVector(ring.axis, -lift.dot(ring.axis)).normalize()
       across.crossVectors(lift, ring.axis)
-      set.dots.setMatrixAt(index, matrix.compose(lift.clone().multiplyScalar(RING.dotsHeight).add(ring.position), rotation.setFromRotationMatrix(basis.makeBasis(across, lift, ring.axis)), one))
+      set.turns.push(new THREE.Quaternion().setFromRotationMatrix(basis.makeBasis(across, lift, ring.axis)))
+      // The plate stands over the ring, in its plane.
+      set.dots.setMatrixAt(index, matrix.compose(lift.clone().multiplyScalar(RING.dotsHeight).add(ring.position), set.turns[index], one))
       place(set, index, 1)
       set.rings.setColorAt(index, tint.setHex(ring.colour))
       set.fade.setX(index, 1)
+      set.shape.setX(index, ring.shape ? RING_SHAPES.indexOf(ring.shape) + 1 : 0)
     })
     set.rings.instanceMatrix.needsUpdate = true
     set.rings.instanceColor!.needsUpdate = true
     set.fade.needsUpdate = true
+    set.shape.needsUpdate = true
     set.dots.instanceMatrix.needsUpdate = true
     renumber(set, null, 0)
     for (const mesh of [set.rings, set.glow, set.dots]) {
@@ -512,23 +679,25 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
   }
 
   /**
-   * Gives each ring of a world its number. A line with no count starts at the ring nearest to the fairy
-   * (`fairy` in the frame of the world group), or at its first ring when the fairy is on a different world.
+   * Gives each ring of a world its number. Each line counts on from the ring nearest to the fairy (`fairy` in
+   * the frame of the world group), or from its first ring when the fairy is on a different world. So the next
+   * ring that she takes always shows the next number, also after a ring that she flew past.
    */
   function renumber(set: WorldRings, fairy: THREE.Vector3 | null, time: number) {
     let changed = false
     for (const line of set.lines) {
-      if (line.count && time - line.count.at > RING.countGap) line.count = null
+      const base = ringCountBase(line.count, line.length, time)
+      if (!base) line.count = null
       const taken = Array.from({ length: line.length }, (_, i) => time - set.takenAt[line.start + i] < RING.returnSeconds)
-      let from = line.count ? line.count.index - line.start : 0
-      if (!line.count && fairy) {
+      let from = 0
+      if (fairy) {
         let nearest = Infinity
         for (let i = 0; i < line.length; i++) {
           const distance = set.placements[line.start + i].position.distanceToSquared(fairy)
           if (distance < nearest) { nearest = distance; from = i }
         }
       }
-      ringNumbers(taken, from, line.count?.number ?? 0).forEach((value, i) => {
+      ringNumbers(taken, from, base).forEach((value, i) => {
         if (set.number.getX(line.start + i) !== value) { set.number.setX(line.start + i, value); changed = true }
       })
     }
@@ -613,10 +782,10 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
           set.placements.forEach((ring, index) => {
             if (time - set.takenAt[index] < RING.returnSeconds) return
             if (!ringPass(previousLocal, fairyLocal, ring.position, ring.axis)) return
-            // The ring gives the number that its dots show.
+            // The count of the line goes one up. This is the number that the dots of the ring show: she is at this ring.
             const line = set.lines.find(item => index >= item.start && index < item.start + item.length)!
-            const count = Math.max(1, set.number.getX(index))
-            line.count = { index, number: count, at: time }
+            const count = ringCountBase(line.count, line.length, time) + 1
+            line.count = { number: count, at: time }
             set.takenAt[index] = time
             taken.push({ ...ring, number: count, complete: count === line.length })
             burst(set, ring)
@@ -629,6 +798,8 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
       } else if (!set) previousWorld = null
 
       for (const item of sets) {
+        // A ring that comes back on a world far from the fairy gets its number again, and an old count ends there.
+        if (item !== set && delta > 0) renumber(item, null, time)
         let changed = false
         item.placements.forEach((_, index) => {
           const age = time - item.takenAt[index]
@@ -674,6 +845,8 @@ export function createSparkleRings(worlds: World[], options: { mobile: boolean; 
           taken: item.takenAt.flatMap((at, index) => now - at < RING.returnSeconds ? [index] : []),
           /** The number that each ring shows. A taken ring has 0. */
           numbers: item.placements.map((_, index) => item.number.getX(index)),
+          /** The shape of each ring. A ring of a count line has null. */
+          shapes: item.placements.map(ring => ring.shape),
           dotsInGroup: item.dots.parent === item.world.group,
           first: item.placements[0]?.position.toArray() ?? null,
           inGroup: item.rings.parent === item.world.group && item.glow.parent === item.world.group,

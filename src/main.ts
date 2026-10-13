@@ -54,7 +54,8 @@ import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
 import { createPostcardCamera } from './postcard-camera'
-import { createSparkleRings, RING, ringDotsTexture, ringGlowTexture, ringNotes } from './rings'
+import { createSparkleRings, RING, RING_SHAPE_NAMES, ringDotsTexture, ringGlowTexture, ringNotes, ringShapeNotes, ringShapePoints } from './rings'
+import type { RingTake } from './rings'
 import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 
@@ -178,7 +179,7 @@ app.innerHTML = `
     </section>
 
     <div id="arrival-note" role="status"></div>
-    <div id="ring-count" role="status"><b></b><span aria-hidden="true"></span></div>
+    <div id="ring-count" role="status"><svg viewBox="-3.3 -3.3 6.6 6.6" aria-hidden="true"><polygon /></svg><b></b><span aria-hidden="true"></span></div>
     <div id="pause-label" class="pause-label"><span>A moment of stillness</span><button id="resume-flight" type="button">▶ Keep flying</button></div>
 
     <nav class="touch-controls" aria-label="Flight controls">
@@ -972,6 +973,25 @@ camera.up.copy(earthOutward)
 camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
 cameraLook.copy(fairy.position).addScaledVector(forward, 12)
 camera.lookAt(cameraLook)
+const ringCount = document.querySelector<HTMLElement>('#ring-count')!
+// The time of flight at which the number of a ring goes away. 0: no number shows.
+let ringCountUntil = 0
+/**
+ * Shows the number of a ring for a moment, large, with the same number of dots. A ring of a shape line
+ * shows the picture of its shape and its name. The moment is time of flight, so a pause does not use it up.
+ */
+function showRingCount(take: RingTake) {
+  const dots = take.shape ? 0 : take.number
+  ringCount.classList.toggle('is-shape', !!take.shape)
+  ringCount.querySelector('polygon')!.setAttribute('points', take.shape ? ringShapePoints(take.shape).map(([x, y]) => `${x.toFixed(2)},${(-y).toFixed(2)}`).join(' ') : '')
+  ringCount.querySelector('b')!.textContent = take.shape ? RING_SHAPE_NAMES[take.shape] : String(take.number)
+  ringCount.querySelector('span')!.replaceChildren(...Array.from({ length: dots }, () => document.createElement('i')))
+  // The class goes off and on again, so the pop starts again for each ring.
+  ringCount.classList.remove('is-visible')
+  void ringCount.offsetWidth
+  ringCount.classList.add('is-visible')
+  ringCountUntil = elapsed + 1.3
+}
 
 let lastPaint = 0
 function animate(timestamp?: number) {
@@ -1029,11 +1049,18 @@ function animate(timestamp?: number) {
   const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
   if (ringsTaken.length) {
     // The rings count with the child: the number of the ring, the same dots, and its note of the scale.
-    const { number, complete } = ringsTaken[ringsTaken.length - 1]
+    // A ring of a shape line gives the picture and the name of its shape, and the note of that shape.
+    const take = ringsTaken[ringsTaken.length - 1]
+    const notes = take.shape ? ringShapeNotes(take.shape) : ringNotes(take.number)
     // The last ring of a line adds the high C.
-    playChime(complete ? [...ringNotes(number), 1046.5] : ringNotes(number))
-    showRingCount(number)
+    playChime(take.complete ? [...notes, 1046.5] : notes)
+    showRingCount(take)
     sparkleUntil = elapsed + RING.trailSeconds
+  }
+  // The number goes away after its time of flight, and at once behind a menu. A pause keeps it, as it keeps the flight.
+  if (ringCountUntil && (elapsed >= ringCountUntil || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen)) {
+    ringCount.classList.remove('is-visible')
+    ringCountUntil = 0
   }
   updateCamera(rawDelta)
   updateEnvironment()
@@ -1100,20 +1127,6 @@ function animate(timestamp?: number) {
 }
 
 animate()
-
-const ringCount = document.querySelector<HTMLElement>('#ring-count')!
-let ringCountTimer = 0
-/** Shows the number of a ring for a moment, large, with the same number of dots. */
-function showRingCount(number: number) {
-  ringCount.querySelector('b')!.textContent = String(number)
-  ringCount.querySelector('span')!.replaceChildren(...Array.from({ length: number }, () => document.createElement('i')))
-  // The class goes off and on again, so the pop starts again for each ring.
-  ringCount.classList.remove('is-visible')
-  void ringCount.offsetWidth
-  ringCount.classList.add('is-visible')
-  clearTimeout(ringCountTimer)
-  ringCountTimer = window.setTimeout(() => ringCount.classList.remove('is-visible'), 1300)
-}
 
 /**
  * Test only: put the fairy `distance` m before ring `index` of a world, on its axis and facing along
