@@ -28,7 +28,7 @@ Last update: 14 October 2026.
 | F8 Comets and shooting stars | In `master` | Merged in `30561c9` |
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
-| F11 Animal book | Study only. Not selected on 13 October 2026 | None |
+| F11 Animal book | In `master`, as the Animals tab of the fairy friend (F19). See the friend book study | Merged in `e9ac6a4` |
 | F12 Count and shape rings | In `master` | Merged in `4006c18` |
 | F13 Size line-up | Study only. Not selected on 13 October 2026 | None |
 | F14 Moon shapes diary | In `master` | Merged in `ff7d4b2` |
@@ -36,18 +36,20 @@ Last update: 14 October 2026.
 | F16 Picture thermometer | In `master` | Merged in `94408c2` |
 | F17 Cottage garden | Study only. Not selected on 13 October 2026 | None |
 | F18 Looks to earn | Study only. Not selected on 13 October 2026 | None |
-| F19 Fairy friend | Built on its branch. The player wants changes: a study joins it with the animal book (F11) | `features/f19-fairy-friend`, study on `studies/friend-book` |
+| F19 Fairy friend | In `master`, with the animal book (design A of the friend book study) | Merged in `e9ac6a4` |
 | F20 Postcard album | Study only. Not selected on 13 October 2026 | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
 
 F12, F14 and F16 are in `master` since 14 October 2026. The thermometer note and the Moon note use
 the same place, so each one waits while the other shows (`src/main.ts`).
 
-F19 has an open branch, `features/f19-fairy-friend`, in the worktree
-`../fly-me-to-the-moon-worktrees/f19` (dev server port 5184). The study "friend book" joins F19
-with the animal book (F11) on the branch `studies/friend-book`, in the worktree
-`../fly-me-to-the-moon-worktrees/friend-book`. No branch is on GitHub. The branches and the worktrees of F12, F14 and F16
-are deleted after their merge.
+F19 is in `master` since 14 October 2026, with the animal book (F11): design A of the friend book
+study (`docs/friend-book-study.md`, `/studies/friend-book-study.html`). The player selected the
+recommended option of each of its eight decisions. The button **Worlds** is now **My book**, with
+two tabs: **Worlds** and **Animals**. The book opens at its **Worlds** tab.
+
+No idea has an open branch. The branches and the worktrees of F12, F14, F16 and F19 are deleted
+after their merge. No branch is on GitHub.
 
 ## Open features
 
