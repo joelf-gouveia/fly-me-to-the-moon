@@ -1504,6 +1504,33 @@ moment pictures.
 The player selected option A with the recommended option of each decision, and it is in the game:
 see [Fairy friend](#fairy-friend).
 
+## Animals study
+
+Visit `/studies/animals-study.html` for **More animals**, a study of many more animals for Earth
+and Blossom Haven, each one in the place where it belongs. A catalog gives each kind a rule that
+reads only values of the game: the climate belt or the garden of `zoneAt()`, land, shore, river,
+sea or deep sea, the half of the planet, the season and the magic season. Earth gets real animals
+(zebras and giraffes on the savanna, a camel in the desert, penguins only in the south); Blossom
+Haven gets creatures from stories and candy (gummy bear cubs, candy-floss lambs, crystal deer,
+gummy jellyfish, lantern moths in Lantern time). It compares three options: **A** a few kinds for
+each place with the models of today, **B** herds of 27 + 13 kinds as one instanced joined model for
+each kind, moved by a shader, and **C** few models with points for the far animals and the small
+life. Seven clips from the engine of the game show the options on one route across the belts, a
+herd on the savanna, the sea and the shore, the gardens and Lantern time. A bench measures the draw
+calls and the frame time of each option with the real renderer, on a computer page and on a phone
+page of 390 px. The page also has the catalog, the animal book with 40 cards, the friend, the plan
+and ten decisions. Its controls do not change the game.
+
+The study uses the lab of the [feature ideas study](#feature-ideas-study) (with a new option
+`mobile` of `createLab()` for the phone bench) and the page look of the
+[learn and play study](#learn-and-play-study). The recommendation is option B, then the points of C
+for the small life. The [technical study](docs/animals-study.md) gives the findings, the rules, the
+models, the measurements and the plan. The clips are in `public/studies/animals/`. Against a dev
+server with no hot reload, run
+`node studies/animals-study/animals-study-capture.mjs "path/to/chrome.exe" [A,B,...]` for the clips
+(add `--moments` for the moment pictures, or `--cards` for the card pictures), and
+`node studies/animals-study/animals-study-bench.mjs "path/to/chrome.exe"` for the measurements.
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:
