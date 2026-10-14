@@ -131,7 +131,7 @@ try {
     if (tick % 40 === 0) step(`${state.belt.nearest} · ${state.stickers.join(', ')}`)
   }
   assert(state.stickers.join() === 'moon', `The guided flight does not earn the Moon sticker alone: ${state.stickers}`)
-  assert((await text('#sticker-toast h2')) === 'Moon' && (await text('#sticker-toast .sticker-toast-next')) === 'A new world is waiting in Worlds!', 'No note for the Moon sticker')
+  assert((await text('#sticker-toast h2')) === 'Moon' && (await text('#sticker-toast .sticker-toast-next')) === 'A new world is waiting in your book!', 'No note for the Moon sticker')
   assert(state.openWorlds.join() === 'venus,earth,moon,fairy', `The Moon does not open Venus: ${state.openWorlds}`)
   // The stubbed frame clock holds CSS animations at their start, so the screenshot skips the entry animation.
   await evaluate('document.querySelector("#sticker-toast").style.animation = "none"')

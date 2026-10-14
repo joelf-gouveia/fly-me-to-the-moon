@@ -38,7 +38,7 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   host.className = 'adventure'
   host.innerHTML = `
     <nav class="adventure-tools" aria-label="Your adventure" hidden>
-      <div class="explore-tools"><button id="open-map" type="button" aria-haspopup="dialog"><span aria-hidden="true">◉</span> Worlds <span class="world-count" aria-hidden="true"></span></button></div>
+      <div class="explore-tools"><button id="open-map" type="button" aria-haspopup="dialog"><span aria-hidden="true">◉</span> My book <span class="world-count" aria-hidden="true"></span></button></div>
       <div class="home-controls"><button id="stop-home" type="button" aria-label="Stop following; fly freely" hidden>■ <span>Stop following</span></button></div>
       <p id="home-help" role="status" hidden></p>
     </nav>
@@ -134,7 +134,7 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     get('sticker-count').textContent = `${earned} of ${total} stickers${stars ? ` · ${stars} search star${stars === 1 ? '' : 's'}` : ''}`
     get('open-map').querySelector('.world-count')!.textContent = `${earned}/${total}`
     get('tab-worlds').querySelector('.world-count')!.textContent = `${earned}/${total}`
-    get('open-map').ariaLabel = `Worlds and stickers: ${earned} of ${total} stickers`
+    get('open-map').ariaLabel = `My book: ${earned} of ${total} stickers`
     host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => {
       const id = card.dataset.world as StickerId, state = cardState(book, id), mystery = state.startsWith('mystery')
       // A sticker card shows its search star: gold when found, a dashed outline while it waits.

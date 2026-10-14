@@ -57,7 +57,7 @@ export function createStickerBook(worlds: World[], actions: Actions) {
     toast.querySelector('.sticker-toast-task')!.innerHTML = star ? '' : `<span aria-hidden="true">☆</span> ${sticker.search.task}`
     // Each new sticker opens the next door. Earth is always open, so it needs no note. A search star opens nothing.
     const next = nextDoor(book)
-    toast.querySelector('.sticker-toast-next')!.textContent = !star && next && next !== 'earth' ? 'A new world is waiting in Worlds!' : ''
+    toast.querySelector('.sticker-toast-next')!.textContent = !star && next && next !== 'earth' ? 'A new world is waiting in your book!' : ''
     toast.classList.toggle('is-search', star)
     toast.hidden = false
     toast.classList.remove('is-leaving')

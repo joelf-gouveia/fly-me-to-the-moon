@@ -178,7 +178,7 @@ app.innerHTML = `
       <div class="welcome-sparkle"><i></i><i></i><i></i></div>
       <p class="eyebrow">YOUR WINGS ARE READY</p>
       <h2>Drift beyond<br>the blue</h2>
-      <p>Wander freely through rivers, clouds, and stars.<br>Or open Worlds and follow the flower home.</p>
+      <p>Wander freely through rivers, clouds, and stars.<br>Or open your book and follow the flower home.</p>
       <button id="begin-button" type="button"><span>Begin your adventure</span><span>→</span></button>
       <button id="welcome-customize" class="welcome-customize" type="button"><span>Choose your look</span><span>✦</span></button>
       <small id="steering-hint">Use WASD or arrow keys to steer</small>

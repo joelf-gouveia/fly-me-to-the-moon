@@ -29,9 +29,9 @@ A study can use code from `src/`. The code in `src/` does not use code from
 ## Flight
 
 - **Begin your adventure** starts the flight. There is one mode.
-- The ✿ Blossom Haven card in **Worlds**, then **Fly there**, starts the flower guide. It shows
+- The ✿ Blossom Haven card in **My book**, then **Fly there**, starts the flower guide. It shows
   the flower marker and the guiding fireflies to Blossom Haven. While the guide
-  is on, **Stop following** shows under **Worlds** and returns to free flight.
+  is on, **Stop following** shows under **My book** and returns to free flight.
 - The flower cottage is always on Blossom Haven, with or without the guide.
   The first arrival shows the discovery celebration.
 
@@ -39,11 +39,11 @@ A study can use code from `src/`. The code in `src/` does not use code from
 - A / Left and D / Right: turn.
 - Release the controls near a planet to cruise along its curvature.
 - Shift: faster flight; Q: hover; Space or the pause button: pause.
-- On a computer the screen has **Worlds** at the top left, with the sticker
+- On a computer the screen has **My book** at the top left, with the sticker
   count, and four round buttons at the bottom right: **Your fairy**, the camera
   (**Postcard**), **Settings** and pause. **Settings** has the sound, the sky switches,
   World speed and the keys. See [Postcard camera](#postcard-camera).
-- Open **Worlds**, tap a world, then **Fly there** for a guided journey. A new book
+- Open **My book**, tap a world, then **Fly there** for a guided journey. A new book
   opens Earth, Blossom Haven and the Moon; each new sticker opens the next world
   (see [Sticker book](#sticker-book)). Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
@@ -195,7 +195,7 @@ shrinks away. The belt turns with the planets and fades inside atmospheres,
 as the stars do. Phones draw half of the dust and rocks.
 
 **Ceres** and **Vesta**, two small airless worlds, orbit inside the belt at their
-real distances. Both are in **Worlds**. Ceres has the bright salt spots of
+real distances. Both are in **My book**. Ceres has the bright salt spots of
 Occator crater; Vesta has a giant crater at its south pole. Blossom Haven never
 relocates into the belt. The belt data is in `src/belt.ts`; the scene is in
 `src/asteroid-belt.ts`.
@@ -219,7 +219,7 @@ The comet has an icy nucleus, a glowing coma, a warm dust tail and a faint blue 
 Both tails point away from the Sun, and they are longer near the Sun (450 to 2,000 m for
 the dust tail). The dust tail bends back along the orbit. The comet fades inside
 atmospheres, as the stars and the belt do. It is not a world: it has no sticker, it is not
-in **Worlds**, and the fairy flies through it.
+in **My book**, and the fairy flies through it.
 
 When the fairy flies through a tail, sparkles burst around her and stream behind her, and
 her trail grows. The sparkles and the larger trail stay for 4 s after the tail. A soft
@@ -248,7 +248,7 @@ The Moon orbits Earth 963 m from its centre (3.5 Earth radii), on an orbit tilte
 28°. It has radius 75 m, 0.273 of Earth, as in the real Solar System. A lunar month is 300 s
 at 1× orbital speed, so there are 12 new moons in each game year. The Moon keeps
 its near side, with the dark maria, toward Earth. It rises in the east, and it
-is in **Worlds** after Earth; a guided trip from the meadow takes about 16 s.
+is in **My book** after Earth; a guided trip from the meadow takes about 16 s.
 
 The Moon shows phases, because its night side is dark from far away. The fog
 does not hide it, so it shows from Earth's ground. On Earth the night light comes
@@ -271,7 +271,7 @@ place of the sticker note: a drawing of the shape, its name and one short line, 
 "One half is bright." A soft chime plays when the sound is on. The note waits while a sticker
 note shows, and a search star waits for the note. No strip shows in the flight.
 
-The diary is in **Worlds**, below the cards: one place for each shape, with the count next to the
+The diary is in **My book**, below the cards: one place for each shape, with the count next to the
 sticker count ("2 of 5 Moon shapes"). An empty place shows its shape as a faint drawing. A tap
 on a place gives its line, or a hint for an empty place. While a place is empty, the line of
 the diary says where the Moon is now: "The Moon is in the sky now. Look up!" or "The Moon is on
@@ -483,6 +483,12 @@ browser checks. Pure simulation tests cover placement and relocation safety.
 
 ## Sticker book
 
+**My book** is the button at the top left (at the top on a touch screen) with the sticker count. Its
+name was **Worlds** until 14 October 2026. It opens one book with two tabs: **Worlds** (the map, the
+cards of the worlds with their stickers and thermometers, and the Moon diary) and **Animals** (the
+animal book of the fairy friend). The book always opens at its **Worlds** tab.
+
+
 Each of the 13 worlds gives a sticker the first time the fairy arrives: the
 Sun, the eight planets, the Moon, Ceres, Vesta and Blossom Haven. A world counts
 as reached when the flight panel says the fairy is near it: closer than 85 m, or
@@ -491,8 +497,8 @@ Earth sticker comes when she flies out to space and comes back: the same new
 visit that makes a new landscape. A note shows the new sticker and one short fact, and the chime plays
 when the sound is on. Every fourth sticker has a bigger note.
 
-The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
-for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
+The stickers are in **My book**, under the map. The **My book** button shows the count,
+for example "3/13". Flight waits while **My book** is open, and Escape closes it. Tap a
 card to read its fact or a hint, then **Fly there** for a guided flight. The card of a world
 says "You are here" only when the fairy is near that world, as the flight panel says. In open
 space each open world has **Fly there**, also the nearest one, so Earth is always a way home. A card with its
@@ -503,13 +509,13 @@ other worlds are mysteries: a grey "?" on the map and in the book, with no path.
 new sticker opens the next door: the nearest empty space on the poster (`nextDoor()` in
 `src/stickers.ts`). The order is the Moon, Venus, Mercury, the Sun, Mars, Vesta, Ceres,
 Jupiter, Saturn, Uranus, Neptune, then Earth. A fairy who finds a world in free flight
-gets its sticker, and that world opens too. The note at the top of **Worlds** always
+gets its sticker, and that world opens too. The note at the top of **My book** always
 says what is next. Earth and Blossom Haven are always open: the way home, and the flower
 guide. The Sun is on the map from the start, but it opens in its turn.
 
 Each world also has one search star (F1 of the [feature ideas study](docs/feature-ideas-study.md),
 option B of the sticker book study). The note of a new sticker gives one small task on that
-world, for example "Find the big red storm." In **Worlds**, the card of the world gives the
+world, for example "Find the big red storm." In **My book**, the card of the world gives the
 task as its hint, and a dashed star shows on its picture. When the fairy does the task, a gold
 star pops up in the world with sparkles, the note says "SEARCH STAR" and the found line, a gold
 star goes on the sticker picture, and a brighter chime plays when the sound is on. There is no
@@ -553,18 +559,18 @@ is an export of `src/terrain.ts`.
 The book is saved in this browser as `fairy-sticker-book`, with the search stars. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
 stickers, their facts and the rule of the open worlds are in `src/stickers.ts`; the book
-is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). This is option A of
+is `src/sticker-book.ts`, and **My book** draws it (`src/adventure.ts`). This is option A of
 the sticker book study below, without the voice, in the one book of option D of the world
 book study.
 
 Run `node scripts/sticker-book-smoke.mjs "path/to/chrome.exe"` against the dev
-server for no sticker at the start, the book in **Worlds**, the next door and the
+server for no sticker at the start, the book in **My book**, the next door and the
 locks, **Fly there** to the Moon, the Earth sticker after the return, the saved book
 and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
 
 Run `node scripts/search-stars-smoke.mjs "path/to/chrome.exe"` against the dev server for the
-search stars: no star before the hello sticker, the task in the note and in **Worlds**, a find
+search stars: no star before the hello sticker, the task in the note and in **My book**, a find
 on twelve worlds, the gold star in the world and on the sticker, the saved book, the reset and
 the phone layout. A test move puts the fairy at each place, and the check uses
 `/?test&weather=shower` for the rainbow. The check also reads the paint of the ground: it is
@@ -589,7 +595,7 @@ on each device. This is idea F16 of the [learn and play study](#learn-and-play-s
 Each world has one level, from 0 to 1 (`WARMTH` in `src/warmth.ts`). A world has no day level
 and no night level. The order follows the real temperatures, and the Sun is the top. Venus
 is the hottest planet and Uranus the coldest, below Neptune, as their sticker facts say. The
-five colours have a contrast of 3 or more with the dark panel of **Worlds** and with the pink
+five colours have a contrast of 3 or more with the dark panel of **My book** and with the pink
 sticker card, and the lines of the thermometer are dark on a sticker card.
 
 The thermometer is in two places. It is not a permanent part of the flight screen.
@@ -609,7 +615,7 @@ The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
 - One note at a time. The thermometer waits while the sticker note, the search-star note, the
   note of the found home or the note of a hop shows. It comes when that note is gone, if the
   fairy is still near the world. It leaves at once when one of those notes comes.
-- The note and its time wait behind **Worlds**, Settings, Menu and the pause.
+- The note and its time wait behind **My book**, Settings, Menu and the pause.
 - With a mouse and keys the note is in the place of the sticker note, above the toolbar. On a
   touch screen it is at the right edge, below the place of the "A new world to explore" note
   and above **Boost**, because that note can show at the same time.
@@ -617,7 +623,7 @@ The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
 `src/warmth.ts` has the levels, the steps, the SVG and the rule. `src/warmth-note.ts` has the
 arrival note, and `src/warmth.css` has the styles. Run
 `node scripts/thermometer-smoke.mjs "path/to/chrome.exe"` against the dev server for the
-thermometers in **Worlds**, the arrival note at Venus and at the Moon, its rule and the phone
+thermometers in **My book**, the arrival note at Venus and at the Moon, its rule and the phone
 layout at 390 px and 320 px. An optional second argument sets the server origin. The pictures
 are in `artifacts.local/thermometer/`.
 
@@ -666,7 +672,7 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
   the sound start. It is off at each visit.
 - **In the sky**: **Star pictures**, **Orbit paths** and **World speed** (1×, 8×,
   16×, 32× or 64×). **Orbit paths** shows the coloured lines in the sky only; the
-  **Worlds** map always shows its paths. The two switches stay after a reload
+  **My book** map always shows its paths. The two switches stay after a reload
   (`fairy-settings` in `localStorage`); World speed starts at 1× at each visit.
 - **How to fly**: the keys on a computer, the touch buttons on a touch screen.
 - **Sticker book**: the reset below.
@@ -743,7 +749,7 @@ the animal book in Worlds shows each kind that she met (design A of the
 [friend book study](#friend-book-study)). The friend has no task and no health: it is company. The
 game has no score, no timer and no fail.
 
-- **The animal book.** **Worlds** has two tabs: **Worlds** (the map, the cards of the worlds and the
+- **The animal book.** **My book** has two tabs: **Worlds** (the map, the cards of the worlds and the
   Moon diary) and **Animals**. The Animals page has a card for each of the nine kinds, in two
   groups: **Real animals** on Earth (cow, rabbit, sheep, duck) and **Story creatures** on Blossom
   Haven (unicorn, dragonling, kitsune kit, Frog Prince, pegasus foal). A card of a kind that she met
@@ -1272,7 +1278,7 @@ controls on the flight screen. A working drawing of the screen compares **Today*
 (A, plus World speed and the credits in Settings, and no dead or debug parts) and
 **C — Four buttons** (B, plus Sound and the keys in Settings) on a computer and a phone.
 The game now uses option C, without **Guide me home**: the Blossom Haven picture in
-**Worlds** starts the flower guide. The [technical study](docs/ui-simplify-study.md) gives
+**My book** starts the flower guide. The [technical study](docs/ui-simplify-study.md) gives
 the findings, the options and what changed.
 
 Run `node studies/ui-simplify-study/ui-study-smoke.mjs "path/to/chrome.exe"` against port 5174 to check the

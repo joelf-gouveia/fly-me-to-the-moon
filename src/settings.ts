@@ -55,7 +55,7 @@ export function createSettings(actions: Actions) {
       <section class="setting" aria-labelledby="sky-title">
         <h3 id="sky-title">In the sky</h3>
         ${toggle('setting-stars', 'Star pictures', 'Lines and names of the constellations, and the Webb pictures. They show in space, above the air.')}
-        ${toggle('setting-orbits', 'Orbit paths', 'A coloured line in the sky for the path of each world. The Worlds map always shows the paths.')}
+        ${toggle('setting-orbits', 'Orbit paths', 'A coloured line in the sky for the path of each world. The map in your book always shows the paths.')}
         <div class="setting-row speed-row-setting"><span><b id="speed-title">World speed</b><small>How fast the worlds go around the Sun. At 1×, one lap of Earth takes about an hour. It starts at 1× at each visit.</small></span>
           <div class="speed-steps" role="radiogroup" aria-labelledby="speed-title">${WORLD_SPEEDS.map((speed, index) => `<button type="button" role="radio" data-speed="${speed}" aria-checked="${index === 0}" tabindex="${index === 0 ? 0 : -1}">${speed}×</button>`).join('')}</div>
         </div>
