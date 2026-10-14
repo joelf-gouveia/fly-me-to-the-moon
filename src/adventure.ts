@@ -7,6 +7,7 @@ import { BOOK_ORDER, isKnown, MILESTONE, nextDoor, stickerById, STICKERS } from 
 import type { Book, StickerId } from './stickers'
 import { worldPicture } from './sticker-book'
 import type { StickerBook } from './sticker-book'
+import { warmthMeter } from './warmth'
 
 /** Game metres at the edge of the solar map: the base system at the spacing of the game. */
 const MAP_REACH = 14500 * PROPORTIONS.spacing
@@ -123,8 +124,9 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => {
       const id = card.dataset.world as StickerId, state = cardState(book, id), mystery = state.startsWith('mystery')
       // A sticker card shows its search star: gold when found, a dashed outline while it waits.
+      // A known world shows its picture thermometer (F16). A mystery keeps its secret.
       const star = state !== 'sticker' ? null : book.found.includes(id) ? 'found' : 'waiting'
-      const html = `${mystery ? '<span class="planet-picture mystery-picture" aria-hidden="true">?</span>' : worldPicture(worlds, id, star)}<strong>${mystery ? 'Mystery world' : stickerById(id).name}</strong><small class="map-location">${status(state, id, book)}</small>`
+      const html = `${mystery ? '<span class="planet-picture mystery-picture" aria-hidden="true">?</span>' : worldPicture(worlds, id, star)}<strong>${mystery ? 'Mystery world' : stickerById(id).name}</strong><small class="map-location">${status(state, id, book)}</small>${mystery ? '' : warmthMeter(id)}`
       if (card.innerHTML !== html) card.innerHTML = html
       card.className = `book-card is-${state}${id === selected ? ' is-selected' : ''}${id === here ? ' you-are-here' : ''}`
     })
@@ -166,6 +168,8 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   refresh()
   const local = new THREE.Vector3(), projected = new THREE.Vector3()
   return {
+    /** True while the note of the found home or of a hop shows. The thermometer note waits for it (src/warmth-note.ts). */
+    get noteShown() { return !get('home-celebration').hidden || !get('home-move-note').hidden },
     notifyMove(carrying: boolean) {
       // A move far away is quiet; the flower guide always finds the new spot.
       if (!carrying) return

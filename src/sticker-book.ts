@@ -93,6 +93,8 @@ export function createStickerBook(worlds: World[], actions: Actions) {
      * gone, so each note has its time, and the star never comes in the same moment as the hello.
      */
     searching: (id: StickerId) => searching(book, id) && toast.hidden,
+    /** True while the note of a sticker or of a search star shows. The thermometer note waits for it (src/warmth-note.ts). */
+    get noteShown() { return !toast.hidden },
     /** The fairy did the search task of the world: save the star, show the note and play the chime. */
     find(id: StickerId) {
       const result = find(book, id)
