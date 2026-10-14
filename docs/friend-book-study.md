@@ -5,6 +5,9 @@ study does not change the game or the saved game data. It saves its own answers 
 `fairy-friend-book-study-v1`. The code places below describe the branch
 `features/f19-fairy-friend` on 14 October 2026 (commit `a75f690`).
 
+Status of the build: design A, with the recommended option of each decision, is built on the
+branch `features/f19-fairy-friend` on 14 October 2026. See "Built in the game" below.
+
 The player asks: "I would like to do a study on combining the Fairy friend (F19) with the Animal
 book (F11), so the kid can replace the animal they fly with." This study answers how the Animal
 book and the friend become one thing, so a child of 5 sees the animals that she met and changes
@@ -281,6 +284,42 @@ node studies/friend-book-study/friend-book-study-capture.mjs "path/to/chrome.exe
   clip would differ from its moment pictures. The script sets
   `STUDY_BITRATE` to 2.2M, so each clip is about 3 MB. `STUDY_BITRATE` is a new option of the
   capture script of the feature ideas study; its default is 3M as before.
+
+## Built in the game
+
+On 14 October 2026 the player selected the recommended option of each decision. Design A is in
+the game code on the branch `features/f19-fairy-friend` (14 October 2026). See the Fairy friend part
+of `README.md`. The code is in `src/animal-book.ts`, `src/animal-book-ui.ts`, `src/animal-book.css`,
+`src/friend.ts` (the swap, `swapAt()`, `helloNotes()` and the clear and shadow pictures of
+`friendPicture()`), `src/friend-ui.ts` and the tabs in `src/adventure.ts`. The tests are
+`tests/animal-book.test.ts` and `tests/friend.test.ts`; the browser check is
+`scripts/friend-smoke.mjs`.
+
+The game follows the study, with these differences:
+
+- **The picture facts are drawings of the game**, not emoji, as the faces of the thermometer
+  (F16). Each fact is a small SVG.
+- **The time of a note.** A card note shows for 4 s of flight and the gift note for 6 s. The clips
+  used 2.2 s and 3.6 s; that is short for a grown-up who reads the facts aloud. The time of a note
+  runs only in the flight.
+- **The notes wait for each other.** The note of the friend also waits for the Moon note and the
+  thermometer note, and these two notes wait for the note of the friend. On a phone they are near
+  each other at the top of the view.
+- **The puff of sparkles** is the fairy dust of the model: it has 28 points in a puff and 10 points
+  in the flight, in the same draw call. The clips used a separate burst of 60 points.
+- **The first friend** comes out of the sky with the gift note, as in clip A. In the gift clip the
+  arrival is the same, so the game has one arrival.
+- **"No friend" closes Worlds**, as "Fly with me" does, so the child sees the friend fly home.
+- **Worlds opens at its Worlds tab** each time. Both tabs are in the Tab order, and the arrow keys
+  also go from one tab to the other.
+- **A shadow card** shows "Who is it?" in the note, with the picture of its world and of its place.
+- **The pictures of the cards** render one at a time when the Animals page opens for the first
+  time, so the page opens at once. A shadow is the clear render in one soft lilac colour.
+- **`?friend=all`** on the dev server fills the book with no note, and the friend is there at once.
+
+Measured in the browser check (`scripts/friend-smoke.mjs`), with the friend at her side and in a
+swap: 3 draw calls for one friend on a computer and on a phone of 390 px, and 6 in the middle of a
+swap on both. Two friends are in the scene for 1.5 s of the 3 s of a swap.
 
 ## Limits of this study
 

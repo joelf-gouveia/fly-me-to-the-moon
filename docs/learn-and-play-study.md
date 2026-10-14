@@ -264,6 +264,12 @@ After five hellos, a small friend flies with the fairy. It has no task and no he
 
   The friend is never more than 2.5 m from the fairy, at each speed from 11 m/s to 2,226 m/s and
   when a world carries her. See the Fairy friend part of `README.md`.
+- Status (14 October 2026): the friend book study (`docs/friend-book-study.md`) joins F19 with
+  the animal book (F11). Its design A is built on the same branch: Worlds has an Animals tab with a
+  card for each kind that she met and a shadow for the others, "Fly with me" on a met card swaps the
+  friend in the flight (the old friend waves and flies home, the new one comes out of the sky), and
+  five hearts show the way to the gift. The Friend row of **Your fairy** is gone. The saved data does
+  not change.
 
 ### F20 · Postcard album
 

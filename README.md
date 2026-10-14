@@ -738,27 +738,56 @@ for the focused desktop/mobile check, including saved selections after reload.
 
 ## Fairy friend
 
-A small friend flies with the fairy (F19 of the [learn and play study](#learn-and-play-study)).
-The friend has no task and no health: it is company. The game has no count of friends and no
-score.
+A small friend flies with the fairy (F19 of the [learn and play study](#learn-and-play-study)), and
+the animal book in Worlds shows each kind that she met (design A of the
+[friend book study](#friend-book-study)). The friend has no task and no health: it is company. The
+game has no score, no timer and no fail.
 
-- **When.** The friend comes at the fifth hello of a creature. A note shows for 6 s: a picture
-  of the friend, its name and "A friend flies with you now". A soft chime plays when Sound is on.
-  The note waits while a sticker note or the home card shows, and a search star waits for the note.
-  The first friend is the kind of the creature of the fifth hello. The game does not show the
-  number of hellos.
-- **Who.** The child selects the friend from the kinds that said hello to her: cow, rabbit, sheep
-  and duck on Earth, and unicorn, dragonling, kitsune kit, Frog Prince and pegasus foal on
-  Blossom Haven. The pegasus foals over the cottage garden say hello too.
-- **Where to select.** **Your fairy** has the row **Friend** after the friend came: one picture
-  button for each kind that she met, and **No friend**. A soft "?" with the words "Say hello"
-  shows while she can meet more kinds. Each picture is a render of the model of the friend.
+- **The animal book.** **Worlds** has two tabs: **Worlds** (the map, the cards of the worlds and the
+  Moon diary) and **Animals**. The Animals page has a card for each of the nine kinds, in two
+  groups: **Real animals** on Earth (cow, rabbit, sheep, duck) and **Story creatures** on Blossom
+  Haven (unicorn, dragonling, kitsune kit, Frog Prince, pegasus foal). A card of a kind that she met
+  is a sticker card: a picture rendered from the model of the friend, the name and three picture
+  facts. A kind that she did not meet is a soft shadow of its model, with the picture of its world
+  and of its place, for example Earth and the water. The tab shows the size of the book, for
+  example "4/9". The book is the list of the kinds that she met, so it fills from the first hello.
+- **The note at the top.** A tap on a card shows it in the note at the top of the page: the
+  picture, the name and the three facts with a short word each. A shadow card shows "Who is it?"
+  with its world and its place. The note stays at the top of the dialog while the cards scroll.
+  There is no voice: a grown-up reads the words.
+- **The new card in the flight.** The first hello of a kind shows a note for 4 s of flight: the
+  picture, "NEW IN YOUR ANIMAL BOOK", the name and the three picture facts. A hello to a kind that
+  she met shows no note. A soft chime plays when Sound is on.
+- **The way to the gift.** The friend comes at the fifth hello of a creature. Before the gift, the
+  note of a new card and the note of the Animals page show five hearts: one pink heart for each
+  hello, and the heart of this hello swells. These are the hearts that float over a creature at its
+  hello. The hearts are the only count of the hellos: the game shows no number of hellos.
+- **The gift.** At the fifth hello the gift note shows for 6 s: the picture, "A NEW FRIEND", the
+  name, "A friend flies with you now" and five full hearts. At the fifth hello of a new kind, the
+  gift note takes the place of the note of the card. The first friend is the kind of the fifth
+  hello, and it comes out of the sky with its note.
+- **Fly with me.** After the gift, the note of a met card has **Fly with me ↗**. The tap closes
+  Worlds, and the swap plays in the flight: the old friend turns to her and waves (0.9 s), then it
+  flies home, up, forward and out to her right, faster and faster, and goes in a puff of sparkles
+  (2.1 s). A friend in a bubble floats home in its bubble. 1.5 s after the start, the new friend
+  comes out of a puff in the sky ahead of her, flies to its place at her side in 1.5 s, and makes
+  the happy loop with two high notes. The card of the friend has a gold ring and the mark
+  "✦ Flies with me".
+- **No friend.** The note of the card of the friend has a small button **No friend**: the friend
+  waves and flies home, and the note shows an empty bubble. A met card brings a friend back.
+  **Your fairy** is only about her look: it has no friend row.
+- **The notes wait for each other.** The note of a card and the gift note wait while a different
+  note shows: a new sticker, a search star, the home card, a new landscape, the Moon note or the
+  thermometer note. The Moon note, the thermometer note and a search star wait for the note of the
+  friend. The time of a note runs only in the flight.
 - **How a cow flies.** A kind with wings flies with its wings: the pegasus foal, the dragonling
   and the duck. Each other kind rides in a soap bubble that the fairy made. The bubble and its
   fairy dust have the sparkle colour of her wings, so the bubble is her magic. The friend is
-  small: its body is 1.1 m across.
-- **Reset.** **Reset sticker book** in Settings also removes the friend, the kinds that she met
-  and the count of the hellos. The text of the reset says so.
+  small: its body is 1.1 m across. The pegasus foals over the cottage garden say hello too.
+- **Reduced motion.** With `prefers-reduced-motion` the change of friend is at once, the first
+  friend is at its place at once, and the hearts do not swell.
+- **Reset.** **Reset sticker book** in Settings also removes the friend, the book and the count of
+  the hellos. The text of the reset says so.
 
 How the friend flies:
 
@@ -766,7 +795,8 @@ How the friend flies:
   then it comes to its place at her side (`createFriendFollow()` in `src/friend.ts`). The move
   includes the orbit and the spin of a world that carries her, a boost and a guided flight. Thus
   the friend is never behind her, at 11 m/s and at 2,226 m/s. It comes a little late only in a
-  turn. The friend is never more than 2.5 m from her; the limit of the tests is 4 m.
+  turn. The friend is never more than 2.5 m from her; the limit of the tests is 4 m. In a swap the
+  two friends move in the frame of the fairy, so a swap works at each speed.
 - **A jump.** A move of the fairy of more than 150 m in one frame without a world, or a turn of
   more than 0.5 radians in one frame, puts the friend at its place at once. This is the case for
   a hop of Blossom Haven and for the test hooks.
@@ -779,39 +809,58 @@ How the friend flies:
 - **Life.** The wings beat, faster in a boost and in open space. A friend in a bubble floats in
   it, and the bubble wobbles. The friend looks where she flies, with its nose a little toward
   her, and looks back at her for 2 s in each 12 s. It makes a happy loop around her after a
-  sparkle ring, a hello, a new sticker or a search star, not more often than each 20 s. With
-  reduced motion the friend makes no loop, no bob and no wing beat.
+  sparkle ring, a hello, a new sticker or a search star, not more often than each 20 s, and never
+  in a swap. With reduced motion the friend makes no loop, no bob and no wing beat.
 - **Hover, pause and the menus.** In a hover the friend stays at her side. In a pause it holds
-  its pose. While Worlds is open the worlds still move, and the friend stays with her. In
-  **Your fairy** on a computer the friend comes near and turns to the camera, so the child sees
-  her choice. On a phone the panel covers the view, and the marked button shows the choice.
+  its pose. While Worlds is open the flight waits: the worlds still move, the friend stays with
+  her, and a swap waits too. In **Your fairy** on a computer the friend comes near and turns to
+  the camera.
 - **Not a resident.** The friend is not part of the creatures of a world. It says no hello, and
   the search tasks do not see it. The friend is in each postcard.
 
 The friend is three draw calls on a phone and on a computer: the body with its parts joined,
-the two wings or the bubble, and the fairy dust (`createFriendModel()`). The joined model stands
-still: it has no walk and no magic particles. A resident of a world is 14 to 21 draw calls.
+the two wings or the bubble, and the fairy dust (`createFriendModel()`). The puff of sparkles of a
+swap uses the points of the dust, so it adds no draw call. In a swap two friends are in the scene
+for 1.5 s: up to 6 draw calls. The joined model stands still: it has no walk and no magic
+particles. A resident of a world is 14 to 21 draw calls.
 
-- The saved state, the follow rule and the model are in `src/friend.ts`. The note, the Friend
-  row and the storage are in `src/friend-ui.ts` and `src/friend.css`. The state is `fairy-friend`
-  in `localStorage`: the count of the hellos to five, the kinds that she met and the friend. A
-  missing or broken value gives a game with no friend.
+- The saved state, the follow rule, the model, the pictures and the swap are in `src/friend.ts`
+  (`swapAt()` gives the parts of a swap, `helloNotes()` the notes of the hellos). The notes, the
+  storage and the friend in the game are in `src/friend-ui.ts` and `src/friend.css`. The cards,
+  the small drawings of the facts and the note of the page are in `src/animal-book.ts`; the
+  Animals page is in `src/animal-book-ui.ts` and `src/animal-book.css`; the tabs are in
+  `src/adventure.ts`.
+- The state is `fairy-friend` in `localStorage`, as in F19: the count of the hellos to five, the
+  kinds that she met (the book) and the friend. The book needs no data of its own, so the saved
+  data of F19 loads with no change. A missing or broken value gives an empty book and no friend.
+- The pictures of the cards are renders of the joined model with a clear background
+  (`friendPicture(renderer, kind, size, 'clear')`); a shadow is the same render in one soft lilac
+  colour (`'shadow'`). The page renders them one at a time when it opens for the first time. The
+  picture facts are small drawings of the game, not emoji, because an emoji looks different on
+  each device.
+- The tabs are a `tablist` with two `tab` buttons and two `tabpanel` pages. Tab and Enter work, the
+  arrow keys go from one tab to the other, and Escape closes Worlds. Worlds opens at its Worlds tab.
 - `greet()` of the population (`src/creatures/population.ts`) gives the kind of each creature
   that starts a hello. `greetFoals()` in `src/candy.ts` is the hello of the pegasus foals.
 - The test snapshot gives `friend` (the state, the place on the screen, the distance to the
-  fairy and the largest distance since the last snapshot) and `foalHellos`. The test hooks are
-  `meet(...kinds)`, `chooseFriend(kind)`, `cheer()` and `friendCalls()`, which renders the view of one
-  moment with no friend and with the friend and gives the two draw-call counts.
-- On the dev server, `?friend=all` gives a hello of each kind at the start: the friend comes at
-  once, and the row has the nine kinds.
+  fairy, the largest distance since the last snapshot, the note, its hearts, the waiting notes,
+  and the friend that goes home in a swap), `animalBook` (the tapped card and the look of each
+  card) and `foalHellos`. The test hooks are `meet(...kinds)`, `chooseFriend(kind)` (as
+  **Fly with me** and **No friend**), `cheer()` and `friendCalls()`, which renders the view of
+  one moment with no friend and with the friends and gives the two draw-call counts.
+- On the dev server, `?friend=all` gives a hello of each kind at the start, with no note: the
+  book is full, and the unicorn flies with her at once.
 
 Run `node scripts/friend-smoke.mjs "path/to/chrome.exe" [origin]` against the dev server to
-check the friend in the game: five hellos on Earth and the note, the friend is no resident, a
-happy loop, the Friend row with a different friend and **No friend**, a reload, a broken saved
-value, each of the nine kinds, a low flight with turns, a climb from the meadow to open space
-with a boost and a guided flight back, reduced motion, the reset in Settings, the hello of a
-pegasus foal, a hop of Blossom Haven, and a phone at 390 px. The check prints the draw calls
-with and without the friend. The screenshots go to `artifacts.local/friend/`.
+check the friend in the game: the notes of new cards with their hearts, the Animals page before the
+gift, five hellos on Earth and the gift note, the friend is no resident, a happy loop, the Animals
+page with a met card, a shadow card and the card of the friend, the tabs with the keyboard,
+**Fly with me** and the swap in the flight, **No friend**, Escape, a reload, a broken saved value,
+each of the nine kinds, a low flight with turns, a climb from the meadow to open space with a swap
+in a boost and a guided flight back, reduced motion, the reset in Settings, the hello of a pegasus
+foal, notes that wait for each other, a hop of Blossom Haven, and phones of 390 px and 320 px. The
+check prints the draw calls with and without the friend, and in a swap. The screenshots go to
+`artifacts.local/friend/`.
 
 ## Fairy flight pose study
 
@@ -1446,6 +1495,9 @@ clips are in `public/studies/friend-book/`. Run
 dev server with no hot reload to record the clips of A and B again, and add `--moments` for their
 moment pictures.
 
+The player selected option A with the recommended option of each decision, and it is in the game:
+see [Fairy friend](#fairy-friend).
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:
@@ -1454,7 +1506,7 @@ Each feature has a browser check in `scripts/`. One command runs them all at the
 node scripts/run-checks.mjs "path/to/chrome.exe"
 ```
 
-The command starts its own dev server on a free port, runs the 23 checks (4 at the same
+The command starts its own dev server on a free port, runs the 24 checks (4 at the same
 time), and prints one line for each check with its time and its error. All the checks take
 about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
 `artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same
