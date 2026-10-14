@@ -156,6 +156,20 @@ failed to generate a new Earth" (4 of 21 runs). The check climbs for 9 s and the
 Earth in **Worlds**. The result depends on the random start direction: the check passes only
 when a different world is the nearest one after the climb.
 
+### 17. Some browser checks fail when two run at the same time
+
+- [ ] Find the cause. On 14 October 2026, after the merges of F12, F14, F16 and F19, each full run
+  with `--jobs 2` had one to three failures, different at each run. Each failed check then passed
+  alone, two or three times of two or three:
+  - `cotton-candy`: an "Uncaught" page error with no message.
+  - `sparkle-rings`: "The Star ring did not play two notes", once "No day on Blossom Haven", and
+    once "The boost pass did not take ring 24".
+  - `thermometer`: "Wrong note at venus at 320px" and "The note does not wait behind Worlds".
+  - `moon-diary`: "The note does not come after the sticker note" and "No note on a phone".
+- The runs took 377 to 564 s, where a quiet run takes about 315 s, so the computer was busy. A game
+  tab of a dev server was open at the same time. The friend check now waits longer for notes; the
+  other checks can need the same.
+
 ### 16. `scripts/search-stars-smoke.mjs` sometimes fails at the canyon of Mars
 
 - [ ] Find the cause. The error is "The canyon is not dark at its place", with two ground
