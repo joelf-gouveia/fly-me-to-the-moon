@@ -21,11 +21,17 @@ type CardState = 'sticker' | 'open' | 'closed' | 'mystery-open' | 'mystery-close
 const EARTH_NOTE = 'Fly out to space, then come back to Earth to get this sticker.'
 const called = (id: StickerId) => stickerById(id).the ? `the ${stickerById(id).name}` : stickerById(id).name
 const capital = (text: string) => text[0].toUpperCase() + text.slice(1)
+/** The two pages of Worlds, with the title of each one. The Animals page is in src/animal-book-ui.ts. */
+const TITLES = { worlds: 'Where shall we fly?', animals: 'Your animal friends' }
+type Tab = keyof typeof TITLES
+/** A paw for the Animals tab: a drawing, not an emoji, so it looks the same on each device. */
+const PAW = '<svg class="tab-paw" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 11.6c3 0 5.6 2.8 5.6 5.6 0 2.2-1.6 3.4-3.2 3.4-1 0-1.6-.6-2.4-.6s-1.4.6-2.4.6c-1.6 0-3.2-1.2-3.2-3.4 0-2.8 2.6-5.6 5.6-5.6Z"/><ellipse cx="5.4" cy="10.2" rx="1.9" ry="2.5"/><ellipse cx="9.4" cy="6.4" rx="1.9" ry="2.6"/><ellipse cx="14.6" cy="6.4" rx="1.9" ry="2.6"/><ellipse cx="18.6" cy="10.2" rx="1.9" ry="2.5"/></svg>'
 
 /**
  * The flight buttons, the flower marker, and Worlds: the book of worlds of option D in
  * docs/world-book-study.md. The map, the stickers and "Fly there" are in one dialog. A world
- * opens with its sticker, and one more world is always open: the next door.
+ * opens with its sticker, and one more world is always open: the next door. The dialog has two
+ * tabs: the worlds, and the animal book (an empty page here, which src/animal-book-ui.ts fills).
  */
 export function createAdventure(worlds: World[], stickers: StickerBook, actions: Actions) {
   const host = document.createElement('div')
@@ -39,6 +45,11 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     <button id="home-beacon" type="button" aria-label="Follow the flower to your fairy home" hidden><span aria-hidden="true">✿</span><small aria-hidden="true">↑</small></button>
     <dialog id="world-map" aria-labelledby="map-title">
       <header><div><p class="eyebrow">A LITTLE BOOK OF WORLDS</p><h2 id="map-title">Where shall we fly?</h2></div><button id="close-map" type="button" aria-label="Close world map">×</button></header>
+      <div class="worlds-tabs" role="tablist" aria-label="Worlds and animals">
+        <button id="tab-worlds" type="button" role="tab" aria-selected="true" aria-controls="worlds-page" data-tab="worlds"><span aria-hidden="true">◉</span> Worlds <span class="world-count" aria-hidden="true"></span></button>
+        <button id="tab-animals" type="button" role="tab" aria-selected="false" aria-controls="animals-page" data-tab="animals">${PAW} Animals <span class="world-count" aria-hidden="true"></span></button>
+      </div>
+      <div id="worlds-page" role="tabpanel" aria-labelledby="tab-worlds">
       <div class="sticker-progress"><div class="sticker-dots" role="img"></div><p id="sticker-count"></p></div>
       <div class="world-note" aria-live="polite"><p id="world-note-text"></p><button id="world-fly" type="button" hidden>Fly there ↗</button></div>
       <section class="solar-map" aria-label="Live planet positions and orbital paths"><p><span aria-hidden="true">◎</span> Each new world you visit comes onto the map. One full lap takes about an hour.</p><svg viewBox="0 0 600 500" role="img" aria-labelledby="solar-title solar-description"><title id="solar-title">Live map of planets orbiting the Sun</title><desc id="solar-description">A storybook map with a circular path for every planet; the planets move slowly along their paths.</desc><circle class="solar-sun" cx="300" cy="250" r="13"/><text class="solar-sun-label" x="300" y="280">SUN</text>${worlds.filter(world => world.kind !== 'sun').map(world => {
@@ -50,6 +61,8 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
       }).join('')}</svg></section>
       <div class="book-cards">${BOOK_ORDER.map((id, index) => `<button type="button" data-world="${id}" class="book-card" style="--tilt:${(index * 37 % 9) - 4}deg"></button>`).join('')}</div>
       <p class="map-footnote">Blossom Haven wanders every five minutes. Choose its flower to keep it still while we fly there. Pictures are not to scale.</p>
+      </div>
+      <div id="animals-page" role="tabpanel" aria-labelledby="tab-animals" hidden></div>
     </dialog>
     <div id="home-celebration" role="status" hidden><span aria-hidden="true">✿</span><div><small>BLOSSOM HAVEN</small><h2>You found your home!</h2><p>Stay a while. Your wings can rest.</p></div></div>
     <div id="home-move-note" role="status" hidden><span aria-hidden="true">✿</span><p></p></div>
@@ -120,6 +133,7 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
     const stars = book.found.length
     get('sticker-count').textContent = `${earned} of ${total} stickers${stars ? ` · ${stars} search star${stars === 1 ? '' : 's'}` : ''}`
     get('open-map').querySelector('.world-count')!.textContent = `${earned}/${total}`
+    get('tab-worlds').querySelector('.world-count')!.textContent = `${earned}/${total}`
     get('open-map').ariaLabel = `Worlds and stickers: ${earned} of ${total} stickers`
     host.querySelectorAll<HTMLButtonElement>('.book-card').forEach(card => {
       const id = card.dataset.world as StickerId, state = cardState(book, id), mystery = state.startsWith('mystery')
@@ -143,10 +157,34 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   function refresh() { if (selected) select(selected); else { nextNote(stickers.book); render() } }
   stickers.onChange(refresh)
 
+  /** Shows one page of Worlds. The Animals page draws itself at the event "tabchange". */
+  function showTab(tab: Tab) {
+    host.querySelectorAll<HTMLButtonElement>('.worlds-tabs [role=tab]').forEach(button => button.ariaSelected = String(button.dataset.tab === tab))
+    get('worlds-page').hidden = tab !== 'worlds'
+    get('animals-page').hidden = tab !== 'animals'
+    get('map-title').textContent = TITLES[tab]
+    map.scrollTop = 0
+    map.dispatchEvent(new CustomEvent('tabchange', { detail: tab }))
+  }
+  const tabs = [...host.querySelectorAll<HTMLButtonElement>('.worlds-tabs [role=tab]')]
+  for (const tab of tabs) tab.onclick = () => showTab(tab.dataset.tab as Tab)
+  // The arrow keys go from one tab to the other, as in each list of tabs. Tab and Enter work too.
+  host.querySelector<HTMLElement>('.worlds-tabs')!.addEventListener('keydown', event => {
+    const at = tabs.indexOf(event.target as HTMLButtonElement)
+    const to = event.key === 'ArrowRight' ? at + 1 : event.key === 'ArrowLeft' ? at - 1 : event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : null
+    if (at < 0 || to === null) return
+    event.preventDefault()
+    const next = tabs[(to + tabs.length) % tabs.length]
+    next.focus()
+    showTab(next.dataset.tab as Tab)
+  })
+
   function closeMap() { map.close(); actions.map(false) }
   get('open-map').onclick = () => {
     opener = document.activeElement as HTMLElement
     selected = null
+    // Worlds opens at its first page, the worlds.
+    showTab('worlds')
     refresh()
     actions.map(true)
     map.showModal()

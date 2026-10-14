@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three'
-import { chooseFriend, createFriendFollow, createFriendModel, emptyFriend, FRIEND, FRIEND_KINDS, friendFlies, friendGlance, friendName, friendPlace, friendSize, hasFriendGift, parseFriend, sayHello } from '../src/friend'
-import type { FriendGround, FriendState } from '../src/friend'
+import { chooseFriend, createFriend, createFriendFollow, createFriendModel, emptyFriend, FRIEND, FRIEND_KINDS, friendFlies, friendGlance, friendName, friendPlace, friendSize, hasFriendGift, helloNotes, parseFriend, sayHello, SWAP, swapAt } from '../src/friend'
+import type { FriendFrame, FriendGround, FriendKind, FriendState } from '../src/friend'
 
 const wide = 1280 / 800, phone = 390 / 844
 
@@ -313,5 +313,169 @@ describe('fairy friend: the joined model', () => {
       model.animate(1, { loop: 0, still: false, fast: true, light: 1 })
       model.dispose()
     }
+  })
+})
+
+describe('fairy friend: the notes of the hellos', () => {
+  it('shows a card note at the first hello of a kind, with the hearts before the gift', () => {
+    const first = helloNotes(emptyFriend(), ['sheep'])
+    expect(first.notes).toEqual([{ kind: 'sheep', gift: false, hearts: 1 }])
+    // A hello to a kind that she met adds a heart and shows no note.
+    const again = helloNotes(first.state, ['sheep'])
+    expect(again.notes).toEqual([])
+    expect(again.state.hellos).toBe(2)
+    // Two new kinds in one frame: two notes, each with the hearts at its hello.
+    expect(helloNotes(again.state, ['cow', 'duck']).notes).toEqual([{ kind: 'cow', gift: false, hearts: 3 }, { kind: 'duck', gift: false, hearts: 4 }])
+  })
+
+  it('shows the gift note at the fifth hello, in the place of the card note of a new kind', () => {
+    const state: FriendState = { hellos: 4, met: ['sheep', 'duck'], friend: null }
+    expect(helloNotes(state, ['rabbit']).notes).toEqual([{ kind: 'rabbit', gift: true, hearts: 5 }])
+    // The fifth hello of a kind that she met is the gift note too.
+    expect(helloNotes(state, ['duck']).notes).toEqual([{ kind: 'duck', gift: true, hearts: 5 }])
+    // After the gift a new kind has its card note, with no hearts.
+    const result = helloNotes(state, ['duck', 'cow', 'duck'])
+    expect(result.notes).toEqual([{ kind: 'duck', gift: true, hearts: 5 }, { kind: 'cow', gift: false, hearts: null }])
+    expect(result.state).toEqual(sayHello(state, ['duck', 'cow', 'duck']).state)
+  })
+
+  it('gives the same state as sayHello() for each list of hellos', () => {
+    const lists: unknown[][] = [['cow'], ['cow', 'cow', 'duck', 'butterfly', 'pegasus', 'unicorn', 'cow'], [...FRIEND_KINDS], []]
+    for (const kinds of lists) expect(helloNotes(emptyFriend(), kinds).state).toEqual(sayHello(emptyFriend(), kinds).state)
+  })
+})
+
+describe('fairy friend: the swap', () => {
+  it('waves, flies home, and the new friend comes out of the sky after 1.5 s', () => {
+    expect(swapAt(0, true, true)).toMatchObject({ old: 'wave', next: 'wait', done: false })
+    expect(swapAt(0.5, true, true)).toMatchObject({ old: 'wave', next: 'wait' })
+    expect(swapAt(1, true, true)).toMatchObject({ old: 'home', next: 'wait' })
+    expect(swapAt(2, true, true)).toMatchObject({ old: 'home', next: 'sky' })
+    expect(swapAt(2, true, true).nextK).toBeCloseTo(1 / 3)
+    expect(swapAt(3.01, true, true)).toMatchObject({ old: 'gone', next: 'here', done: true })
+    // Two friends are in the scene from the arrival to the end of the way home: 1.5 s. The whole swap takes 3 s.
+    expect(SWAP.wave + SWAP.home - SWAP.arrive).toBeCloseTo(1.5)
+    expect(Math.max(SWAP.wave + SWAP.home, SWAP.arrive + SWAP.sky)).toBeCloseTo(3)
+  })
+
+  it('brings the first friend at once, and "No friend" only sends the friend home', () => {
+    expect(swapAt(0, false, true)).toMatchObject({ old: 'gone', next: 'sky', done: false })
+    expect(swapAt(1.6, false, true)).toMatchObject({ next: 'here', done: true })
+    expect(swapAt(2, true, false)).toMatchObject({ old: 'home', next: 'here', done: false })
+    expect(swapAt(3.1, true, false).done).toBe(true)
+  })
+})
+
+describe('fairy friend: the friend in the scene', () => {
+  const frame = (fairy: THREE.Vector3, still = false): FriendFrame => ({
+    fairy, heading: new THREE.Quaternion(), delta: 1 / 60, place: friendPlace(wide, false), menu: false, fast: false, light: 1, size: 1, still,
+  })
+  /** Flies the fairy for `seconds`, and gives the state of the friends in each frame. */
+  function fly(friend: ReturnType<typeof createFriend>, seconds: number, each?: (time: number, arrived: boolean) => void, still = false) {
+    const fairy = new THREE.Vector3()
+    for (let t = 0; t < seconds; t += 1 / 60) {
+      fairy.z -= 11 / 60
+      const arrived = friend.update(frame(fairy, still))
+      each?.(t, arrived)
+    }
+    return fairy
+  }
+  const make = (kind: FriendKind | null) => {
+    const friend = createFriend(new THREE.Scene(), new THREE.Texture())
+    friend.setKind(kind, false)
+    fly(friend, 0.5)
+    return friend
+  }
+
+  it('has two friends in the scene for 1.5 s of a swap (6 draw calls), then one', () => {
+    const friend = make('pegasus')
+    expect(friend.calls).toBe(3)
+    expect(friend.swap('sheep')).toBe(true)
+    expect(friend.swap('sheep')).toBe(false)
+    let six = 0, arrivals = 0, most = 0, looped = false
+    fly(friend, 4, (time, arrived) => {
+      if (friend.calls === 6) six += 1 / 60
+      most = Math.max(most, friend.calls)
+      if (arrived) { arrivals++; expect(time).toBeGreaterThan(2.9); expect(time).toBeLessThan(3.1) }
+      looped ||= friend.follow.loop > 0
+    })
+    expect(most).toBe(6)
+    expect(six).toBeGreaterThan(1.4)
+    expect(six).toBeLessThan(1.6)
+    // The new friend makes the happy loop when it is at its place, and the old one is gone.
+    expect(arrivals).toBe(1)
+    expect(looped).toBe(true)
+    expect(friend.kind).toBe('sheep')
+    expect(friend.leaving).toBeNull()
+    expect(friend.swapping).toBe(false)
+    expect(friend.calls).toBe(3)
+  })
+
+  it('sends the old friend home and away from her, and brings the new one from the sky to her side', () => {
+    const friend = make('cow')
+    friend.swap('duck')
+    let far = 0, start = Infinity
+    const fairy = fly(friend, 3.2, time => {
+      const leaver = friend.group.getObjectByName('friend-leaving')!
+      if (friend.leaving) far = Math.max(far, leaver.position.length())
+      if (friend.holder.visible && time < 1.7) start = Math.min(start, friend.holder.position.z)
+    })
+    // A bubble flies 20 m home. The new friend leaves the sky 15 m ahead of her.
+    expect(far).toBeGreaterThan(15)
+    expect(start).toBeLessThan(-10)
+    expect(friend.holder.position.distanceTo(fairy)).toBeLessThan(FRIEND.limit)
+  })
+
+  it('brings the first friend from the sky, and lets the friend fly home for "No friend"', () => {
+    const friend = make(null)
+    expect(friend.update(frame(new THREE.Vector3()))).toBe(false)
+    friend.swap('unicorn')
+    expect(friend.calls).toBe(0)
+    let arrivedAt = -1
+    fly(friend, 2, (time, arrived) => { if (arrived) arrivedAt = time })
+    expect(arrivedAt).toBeGreaterThan(1.4)
+    expect(arrivedAt).toBeLessThan(1.6)
+    friend.swap(null)
+    expect(friend.kind).toBeNull()
+    expect(friend.leaving).toBe('unicorn')
+    fly(friend, 3.2)
+    expect(friend.leaving).toBeNull()
+    expect(friend.calls).toBe(0)
+  })
+
+  it('changes at once with reduced motion, and with setKind()', () => {
+    const friend = make('rabbit')
+    friend.swap('dragonling')
+    fly(friend, 1 / 60, undefined, true)
+    expect(friend.swapping).toBe(false)
+    expect(friend.leaving).toBeNull()
+    expect(friend.holder.visible).toBe(true)
+    friend.swap('kitsune')
+    friend.setKind('frogPrince', false)
+    expect(friend.swapping).toBe(false)
+    expect(friend.kind).toBe('frogPrince')
+    expect(friend.calls).toBe(3)
+  })
+
+  it('starts no happy loop of its own in a swap', () => {
+    const friend = make('sheep')
+    friend.swap('cow')
+    fly(friend, 1)
+    expect(friend.cheer(false)).toBe(false)
+  })
+})
+
+describe('fairy friend: the saved data of the animal book', () => {
+  it('loads the saved data of F19 with no change: the met list is the book', () => {
+    // Records as F19 saved them before the animal book: the same three fields.
+    const records: FriendState[] = [
+      { hellos: 5, met: ['cow', 'sheep', 'pegasus', 'duck'], friend: 'pegasus' },
+      { hellos: 5, met: ['sheep', 'cow', 'duck', 'rabbit', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus'], friend: null },
+      { hellos: 2, met: ['duck'], friend: null },
+      { hellos: 0, met: [], friend: null },
+    ]
+    for (const record of records) expect(parseFriend(JSON.parse(JSON.stringify(record)))).toEqual(record)
+    // A field that the game does not know is ignored.
+    expect(parseFriend({ hellos: 5, met: ['cow'], friend: 'cow', book: ['duck'] })).toEqual({ hellos: 5, met: ['cow'], friend: 'cow' })
   })
 })

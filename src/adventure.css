@@ -33,7 +33,7 @@
 /* The book of worlds: the note with "Fly there", then one card for each world. */
 .world-note { display: flex; align-items: center; gap: 12px; min-height: 48px; margin: 0 0 16px; padding: 10px 12px 10px 16px; border-radius: 16px; background: #080e1b80; }
 .world-note p { flex: 1; margin: 0; font-size: 14px; line-height: 1.5; color: #fff2e7; }
-#world-fly { flex-shrink: 0; min-height: 44px; padding: 8px 16px; border: 1px solid #ffd0e0; border-radius: 18px; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600 !important; font-size: 13px !important; }
+#world-fly, #animal-fly { flex-shrink: 0; min-height: 44px; padding: 8px 16px; border: 1px solid #ffd0e0; border-radius: 18px; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 600 !important; font-size: 13px !important; }
 .book-cards { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
 .book-card { display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 140px; padding: 15px 6px 12px; border-radius: 20px; border: 1px solid #d5cbed22; background: #ffffff05; color: #f5eddf; }
 .book-card:hover, .book-card:focus-visible { background: #ffffff12; border-color: #f2b9d8; }
@@ -53,6 +53,17 @@
 .solar-map g.is-mystery text { fill: #9aa1ba; font-weight: 700; }
 #world-map .sticker-progress { margin: 4px 0 12px; }
 #world-fly:focus-visible, .book-card:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+/* The two tabs of Worlds: the worlds, and the animal book (src/animal-book.css). The selected tab has the pink of "Fly there". */
+.worlds-tabs { display: flex; gap: 8px; margin: 14px 0; }
+.worlds-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 44px; padding: 8px 16px; border: 1px solid #ffffff38; border-radius: 16px; color: #fff6e7; background: #ffffff08; font-size: 13px; font-weight: 500; }
+.worlds-tabs button > span:first-child { font-size: 16px; }
+.worlds-tabs .tab-paw { width: 17px; height: 17px; fill: currentColor; }
+.worlds-tabs .world-count { margin: 0; }
+.worlds-tabs button:hover { background: #ffffff12; border-color: #f2b9d8; }
+.worlds-tabs button[aria-selected=true] { border-color: #ffd0e0; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 700; }
+.worlds-tabs button[aria-selected=true] .world-count { background: #60344918; }
+.worlds-tabs button:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+#worlds-page[hidden], #animals-page[hidden] { display: none; }
 .planet-picture { width: 48px; height: 48px; margin: 4px; display: grid; place-items: center; flex-shrink: 0; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #ffffff70, transparent 65%), var(--planet-color); box-shadow: inset -8px -4px 10px #0004, 0 0 20px #ffffff08; font-size: 36px; color: #669b79; position: relative; }
 .planet-picture.saturn::after { content: ''; position: absolute; width: 70px; height: 20px; border: 5px solid #e7c794aa; border-radius: 50%; transform: rotate(-25deg); }
 .planet-picture.jupiter, .planet-picture.neptune { background: repeating-linear-gradient(10deg, #ffffff33 0 5px, transparent 5px 10px), var(--planet-color); }
@@ -91,7 +102,8 @@
   .book-card { min-height: 120px; padding: 8px 4px; gap: 7px; }
   .book-card strong { font-size: 10px; }
   .world-note { flex-wrap: wrap; }
-  #world-fly { width: 100%; }
+  #world-fly, #animal-fly { width: 100%; }
+  .worlds-tabs button { flex: 1; padding: 8px 10px; }
   #home-celebration { top: 33%; gap: 12px; padding: 16px; }
   #home-celebration h2 { font-size: 25px; }
   #home-celebration > span { font-size: 38px; }

@@ -63,6 +63,7 @@ import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 import { FRIEND_KINDS } from './friend'
 import { createFairyFriend } from './friend-ui'
+import { createAnimalBook } from './animal-book-ui'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
   return `
@@ -130,7 +131,6 @@ app.innerHTML = `
           <i data-icon="close"></i>
         </button>
       </div>
-      <fieldset id="friend-row" class="customizer-group" data-custom-group="friend" hidden></fieldset>
       <fieldset class="customizer-group" data-custom-group="hair">
         <legend>Hair</legend>
         <div class="option-grid">
@@ -370,8 +370,9 @@ const trailState = { frame: null as THREE.Object3D | null, velocity: new THREE.V
 let trailClock = 0
 // F19 · The fairy friend (src/friend.ts): after five hellos, a creature that she met flies at her side.
 const fairyFriend = createFairyFriend({
-  scene, renderer, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), row: document.querySelector<HTMLElement>('#friend-row')!,
-  chime: () => playChime([659.25, 880, 1046.5], 0.045),
+  scene, renderer, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'),
+  // A soft chime for a new card, a brighter one for the gift, and two high notes when a new friend comes after "Fly with me".
+  chime: moment => playChime(moment === 'gift' ? [659.25, 880, 1046.5] : moment === 'card' ? [659.25, 783.99, 1046.5] : [880, 1174.66], moment === 'card' ? 0.035 : 0.045),
 })
 // The move that a world gives her in a frame, and the ground below the friend.
 const friendCarry = new THREE.Vector3()
@@ -502,8 +503,9 @@ const searchStar = createSearchStar(scene, makeSoftDiscTexture('rgba(255,255,255
 stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 // A new sticker or a search star makes the fairy friend happy.
 stickerBook.onChange(() => { if (stickerBook.count) fairyFriend.cheer(reducedMotion.matches) })
-// A person who wants to see each friend at once can give a hello of each kind: ?friend=all. This works on the dev server only.
-if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(FRIEND_KINDS)
+// A person who wants to see each friend at once can give a hello of each kind: ?friend=all. The book is full,
+// and the friend is there with no note. This works on the dev server only.
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(FRIEND_KINDS, false, true)
 // F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
 const warmthNote = createWarmthNote()
 // Worlds: the map and the book of stickers. Flight waits while it is open.
@@ -515,6 +517,8 @@ const adventure = createAdventure(worlds, stickerBook, {
 })
 // F14 · The Moon shapes diary: a place in Worlds for each shape of the Moon that she sees from Earth.
 const moonDiary = createMoonDiary({ chime: full => playChime(full ? [587.33, 739.99, 880, 1174.66] : [587.33, 880], 0.045) })
+// F19 · The animal book: the Animals page of Worlds, with "Fly with me" on each card that she met.
+const animalBook = createAnimalBook({ worlds, friend: fairyFriend, still: () => reducedMotion.matches })
 // Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
@@ -1070,9 +1074,9 @@ function animate(timestamp?: number) {
   trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
-  // The thermometer of the world waits for the sticker note, the search-star note and the notes of the fairy home.
-  // The thermometer and the Moon note use the same place: each one waits while the other shows.
-  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null)
+  // The thermometer of the world waits for the sticker note, the search-star note, the notes of the fairy home and the
+  // note of the fairy friend. The thermometer and the Moon note use the same place: each one waits while the other shows.
+  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null || fairyFriend.noteVisible)
   // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
   // updateNearestWorld() reads the bubble first.
   if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
@@ -1107,7 +1111,7 @@ function animate(timestamp?: number) {
   })
   updateEnvironment()
   // The Moon diary reads the picture of this frame: the Moon in the view, above the horizon, in a clear sky.
-  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active, warmthNote.state.shown !== null)
+  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active, warmthNote.state.shown !== null || fairyFriend.noteVisible)
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
   // The comet follows the orbit time, so World speed makes it faster. Reduced motion stills the tail.
   comet.update(orbits.elapsed, sun.group.position, camera, fairy.position, forward, reducedMotion.matches ? 0 : elapsed, delta,
@@ -1330,15 +1334,16 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     hellos: worlds.reduce((sum, world) => sum + (world.creatures?.helloState().count ?? 0), 0),
     foalHellos: home.surface.getObjectByName('pegasus-foals')?.userData.helloState?.() ?? null,
     friend: fairyFriend.info(fairy.position, camera),
+    animalBook: animalBook.state,
   }),
   /** F19: gives a hello of each kind in the list, as the creatures do. Five hellos bring the fairy friend. */
   meet: (...kinds: string[]) => fairyFriend.hello(kinds),
-  /** F19: selects a friend that she met, or null for no friend, as the Friend row of the look menu does. */
-  chooseFriend: (kind: string | null) => fairyFriend.choose(kind as Parameters<typeof fairyFriend.choose>[0]),
-  /** F19: the draw calls of the view of this moment with no friend and with the friend. The two renders have the same scene. */
+  /** F19: selects a friend that she met, or null for no friend, as "Fly with me" and "No friend" of the Animals page do. */
+  chooseFriend: (kind: string | null) => fairyFriend.choose(kind as Parameters<typeof fairyFriend.choose>[0], reducedMotion.matches),
+  /** F19: the draw calls of the view of this moment with no friend and with the friends (two in a swap). The two renders have the same scene. */
   friendCalls: () => {
-    const shown = fairyFriend.holder.visible
-    const calls = (visible: boolean) => { fairyFriend.holder.visible = visible; renderer.render(scene, camera); return renderer.info.render.calls }
+    const shown = fairyFriend.group.visible
+    const calls = (visible: boolean) => { fairyFriend.group.visible = visible; renderer.render(scene, camera); return renderer.info.render.calls }
     const result = { without: calls(false), with: calls(shown) }
     return result
   },
