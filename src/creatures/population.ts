@@ -514,6 +514,8 @@ export function createPopulation(
   }
   return {
     residents, herds, group, layer, ground, water, obstacles, limits, update, greet, helloState, stats, audit, paths, dispose,
+    /** True when the season, the magic season and the light let the herd of this index show now. */
+    shown: (index: number) => out[index] === 1,
     /** The objects that draw the animals: a browser check hides them to count their draw calls. */
     parts: [layer, hearts.points] as THREE.Object3D[],
   }

@@ -36,7 +36,7 @@ const CHECKS = [
   { name: 'thermometer', script: 'scripts/thermometer-smoke.mjs', url: 'arg', files: ['src/warmth', 'src/adventure', 'src/sticker-book'] },
   { name: 'blossom', script: 'scripts/blossom-smoke.mjs', url: 'test', files: ['src/relocation.ts', 'src/journey.ts', 'src/candy.ts', 'src/adventure'] },
   { name: 'cotton-candy', script: 'scripts/cotton-candy-smoke.mjs', url: 'arg', files: ['src/cotton-candy.ts', 'src/candy.ts'] },
-  { name: 'wildlife', script: 'scripts/wildlife-smoke.mjs', url: 'origin', files: ['src/creatures/'] },
+  { name: 'wildlife', script: 'scripts/wildlife-smoke.mjs', url: 'origin', files: ['src/creatures/', 'src/seasons.ts', 'src/magic-seasons.ts', 'src/foliage/zones.ts'] },
   { name: 'creature-hello', script: 'scripts/creature-hello-smoke.mjs', url: 'arg', files: ['src/creatures/'] },
   { name: 'friend', script: 'scripts/friend-smoke.mjs', url: 'arg', files: ['src/friend', 'src/animal-book', 'src/adventure', 'src/creatures/', 'src/candy.ts', 'src/customization.ts'] },
   { name: 'moon', script: 'scripts/moon-smoke.mjs', url: 'arg', files: ['src/moon.ts', 'src/orbits.ts'] },

@@ -1,12 +1,27 @@
+// Checks the animals in the real game (docs/animals-study.md): the herds of both worlds, the motion,
+// the pause, the creatures of Blossom Haven and the pegasus foals, and in five views (the start, low
+// over a savanna herd, 30 m over the savanna, low over a herd of the leaf forest, and the lollipop
+// grove of Blossom Haven) at 1280 px and on a phone of 390 px:
+// - the draw calls of the animals (the herds, the points of the small life and the hearts): at most
+//   40 on a computer and 20 on a phone (TODO item 4),
+// - at most 260 animals drawn on a computer and 130 on a phone,
+// - each animal drawn is in a zone and on a surface of its rule: no land animal on the water, no
+//   swimmer on the land, no animal of one belt in another belt.
+// It also checks the seasons: the storks are in the leaf forest in the summer of the north and in the
+// savanna in its winter, and the honey-drop bees fly only in Blossom time.
+// Run against the dev server: FAIRY_TEST_URL=http://127.0.0.1:5174 node scripts/wildlife-smoke.mjs "path/to/chrome.exe"
 import { spawn } from 'node:child_process'
 import { mkdir, mkdtemp, writeFile, readFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 if (!process.argv[2]) throw new Error('Pass a Chromium executable')
+const origin = process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'
 const profile = await mkdtemp(join(tmpdir(), 'wildlife-game-'))
 const browser = spawn(process.argv[2], ['--headless', '--remote-debugging-port=0', `--user-data-dir=${profile}`, ...(process.env.FAIRY_SWIFTSHADER ? ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] : []), '--no-first-run', 'about:blank'], { windowsHide: true, stdio: 'ignore' })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+// The limits of the animals (HERD_LIMITS in src/creatures/population.ts, and TODO item 4).
+const LIMITS = { computer: { calls: 40, cap: 260 }, phone: { calls: 20, cap: 130 } }
 let ws
 try {
   let tabs
@@ -35,27 +50,94 @@ try {
     if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails))
     return result.result.value
   }
+  const assert = (value, message) => { if (!value) throw new Error(message) }
+  const started = Date.now(), step = label => process.stderr.write(`· ${label} (${Math.round((Date.now() - started) / 1000)} s)\n`)
   await send('Runtime.enable'); await send('Page.enable')
+  // Simulation time is in the hands of the check. Only the last frame of each step draws.
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `
     window.requestAnimationFrame = callback => { window.gameFrame = callback; return 1; };
     window.advanceGame = seconds => {
       window.testTime ??= performance.now();
       const gl = document.querySelector('#scene canvas').getContext('webgl2');
-      const draw = gl.drawElements, instances = gl.drawElementsInstanced;
+      const draw = gl.drawElements, instances = gl.drawElementsInstanced, arrays = gl.drawArrays;
       try {
-        gl.drawElements = () => {}; gl.drawElementsInstanced = () => {};
+        gl.drawElements = () => {}; gl.drawElementsInstanced = () => {}; gl.drawArrays = () => {};
         for (let i = 0; i < Math.ceil(seconds * 60); i++) window.gameFrame(window.testTime += 1000 / 60);
-      } finally { gl.drawElements = draw; gl.drawElementsInstanced = instances; }
+      } finally { gl.drawElements = draw; gl.drawElementsInstanced = instances; gl.drawArrays = arrays; }
       window.gameFrame(window.testTime += 1000 / 60);
     };
   ` })
-  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/?test` })
-  for (let i = 0; i < 100; i++) {
-    if (await evaluate('!!window.__fairyTest && !!window.gameFrame')) break
-    await delay(250)
+  async function load({ mobile = false, query = '?test&weather=clear', width = mobile ? 390 : 1280, height = mobile ? 844 : 800 } = {}) {
+    await send('Emulation.setTouchEmulationEnabled', { enabled: mobile, maxTouchPoints: mobile ? 5 : 1 })
+    await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: mobile ? 2 : 1, mobile })
+    await send('Page.navigate', { url: `${origin}/${query}` })
+    for (let i = 0; i < 160; i++) {
+      if (await evaluate('!!window.__fairyTest && !!window.gameFrame && !!document.querySelector("#begin-button")').catch(() => false)) return
+      await delay(250)
+    }
+    throw new Error('The game did not load')
   }
   const snapshot = () => evaluate('window.__fairyTest.snapshot()')
+  const advance = seconds => evaluate(`advanceGame(${seconds})`)
+  await mkdir('artifacts.local/wildlife', { recursive: true })
+  const capture = async name => {
+    const shot = await send('Page.captureScreenshot', { format: 'png' })
+    await writeFile(`artifacts.local/wildlife/${name}.png`, Buffer.from(shot.data, 'base64'))
+  }
+  const worldName = kind => kind === 'earth' ? 'Earth' : 'Blossom Haven'
+  /** Flies over the nearest herd of a kind (in a zone), then to one of its animals, `up` m over the ground, and hovers. */
+  async function visit(kind, up = 3, zone) {
+    const [place] = await evaluate(`__fairyTest.herdPlaces(${JSON.stringify(kind)}, 1, ${zone ? JSON.stringify(zone) : 'undefined'})`)
+    assert(place, `No herd of ${kind}`)
+    await evaluate(`__fairyTest.placeOver(${JSON.stringify(place.world)}, ${JSON.stringify(place.direction)}, ${Math.max(up, 25)})`)
+    if (!(await snapshot()).hoverHeld) await evaluate('document.querySelector("#hover-toggle").click()')
+    await advance(0.1)
+    if (up < 25) {
+      const name = await evaluate(`(() => { const w = __fairyTest.snapshot().wildlife.find(w => w.world === ${JSON.stringify(worldName(place.world))}); const m = w.visible.filter(m => m.name.startsWith('creature-${kind}-')).sort((a, b) => a.distance - b.distance)[0]; return m ? m.name : null })()`)
+      assert(name, `No ${kind} near its herd`)
+      await evaluate(`__fairyTest.approach(${JSON.stringify(name)}, 12, ${up}, true, 2.5)`)
+    }
+    await advance(1.5)
+    return place
+  }
+  /** The draw calls, the animals and the audit of the view of this moment, against the limits of the device. */
+  async function view(name, world, device) {
+    const calls = await evaluate('__fairyTest.wildlifeCalls()')
+    const stats = (await snapshot()).wildlife.find(item => item.world === world).stats
+    const audit = await evaluate('__fairyTest.wildlifeAudit()')
+    const wrong = audit.filter(item => !item.ok)
+    await capture(`${device}-${name}`)
+    assert(calls.animals <= LIMITS[device].calls, `${name} on a ${device}: ${calls.animals} draw calls for the animals, more than ${LIMITS[device].calls}`)
+    assert(stats.drawn <= LIMITS[device].cap, `${name} on a ${device}: ${stats.drawn} animals, more than ${LIMITS[device].cap}`)
+    assert(!wrong.length, `${name} on a ${device}: animals out of their place: ${JSON.stringify(wrong.slice(0, 4))}`)
+    return { calls: calls.animals, frame: calls.with, drawn: stats.drawn, kinds: stats.kinds.length, audited: audit.length }
+  }
+  /** The five views of a device. */
+  async function views(device) {
+    const mobile = device === 'phone', result = {}
+    await load({ mobile })
+    await evaluate('document.querySelector("#begin-button").click()')
+    await advance(1)
+    assert((await snapshot()).graphics.mobile === mobile, `The ${device} check does not run as a ${device}`)
+    result.start = await view('start', 'Earth', device)
+    await visit('zebra', 4, 'savanna')
+    result.savanna = await view('savanna', 'Earth', device)
+    await visit('zebra', 30, 'savanna')
+    result.over = await view('savanna-30m', 'Earth', device)
+    await visit('cow', 4)
+    result.meadow = await view('leaf-forest', 'Earth', device)
+    await evaluate('document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click()')
+    await advance(1)
+    await evaluate('__fairyTest.arriveHome()')
+    for (let i = 0; i < 10 && !(await snapshot()).found; i++) await advance(0.5)
+    await visit('gummyBear', 4)
+    result.grove = await view('grove', 'Blossom Haven', device)
+    return result
+  }
+
+  // ---- The herds, the motion and the pause ----------------------------------------------------------
+  step('herds')
+  await load({ width: 1440, height: 900 })
   const initial = await snapshot()
   if (initial.wildlife.length !== 2) throw new Error('Wildlife must exist on exactly Earth and Blossom Haven')
   for (const population of initial.wildlife) {
@@ -64,9 +146,14 @@ try {
   }
   const earth = initial.wildlife.find(w => w.world === 'Earth')
   if (!earth.visible.length) throw new Error('No wildlife near the initial meadow')
-  await evaluate('document.querySelector("#begin-button").click(); advanceGame(3)')
-  const moving = (await snapshot()).wildlife.find(w => w.world === 'Earth')
-  const changed = moving.visible.some(m => earth.visible.some(a => a.name === m.name && JSON.stringify(a.position) !== JSON.stringify(m.position)))
+  // A herd rests 2 to 5 s between two walks: the check waits up to 9 s for a move.
+  await evaluate('document.querySelector("#begin-button").click()')
+  let changed = false
+  for (let i = 0; i < 3 && !changed; i++) {
+    await advance(3)
+    const moving = (await snapshot()).wildlife.find(w => w.world === 'Earth')
+    changed = moving.visible.some(m => earth.visible.some(a => a.name === m.name && JSON.stringify(a.position) !== JSON.stringify(m.position)))
+  }
   if (!changed) throw new Error('Creatures did not move during flight')
   await evaluate('document.querySelector("#pause-toggle").click(); advanceGame(0.5)')
   const beforePause = (await snapshot()).wildlife.find(w => w.world === 'Earth')
@@ -76,24 +163,12 @@ try {
     const before = beforePause.visible.find(m => m.name === model.name)
     if (before && JSON.stringify(before.position) !== JSON.stringify(model.position)) throw new Error('Creature moved while paused')
   }
-  await mkdir('artifacts.local', { recursive: true })
-  const capture = async name => {
-    const shot = await send('Page.captureScreenshot', { format: 'png' })
-    await writeFile(`artifacts.local/${name}.png`, Buffer.from(shot.data, 'base64'))
-  }
   await capture('wildlife-in-game')
-  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
-  await evaluate('advanceGame(0.2)')
-  await capture('wildlife-in-game-mobile')
   if (earth.visible.some(model => model.fairytale)) throw new Error('Earth must keep its animals')
 
-  // Blossom Haven: follow the flower guide home, then check the fairytale residents and the pegasus foals.
-  await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false })
-  await send('Page.navigate', { url: `${process.env.FAIRY_TEST_URL || 'http://127.0.0.1:5174'}/?test` })
-  for (let i = 0; i < 100; i++) {
-    if (await evaluate('!!window.__fairyTest && !!window.gameFrame && !!document.querySelector("#begin-button")')) break
-    await delay(250)
-  }
+  // ---- Blossom Haven: follow the flower guide home, then the creatures and the pegasus foals ----------
+  step('Blossom Haven')
+  await load({ width: 1440, height: 900 })
   await evaluate('document.querySelector("#begin-button").click(); document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceGame(0.05)')
   let home
   for (let i = 0; i < 150; i++) {
@@ -106,12 +181,45 @@ try {
   home = await snapshot()
   const haven = home.wildlife.find(w => w.world === 'Blossom Haven')
   const cast = [...new Set(haven.visible.map(model => model.fairytale))]
-  if (!haven.visible.length || cast.includes(null)) throw new Error(`Blossom Haven must show only fairytale creatures: ${JSON.stringify(cast)}`)
+  if (!haven.visible.length || cast.includes(null)) throw new Error(`Blossom Haven must show only its own creatures: ${JSON.stringify(cast)}`)
   if (!home.candy.includes('pegasus-foals')) throw new Error('The pegasus foals are missing')
   await capture('wildlife-blossom-fairytale')
-  await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
-  await evaluate('advanceGame(0.2)')
-  await capture('wildlife-blossom-fairytale-mobile')
+
+  // ---- The seasons: the storks travel, and the bees fly only in Blossom time --------------------------
+  step('seasons')
+  const storks = {}
+  for (const [name, year] of [['summer', 0.3], ['winter', 0.8]]) {
+    await load({ query: `?test&weather=clear&year=${year}` })
+    await evaluate('document.querySelector("#begin-button").click()')
+    await advance(1)
+    // The herds in the north half; near the equator a savanna follows the season of its half (seasonFor() of src/creatures/rules.ts).
+    const north = async zone => (await evaluate(`__fairyTest.herdPlaces('stork', 200, '${zone}')`)).filter(place => place.latitude > 0)
+    storks[name] = { leafForest: (await north('temperate')).filter(place => place.shown).length, savanna: (await north('savanna')).filter(place => place.shown).length }
+  }
+  assert(storks.summer.leafForest > 0 && storks.summer.savanna === 0, `The storks of the north are not in the leaf forest in summer: ${JSON.stringify(storks)}`)
+  assert(storks.winter.leafForest === 0 && storks.winter.savanna > 0, `The storks of the north are not in the savanna in winter: ${JSON.stringify(storks)}`)
+  const bees = {}
+  for (const [name, magic] of [['blossom', 0], ['bubble', 0.25]]) {
+    await load({ query: `?test&weather=clear&magic=${magic}` })
+    await advance(1)
+    // A season starts at the cottage and goes out over the planet in a ring: each herd has the magic season of its place.
+    const places = await evaluate(`__fairyTest.herdPlaces('honeyBee', 200)`)
+    bees[name] = { out: places.filter(place => place.shown).length, wrong: places.filter(place => place.shown !== (place.season === 'blossom')).length, total: places.length }
+  }
+  assert(bees.blossom.total && !bees.blossom.wrong && !bees.bubble.wrong && bees.blossom.out > 0 && bees.blossom.out < bees.blossom.total, `The bees do not follow Blossom time: ${JSON.stringify(bees)}`)
+
+  // ---- The limits of the draw calls and the places of the animals, on a computer and on a phone --------
+  step('computer views')
+  const computer = await views('computer')
+  step('phone views')
+  const phone = await views('phone')
+  const overflow = await evaluate('document.documentElement.scrollWidth - window.innerWidth')
+  assert(overflow <= 0, `The page scrolls sideways on a phone: ${overflow}`)
+
   if (errors.length) throw new Error(JSON.stringify(errors))
-  console.log(JSON.stringify({ populations: initial.wildlife.map(({ world, total, kinds }) => ({ world, total, kinds })), visibleAtStart: earth.visible.length, blossomCast: cast, movement: 'passed', pause: 'passed', runtimeExceptions: errors.length }))
+  console.log(JSON.stringify({
+    populations: initial.wildlife.map(({ world, total, herds, kinds }) => ({ world, total, herds, kinds: kinds.length })),
+    visibleAtStart: earth.visible.length, blossomCast: cast, movement: 'passed', pause: 'passed', storks, bees,
+    computer, phone, runtimeExceptions: errors.length,
+  }))
 } finally { ws?.close(); browser.kill() }

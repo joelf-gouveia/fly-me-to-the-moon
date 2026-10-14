@@ -1377,13 +1377,14 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     const without = calls(false), all = calls(true)
     return { without, with: all, animals: all - without }
   },
-  /** The local directions of the centres of the herds of a kind on a world, nearest to the fairy first: a check flies to them. */
-  herdPlaces: (kind: string, count = 5) => {
+  /** The local directions of the centres of the herds of a kind (in a zone, when it is given), nearest to the fairy first, and true when the season shows the herd: a check flies to them. */
+  herdPlaces: (kind: string, count = 5, zone?: string) => {
     const world = worlds.find(item => item.creatures?.herds.some(herd => herd.species.id === kind))
     if (!world) return []
     const here = fairy.position.clone().sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert()).normalize()
-    return world.creatures!.herds.filter(herd => herd.species.id === kind).sort((a, b) => a.route[0].angleTo(here) - b.route[0].angleTo(here))
-      .slice(0, count).map(herd => ({ world: world.kind, direction: herd.route[0].toArray(), heading: herd.north.toArray(), zone: herd.zone, latitude: herd.latitude }))
+    return world.creatures!.herds.filter(herd => herd.species.id === kind && (!zone || herd.zone === zone)).sort((a, b) => a.route[0].angleTo(here) - b.route[0].angleTo(here))
+      .slice(0, count).map(herd => ({ world: world.kind, direction: herd.route[0].toArray(), heading: herd.north.toArray(), zone: herd.zone, latitude: herd.latitude, shown: world.creatures!.shown(world.creatures!.herds.indexOf(herd)),
+        season: world === home ? magicAt(herd.route[0].y, magicYear).season.id : seasonAt(herd.latitude, earthYear) }))
   },
   /** Each animal drawn on the nearest world, with the zone and the surface of its place, and true when its rule allows the place. */
   wildlifeAudit: () => nearestWorld.creatures?.audit() ?? [],
