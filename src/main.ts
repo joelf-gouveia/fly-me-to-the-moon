@@ -28,6 +28,7 @@ import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
 import type { LifeState } from './creatures/population'
+import { seasonFor } from './creatures/rules'
 import { createFairyRig, createSkyDancerAnimation } from './fairy'
 import { designById } from './fairy-wings/designs'
 import { drawWingIcon } from './fairy-wings/icon'
@@ -1393,7 +1394,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     const here = fairy.position.clone().sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert()).normalize()
     return world.creatures!.herds.filter(herd => herd.species.id === kind && (!zone || herd.zone === zone)).sort((a, b) => a.route[0].angleTo(here) - b.route[0].angleTo(here))
       .slice(0, count).map(herd => ({ world: world.kind, direction: herd.route[0].toArray(), heading: herd.north.toArray(), zone: herd.zone, latitude: herd.latitude, shown: world.creatures!.shown(world.creatures!.herds.indexOf(herd)),
-        season: world === home ? magicAt(herd.route[0].y, magicYear).season.id : seasonAt(herd.latitude, earthYear) }))
+        season: world === home ? magicAt(herd.route[0].y, magicYear).season.id : seasonFor(herd.species.rule, herd.zone, herd.latitude, earthYear) }))
   },
   /** Each animal drawn on the nearest world, with the zone and the surface of its place, and true when its rule allows the place. */
   wildlifeAudit: () => nearestWorld.creatures?.audit() ?? [],

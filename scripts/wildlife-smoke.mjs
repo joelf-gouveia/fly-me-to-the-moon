@@ -187,17 +187,21 @@ try {
 
   // ---- The seasons: the storks travel, and the bees fly only in Blossom time --------------------------
   step('seasons')
+  // Each stork herd shows when the season of its place allows it: spring and summer in the leaf forest,
+  // autumn and winter in the savanna. Near the equator a savanna follows the season of its half (seasonFor() of
+  // src/creatures/rules.ts). On each Earth some herds show and some do not, in each half of the year.
   const storks = {}
   for (const [name, year] of [['summer', 0.3], ['winter', 0.8]]) {
     await load({ query: `?test&weather=clear&year=${year}` })
     await evaluate('document.querySelector("#begin-button").click()')
     await advance(1)
-    // The herds in the north half; near the equator a savanna follows the season of its half (seasonFor() of src/creatures/rules.ts).
-    const north = async zone => (await evaluate(`__fairyTest.herdPlaces('stork', 200, '${zone}')`)).filter(place => place.latitude > 0)
-    storks[name] = { leafForest: (await north('temperate')).filter(place => place.shown).length, savanna: (await north('savanna')).filter(place => place.shown).length }
+    const places = await evaluate(`__fairyTest.herdPlaces('stork', 200)`)
+    const wanted = place => (place.zone === 'temperate' ? ['spring', 'summer'] : ['autumn', 'winter']).includes(place.season)
+    const north = places.filter(place => place.latitude > 0 && place.zone === 'temperate')
+    storks[name] = { herds: places.length, shown: places.filter(place => place.shown).length, wrong: places.filter(place => place.shown !== wanted(place)).length, northLeafForest: north.filter(place => place.shown).length }
   }
-  assert(storks.summer.leafForest > 0 && storks.summer.savanna === 0, `The storks of the north are not in the leaf forest in summer: ${JSON.stringify(storks)}`)
-  assert(storks.winter.leafForest === 0 && storks.winter.savanna > 0, `The storks of the north are not in the savanna in winter: ${JSON.stringify(storks)}`)
+  assert(storks.summer.herds && !storks.summer.wrong && !storks.winter.wrong, `The storks do not follow the seasons of their places: ${JSON.stringify(storks)}`)
+  assert(storks.summer.northLeafForest > 0 && storks.winter.northLeafForest === 0, `The storks of the north are not in the leaf forest in summer only: ${JSON.stringify(storks)}`)
   const bees = {}
   for (const [name, magic] of [['blossom', 0], ['bubble', 0.25]]) {
     await load({ query: `?test&weather=clear&magic=${magic}` })
