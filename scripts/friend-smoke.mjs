@@ -182,8 +182,27 @@ try {
   let state = await snapshot()
   assert(!state.friend.gift || state.friend.hellos === 5, `Wrong start: ${JSON.stringify(state.friend)}`)
   const totalBefore = population(state, 'Earth').total
-  let gift = null, tries = 0, bookBefore = null
+  let gift = null, tries = 0
   const cardNotes = [], used = new Set()
+  // The first hello: a duck, with the test hook. Its card note shows one heart.
+  await evaluate('__fairyTest.meet("duck")')
+  for (let t = 0; t < 3 && !(await snapshot()).friend.note; t += 0.1) await advance(0.1, true)
+  await advance(0.6)
+  state = await snapshot()
+  assert(state.friend.note && state.friend.noteLabel === 'NEW IN YOUR ANIMAL BOOK' && state.friend.noteName === 'Duck' && state.friend.noteHearts === 1, `No card note with one heart: ${JSON.stringify(state.friend)}`)
+  assert(await evaluate('document.querySelectorAll("#friend-note .friend-note-facts svg").length') === 3 && await painted('#friend-note img') > 20, 'The card note has no picture or no three picture facts')
+  assert(!(await text('#friend-note')).match(/\d/), 'The card note shows a number')
+  cardNotes.push({ name: 'Duck', hearts: 1, hellos: 1 })
+  await capture('card-note')
+  // Before the gift, the Animals page shows the hearts and the empty bubble, and a met card has no "Fly with me".
+  await openAnimals()
+  const bookBefore = { hearts: await heartsOf('.animal-note'), bubble: await shown('.animal-note .friend-preview--none'), looks: await cardLooks() }
+  await click('[data-animal="duck"]')
+  Object.assign(bookBefore, { fly: await shown('#animal-fly'), none: await shown('#animal-none'), cardHearts: await heartsOf('.animal-note') })
+  await capture('animals-before-gift')
+  await click('#close-map')
+  assert(bookBefore.hearts === 1 && bookBefore.cardHearts === 1 && bookBefore.bubble && !bookBefore.fly && !bookBefore.none, `Wrong Animals page before the gift: ${JSON.stringify(bookBefore)}`)
+  assert(KINDS.every(kind => bookBefore.looks[kind] === (kind === 'duck' ? 'met' : 'unmet')), `Wrong cards before the gift: ${JSON.stringify(bookBefore.looks)}`)
   while (!gift && tries++ < 40) {
     state = await snapshot()
     const next = population(state, 'Earth').visible.filter(model => /^creature-(rabbit|sheep|cow)-/.test(model.name) && !used.has(model.name)).sort((a, b) => a.distance - b.distance)[0]
@@ -199,22 +218,9 @@ try {
         assert(friend.noteHearts >= 1 && friend.noteHearts <= friend.hellos, `Wrong hearts on the card note: ${JSON.stringify(friend)}`)
         assert(await evaluate('document.querySelectorAll("#friend-note .friend-note-facts svg").length') === 3, 'The card note has no three picture facts')
         assert(!(await text('#friend-note')).match(/\d/), 'The card note shows a number')
-        if (cardNotes.length === 1) { await advance(0.6); await capture('card-note') }
       }
       if (friend.hellos < 5) assert(!friend.shown && !friend.gift, `The friend came before five hellos: ${JSON.stringify(friend)}`)
       else gift = friend
-      // Before the gift, the Animals page shows the hearts and the empty bubble, and no "Fly with me".
-      if (!gift && !bookBefore && friend.hellos >= 2 && friend.met.length) {
-        await openAnimals()
-        bookBefore = { hellos: friend.hellos, hearts: await heartsOf('.animal-note'), bubble: await shown('.animal-note .friend-preview--none'), looks: await cardLooks() }
-        await click(`[data-animal="${friend.met[0]}"]`)
-        bookBefore.fly = await shown('#animal-fly')
-        bookBefore.cardHearts = await heartsOf('.animal-note')
-        await capture('animals-before-gift')
-        await click('#close-map')
-        assert(bookBefore.hearts === friend.hellos && bookBefore.cardHearts === friend.hellos && bookBefore.bubble && !bookBefore.fly, `Wrong Animals page before the gift: ${JSON.stringify(bookBefore)}`)
-        assert(KINDS.every(kind => bookBefore.looks[kind] === (friend.met.includes(kind) ? 'met' : 'unmet')), `Wrong cards before the gift: ${JSON.stringify(bookBefore.looks)}`)
-      }
     }
   }
   assert(gift, `No friend after ${tries} passes: ${JSON.stringify((await snapshot()).friend)}`)
@@ -614,7 +620,7 @@ try {
   assert(!errors.length, JSON.stringify(errors))
   const metres = value => +value.toFixed(2)
   console.log(JSON.stringify({
-    gift: { friend: first, met, passes: tries, cardNotes, bookBefore: { hellos: bookBefore?.hellos, hearts: bookBefore?.hearts } },
+    gift: { friend: first, met, passes: tries, cardNotes, bookBefore: { hearts: bookBefore.hearts, bubble: bookBefore.bubble, fly: bookBefore.fly } },
     animals: { swapped: other, shadow: unmet, keyboard: 'passed', noFriend: 'passed', reload: 'passed', brokenValue: 'passed' },
     models,
     farthest: { lowTurn: 'below 4', climb: metres(climb.near), openSpace: metres(climb.space), boost: metres(climb.boost), guidedReturn: metres(climb.back), topSpeed: climb.speed, hop: Math.round(hop) },
