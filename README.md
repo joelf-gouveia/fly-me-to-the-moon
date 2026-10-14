@@ -1241,6 +1241,29 @@ findings, the place of each change, the limits and how the clips were made. The 
 `node studies/learn-and-play-study/learn-and-play-study-capture.mjs "path/to/chrome.exe" F11,F12`
 against port 5174 to record the clips of F11 and F12 again.
 
+## Friend book study
+
+Visit `/studies/friend-book-study.html` for **One friend book**, a study of how the Animal book
+(F11) and the [fairy friend](#fairy-friend) (F19) become one thing: the child sees the animals that
+she met and changes the animal that flies with her. It compares three options with a clip from the
+engine of the game for each: **A** the book in Worlds, with "Fly with me" on each card that she
+met; **B** the book in the first row of Your fairy; **C** an offer "Fly with me?" over a creature at
+a hello. Each clip shows a real swap in the flight with the real friend models: the old friend
+waves and flies home, or its bubble pops, and the new friend comes and makes the happy loop. Two
+more clips show the gift before the fifth hello (five hearts on each new card) and the Animals
+page on a phone of 390 px and of 320 px. The page also has the nine cards, the saved data, the
+list of the changes to F19 and eight decisions. Its controls do not change the game.
+
+The study uses the lab and the page look of the [learn and play study](#learn-and-play-study).
+The panels in the clips are DOM with the real CSS of the game: `scope-css.mjs` puts that CSS under
+one class and makes its narrow-screen rules container queries, so the phone frames get the phone
+rules. The recommendation is option A. The [technical study](docs/friend-book-study.md) gives the
+findings, the options, the rules of the swap, the changes to F19 and how the clips were made. The
+clips are in `public/studies/friend-book/`. Run
+`node studies/friend-book-study/friend-book-study-capture.mjs "path/to/chrome.exe" A,B` against a
+dev server with no hot reload to record the clips of A and B again, and add `--moments` for their
+moment pictures.
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:
