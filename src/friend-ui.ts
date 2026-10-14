@@ -211,6 +211,8 @@ export function createFairyFriend({ scene, renderer, sparkle, chime }: Options) 
         loop: friend.follow.loop, note: !note.hidden, noteName: note.querySelector('h2')!.textContent,
         noteLabel: note.querySelector('small')!.textContent, noteHearts: hearts.hidden ? null : hearts.querySelectorAll('.is-full').length,
         waiting: queue.map(item => `${item.gift ? 'gift' : 'card'}:${item.kind}`),
+        // True while a note shows, waits behind a different note, or waits in the queue: a search star waits for it.
+        busy: !note.hidden || shown !== null || queue.length > 0,
       }
     },
   }
