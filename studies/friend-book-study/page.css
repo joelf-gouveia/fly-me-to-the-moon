@@ -1,0 +1,16 @@
+/* The parts of this page that the page looks of the feature ideas study and the learn and play study do not have. */
+.option-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+.fact { display: inline-block; margin: 0 10px 2px 0; white-space: nowrap }
+.mark-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 24px }
+.mark-grid article { padding-top: 14px; border-top: 1px solid #2b3350 }
+.mark-grid h3 { font: 400 19px/1.3 Georgia, 'Times New Roman', serif; color: #f6d9aa; margin-bottom: 8px }
+.mark-grid p { margin: 0; font-size: 13px; color: #c1cadb }
+.decisions { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.decisions fieldset:nth-child(4n + 1) { border-left: 0; padding-left: 0 }
+.decisions fieldset:nth-child(n + 5) { border-top: 1px solid #2b3350 }
+@media (max-width: 1100px) { .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)) } .decisions fieldset:nth-child(2n + 1) { border-left: 0; padding-left: 0 } .decisions fieldset:nth-child(n + 3) { border-top: 1px solid #2b3350 } }
+@media (max-width: 760px) {
+  .option-cards, .mark-grid, .decisions { grid-template-columns: minmax(0, 1fr) }
+  .decisions fieldset { border-left: 0 !important; padding-left: 0 !important }
+  .decisions fieldset + fieldset { border-top: 1px solid #2b3350 }
+}
