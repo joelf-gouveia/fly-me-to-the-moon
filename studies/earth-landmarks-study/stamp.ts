@@ -187,7 +187,7 @@ export function stampLandmarks(earth: World, cell = 0) {
   if (earth.creatures) {
     const obstacles = earth.creatures.obstacles
     earth.creatures.dispose()
-    earth.creatures = createPopulation(earth.group, ground.geometry as THREE.SphereGeometry, water.geometry as THREE.SphereGeometry, radius, false, obstacles, earth.seed ^ 0x71ac, anchor, 28)
+    earth.creatures = createPopulation(earth.group, ground.geometry as THREE.SphereGeometry, water.geometry as THREE.SphereGeometry, { kind: 'earth', radius, seed: earth.seed, sample: earth.sample }, obstacles, earth.seed ^ 0x71ac, anchor)
   }
 
   // 5. The patch of each landmark.

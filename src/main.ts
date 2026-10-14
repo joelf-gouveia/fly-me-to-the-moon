@@ -27,6 +27,7 @@ import { rayCraters, updatePlanetLooks } from './planet-paint'
 import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
+import type { LifeState } from './creatures/population'
 import { createFairyRig, createSkyDancerAnimation } from './fairy'
 import { designById } from './fairy-wings/designs'
 import { drawWingIcon } from './fairy-wings/icon'
@@ -916,6 +917,15 @@ const earthLocal = new THREE.Vector3(), earthTurn = new THREE.Quaternion()
 function homeHeight() {
   return earthLocal.copy(fairy.position).sub(home.group.position).normalize().applyQuaternion(earthTurn.copy(home.group.quaternion).invert()).y
 }
+const lifeSun = new THREE.Vector3(), lifeTurn = new THREE.Quaternion()
+/**
+ * The time of a world for its herds: the year and the tilt of Earth, the magic year of Blossom Haven,
+ * the Sun in the frame of the world (the fireflies come at night) and the camera for the culling.
+ */
+function lifeOf(world: World): LifeState {
+  lifeSun.copy(sun.group.position).sub(world.group.position).normalize().applyQuaternion(lifeTurn.copy(world.group.quaternion).invert())
+  return world === home ? { magic: magicYear, sun: lifeSun, view: camera } : { year: earthYear, tilt: earth.tilt?.angle, sun: lifeSun, view: camera }
+}
 function earthLatitude() {
   earthLocal.copy(fairy.position).sub(earth.group.position).normalize().applyQuaternion(earthTurn.copy(earth.group.quaternion).invert())
   return THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(earthLocal.y, -1, 1)))
@@ -1127,7 +1137,8 @@ function animate(timestamp?: number) {
   for (const world of worlds) {
     // The clouds of Earth read the weather map at their place, so they do not turn.
     if (!world.weather) world.clouds.rotation.y += delta * 0.001
-    world.creatures?.update(delta, camera.position)
+    // The herds follow the season of their place on Earth and the magic season on Blossom Haven (src/creatures/population.ts).
+    world.creatures?.update(delta, camera.position, lifeOf(world))
     // After update(): the hop and the turn go over the place on the route.
     const hellos = world.creatures?.greet(delta, fairy.position)
     if (hellos?.length) greeted.push(...hellos)
@@ -1323,8 +1334,10 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailBonus: fairyTrail.bonus },
     trail: { design: fairyTrail.design, frame: fairyTrail.frame, points: fairyTrail.points, bonus: fairyTrail.bonus },
     wildlife: worlds.filter(world => world.creatures).map(world => ({
-      world: world.name, total: world.creatures!.residents.length,
+      world: world.name, total: world.creatures!.residents.length, herds: world.creatures!.herds.length,
       kinds: [...new Set(world.creatures!.residents.map(resident => resident.kind))],
+      // The animals and the draw calls of this frame (src/creatures/population.ts).
+      stats: world.creatures!.stats(),
       visible: world.creatures!.group.children.filter(model => model.visible).map(model => ({
         name: model.name, position: model.position.toArray(), fairytale: model.userData.fairytale ?? null,
         distance: model.getWorldPosition(new THREE.Vector3()).distanceTo(fairy.position),
@@ -1347,6 +1360,31 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     const result = { without: calls(false), with: calls(shown) }
     return result
   },
+  /**
+   * The draw calls of the view of this moment with no animals and with the animals (the herds, the
+   * points of the small life and the hearts), and the time of the two renders. The two renders have the same scene.
+   */
+  wildlifeCalls: () => {
+    const parts = worlds.flatMap(world => world.creatures?.parts ?? [])
+    const shown = parts.map(part => part.visible)
+    const calls = (visible: boolean) => {
+      parts.forEach((part, i) => { part.visible = visible && shown[i] })
+      renderer.render(scene, camera)
+      return renderer.info.render.calls
+    }
+    const without = calls(false), all = calls(true)
+    return { without, with: all, animals: all - without }
+  },
+  /** The local directions of the centres of the herds of a kind on a world, nearest to the fairy first: a check flies to them. */
+  herdPlaces: (kind: string, count = 5) => {
+    const world = worlds.find(item => item.creatures?.herds.some(herd => herd.species.id === kind))
+    if (!world) return []
+    const here = fairy.position.clone().sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert()).normalize()
+    return world.creatures!.herds.filter(herd => herd.species.id === kind).sort((a, b) => a.route[0].angleTo(here) - b.route[0].angleTo(here))
+      .slice(0, count).map(herd => ({ world: world.kind, direction: herd.route[0].toArray(), heading: herd.north.toArray(), zone: herd.zone, latitude: herd.latitude }))
+  },
+  /** Each animal drawn on the nearest world, with the zone and the surface of its place, and true when its rule allows the place. */
+  wildlifeAudit: () => nearestWorld.creatures?.audit() ?? [],
   /** F19: a happy loop of the friend. False when the last loop was less than 20 s before, and with reduced motion. */
   cheer: () => fairyFriend.cheer(reducedMotion.matches),
   /**

@@ -59,7 +59,8 @@ try {
   const initial = await snapshot()
   if (initial.wildlife.length !== 2) throw new Error('Wildlife must exist on exactly Earth and Blossom Haven')
   for (const population of initial.wildlife) {
-    if (population.kinds.length !== 4 || population.total < 50) throw new Error(`Missing species on ${population.world}`)
+    // The catalog has 31 kinds of Earth and 17 of Blossom Haven (src/creatures/catalog.ts); a kind with no place on this Earth can be missing.
+    if (population.kinds.length < (population.world === 'Earth' ? 25 : 10) || population.total < 150) throw new Error(`Missing kinds on ${population.world}: ${population.kinds.length} kinds, ${population.total} animals`)
   }
   const earth = initial.wildlife.find(w => w.world === 'Earth')
   if (!earth.visible.length) throw new Error('No wildlife near the initial meadow')

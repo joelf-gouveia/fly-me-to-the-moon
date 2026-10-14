@@ -64,6 +64,9 @@ export const footprintOf = (species: Species) => Math.max(0.35, species.size * (
 export const herdKindOf = (species: Species): HerdKind => species.move === 'fly' || (species.layer === 'small' && species.move === 'float' && species.rule.air) ? 'air'
   : species.move === 'leap' ? 'leap' : species.move === 'swim' || (species.move === 'float' && !species.rule.air) ? 'water' : 'ground'
 
+/** The space between the rings of two members of a loop, in metres: a flock flies wide, a school of fish is close. */
+export const lateralOf = (species: Species, kind: HerdKind) => kind === 'air' ? (species.layer === 'small' ? 0.45 : 0.9) : species.layer === 'small' ? 0.3 : 1.2
+
 /** The survey of a world: a place for each point of a Fibonacci sphere. It is made once for each landscape. */
 export type Survey = { dirs: THREE.Vector3[]; places: Place[] }
 export function survey(world: 'earth' | 'fairy', seed: number, sample: (x: number, y: number, z: number) => TerrainSample, radius: number, count: number): Survey {
@@ -79,7 +82,10 @@ export function survey(world: 'earth' | 'fairy', seed: number, sample: (x: numbe
 
 export type HerdSite = {
   world: 'earth' | 'fairy'
+  /** The seed of the landscape: the zones come from it. */
   seed: number
+  /** The seed of the random numbers of the herds. The default is the seed of the landscape. */
+  random?: number
   radius: number
   sample: (x: number, y: number, z: number) => TerrainSample
   /** The ground mesh of the world. */
@@ -95,8 +101,11 @@ export type HerdSite = {
   only?: KindId[]
 }
 
-/** The kinds that have one herd near the anchor first, so the start of a visit has animals in the view. */
-const START_KINDS: KindId[] = ['cow', 'sheep', 'rabbit', 'deer', 'unicorn', 'dragonling', 'kitsune', 'gummyBear']
+/**
+ * The kinds that have one herd near the anchor first, so the start of a visit has animals in the view.
+ * The meadow of the start of Earth is in the leaf forest or in the pine forest; a kind gets a herd there only when its rule allows the place.
+ */
+const START_KINDS: KindId[] = ['cow', 'sheep', 'rabbit', 'deer', 'fox', 'moose', 'hare', 'unicorn', 'dragonling', 'kitsune', 'gummyBear']
 /** The colours of the instances of the candy kinds. */
 const TINTS: Partial<Record<KindId, number[]>> = {
   gummyBear: [0xff5a6e, 0xffa04a, 0xffe066, 0x7fdc6a, 0xfff0f0],
@@ -149,18 +158,21 @@ export function placeHerds(site: HerdSite): Herd[] {
     }
     return [low, high] as const
   }
-  /** True when an animal of `species` can stand or swim at `n`. */
+  /** True when the place of `n` passes the rule of the kind: each animal stays in its zone, also at the edge of two belts. */
+  const placeFits = (species: Species, n: THREE.Vector3) => fits(species.rule, placeAt(world, n.x, n.y, n.z, site.sample, fields, radius))
+  /** True when an animal of `species` can stand or swim at `n`, on good ground and in a place of its rule. */
   function standsAt(species: Species, kind: HerdKind, n: THREE.Vector3) {
     const foot = footprintOf(species)
     if (kind === 'water' || kind === 'leap') {
       const range = groundRange(n, species.size > 4 ? 3 : foot + 0.6)
-      return !!range && range[1] < (species.size > 4 ? -2 : species.size > 1.5 ? -1.2 : -0.5)
+      // A pod, a school or a whale swims a loop: each point of the loop is in its zone, over water deep enough for it.
+      return !!range && range[1] < (species.size > 4 ? -2 : species.size > 1.5 ? -1.2 : -0.5) && (kind === 'leap' || species.size > 2 ? placeFits({ ...species, rule: { ...species.rule, surfaces: [] } }, n) : placeFits(species, n))
     }
     const range = groundRange(n, foot)
     if (!range) return false
     const wade = species.rule.surfaces.includes('sea') || species.rule.surfaces.includes('shore')
     const low = wade ? (species.rule.surfaces.includes('sea') ? -0.6 : 0.15) : 0.65
-    return range[0] > low && range[1] < 9 && range[1] - range[0] < 1.35 && obstacles.clearSegment(n, n, radius, foot)
+    return range[0] > low && range[1] < 9 && range[1] - range[0] < 1.35 && obstacles.clearSegment(n, n, radius, foot) && placeFits(species, n)
   }
   const offset = (n: THREE.Vector3, east: THREE.Vector3, north: THREE.Vector3, x: number, z: number, out = new THREE.Vector3()) =>
     out.copy(n).multiplyScalar(radius).addScaledVector(east, x).addScaledVector(north, z).normalize()
@@ -171,7 +183,7 @@ export function placeHerds(site: HerdSite): Herd[] {
 
   for (const species of list) {
     const kind = herdKindOf(species)
-    const random = seededRandom((seed ^ 0x5eed) + [...species.id].reduce((sum, c) => (sum * 31 + c.charCodeAt(0)) % 1000003, 7))
+    const random = seededRandom(((site.random ?? seed) ^ 0x5eed) + [...species.id].reduce((sum, c) => (sum * 31 + c.charCodeAt(0)) % 1000003, 7))
     const matches: number[] = []
     map.places.forEach((place, i) => { if (fits(species.rule, place)) matches.push(i) })
     if (!matches.length) continue
@@ -210,7 +222,9 @@ export function placeHerds(site: HerdSite): Herd[] {
         // A pod, a school or a whale: a loop on the water that stays over deep enough water.
         herd.loop = species.size > 4 ? 12 : species.layer === 'small' ? 1.5 : 6 + random() * 3
         let ok = standsAt(species, kind, centre)
-        for (let k = 0; k < 12 && ok; k++) ok = standsAt(species, kind, offset(centre, east, north, Math.cos(k / 12 * TAU) * herd.loop, Math.sin(k / 12 * TAU) * herd.loop))
+        // Each member swims a ring of its own: the inner and the outer ring stay over the water too.
+        const wide = Math.ceil((count - 1) / 2) * lateralOf(species, kind)
+        for (const ring of [herd.loop, herd.loop + wide, Math.max(0, herd.loop - wide)]) for (let k = 0; k < 12 && ok; k++) ok = standsAt(species, kind, offset(centre, east, north, Math.cos(k / 12 * TAU) * ring, Math.sin(k / 12 * TAU) * ring))
         if (!ok) continue
         herd.turn = (species.size > 4 ? 0.04 : species.layer === 'small' ? 0.25 : 0.12) * (random() < 0.5 ? -1 : 1)
       }

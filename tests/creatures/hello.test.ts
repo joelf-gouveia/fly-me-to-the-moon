@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { describe, expect, it } from 'vitest'
-import { replacements } from '../../src/creatures/fairytale'
-import type { Species } from '../../src/creatures/habitat'
+import { HOME_SEED } from '../../src/terrain'
 import { canSayHello, HELLO, heartCount, heartPool, heartPose, helloLength, helloLift, helloPoint, helloTurn } from '../../src/creatures/hello'
 import type { HeartPose } from '../../src/creatures/hello'
 import { createPopulation } from '../../src/creatures/population'
@@ -79,10 +78,16 @@ describe('creature hello in the population', () => {
     const ground = new THREE.SphereGeometry(radius + 2, 256, 128), water = new THREE.SphereGeometry(radius, 64, 32)
     const parent = new THREE.Group()
     const anchor = new THREE.Vector3(1, 0, 0.3).normalize()
-    const creatures = createPopulation(parent, ground, water, radius, true, new CreatureObstacles(), 123, anchor, 28, mobile)
+    // A world of land 2 m over the sea: each garden of Blossom Haven, and no water.
+    const sample = () => ({ height: 2, land: 2, river: 0, detail: 0 })
+    const creatures = createPopulation(parent, ground, water, { kind: 'fairy', radius, seed: HOME_SEED, sample, mobile }, new CreatureObstacles(), 123, anchor)
     const camera = anchor.clone().multiplyScalar(radius + 10)
     creatures.update(0.1, camera)
-    const model = creatures.group.children.find(item => item.visible && item.userData.species !== 'duck')!
+    // A near animal that walks on the ground: its marker has its name and its place.
+    const model = creatures.group.children.find(item => {
+      const resident = creatures.residents[Number(item.name.split('-').pop())]
+      return item.visible && resident.herd.kind === 'ground' && resident.herd.species.move !== 'hop'
+    })!
     // The fairy is 2.4 m over the feet of the creature.
     const fairyAt = () => model.position.clone().normalize().multiplyScalar(model.position.length() + 2.4)
       .applyQuaternion(parent.quaternion).add(parent.position)
@@ -96,8 +101,8 @@ describe('creature hello in the population', () => {
     parent.updateMatrixWorld(true)
     const world = camera.clone().applyQuaternion(parent.quaternion).add(parent.position)
     creatures.update(0.1, world)
-    // greet() gives the kind of each creature that says hello. On Blossom Haven it is the fairytale creature (F19).
-    expect(creatures.greet(0.1, fairyAt())).toContain(replacements[model.userData.species as Species])
+    // greet() gives the kind of each creature that says hello (F19).
+    expect(creatures.greet(0.1, fairyAt())).toContain(model.userData.species)
     const name = model.name
     let highest = 0
     for (let i = 0; i < 20; i++) {
