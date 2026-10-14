@@ -112,7 +112,47 @@ use a lighter shader, and reduced motion stops the Sun. The numbers are in
 Short lines of glowing rings in candy colours float 5 to 12 m over the ground of Earth,
 Blossom Haven and the Moon. Fly through a ring: a burst of sparkles, a two-note chime
 (when Sound is on), and a trail that is twice as long and brighter for 4 s. A taken ring
-fades and comes back after 30 s of flight. There is no score, no fail and no counter.
+fades and comes back after 30 s of flight. There is no score and no fail.
+
+The rings count with the child (F12 of the [learn and play study](#learn-and-play-study)).
+Each ring of a count line shows its number as gold dots on a dark plate over the ring. When
+the fairy flies through a ring, the number shows large at the left of the screen for about
+one second of flight, with the same number of dots, and the ring plays its note of the C
+major scale (C5 for 1 to B5 for 7) with the fifth above it. The last ring of a line adds the
+high C. On a phone the number shows at the top, under the buttons.
+
+- The number of a ring is the count that the child gets when she flies to it from her place
+  and takes each ring on the way. The ring nearest to the fairy is always the next number. So
+  a line counts from each end, and from its middle, and the first ring that she takes is 1.
+- The count is the number of rings that she took: 1, 2, 3. When she flies past a ring, the
+  rings in front of her count on from the last ring that she took. The ring that she flew
+  past counts on too, if she turns back.
+- The count of a line starts again at 1 after 12 s of flight with no ring of that line
+  (`RING.countGap`), and after the full count of the line. No number is above the length of
+  the line. The count is not saved, and it is not a score.
+- The number stays in a pause, as the flight does. It goes away at once behind Worlds, the
+  menu, Settings, the look menu and the postcard.
+- With reduced motion, the number shows with no bounce.
+
+Some lines are shape lines. The rule is `shapeLine()`: the second and the fourth line of a
+world. So Earth has two shape lines, and Blossom Haven and the Moon have one each. The first
+line of each world, such as the line at the start meadow of Earth, is a count line.
+
+- Each ring of a shape line has a shape, in this order: circle, triangle, square, star and
+  heart. A line of six or seven rings starts the order again. The second shape line of Earth
+  starts at the triangle.
+- The plate over the ring shows the picture of the shape in gold, not dots. So the child
+  reads the shape two times before she arrives: the ring and its plate.
+- When the fairy flies through the ring, the picture and the name of the shape show in the
+  place of the number, for example a gold triangle and the word **Triangle**. Each shape has
+  its own two notes (C for the circle to G for the heart). The last ring of the line adds
+  the high C.
+- The first shape line of a world starts after the last ring of the first line, 42 m or more
+  from it, in the direction of that line. The child who flies on from the count line comes
+  to the shapes. If the land there has no room, the line can be at a different place.
+- Each shape is about the size of the round ring (`ringShapePoints()`). The ring test is the
+  same disc for each ring, so a corner of a shape is never more than 0.15 m outside the disc,
+  and the middle of each shape has room for the fairy.
 
 - Each line has 5 to 7 rings on a smooth, gentle curve. Earth has five lines, Blossom
   Haven and the Moon have three. The first line of Earth starts near the first meadow,
@@ -125,15 +165,24 @@ fades and comes back after 30 s of flight. There is no score, no fail and no cou
   lines.
 - The ring test uses the path of the fairy between two frames, so a fast fairy cannot skip
   a ring.
-- One torus, one glow quad and three materials serve all rings: two draw calls for each
-  world. A phone gets 24 sparkles in a burst instead of 48.
+- One ring geometry, one glow quad, one plate and four materials serve all rings: three draw
+  calls for each world. The ring geometry holds the torus and the tube of each other shape,
+  and the shader keeps one of them for each ring, so a shape line adds no draw call. The dots
+  of the seven numbers and the pictures of the five shapes are one picture. A phone gets 24
+  sparkles in a burst instead of 48.
+- The plate of a near ring covers the plates of the rings behind it. A pale rim shows the
+  plate against a dark sky.
 
 The placement and the ring test are in `src/rings.ts`; the tests are in
 `tests/rings.test.ts`. Run `node scripts/sparkle-rings-smoke.mjs "path/to/chrome.exe"`
-against the dev server for the rings on each world, a pass with the chime, the burst and
-the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
-Blossom Haven, new rings after a new Earth landscape, and the phone layout. An optional
-second argument sets the server origin.
+against the dev server for the rings on each world, the number of each ring, a pass with
+the number, the chime, the burst and the longer trail, the count after a ring that she flew
+past, the place of the number in three windows, a pause and Worlds while the number shows,
+a shape line on each world with the picture and the name of each shape, a pass at boost
+speed, the return after 30 s, the rings that move with Blossom Haven, new rings after a new
+Earth landscape, the rings at night, in the rain and against the pink sky, reduced motion,
+and the phone layout with its draw calls. An optional second argument sets the server
+origin.
 
 ## Asteroid belt
 
