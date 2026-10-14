@@ -29,9 +29,9 @@ A study can use code from `src/`. The code in `src/` does not use code from
 ## Flight
 
 - **Begin your adventure** starts the flight. There is one mode.
-- The ✿ Blossom Haven card in **Worlds**, then **Fly there**, starts the flower guide. It shows
+- The ✿ Blossom Haven card in **My book**, then **Fly there**, starts the flower guide. It shows
   the flower marker and the guiding fireflies to Blossom Haven. While the guide
-  is on, **Stop following** shows under **Worlds** and returns to free flight.
+  is on, **Stop following** shows under **My book** and returns to free flight.
 - The flower cottage is always on Blossom Haven, with or without the guide.
   The first arrival shows the discovery celebration.
 
@@ -39,11 +39,11 @@ A study can use code from `src/`. The code in `src/` does not use code from
 - A / Left and D / Right: turn.
 - Release the controls near a planet to cruise along its curvature.
 - Shift: faster flight; Q: hover; Space or the pause button: pause.
-- On a computer the screen has **Worlds** at the top left, with the sticker
+- On a computer the screen has **My book** at the top left, with the sticker
   count, and four round buttons at the bottom right: **Your fairy**, the camera
   (**Postcard**), **Settings** and pause. **Settings** has the sound, the sky switches,
   World speed and the keys. See [Postcard camera](#postcard-camera).
-- Open **Worlds**, tap a world, then **Fly there** for a guided journey. A new book
+- Open **My book**, tap a world, then **Fly there** for a guided journey. A new book
   opens Earth, Blossom Haven and the Moon; each new sticker opens the next world
   (see [Sticker book](#sticker-book)). Steering takes
   over from normal world guidance. Touch devices have arrows at every width,
@@ -195,7 +195,7 @@ shrinks away. The belt turns with the planets and fades inside atmospheres,
 as the stars do. Phones draw half of the dust and rocks.
 
 **Ceres** and **Vesta**, two small airless worlds, orbit inside the belt at their
-real distances. Both are in **Worlds**. Ceres has the bright salt spots of
+real distances. Both are in **My book**. Ceres has the bright salt spots of
 Occator crater; Vesta has a giant crater at its south pole. Blossom Haven never
 relocates into the belt. The belt data is in `src/belt.ts`; the scene is in
 `src/asteroid-belt.ts`.
@@ -219,7 +219,7 @@ The comet has an icy nucleus, a glowing coma, a warm dust tail and a faint blue 
 Both tails point away from the Sun, and they are longer near the Sun (450 to 2,000 m for
 the dust tail). The dust tail bends back along the orbit. The comet fades inside
 atmospheres, as the stars and the belt do. It is not a world: it has no sticker, it is not
-in **Worlds**, and the fairy flies through it.
+in **My book**, and the fairy flies through it.
 
 When the fairy flies through a tail, sparkles burst around her and stream behind her, and
 her trail grows. The sparkles and the larger trail stay for 4 s after the tail. A soft
@@ -248,7 +248,7 @@ The Moon orbits Earth 963 m from its centre (3.5 Earth radii), on an orbit tilte
 28°. It has radius 75 m, 0.273 of Earth, as in the real Solar System. A lunar month is 300 s
 at 1× orbital speed, so there are 12 new moons in each game year. The Moon keeps
 its near side, with the dark maria, toward Earth. It rises in the east, and it
-is in **Worlds** after Earth; a guided trip from the meadow takes about 16 s.
+is in **My book** after Earth; a guided trip from the meadow takes about 16 s.
 
 The Moon shows phases, because its night side is dark from far away. The fog
 does not hide it, so it shows from Earth's ground. On Earth the night light comes
@@ -271,7 +271,7 @@ place of the sticker note: a drawing of the shape, its name and one short line, 
 "One half is bright." A soft chime plays when the sound is on. The note waits while a sticker
 note shows, and a search star waits for the note. No strip shows in the flight.
 
-The diary is in **Worlds**, below the cards: one place for each shape, with the count next to the
+The diary is in **My book**, below the cards: one place for each shape, with the count next to the
 sticker count ("2 of 5 Moon shapes"). An empty place shows its shape as a faint drawing. A tap
 on a place gives its line, or a hint for an empty place. While a place is empty, the line of
 the diary says where the Moon is now: "The Moon is in the sky now. Look up!" or "The Moon is on
@@ -483,6 +483,12 @@ browser checks. Pure simulation tests cover placement and relocation safety.
 
 ## Sticker book
 
+**My book** is the button at the top left (at the top on a touch screen) with the sticker count. Its
+name was **Worlds** until 14 October 2026. It opens one book with two tabs: **Worlds** (the map, the
+cards of the worlds with their stickers and thermometers, and the Moon diary) and **Animals** (the
+animal book of the fairy friend). The book always opens at its **Worlds** tab.
+
+
 Each of the 13 worlds gives a sticker the first time the fairy arrives: the
 Sun, the eight planets, the Moon, Ceres, Vesta and Blossom Haven. A world counts
 as reached when the flight panel says the fairy is near it: closer than 85 m, or
@@ -491,8 +497,8 @@ Earth sticker comes when she flies out to space and comes back: the same new
 visit that makes a new landscape. A note shows the new sticker and one short fact, and the chime plays
 when the sound is on. Every fourth sticker has a bigger note.
 
-The stickers are in **Worlds**, under the map. The **Worlds** button shows the count,
-for example "3/13". Flight waits while **Worlds** is open, and Escape closes it. Tap a
+The stickers are in **My book**, under the map. The **My book** button shows the count,
+for example "3/13". Flight waits while **My book** is open, and Escape closes it. Tap a
 card to read its fact or a hint, then **Fly there** for a guided flight. The card of a world
 says "You are here" only when the fairy is near that world, as the flight panel says. In open
 space each open world has **Fly there**, also the nearest one, so Earth is always a way home. A card with its
@@ -503,13 +509,13 @@ other worlds are mysteries: a grey "?" on the map and in the book, with no path.
 new sticker opens the next door: the nearest empty space on the poster (`nextDoor()` in
 `src/stickers.ts`). The order is the Moon, Venus, Mercury, the Sun, Mars, Vesta, Ceres,
 Jupiter, Saturn, Uranus, Neptune, then Earth. A fairy who finds a world in free flight
-gets its sticker, and that world opens too. The note at the top of **Worlds** always
+gets its sticker, and that world opens too. The note at the top of **My book** always
 says what is next. Earth and Blossom Haven are always open: the way home, and the flower
 guide. The Sun is on the map from the start, but it opens in its turn.
 
 Each world also has one search star (F1 of the [feature ideas study](docs/feature-ideas-study.md),
 option B of the sticker book study). The note of a new sticker gives one small task on that
-world, for example "Find the big red storm." In **Worlds**, the card of the world gives the
+world, for example "Find the big red storm." In **My book**, the card of the world gives the
 task as its hint, and a dashed star shows on its picture. When the fairy does the task, a gold
 star pops up in the world with sparkles, the note says "SEARCH STAR" and the found line, a gold
 star goes on the sticker picture, and a brighter chime plays when the sound is on. There is no
@@ -553,18 +559,18 @@ is an export of `src/terrain.ts`.
 The book is saved in this browser as `fairy-sticker-book`, with the search stars. Every player earns the
 Blossom Haven sticker with a visit, also a player who found the home before. The
 stickers, their facts and the rule of the open worlds are in `src/stickers.ts`; the book
-is `src/sticker-book.ts`, and **Worlds** draws it (`src/adventure.ts`). This is option A of
+is `src/sticker-book.ts`, and **My book** draws it (`src/adventure.ts`). This is option A of
 the sticker book study below, without the voice, in the one book of option D of the world
 book study.
 
 Run `node scripts/sticker-book-smoke.mjs "path/to/chrome.exe"` against the dev
-server for no sticker at the start, the book in **Worlds**, the next door and the
+server for no sticker at the start, the book in **My book**, the next door and the
 locks, **Fly there** to the Moon, the Earth sticker after the return, the saved book
 and the phone layout. An optional second argument sets the server origin, for example a server
 without file watching.
 
 Run `node scripts/search-stars-smoke.mjs "path/to/chrome.exe"` against the dev server for the
-search stars: no star before the hello sticker, the task in the note and in **Worlds**, a find
+search stars: no star before the hello sticker, the task in the note and in **My book**, a find
 on twelve worlds, the gold star in the world and on the sticker, the saved book, the reset and
 the phone layout. A test move puts the fairy at each place, and the check uses
 `/?test&weather=shower` for the rainbow. The check also reads the paint of the ground: it is
@@ -589,7 +595,7 @@ on each device. This is idea F16 of the [learn and play study](#learn-and-play-s
 Each world has one level, from 0 to 1 (`WARMTH` in `src/warmth.ts`). A world has no day level
 and no night level. The order follows the real temperatures, and the Sun is the top. Venus
 is the hottest planet and Uranus the coldest, below Neptune, as their sticker facts say. The
-five colours have a contrast of 3 or more with the dark panel of **Worlds** and with the pink
+five colours have a contrast of 3 or more with the dark panel of **My book** and with the pink
 sticker card, and the lines of the thermometer are dark on a sticker card.
 
 The thermometer is in two places. It is not a permanent part of the flight screen.
@@ -609,7 +615,7 @@ The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
 - One note at a time. The thermometer waits while the sticker note, the search-star note, the
   note of the found home or the note of a hop shows. It comes when that note is gone, if the
   fairy is still near the world. It leaves at once when one of those notes comes.
-- The note and its time wait behind **Worlds**, Settings, Menu and the pause.
+- The note and its time wait behind **My book**, Settings, Menu and the pause.
 - With a mouse and keys the note is in the place of the sticker note, above the toolbar. On a
   touch screen it is at the right edge, below the place of the "A new world to explore" note
   and above **Boost**, because that note can show at the same time.
@@ -617,7 +623,7 @@ The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
 `src/warmth.ts` has the levels, the steps, the SVG and the rule. `src/warmth-note.ts` has the
 arrival note, and `src/warmth.css` has the styles. Run
 `node scripts/thermometer-smoke.mjs "path/to/chrome.exe"` against the dev server for the
-thermometers in **Worlds**, the arrival note at Venus and at the Moon, its rule and the phone
+thermometers in **My book**, the arrival note at Venus and at the Moon, its rule and the phone
 layout at 390 px and 320 px. An optional second argument sets the server origin. The pictures
 are in `artifacts.local/thermometer/`.
 
@@ -666,7 +672,7 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
   the sound start. It is off at each visit.
 - **In the sky**: **Star pictures**, **Orbit paths** and **World speed** (1×, 8×,
   16×, 32× or 64×). **Orbit paths** shows the coloured lines in the sky only; the
-  **Worlds** map always shows its paths. The two switches stay after a reload
+  **My book** map always shows its paths. The two switches stay after a reload
   (`fairy-settings` in `localStorage`); World speed starts at 1× at each visit.
 - **How to fly**: the keys on a computer, the touch buttons on a touch screen.
 - **Sticker book**: the reset below.
@@ -680,7 +686,9 @@ The reset also removes the Moon diary, and the question counts its shapes: "Remo
 sticker, and the Moon shape?" With no sticker, a diary with a shape can also be reset.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
 The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
-open. The fairy look and the home discovery stay.
+open. The fairy look and the home discovery stay. The reset also removes the
+[fairy friend](#fairy-friend), the kinds that she met and the count of the hellos;
+with an empty book and a friend, the question is "Remove the fairy friend?".
 
 Run `node scripts/settings-smoke.mjs "path/to/chrome.exe"` against the dev server
 for the panel, the confirmation, the reset at the Moon, Escape, the four toolbar
@@ -733,6 +741,132 @@ newer styles stay clear of the wings and the pointed ears in every wing shape.
 
 Run `node scripts/browser-smoke.mjs "path/to/chrome.exe" --customization`
 for the focused desktop/mobile check, including saved selections after reload.
+
+## Fairy friend
+
+A small friend flies with the fairy (F19 of the [learn and play study](#learn-and-play-study)), and
+the animal book in Worlds shows each kind that she met (design A of the
+[friend book study](#friend-book-study)). The friend has no task and no health: it is company. The
+game has no score, no timer and no fail.
+
+- **The animal book.** **My book** has two tabs: **Worlds** (the map, the cards of the worlds and the
+  Moon diary) and **Animals**. The Animals page has a card for each of the nine kinds, in two
+  groups: **Real animals** on Earth (cow, rabbit, sheep, duck) and **Story creatures** on Blossom
+  Haven (unicorn, dragonling, kitsune kit, Frog Prince, pegasus foal). A card of a kind that she met
+  is a sticker card: a picture rendered from the model of the friend, the name and three picture
+  facts. A kind that she did not meet is a soft shadow of its model, with the picture of its world
+  and of its place, for example Earth and the water. The tab shows the size of the book, for
+  example "4/9". The book is the list of the kinds that she met, so it fills from the first hello.
+- **The note at the top.** A tap on a card shows it in the note at the top of the page: the
+  picture, the name and the three facts with a short word each. A shadow card shows "Who is it?"
+  with its world and its place. The note stays at the top of the dialog while the cards scroll.
+  There is no voice: a grown-up reads the words.
+- **The new card in the flight.** The first hello of a kind shows a note for 4 s of flight: the
+  picture, "NEW IN YOUR ANIMAL BOOK", the name and the three picture facts. A hello to a kind that
+  she met shows no note. A soft chime plays when Sound is on.
+- **The way to the gift.** The friend comes at the fifth hello of a creature. Before the gift, the
+  note of a new card and the note of the Animals page show five hearts: one pink heart for each
+  hello, and the heart of this hello swells. These are the hearts that float over a creature at its
+  hello. The hearts are the only count of the hellos: the game shows no number of hellos.
+- **The gift.** At the fifth hello the gift note shows for 6 s: the picture, "A NEW FRIEND", the
+  name, "A friend flies with you now" and five full hearts. At the fifth hello of a new kind, the
+  gift note takes the place of the note of the card. The first friend is the kind of the fifth
+  hello, and it comes out of the sky with its note.
+- **Fly with me.** After the gift, the note of a met card has **Fly with me ↗**. The tap closes
+  Worlds, and the swap plays in the flight: the old friend turns to her and waves (0.9 s), then it
+  flies home, up, forward and out to her right, faster and faster, and goes in a puff of sparkles
+  (2.1 s). A friend in a bubble floats home in its bubble. 1.5 s after the start, the new friend
+  comes out of a puff in the sky ahead of her, flies to its place at her side in 1.5 s, and makes
+  the happy loop with two high notes. The card of the friend has a gold ring and the mark
+  "✦ Flies with me".
+- **No friend.** The note of the card of the friend has a small button **No friend**: the friend
+  waves and flies home, and the note shows an empty bubble. A met card brings a friend back.
+  **Your fairy** is only about her look: it has no friend row.
+- **The notes wait for each other.** The note of a card and the gift note wait while a different
+  note shows: a new sticker, a search star, the home card, a new landscape, the Moon note or the
+  thermometer note. The Moon note, the thermometer note and a search star wait for the note of the
+  friend. The time of a note runs only in the flight.
+- **How a cow flies.** A kind with wings flies with its wings: the pegasus foal, the dragonling
+  and the duck. Each other kind rides in a soap bubble that the fairy made. The bubble and its
+  fairy dust have the sparkle colour of her wings, so the bubble is her magic. The friend is
+  small: its body is 1.1 m across. The pegasus foals over the cottage garden say hello too.
+- **Reduced motion.** With `prefers-reduced-motion` the change of friend is at once, the first
+  friend is at its place at once, and the hearts do not swell.
+- **Reset.** **Reset sticker book** in Settings also removes the friend, the book and the count of
+  the hellos. The text of the reset says so.
+
+How the friend flies:
+
+- **It keeps up at each speed.** In each frame the friend takes the full move of the fairy, and
+  then it comes to its place at her side (`createFriendFollow()` in `src/friend.ts`). The move
+  includes the orbit and the spin of a world that carries her, a boost and a guided flight. Thus
+  the friend is never behind her, at 11 m/s and at 2,226 m/s. It comes a little late only in a
+  turn. The friend is never more than 2.5 m from her; the limit of the tests is 4 m. In a swap the
+  two friends move in the frame of the fairy, so a swap works at each speed.
+- **A jump.** A move of the fairy of more than 150 m in one frame without a world, or a turn of
+  more than 0.5 radians in one frame, puts the friend at its place at once. This is the case for
+  a hop of Blossom Haven and for the test hooks.
+- **Its place.** The friend is at her right side: 2.2 m to the right and 0.5 m up on a wide
+  screen. A phone in portrait shows less than 2 m to each side of her, so there the place is
+  1.2 m to the right and 1.3 m up, and the friend is 20% smaller (`friendPlace()`).
+- **The ground and the camera.** The middle of the friend stays 1.05 m over the ground and the
+  water. The friend stays 0.95 m from the line between the camera and the fairy, and 2.2 m from
+  the camera, so it does not cover her.
+- **Life.** The wings beat, faster in a boost and in open space. A friend in a bubble floats in
+  it, and the bubble wobbles. The friend looks where she flies, with its nose a little toward
+  her, and looks back at her for 2 s in each 12 s. It makes a happy loop around her after a
+  sparkle ring, a hello, a new sticker or a search star, not more often than each 20 s, and never
+  in a swap. With reduced motion the friend makes no loop, no bob and no wing beat.
+- **Hover, pause and the menus.** In a hover the friend stays at her side. In a pause it holds
+  its pose. While Worlds is open the flight waits: the worlds still move, the friend stays with
+  her, and a swap waits too. In **Your fairy** on a computer the friend comes near and turns to
+  the camera.
+- **Not a resident.** The friend is not part of the creatures of a world. It says no hello, and
+  the search tasks do not see it. The friend is in each postcard.
+
+The friend is three draw calls on a phone and on a computer: the body with its parts joined,
+the two wings or the bubble, and the fairy dust (`createFriendModel()`). The puff of sparkles of a
+swap uses the points of the dust, so it adds no draw call. In a swap two friends are in the scene
+for 1.5 s: up to 6 draw calls. The joined model stands still: it has no walk and no magic
+particles. A resident of a world is 14 to 21 draw calls.
+
+- The saved state, the follow rule, the model, the pictures and the swap are in `src/friend.ts`
+  (`swapAt()` gives the parts of a swap, `helloNotes()` the notes of the hellos). The notes, the
+  storage and the friend in the game are in `src/friend-ui.ts` and `src/friend.css`. The cards,
+  the small drawings of the facts and the note of the page are in `src/animal-book.ts`; the
+  Animals page is in `src/animal-book-ui.ts` and `src/animal-book.css`; the tabs are in
+  `src/adventure.ts`.
+- The state is `fairy-friend` in `localStorage`, as in F19: the count of the hellos to five, the
+  kinds that she met (the book) and the friend. The book needs no data of its own, so the saved
+  data of F19 loads with no change. A missing or broken value gives an empty book and no friend.
+- The pictures of the cards are renders of the joined model with a clear background
+  (`friendPicture(renderer, kind, size, 'clear')`); a shadow is the same render in one soft lilac
+  colour (`'shadow'`). The page renders them one at a time when it opens for the first time. The
+  picture facts are small drawings of the game, not emoji, because an emoji looks different on
+  each device.
+- The tabs are a `tablist` with two `tab` buttons and two `tabpanel` pages. Tab and Enter work, the
+  arrow keys go from one tab to the other, and Escape closes Worlds. Worlds opens at its Worlds tab.
+- `greet()` of the population (`src/creatures/population.ts`) gives the kind of each creature
+  that starts a hello. `greetFoals()` in `src/candy.ts` is the hello of the pegasus foals.
+- The test snapshot gives `friend` (the state, the place on the screen, the distance to the
+  fairy, the largest distance since the last snapshot, the note, its hearts, the waiting notes,
+  and the friend that goes home in a swap), `animalBook` (the tapped card and the look of each
+  card) and `foalHellos`. The test hooks are `meet(...kinds)`, `chooseFriend(kind)` (as
+  **Fly with me** and **No friend**), `cheer()` and `friendCalls()`, which renders the view of
+  one moment with no friend and with the friends and gives the two draw-call counts.
+- On the dev server, `?friend=all` gives a hello of each kind at the start, with no note: the
+  book is full, and the unicorn flies with her at once.
+
+Run `node scripts/friend-smoke.mjs "path/to/chrome.exe" [origin]` against the dev server to
+check the friend in the game: the notes of new cards with their hearts, the Animals page before the
+gift, five hellos on Earth and the gift note, the friend is no resident, a happy loop, the Animals
+page with a met card, a shadow card and the card of the friend, the tabs with the keyboard,
+**Fly with me** and the swap in the flight, **No friend**, Escape, a reload, a broken saved value,
+each of the nine kinds, a low flight with turns, a climb from the meadow to open space with a swap
+in a boost and a guided flight back, reduced motion, the reset in Settings, the hello of a pegasus
+foal, notes that wait for each other, a hop of Blossom Haven, and phones of 390 px and 320 px. The
+check prints the draw calls with and without the friend, and in a swap. The screenshots go to
+`artifacts.local/friend/`.
 
 ## Fairy flight pose study
 
@@ -827,7 +961,9 @@ creature turns to her and hops two times on its ground. Ducks and Frog Princes
 bob on the water. Two or three small pink hearts float up from the head, sway
 and fade. A soft two-note chime plays when Sound is on. Hellos that come close
 together share one chime. Each creature says hello again only after 8 s. The
-pegasus foals in the air do not say hello.
+pegasus foals in the air say hello too: a foal turns to the fairy, makes two
+small jumps in the air and sends up hearts (`greetFoals()` in `src/candy.ts`).
+The hellos bring the [fairy friend](#fairy-friend).
 
 - `greet()` of the population (`src/creatures/population.ts`) runs after
   `update()`, because `update()` puts each model back on its route. The hop goes
@@ -1142,7 +1278,7 @@ controls on the flight screen. A working drawing of the screen compares **Today*
 (A, plus World speed and the credits in Settings, and no dead or debug parts) and
 **C — Four buttons** (B, plus Sound and the keys in Settings) on a computer and a phone.
 The game now uses option C, without **Guide me home**: the Blossom Haven picture in
-**Worlds** starts the flower guide. The [technical study](docs/ui-simplify-study.md) gives
+**My book** starts the flower guide. The [technical study](docs/ui-simplify-study.md) gives
 the findings, the options and what changed.
 
 Run `node studies/ui-simplify-study/ui-study-smoke.mjs "path/to/chrome.exe"` against port 5174 to check the
@@ -1342,6 +1478,32 @@ findings, the place of each change, the limits and how the clips were made. The 
 `node studies/learn-and-play-study/learn-and-play-study-capture.mjs "path/to/chrome.exe" F11,F12`
 against port 5174 to record the clips of F11 and F12 again.
 
+## Friend book study
+
+Visit `/studies/friend-book-study.html` for **One friend book**, a study of how the Animal book
+(F11) and the [fairy friend](#fairy-friend) (F19) become one thing: the child sees the animals that
+she met and changes the animal that flies with her. It compares three options with a clip from the
+engine of the game for each: **A** the book in Worlds, with "Fly with me" on each card that she
+met; **B** the book in the first row of Your fairy; **C** an offer "Fly with me?" over a creature at
+a hello. Each clip shows a real swap in the flight with the real friend models: the old friend
+waves and flies home, or its bubble pops, and the new friend comes and makes the happy loop. Two
+more clips show the gift before the fifth hello (five hearts on each new card) and the Animals
+page on a phone of 390 px and of 320 px. The page also has the nine cards, the saved data, the
+list of the changes to F19 and eight decisions. Its controls do not change the game.
+
+The study uses the lab and the page look of the [learn and play study](#learn-and-play-study).
+The panels in the clips are DOM with the real CSS of the game: `scope-css.mjs` puts that CSS under
+one class and makes its narrow-screen rules container queries, so the phone frames get the phone
+rules. The recommendation is option A. The [technical study](docs/friend-book-study.md) gives the
+findings, the options, the rules of the swap, the changes to F19 and how the clips were made. The
+clips are in `public/studies/friend-book/`. Run
+`node studies/friend-book-study/friend-book-study-capture.mjs "path/to/chrome.exe" A,B` against a
+dev server with no hot reload to record the clips of A and B again, and add `--moments` for their
+moment pictures.
+
+The player selected option A with the recommended option of each decision, and it is in the game:
+see [Fairy friend](#fairy-friend).
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:
@@ -1350,7 +1512,7 @@ Each feature has a browser check in `scripts/`. One command runs them all at the
 node scripts/run-checks.mjs "path/to/chrome.exe"
 ```
 
-The command starts its own dev server on a free port, runs the 23 checks (4 at the same
+The command starts its own dev server on a free port, runs the 24 checks (4 at the same
 time), and prints one line for each check with its time and its error. All the checks take
 about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
 `artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same

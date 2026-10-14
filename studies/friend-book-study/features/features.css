@@ -1,0 +1,145 @@
+/* The friend book study: the layer of the clips and the proposed parts of the Animal book.
+   The panels of the game (Worlds, Your fairy, the notes) use the real CSS of the game under
+   .fb-game (kit.ts, scope-css.mjs). This file has only the new parts, in the look of the game. */
+
+/* The layer: 1280 × 720 px, scaled to the view. A screen of the game is a container, so the
+   rules of a narrow screen work in a phone frame of 390 px on a wide page. */
+.fb-layer { position: absolute; z-index: 5; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+.fb-layer > .fb-game { position: absolute; left: 0; top: 0; container: fb-view / size; overflow: hidden; background: none; color: #fffdf2; font-family: 'Manrope', system-ui, sans-serif; }
+.fb-layer > .fb-game > .game-shell.fb-shell { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background: none; }
+.fb-layer [hidden] { display: none !important; }
+/* The clip moves each part from the clip time. A transition or an animation of the game CSS runs on the clock of the page, so it is off here. */
+.fb-layer .fb-game, .fb-layer .fb-game * { transition: none !important; animation: none !important; }
+
+/* A tap of a finger. */
+.fb-tap { position: absolute; z-index: 30; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%; border: 4px solid #fff; background: #ffffff66; box-shadow: 0 0 0 2px #59304c88, 0 0 22px #ffe9a8, inset 0 0 0 2px #59304c55; transform: scale(var(--grow, 1)); visibility: hidden; }
+
+/* The Worlds dialog in the layer: the game shows it as a modal dialog in the middle of the view. */
+.fb-game .fb-backdrop { position: absolute; inset: 0; z-index: 8; background: #040916a6; backdrop-filter: blur(8px); visibility: hidden; }
+.fb-game #world-map.fb-dialog { position: absolute; z-index: 9; left: 50%; top: 50%; margin: 0; translate: -50% -50%; overflow: hidden; visibility: hidden; }
+.fb-game #world-map.fb-dialog header { gap: 12px; }
+.fb-game .fb-dialog #map-title { margin: 4px 0 0; }
+
+/* The two tabs of Worlds: the worlds, and the animals. */
+.fb-game .fb-tabs { display: flex; gap: 8px; margin: 14px 0 14px; }
+.fb-game .fb-tabs button { min-height: 44px; padding: 8px 16px; border: 1px solid #ffffff38; border-radius: 16px; color: #fff6e7; background: #ffffff08; font: 500 13px 'Manrope', sans-serif; }
+.fb-game .fb-tabs button span[aria-hidden] { margin-right: 4px; font-size: 16px; }
+.fb-game .fb-tabs button[aria-selected=true] { border-color: #ffd0e0; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font-weight: 700; }
+.fb-game .fb-tabs button[aria-selected=true] .world-count { background: #60344918; }
+.fb-game .fb-page-worlds .book-cards { margin-top: 12px; }
+.fb-game .fb-page-worlds .book-card { min-height: 116px; padding: 10px 6px; }
+.fb-game .fb-page-worlds .world-note { margin-bottom: 4px; }
+
+/* The note of the Animals page: the friend (or the tapped card) with its picture facts, and "Fly with me". */
+.fb-game .fb-note { gap: 14px; min-height: 76px; margin: 0 0 12px; padding: 10px 12px; }
+.fb-game .fb-note-pic { position: relative; flex: none; display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), #ffe1ee; box-shadow: 0 0 0 2px #fff, 0 3px 12px #0005; }
+.fb-game .fb-note-pic img { width: 100%; height: 100%; object-fit: contain; }
+.fb-game .fb-note-pic .friend-preview { width: 44px; height: 44px; }
+.fb-game .fb-note.is-gift:not(.is-card) .fb-note-pic { box-shadow: 0 0 0 2px #ffe1a2, 0 0 16px #ffe1a2aa; }
+.fb-game .fb-note-body { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.fb-game .fb-note-body small { font: 9px 'DM Mono', monospace; letter-spacing: .18em; color: #ffe1a2; }
+.fb-game .fb-note-name { font: 24px/1.05 'Italiana', Georgia, serif; color: #fff2e7; }
+.fb-game .fb-note-facts { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.fb-game .fb-note-facts:empty { display: none; }
+.fb-game .fb-fact { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #fff2e7; }
+.fb-game .fb-fact i { font-style: normal; font-size: 21px; line-height: 1; }
+.fb-game .fb-note .fb-none { flex: none; min-height: 40px; padding: 6px 14px; border: 1px solid #ffffff40; border-radius: 16px; color: #e8dcef; background: transparent; font: 500 12px 'Manrope', sans-serif; }
+
+/* The five hearts: one for each hello until the friend comes. */
+.fb-hearts { display: inline-flex; gap: 5px; margin-top: 3px; }
+.fb-hearts i { display: block; width: 20px; height: 20px; }
+.fb-hearts svg { display: block; width: 100%; height: 100%; fill: #ffffff1c; stroke: #f4b6d2; stroke-width: 1.6; }
+.fb-hearts i.is-full svg { fill: #f06aa3; stroke: #ffd6e8; filter: drop-shadow(0 0 4px #f06aa3aa); }
+
+/* The two groups of cards: real animals and story creatures. */
+.fb-game .fb-group { margin: 12px 0 8px; font: 10px 'DM Mono', monospace; letter-spacing: .14em; color: #d5bed4; }
+.fb-game .fb-group b { margin-right: 6px; padding: 2px 8px; border-radius: 10px; background: #7fc59a; color: #fff; font: 700 9px 'Manrope', sans-serif; letter-spacing: .1em; }
+.fb-game .fb-group + .book-cards + .fb-group b { background: #c48be0; }
+.fb-game .book-cards.fb-cards { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; margin-top: 0; }
+
+/* A card: a picture from the friend model, the name and three picture facts. A kind that she did
+   not meet is a soft shadow with its world and its place. */
+.fb-game .fb-card { position: relative; min-height: 124px; gap: 4px; padding: 10px 6px 8px; }
+.fb-game .fb-card .fb-pic, .fb-game .fb-mini-kind .fb-pic { position: relative; display: block; width: 58px; height: 58px; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), var(--sky); }
+.fb-game .is-earth { --sky: #9fd3ee; }
+.fb-game .is-fairy { --sky: #f3c6e4; }
+.fb-game .fb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+.fb-game .fb-card strong { font-size: 12px; }
+.fb-game .fb-facts { display: flex; gap: 2px; font-size: 14px; line-height: 1; }
+.fb-game .fb-home { display: flex; align-items: center; gap: 4px; font-size: 15px; }
+.fb-game .fb-home i { font-style: normal; }
+.fb-game .fb-home .planet-picture { width: 22px; height: 22px; margin: 0; font-size: 13px; box-shadow: inset -3px -2px 4px #0004; }
+.fb-game .fb-mark { display: none; }
+.fb-game .fb-card:not(.is-unmet) .fb-shadow, .fb-game .fb-card.is-unmet .fb-colour, .fb-game .fb-card:not(.is-unmet) .fb-unknown,
+.fb-game .fb-card.is-unmet .fb-name, .fb-game .fb-card.is-unmet .fb-facts, .fb-game .fb-card:not(.is-unmet) .fb-home { display: none; }
+.fb-game .fb-card.is-unmet { color: #aab0c6; }
+.fb-game .fb-card.is-unmet .fb-pic { background: #ffffff0a; box-shadow: inset 0 0 0 1px #ffffff1c; }
+.fb-game .fb-card.is-unmet .fb-unknown { font: 700 15px 'Manrope', sans-serif; color: #9aa1ba; }
+/* The friend: a gold ring and the mark "✦ Flies with me". */
+.fb-game .fb-card.is-friend.is-sticker { box-shadow: 0 0 0 3px #ffe1a2, 0 0 22px #ffe1a2aa, 0 8px 22px #0006; }
+.fb-game .fb-card.is-friend .fb-mark { display: block; font-size: 9px; font-weight: 700; color: #b55782; }
+.fb-game .fb-card.is-friend .fb-facts { display: none; }
+.fb-game .fb-card.is-selected { outline: 3px solid #fff; outline-offset: 3px; }
+
+/* A phone: three cards in a row, as the cards of the worlds. The note stays at the top of the
+   dialog while the cards scroll, so a tap on a low card shows its note; its buttons wrap. */
+@container fb-view (max-width: 720px) {
+  .fb-game .book-cards.fb-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .fb-game .fb-card { min-height: 112px; padding: 8px 4px; }
+  .fb-game .fb-card .fb-pic { width: 50px; height: 50px; }
+  .fb-game .world-note.fb-note { position: sticky; top: -20px; z-index: 2; flex-wrap: wrap; gap: 10px; background: #1b2034; box-shadow: 0 8px 18px #0008; }
+  .fb-game .fb-note-body { flex: 1 1 150px; }
+  .fb-game .fb-note-facts { gap: 2px 10px; }
+  .fb-game .fb-note .fb-none { margin-left: auto; }
+  .fb-game .fb-tabs button { flex: 1; padding: 8px 10px; }
+}
+@container fb-view (max-width: 340px) {
+  .fb-game .fb-card .fb-pic { width: 44px; height: 44px; }
+  .fb-game .fb-fact { font-size: 10.5px; }
+  .fb-game .fb-fact i { font-size: 17px; }
+  .fb-game .fb-tabs button { font-size: 12px; padding: 6px; }
+}
+
+/* The phone frames of the clip P, over a dimmed view. */
+.fb-dim { position: absolute; inset: 0; background: #070b18c0; }
+.fb-phone { position: absolute; border-radius: 34px; box-shadow: 0 0 0 9px #11131f, 0 0 0 10px #3a3f58, 0 30px 70px #000a; overflow: hidden; transform-origin: 0 0; }
+.fb-phone-label { position: absolute; padding: 4px 12px; border-radius: 12px; background: #070b18cc; color: #f6d9aa; font: 500 13px 'DM Mono', monospace; letter-spacing: .08em; translate: -50% 0; }
+.fb-layer .fb-phone .touch-ui .mobile-top { display: flex; }
+.fb-layer .fb-phone .touch-ui .mobile-top button { display: inline-flex; align-items: center; gap: 6px; }
+
+/* Your fairy for option B: the grown Friend row with the nine kinds. */
+.fb-game .fb-customizer { visibility: hidden; transition: none; transform: none; opacity: 1; }
+.fb-game .fb-book-row legend .fb-met-count { color: #ffe1a2; }
+.fb-game .fb-mini { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-bottom: 6px; }
+.fb-game .fb-mini-kind { display: grid; place-items: center; min-width: 0; height: 52px; padding: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 12px; background: rgba(255,255,255,.035); }
+.fb-game .fb-mini-kind .fb-pic { width: 42px; height: 42px; }
+.fb-game .fb-mini-kind:not(.is-unmet) .fb-shadow, .fb-game .fb-mini-kind.is-unmet .fb-colour { display: none; }
+.fb-game .fb-mini-kind.is-unmet .fb-pic { background: #ffffff0a; }
+.fb-game .fb-mini-kind[aria-pressed=true] { border-color: rgba(255,224,161,.8); background: rgba(255,224,161,.16); box-shadow: 0 0 12px rgba(255,224,161,.35); }
+.fb-game .fb-mini-note { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 40px; margin-top: 2px; }
+.fb-game .fb-mini-facts { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #fff6d8; }
+.fb-game .fb-mini-facts b { font: 18px 'Italiana', Georgia, serif; font-weight: 400; margin-right: 2px; }
+.fb-game .fb-mini-facts i { font-style: normal; font-size: 17px; }
+.fb-game .fb-mini-none { display: flex; align-items: center; gap: 6px; min-height: 36px; padding: 3px 10px 3px 4px; border: 1px solid rgba(255,255,255,.11); border-radius: 12px; color: rgba(255,255,255,.6); background: rgba(255,255,255,.035); font-size: 9px; }
+.fb-game .fb-mini-none .friend-preview { width: 26px; height: 26px; }
+
+/* The offer of option C: a round note over the creature that said hello. */
+.fb-offer { position: absolute; z-index: 5; display: flex; align-items: center; gap: 10px; padding: 7px 10px 7px 7px; border: 1px solid #ffcfdf99; border-radius: 40px; color: #59304c; background: #ffe1eef2; box-shadow: 0 10px 40px #6f3c6240; translate: -50% -100%; transform-origin: 50% 100%; visibility: hidden; }
+.fb-offer::after { content: ''; position: absolute; left: 50%; bottom: -9px; width: 18px; height: 18px; margin-left: -9px; background: #ffe1eef2; rotate: 45deg; border-right: 1px solid #ffcfdf99; border-bottom: 1px solid #ffcfdf99; }
+.fb-offer .fb-pic { position: relative; display: block; width: 54px; height: 54px; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), #9fd3ee; box-shadow: 0 0 0 3px #fff; }
+.fb-offer .fb-pic img { position: absolute; inset: 0; width: 100%; height: 100%; }
+.fb-offer b { font: 24px 'Italiana', Georgia, serif; font-weight: 400; white-space: nowrap; }
+.fb-offer .fb-yes { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; border: 1px solid #ffd0e0; color: #603449; background: linear-gradient(120deg, #ffe0eb, #f7bcd6); font: 700 22px 'Manrope', sans-serif; }
+.fb-offer kbd { position: absolute; right: -6px; top: -8px; padding: 1px 6px; border-radius: 6px; background: #3a2a4a; color: #fff; font: 600 11px 'DM Mono', monospace; }
+
+/* The note of a new card and of the gift: the friend note of the game (src/friend.css) with the facts and the hearts. */
+.fb-game #friend-note .fb-facts-row { display: flex; gap: 8px; margin-top: 2px; font-size: 22px; line-height: 1; }
+.fb-game #friend-note .fb-hearts { margin-top: 6px; }
+.fb-game #friend-note .fb-hearts svg { fill: #ffffff; stroke: #e7a1c1; }
+.fb-game #friend-note .fb-hearts i.is-full svg { fill: #f06aa3; stroke: #fff; }
+.fb-game #friend-note img { background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), var(--sky, #9fd3ee); object-fit: contain; }
+
+/* The caption of a clip: a short line at the bottom, for the grown-up who watches the clip. */
+.fb-caption { position: absolute; z-index: 20; left: 50%; bottom: 22px; translate: -50% 0; padding: 7px 16px; border-radius: 16px; background: #070b18c4; color: #f6e6c8; font: 500 15px 'Manrope', sans-serif; white-space: nowrap; visibility: hidden; }
+.fb-caption.is-top { top: 8px; bottom: auto; }
+.fb-caption b { color: #edc68d; margin-right: 6px; font-weight: 600; }

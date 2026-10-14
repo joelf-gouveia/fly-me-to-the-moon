@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import { describe, expect, it } from 'vitest'
+import { replacements } from '../../src/creatures/fairytale'
+import type { Species } from '../../src/creatures/habitat'
 import { canSayHello, HELLO, heartCount, heartPool, heartPose, helloLength, helloLift, helloPoint, helloTurn } from '../../src/creatures/hello'
 import type { HeartPose } from '../../src/creatures/hello'
 import { createPopulation } from '../../src/creatures/population'
@@ -94,7 +96,8 @@ describe('creature hello in the population', () => {
     parent.updateMatrixWorld(true)
     const world = camera.clone().applyQuaternion(parent.quaternion).add(parent.position)
     creatures.update(0.1, world)
-    expect(creatures.greet(0.1, fairyAt())).toBeGreaterThan(0)
+    // greet() gives the kind of each creature that says hello. On Blossom Haven it is the fairytale creature (F19).
+    expect(creatures.greet(0.1, fairyAt())).toContain(replacements[model.userData.species as Species])
     const name = model.name
     let highest = 0
     for (let i = 0; i < 20; i++) {
@@ -114,12 +117,12 @@ describe('creature hello in the population', () => {
 
   it('rests 8 s, stops in a pause, and ends the hello on the route', () => {
     const { creatures, camera, model, fairyAt, dispose } = population()
-    expect(creatures.greet(0.1, fairyAt())).toBeGreaterThan(0)
+    expect(creatures.greet(0.1, fairyAt()).length).toBeGreaterThan(0)
     const first = creatures.helloState().count
     // The pause: a delta of 0 holds the hop and starts no hello.
     creatures.update(0.4, camera); creatures.greet(0.4, fairyAt())
     const held = model.position.clone()
-    for (let i = 0; i < 5; i++) { creatures.update(0, camera); expect(creatures.greet(0, fairyAt())).toBe(0) }
+    for (let i = 0; i < 5; i++) { creatures.update(0, camera); expect(creatures.greet(0, fairyAt())).toEqual([]) }
     expect(model.position.distanceTo(held)).toBeLessThan(1e-9)
     // The hello ends after about 2.5 s, and no second hello comes in the rest time.
     const active = () => creatures.helloState().active.some(item => item.name === model.name)

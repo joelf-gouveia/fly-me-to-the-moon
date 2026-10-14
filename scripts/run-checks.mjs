@@ -38,6 +38,7 @@ const CHECKS = [
   { name: 'cotton-candy', script: 'scripts/cotton-candy-smoke.mjs', url: 'arg', files: ['src/cotton-candy.ts', 'src/candy.ts'] },
   { name: 'wildlife', script: 'scripts/wildlife-smoke.mjs', url: 'origin', files: ['src/creatures/'] },
   { name: 'creature-hello', script: 'scripts/creature-hello-smoke.mjs', url: 'arg', files: ['src/creatures/'] },
+  { name: 'friend', script: 'scripts/friend-smoke.mjs', url: 'arg', files: ['src/friend', 'src/animal-book', 'src/adventure', 'src/creatures/', 'src/candy.ts', 'src/customization.ts'] },
   { name: 'moon', script: 'scripts/moon-smoke.mjs', url: 'arg', files: ['src/moon.ts', 'src/orbits.ts'] },
   { name: 'moon-diary', script: 'scripts/moon-diary-smoke.mjs', url: 'arg', files: ['src/moon-diary', 'src/moon.ts', 'src/orbits.ts', 'src/sticker-book', 'src/settings', 'src/adventure'] },
   { name: 'asteroid-belt', script: 'scripts/asteroid-belt-smoke.mjs', url: 'arg', files: ['src/belt.ts', 'src/asteroid-belt.ts', 'src/orbits.ts', 'src/relocation.ts'] },

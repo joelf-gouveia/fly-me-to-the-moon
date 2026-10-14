@@ -1,0 +1,76 @@
+/* F19 · The animal book (src/animal-book-ui.ts): the Animals page of Worlds. The cards have the look of
+   the sticker cards of the worlds (src/adventure.css). */
+
+/* The note at the top: the friend, or the card that she tapped, with its picture facts and "Fly with me".
+   It stays at the top of the dialog while the cards scroll, so a tap on a low card shows its note. */
+#animals-page .animal-note { position: sticky; top: -30px; z-index: 2; gap: 14px; min-height: 76px; padding: 10px 14px 10px 12px; background: #1d2238; box-shadow: 0 8px 18px #0006; }
+.animal-note-picture { position: relative; flex: none; display: grid; place-items: center; width: 60px; height: 60px; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), #ffe1ee; box-shadow: 0 0 0 2px #fff, 0 3px 12px #0005; }
+.animal-note-picture.is-earth { background-color: #9fd3ee; }
+.animal-note-picture.is-fairy { background-color: #f3c6e4; }
+.animal-note-picture.is-shadow { background: #2b3150; box-shadow: 0 0 0 2px #ffffff40; }
+.animal-note-picture img { width: 100%; height: 100%; object-fit: contain; }
+.animal-note-picture img[hidden], .animal-note-picture .friend-preview[hidden] { display: none; }
+.animal-note-picture .friend-preview { width: 46px; height: 46px; }
+.animal-note-text { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; }
+.animal-note-text small { font: 9px 'DM Mono', monospace; letter-spacing: .18em; text-transform: uppercase; color: #ffe1a2; }
+.animal-note-text strong { font: 400 25px/1.05 'Italiana', Georgia, serif; color: #fff2e7; }
+.animal-note-facts { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.animal-note-facts:empty { display: none; }
+.animal-fact { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: #fff2e7; }
+.animal-fact .fact-icon { width: 22px; height: 22px; }
+.animal-fact .planet-picture { width: 20px; height: 20px; margin: 0; font-size: 12px; box-shadow: inset -3px -2px 4px #0004; }
+.animal-note .friend-hearts { margin-top: 3px; }
+.animal-note .friend-hearts svg { fill: #ffffff1c; stroke: #f4b6d2; }
+.animal-note .friend-hearts i.is-full svg { fill: #f06aa3; stroke: #ffd6e8; }
+.animal-note-buttons { display: flex; flex-direction: column; align-items: stretch; gap: 8px; flex-shrink: 0; }
+.animal-note-buttons:not(:has(button:not([hidden]))) { display: none; }
+#animal-fly[hidden], #animal-none[hidden] { display: none; }
+#animal-none { min-height: 44px; padding: 6px 14px; border: 1px solid #ffffff40; border-radius: 16px; color: #e8dcef; background: transparent; font-size: 12px; }
+#animal-none:hover { background: #ffffff12; }
+#animal-fly:focus-visible, #animal-none:focus-visible, .animal-card:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+
+/* The two groups: real animals on Earth, and story creatures on Blossom Haven. */
+.animal-group h3 { margin: 16px 0 8px; font: 400 10px 'DM Mono', monospace; letter-spacing: .14em; color: #d5bed4; }
+.animal-group h3 b { margin-right: 6px; padding: 3px 9px; border-radius: 10px; background: #3f8a5d; color: #fff; font: 700 9px 'Manrope', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.animal-group.is-story h3 b { background: #8a52ad; }
+.animal-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+
+/* A card: a picture from the friend model, the name and three picture facts. A kind that she did not
+   meet is a soft shadow with its world and its place. The friend has a gold ring and its mark. */
+.animal-card { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; min-height: 128px; padding: 10px 6px 9px; border-radius: 20px; border: 1px solid #d5cbed22; background: #ffffff05; color: #f5eddf; font: inherit; cursor: pointer; }
+.animal-card:hover, .animal-card:focus-visible { background: #ffffff12; border-color: #f2b9d8; }
+.animal-card.is-met, .animal-card.is-friend { border: 2px solid #fff6ee; background: linear-gradient(160deg, #fff7fb, #ffe6f1); color: #603449; rotate: var(--tilt); box-shadow: 0 8px 22px #0006; }
+.animal-card.is-friend { box-shadow: 0 0 0 3px #ffe1a2, 0 0 22px #ffe1a2aa, 0 8px 22px #0006; }
+.animal-card.is-unmet { border-style: dashed; border-color: #ffffff30; color: #aab0c6; }
+.animal-card.is-selected { outline: 3px solid #fff; outline-offset: 3px; }
+.animal-picture { display: block; width: 58px; height: 58px; flex: none; border-radius: 50%; overflow: hidden; background: radial-gradient(circle at 35% 30%, #ffffffa0, transparent 62%), #9fd3ee; }
+.animal-card.is-fairy .animal-picture { background-color: #f3c6e4; }
+.animal-card.is-unmet .animal-picture { background: #ffffff0a; box-shadow: inset 0 0 0 1px #ffffff1c; }
+.animal-picture img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.animal-card strong { font-size: 12px; font-weight: 700; line-height: 1.2; text-align: center; }
+.animal-card .animal-unknown { font-size: 15px; color: #9aa1ba; }
+.animal-facts, .animal-place { display: flex; align-items: center; gap: 3px; }
+.animal-facts .fact-icon, .animal-place .fact-icon { width: 19px; height: 19px; }
+.animal-place .planet-picture { width: 20px; height: 20px; margin: 0; font-size: 12px; box-shadow: inset -3px -2px 4px #0004; }
+.animal-mark { font-size: 10px; font-weight: 700; color: #b55782; text-align: center; }
+
+@media (max-width: 720px) {
+  #animals-page .animal-note { top: -20px; flex-wrap: wrap; gap: 10px; }
+  .animal-note-picture { width: 52px; height: 52px; }
+  .animal-note-text { flex: 1 1 150px; }
+  .animal-note-text strong { font-size: 23px; }
+  .animal-note-facts { gap: 2px 10px; }
+  .animal-note-buttons { flex: 1 1 100%; flex-direction: row; justify-content: flex-end; }
+  #animal-fly { width: 100%; }
+  .animal-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .animal-card { min-height: 116px; padding: 8px 4px; gap: 4px; }
+  .animal-picture { width: 50px; height: 50px; }
+  .animal-card strong { font-size: 11px; }
+}
+@media (max-width: 360px) {
+  .animal-picture { width: 44px; height: 44px; }
+  .animal-fact { font-size: 11px; }
+  .animal-fact .fact-icon { width: 19px; height: 19px; }
+  .worlds-tabs button { font-size: 12px; padding: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .animal-card.is-met, .animal-card.is-friend { rotate: none; } }

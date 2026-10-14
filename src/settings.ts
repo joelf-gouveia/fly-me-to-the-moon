@@ -5,8 +5,11 @@ import './settings.css'
 
 type Actions = {
   open: (open: boolean) => void
-  /** `shapes` is the number of shapes in the Moon diary (F14). The reset removes them too. */
-  stickers: { readonly count: number; readonly stars: number; readonly shapes?: number; reset: () => void }
+  /**
+   * `shapes` is the number of shapes in the Moon diary (F14). `friend` is true when the game has a fairy friend or a
+   * counted hello (F19). The reset removes them with the book.
+   */
+  stickers: { readonly count: number; readonly stars: number; readonly shapes?: number; readonly friend?: boolean; reset: () => void }
   /** Turns the sound on or off. It gives the state that the browser allows. */
   sound: (on: boolean) => Promise<boolean>
   stars: (show: boolean) => void
@@ -52,7 +55,7 @@ export function createSettings(actions: Actions) {
       <section class="setting" aria-labelledby="sky-title">
         <h3 id="sky-title">In the sky</h3>
         ${toggle('setting-stars', 'Star pictures', 'Lines and names of the constellations, and the Webb pictures. They show in space, above the air.')}
-        ${toggle('setting-orbits', 'Orbit paths', 'A coloured line in the sky for the path of each world. The Worlds map always shows the paths.')}
+        ${toggle('setting-orbits', 'Orbit paths', 'A coloured line in the sky for the path of each world. The map in your book always shows the paths.')}
         <div class="setting-row speed-row-setting"><span><b id="speed-title">World speed</b><small>How fast the worlds go around the Sun. At 1×, one lap of Earth takes about an hour. It starts at 1× at each visit.</small></span>
           <div class="speed-steps" role="radiogroup" aria-labelledby="speed-title">${WORLD_SPEEDS.map((speed, index) => `<button type="button" role="radio" data-speed="${speed}" aria-checked="${index === 0}" tabindex="${index === 0 ? 0 : -1}">${speed}×</button>`).join('')}</div>
         </div>
@@ -67,7 +70,7 @@ export function createSettings(actions: Actions) {
         <button id="reset-stickers" type="button">Reset sticker book</button>
         <div id="reset-confirm" class="reset-confirm" role="alertdialog" aria-labelledby="reset-question" aria-describedby="reset-detail" hidden>
           <p id="reset-question"></p>
-          <p id="reset-detail">Your child starts again with an empty book and an empty Moon diary, and the worlds close again. This cannot be undone.</p>
+          <p id="reset-detail">Your child starts again with an empty book and an empty Moon diary, and the worlds close again. The fairy friend goes too, with the friends that she met. This cannot be undone.</p>
           <div><button id="reset-cancel" type="button">Keep the stickers</button><button id="reset-yes" type="button" class="danger">Reset the book</button></div>
         </div>
         <p id="reset-status" role="status"></p>
@@ -129,7 +132,7 @@ export function createSettings(actions: Actions) {
   function render() {
     const count = actions.stickers.count
     get('sticker-summary').textContent = (count ? `The book has ${count} of ${STICKERS.length} stickers${starText(actions.stickers.stars)}.` : 'The book is empty.') + (shapes() ? ` The Moon diary has ${shapeText(shapes())}.` : '')
-    reset.disabled = count === 0 && shapes() === 0
+    reset.disabled = count === 0 && shapes() === 0 && !actions.stickers.friend
   }
   function ask(show: boolean) {
     confirm.hidden = !show
@@ -138,7 +141,7 @@ export function createSettings(actions: Actions) {
       const count = actions.stickers.count
       const stars = starText(actions.stickers.stars)
       const diary = shapes() === 1 ? 'the Moon shape' : shapes() ? `${shapes()} Moon shapes` : ''
-      get('reset-question').textContent = !count ? `Remove ${shapes() === 1 ? '' : 'all '}${diary}?` : `${count === 1 ? `Remove the sticker${stars}` : `Remove all ${count} stickers${stars}`}${diary ? `, and ${diary}` : ''}?`
+      get('reset-question').textContent = !count && !diary ? 'Remove the fairy friend?' : !count ? `Remove ${shapes() === 1 ? '' : 'all '}${diary}?` : `${count === 1 ? `Remove the sticker${stars}` : `Remove all ${count} stickers${stars}`}${diary ? `, and ${diary}` : ''}?`
       // The safe answer has the focus, so an extra Enter keeps the stickers.
       get('reset-cancel').focus()
     }
@@ -171,7 +174,7 @@ export function createSettings(actions: Actions) {
     const count = actions.stickers.count, stars = starText(actions.stickers.stars), diary = shapes() ? shapeText(shapes()) : ''
     actions.stickers.reset()
     ask(false); render()
-    get('reset-status').textContent = `${count ? `${plural(count)}${stars}` : diary}${count && diary ? ` and ${diary}` : ''} removed. The next world the fairy visits gives the first sticker.`
+    get('reset-status').textContent = !count && !diary ? 'The fairy friend is removed. Five hellos bring a new friend.' : `${count ? `${plural(count)}${stars}` : diary}${count && diary ? ` and ${diary}` : ''} removed. The next world the fairy visits gives the first sticker.`
     get('close-settings').focus()
   })
   // A press that starts and ends outside the dialog closes it, as the flight menu does.

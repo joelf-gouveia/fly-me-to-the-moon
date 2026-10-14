@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { replacements } from './fairytale'
+import type { Fairytale } from './fairytale'
 import { createFairytaleCreature } from './fairytale-models'
 import type { Species } from './habitat'
 import { canSayHello, createHeartPool, heartCount, heartPool, heartPose, helloLength, helloLift, helloPoint, helloTurn } from './hello'
@@ -100,13 +101,14 @@ export function createPopulation(
   /**
    * The creatures near the fairy say hello. Call it after update(), because update() puts
    * each model back on its route. A delta of 0 (pause) starts no hello and holds each pose.
-   * It returns the number of new hellos.
+   * It returns the kind of each creature that starts a hello: an animal of Earth, or the
+   * fairytale creature of Blossom Haven. The list is empty when no hello starts.
    */
-  function greet(delta: number, fairyPosition: THREE.Vector3) {
-    if (disposed) return 0
+  function greet(delta: number, fairyPosition: THREE.Vector3): (Species | Fairytale)[] {
+    const started: (Species | Fairytale)[] = []
+    if (disposed) return started
     inverseParentRotation.copy(parent.quaternion).invert()
     localFairy.copy(fairyPosition).sub(parent.position).applyQuaternion(inverseParentRotation)
-    let started = 0
     // The speed of the fairy in the frame of the world. A jump (a new place, a move of the home) gives no speed.
     if (delta > 0 && hasLastFairy && localFairy.distanceTo(lastFairy) < 8) velocity.copy(localFairy).sub(lastFairy).divideScalar(delta)
     else velocity.set(0, 0, 0)
@@ -124,7 +126,7 @@ export function createPopulation(
         side.crossVectors(normal, toFairy.copy(localFairy).sub(model.root.position))
         if (side.lengthSq() < 1e-6) side.set(1, 0, 0).applyQuaternion(model.root.quaternion)
         hellos.set(index, { at: time, hearts: heartCount(helloCount, mobile), side: side.clone().normalize() })
-        helloCount++; started++
+        helloCount++; started.push(fairy ? replacements[residents[index].kind] : residents[index].kind)
       }
     }
     hearts.begin()

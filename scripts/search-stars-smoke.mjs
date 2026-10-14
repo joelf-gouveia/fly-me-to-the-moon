@@ -188,12 +188,15 @@ try {
   async function found(kind, line, seconds = 0.3) {
     await evaluate(`advanceFlight(${seconds})`)
     let state = await snapshot()
-    // A search star waits while a different note shows: the Moon diary (F14) and the thermometer (F16) can show one.
-    for (let i = 0; i < 30 && !state.searchStars.includes(kind) && (state.moonDiary.note || state.moonDiary.waiting.length || state.warmth.shown); i++) {
+    // A search star waits while a different note shows: the Moon diary (F14), the thermometer (F16) and the fairy friend
+    // (F19: the note of a new animal card after the first hello of a creature) can show one. The note of the friend also
+    // waits for the note of a new landscape, which goes after 4 s of real time, so the check waits in real time too.
+    for (let i = 0; i < 60 && !state.searchStars.includes(kind) && (state.moonDiary.note || state.moonDiary.waiting.length || state.warmth.shown || state.friend.busy); i++) {
       await evaluate('advanceFlight(0.5)')
+      if (state.friend.busy) await delay(100)
       state = await snapshot()
     }
-    assert(state.searchStars.includes(kind), `No search star at ${kind}: ${state.searchStars}`)
+    assert(state.searchStars.includes(kind), `No search star at ${kind}: ${JSON.stringify({ stars: state.searchStars, search: state.searchStar, moon: state.moonDiary.note, warmth: state.warmth, friend: { note: state.friend.note, busy: state.friend.busy, name: state.friend.noteName, waiting: state.friend.waiting, hellos: state.friend.hellos }, region: state.belt.region, nearest: state.belt.nearest })}`)
     assert((await text('#sticker-toast small')) === 'SEARCH STAR' && (await text('#sticker-toast .sticker-toast-fact')) === line, `Wrong note at ${kind}: ${await text('#sticker-toast')}`)
     assert(await has('#sticker-toast .search-badge.is-found') && (await text('#sticker-toast .sticker-toast-task')) === '', 'No gold star on the sticker picture')
     assert(state.searchStar.visible && state.searchStar.over === 'fairy', `No gold star in the world at ${kind}: ${JSON.stringify(state.searchStar)}`)
