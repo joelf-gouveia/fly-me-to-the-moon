@@ -5,7 +5,7 @@ steps of the game.
 
 Mark an item with `[x]` when it is done, and write the commit that closed it.
 
-Last update: 4 October 2026.
+Last update: 15 October 2026.
 
 ## Faults
 
@@ -73,8 +73,10 @@ Some study scripts in `studies/` can have the same fault, for example
   `master` and 90 on the F4 branch. It is not a fault of a branch: each load makes a new
   random Earth, and the creatures in the view change. Eight runs on the same code gave 111
   to 237 draw calls. One creature is 14 to 21 draw calls.
-- [ ] Decide if a phone needs a limit for the creatures in the view. No check has a limit
-  for the draw calls today, and one run showed 237.
+- [x] Decide if a phone needs a limit for the creatures in the view. Decided in the animals study
+  on 14 October 2026, and built in merge `0c398d7`: at most 130 animals, the moving model to 32 m,
+  and at most 20 draw calls for the animals at 390 px (40 at 1280 px). The animals are instanced
+  herds now, and `scripts/wildlife-smoke.mjs` fails above these limits.
 
 The check passes with the two numbers. The cause is not known. The phone budget is in
 `docs/mobile-play.md`.
@@ -166,6 +168,10 @@ when a different world is the nearest one after the climb.
     once "The boost pass did not take ring 24".
   - `thermometer`: "Wrong note at venus at 320px" and "The note does not wait behind Worlds".
   - `moon-diary`: "The note does not come after the sticker note" and "No note on a phone".
+- After the merge of the animals (15 October 2026), `search-stars` failed once in a full run with
+  "No search star at moon", with no note that waits. It then passed three times of four alone; the
+  fourth run failed at the canyon of Mars (item 16). The start meadow has many kinds now, so the
+  note of a new animal card often shows: `scripts/moon-diary-smoke.mjs` now waits for it.
 - The runs took 377 to 564 s, where a quiet run takes about 315 s, so the computer was busy. A game
   tab of a dev server was open at the same time. The friend check now waits longer for notes; the
   other checks can need the same.

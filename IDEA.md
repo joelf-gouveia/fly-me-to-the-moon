@@ -39,6 +39,7 @@ Last update: 14 October 2026.
 | F19 Fairy friend | In `master`, with the animal book (design A of the friend book study) | Merged in `e9ac6a4` |
 | F20 Postcard album | Study only. Not selected on 13 October 2026 | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
+| More animals by biome | In `master`: option B of the animals study, then the point layer of option C | Merged in `0c398d7` |
 
 F12, F14 and F16 are in `master` since 14 October 2026. The thermometer note and the Moon note use
 the same place, so each one waits while the other shows (`src/main.ts`).
@@ -48,8 +49,15 @@ study (`docs/friend-book-study.md`, `/studies/friend-book-study.html`). The play
 recommended option of each of its eight decisions. The button **Worlds** is now **My book**, with
 two tabs: **Worlds** and **Animals**. The book opens at its **Worlds** tab.
 
-No idea has an open branch. The branches and the worktrees of F12, F14, F16 and F19 are deleted
-after their merge. No branch is on GitHub.
+Many more animals are in `master` since 15 October 2026: the animals study (FIELD STUDY 25,
+`docs/animals-study.md`, `/studies/animals-study.html`). The player selected the recommended option
+of each of its ten decisions. Earth has 31 kinds and Blossom Haven 17, placed by belt, garden,
+water, season and magic season. The book has 48 cards. The player accepted these differences from
+the study: 48 cards and not about 40, no heart for the hello of a school or a swarm, the usual hop
+and hearts for each new kind, and new herds on Blossom Haven at each load.
+
+No idea has an open branch. The branches and the worktrees of F12, F14, F16, F19 and the animals
+are deleted after their merge.
 
 ## Open features
 

@@ -66,6 +66,19 @@ try {
   const click = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`)
   const hidden = selector => evaluate(`document.querySelector(${JSON.stringify(selector)}).hidden`)
   const fly = seconds => evaluate(`advanceFlight(${seconds})`)
+  /**
+   * The diary when a note of a shape can show. A note of a new animal card or of the thermometer comes first, so the
+   * note of the shape waits: the check flies on until the other note is gone. The start meadow has many kinds now.
+   */
+  const noted = async () => {
+    let state = await snapshot()
+    for (let i = 0; i < 80 && state.moonDiary.note === null && state.moonDiary.waiting.length && (state.friend.busy || state.warmth.shown); i++) {
+      await fly(0.5)
+      if (state.friend.busy) await new Promise(resolve => setTimeout(resolve, 100))
+      state = await snapshot()
+    }
+    return state.moonDiary
+  }
   const started = Date.now(), step = label => process.stderr.write(`· ${label} (${Math.round((Date.now() - started) / 1000)} s)\n`)
   await send('Runtime.enable'); await send('Page.enable'); await send('Log.enable')
   await send('Page.addScriptToEvaluateOnNewDocument', { source: `
@@ -196,7 +209,7 @@ try {
     state = await diary()
     assert(state.shape === 'half' && (state.seen.length === 0) === (state.look < 0.8), `The half Moon counts before the look time: ${JSON.stringify(state)}`)
     await fly(1.5)
-    state = await diary()
+    state = await noted()
     assert(state.seen.join() === 'half' && state.note === 'Half Moon', `The look does not give the half Moon: ${JSON.stringify(state)}`)
     assert((await text('#moon-toast small')) === 'NEW MOON SHAPE' && (await text('#moon-toast p')) === 'One half is bright.' && await evaluate('!!document.querySelector("#moon-toast svg path")'), 'The note has no picture, name or line')
     assert(JSON.parse(await evaluate('localStorage.getItem("fairy-moon-diary")')).seen.join() === 'half', 'The diary is not saved')
@@ -241,7 +254,7 @@ try {
     assert(state.seen.join() === 'half,crescent' && state.note === null && state.waiting.join() === 'crescent', `The note does not wait for the sticker note: ${JSON.stringify(state)}`)
     await evaluate('document.querySelector("#sticker-toast").hidden = true')
     await fly(0.1)
-    state = await diary()
+    state = await noted()
     assert(state.note === 'Crescent' && state.waiting.length === 0, `The note does not come after the sticker note: ${JSON.stringify(state)}`)
     // A sticker note comes first: the note of the shape goes.
     await evaluate('document.querySelector("#sticker-toast").hidden = false')
@@ -265,7 +278,7 @@ try {
     await load('weather=clear&moon=172')
     await findMoon(true, 'gibbous')
     await fly(1.5)
-    state = await diary()
+    state = await noted()
     assert(state.seen.at(-1) === 'gibbous' && state.note === 'Almost full', `No almost full Moon: ${JSON.stringify(state)}`)
     await screenshot('note-almost-full-night')
     // At 225 s the shadow of Earth is on the full Moon: the dark Moon gives no shape.
@@ -278,7 +291,7 @@ try {
     await load('weather=clear&moon=190')
     await findMoon(true, 'full')
     await fly(1.5)
-    state = await diary()
+    state = await noted()
     assert(!state.sight.eclipse && state.seen.at(-1) === 'full' && state.note === 'Full Moon', `No full Moon: ${JSON.stringify(state)}`)
     await screenshot('note-full-night')
 
@@ -288,7 +301,7 @@ try {
     state = await diary()
     assert(state.shape === 'new' && state.sight.elongation < 37 && state.sight.sunUp, `No new Moon next to the Sun: ${JSON.stringify(state)}`)
     await fly(1.5)
-    state = await diary()
+    state = await noted()
     assert(state.seen.length === 5 && state.note === 'New Moon' && (await text('#moon-toast p')) === 'The Moon hides today.' && (await text('#moon-toast small')) === 'YOUR MOON DIARY IS FULL', `No new Moon in a full diary: ${JSON.stringify(state)}`)
     await screenshot('note-new-day')
     await click('#open-map')
@@ -338,7 +351,7 @@ try {
       await load('weather=clear', true, width)
       await findMoon(false)
       await fly(1.5)
-      state = await diary()
+      state = await noted()
       assert(state.seen.join() === 'crescent,full,half' && state.note === 'Half Moon', `No note on a phone: ${JSON.stringify(state)}`)
       const box = await evaluate('(() => { const r = document.querySelector("#moon-toast").getBoundingClientRect(); return [r.left, r.right, r.top, r.bottom, innerWidth, document.querySelector(".mobile-top").getBoundingClientRect().bottom] })()')
       assert(box[0] >= 0 && box[1] <= box[4] && box[2] >= box[5], `The note is not on the screen below the top buttons at ${width}px: ${box}`)
