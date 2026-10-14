@@ -112,7 +112,47 @@ use a lighter shader, and reduced motion stops the Sun. The numbers are in
 Short lines of glowing rings in candy colours float 5 to 12 m over the ground of Earth,
 Blossom Haven and the Moon. Fly through a ring: a burst of sparkles, a two-note chime
 (when Sound is on), and a trail that is twice as long and brighter for 4 s. A taken ring
-fades and comes back after 30 s of flight. There is no score, no fail and no counter.
+fades and comes back after 30 s of flight. There is no score and no fail.
+
+The rings count with the child (F12 of the [learn and play study](#learn-and-play-study)).
+Each ring of a count line shows its number as gold dots on a dark plate over the ring. When
+the fairy flies through a ring, the number shows large at the left of the screen for about
+one second of flight, with the same number of dots, and the ring plays its note of the C
+major scale (C5 for 1 to B5 for 7) with the fifth above it. The last ring of a line adds the
+high C. On a phone the number shows at the top, under the buttons.
+
+- The number of a ring is the count that the child gets when she flies to it from her place
+  and takes each ring on the way. The ring nearest to the fairy is always the next number. So
+  a line counts from each end, and from its middle, and the first ring that she takes is 1.
+- The count is the number of rings that she took: 1, 2, 3. When she flies past a ring, the
+  rings in front of her count on from the last ring that she took. The ring that she flew
+  past counts on too, if she turns back.
+- The count of a line starts again at 1 after 12 s of flight with no ring of that line
+  (`RING.countGap`), and after the full count of the line. No number is above the length of
+  the line. The count is not saved, and it is not a score.
+- The number stays in a pause, as the flight does. It goes away at once behind Worlds, the
+  menu, Settings, the look menu and the postcard.
+- With reduced motion, the number shows with no bounce.
+
+Some lines are shape lines. The rule is `shapeLine()`: the second and the fourth line of a
+world. So Earth has two shape lines, and Blossom Haven and the Moon have one each. The first
+line of each world, such as the line at the start meadow of Earth, is a count line.
+
+- Each ring of a shape line has a shape, in this order: circle, triangle, square, star and
+  heart. A line of six or seven rings starts the order again. The second shape line of Earth
+  starts at the triangle.
+- The plate over the ring shows the picture of the shape in gold, not dots. So the child
+  reads the shape two times before she arrives: the ring and its plate.
+- When the fairy flies through the ring, the picture and the name of the shape show in the
+  place of the number, for example a gold triangle and the word **Triangle**. Each shape has
+  its own two notes (C for the circle to G for the heart). The last ring of the line adds
+  the high C.
+- The first shape line of a world starts after the last ring of the first line, 42 m or more
+  from it, in the direction of that line. The child who flies on from the count line comes
+  to the shapes. If the land there has no room, the line can be at a different place.
+- Each shape is about the size of the round ring (`ringShapePoints()`). The ring test is the
+  same disc for each ring, so a corner of a shape is never more than 0.15 m outside the disc,
+  and the middle of each shape has room for the fairy.
 
 - Each line has 5 to 7 rings on a smooth, gentle curve. Earth has five lines, Blossom
   Haven and the Moon have three. The first line of Earth starts near the first meadow,
@@ -125,15 +165,24 @@ fades and comes back after 30 s of flight. There is no score, no fail and no cou
   lines.
 - The ring test uses the path of the fairy between two frames, so a fast fairy cannot skip
   a ring.
-- One torus, one glow quad and three materials serve all rings: two draw calls for each
-  world. A phone gets 24 sparkles in a burst instead of 48.
+- One ring geometry, one glow quad, one plate and four materials serve all rings: three draw
+  calls for each world. The ring geometry holds the torus and the tube of each other shape,
+  and the shader keeps one of them for each ring, so a shape line adds no draw call. The dots
+  of the seven numbers and the pictures of the five shapes are one picture. A phone gets 24
+  sparkles in a burst instead of 48.
+- The plate of a near ring covers the plates of the rings behind it. A pale rim shows the
+  plate against a dark sky.
 
 The placement and the ring test are in `src/rings.ts`; the tests are in
 `tests/rings.test.ts`. Run `node scripts/sparkle-rings-smoke.mjs "path/to/chrome.exe"`
-against the dev server for the rings on each world, a pass with the chime, the burst and
-the longer trail, a pass at boost speed, the return after 30 s, the rings that move with
-Blossom Haven, new rings after a new Earth landscape, and the phone layout. An optional
-second argument sets the server origin.
+against the dev server for the rings on each world, the number of each ring, a pass with
+the number, the chime, the burst and the longer trail, the count after a ring that she flew
+past, the place of the number in three windows, a pause and Worlds while the number shows,
+a shape line on each world with the picture and the name of each shape, a pass at boost
+speed, the return after 30 s, the rings that move with Blossom Haven, new rings after a new
+Earth landscape, the rings at night, in the rain and against the pink sky, reduced motion,
+and the phone layout with its draw calls. An optional second argument sets the server
+origin.
 
 ## Asteroid belt
 
@@ -212,6 +261,87 @@ Blossom Haven never relocates into the Moon's path. The Moon data is in
 Run `node scripts/moon-smoke.mjs "path/to/chrome.exe"` against the dev server for
 the orbit, the Worlds picture and map, a guided trip to the Moon, the carry at
 8× and the phone layout. An optional second argument sets the server origin.
+
+## Moon diary
+
+The Moon diary (F14 of the [learn and play study](#learn-and-play-study)) keeps each shape of the
+Moon that the child sees from Earth. It has five places: **New Moon**, **Crescent**, **Half Moon**,
+**Almost full** and **Full Moon**. A new shape gives a note in the flight, in the look and at the
+place of the sticker note: a drawing of the shape, its name and one short line, for example
+"One half is bright." A soft chime plays when the sound is on. The note waits while a sticker
+note shows, and a search star waits for the note. No strip shows in the flight.
+
+The diary is in **Worlds**, below the cards: one place for each shape, with the count next to the
+sticker count ("2 of 5 Moon shapes"). An empty place shows its shape as a faint drawing. A tap
+on a place gives its line, or a hint for an empty place. While a place is empty, the line of
+the diary says where the Moon is now: "The Moon is in the sky now. Look up!" or "The Moon is on
+the other side of Earth now. It comes back soon." The diary saves in the browser
+(`fairy-moon-diary` in `localStorage`), and **Reset sticker book** in Settings removes it.
+
+The shape comes from the lit part of the disc of the Moon that the fairy sees:
+
+| Shape | Lit part | Line |
+| --- | --- | --- |
+| New Moon | less than 10%: the Moon is less than about 37° from the Sun | The Moon hides today. |
+| Crescent | 10% to 35% | A thin curve of light. |
+| Half Moon | 35% to 65% | One half is bright. |
+| Almost full | 65% to 88% | Almost a full circle. |
+| Full Moon | 88% or more | A round, bright Moon! |
+
+A shape counts when the child sees it for 0.8 s of flight with no break:
+
+- The fairy is in the air of Earth, and Earth is the nearest world.
+- The middle of the Moon is in the picture of the camera, not at its edge.
+- The Moon is above the horizon: Earth does not hide it.
+- The clouds do not hide the sky: the cloud cover over the camera is below 0.5. Above the
+  clouds the cover is 0.
+- The Moon shows through the air. The air of the game is thick along the horizon, as the picture
+  shows it, so near the ground a Moon on the horizon is faint and does not count. A Moon higher
+  in the sky counts, and from above the clouds each Moon above the horizon counts.
+- The shadow of Earth does not touch the Moon. In an eclipse the full Moon is dark, so it gives
+  no shape. 8 of the 12 full Moons of a game year have an eclipse of 21 s to 39 s; the Moon is
+  full before it and after it.
+- The new Moon has no light to see. It counts when the Sun is up and the place of the Moon next
+  to the Sun is in the picture. The thick air changes nothing for it.
+
+The day and the night count the same. By day the dark side of the Moon shows as a grey ball, so
+the shape is easier to read at night. The Moon is near Earth, so the lit part changes a little
+with the place of the fairy on Earth.
+
+A lunar month is 300 s at 1× World speed. From the middle of Earth, each month has 29 s or more
+of the new Moon, 36 s or more of the full Moon outside the eclipse, and 56 s or more of each
+other shape. `month` as a third argument of the check flies scripted children for 900 s with
+the real weather. One run on 13 October 2026 gave these counts at the end of the first, second
+and third month. The game is not the same at each run, so a second run changes a count by one
+or two.
+
+| The child | Shapes after 1, 2 and 3 months | The first note |
+| --- | --- | --- |
+| She does not steer: a low, level flight | 1, 2, 2 | 151 s |
+| She turns, climbs and dives at random, flight 1 | 3, 3, 3 | 23 s |
+| The same, flight 2 | 0, 4, 5 | 329 s |
+| The same, flight 3 | 3, 3, 3 | 2 s |
+| She flies to the Moon when it is in the sky | 5, 5, 5 | 2 s |
+
+A child who looks for the Moon fills the diary in one month. A child who does not look at the
+sky gets 0 to 3 shapes in one month: the camera looks along the flight, and the Moon is in the
+picture for 3% to 10% of the time.
+
+The game starts with a half Moon high in the morning sky, above the picture. A climb brings it
+into the picture: with W or ↑ from the start, the note of the half Moon comes after 1.5 s. A
+guided flight from Earth to the Moon can also give a shape on the way. With 8× World speed in
+Settings a month is 38 s.
+
+The rules and the saved diary are in `src/moon-diary.ts`, with no browser code. The note and the
+diary in Worlds are in `src/moon-diary-ui.ts`. Run
+`node scripts/moon-diary-smoke.mjs "path/to/chrome.exe"` against the dev server for the rules,
+the five notes, the wait for a sticker note, the saved diary, the diary in Worlds, the reset,
+reduced motion and the 390/320 px phone layouts. An optional second argument sets the server
+origin. On the dev server, `?test&moon=190` starts the game at 190 s of the orbits: a full
+Moon. 75 is a new Moon, 105 a crescent, 150 a half Moon and 172 an almost full Moon;
+`&weather=clear` removes the clouds. The Moon is not above the horizon of the meadow at each of
+these times. The test hook `__fairyTest.spin(seconds)` turns Earth to a later time of the day,
+and `__fairyTest.faceMoon()` turns the fairy to the Moon and holds her in a hover.
 
 ## Night sky
 
@@ -441,6 +571,56 @@ the phone layout. A test move puts the fairy at each place, and the check uses
 dark in the canyon of Mars and bright at the middle of each ray crater of Mercury. An optional
 second argument sets the server origin.
 
+## Picture thermometer
+
+A thermometer with a face shows if a world is hot or cold. It has no numbers: the level in
+the tube, the colour, the face in the bulb and one word give the answer. The colour is never
+the only sign. The faces are drawings of the game, not emoji, because an emoji looks different
+on each device. This is idea F16 of the [learn and play study](#learn-and-play-study).
+
+| Word | Face | Colour | Worlds, from the hottest |
+| --- | --- | --- | --- |
+| HOT | Red cheeks, an open mouth, a sweat drop | Red | The Sun, Venus, Mercury |
+| WARM | Small cheeks, a small smile | Orange | No world now |
+| NICE | Happy eyes, a wide smile | Green | Earth, Blossom Haven |
+| COOL | A flat mouth | Teal | The Moon, Mars, Vesta, Ceres |
+| COLD | A mouth that shivers, a snowflake, shiver lines | Blue | Jupiter, Saturn, Neptune, Uranus |
+
+Each world has one level, from 0 to 1 (`WARMTH` in `src/warmth.ts`). A world has no day level
+and no night level. The order follows the real temperatures, and the Sun is the top. Venus
+is the hottest planet and Uranus the coldest, below Neptune, as their sticker facts say. The
+five colours have a contrast of 3 or more with the dark panel of **Worlds** and with the pink
+sticker card, and the lines of the thermometer are dark on a sticker card.
+
+The thermometer is in two places. It is not a permanent part of the flight screen.
+
+- **Worlds.** The card of each known world shows its thermometer and its word, under the name.
+  A mystery world, the grey "?", shows no thermometer.
+- **The arrival.** When the fairy arrives at a world, a small note shows the thermometer, the
+  name of the world and the word for 5 seconds, and the level goes up in the tube. With reduced
+  motion the level does not move. The note makes no sound.
+
+The rule of the arrival note is `warmthNoteStep()` in `src/warmth.ts`:
+
+- An arrival is the moment when the flight panel says that the fairy is near a world: the
+  same test as for a sticker. The start on Earth is no arrival.
+- The note shows at each arrival, not only at the first visit. The same world shows again
+  only after 10 seconds away from it, so a short flight out and back gives no new note.
+- One note at a time. The thermometer waits while the sticker note, the search-star note, the
+  note of the found home or the note of a hop shows. It comes when that note is gone, if the
+  fairy is still near the world. It leaves at once when one of those notes comes.
+- The note and its time wait behind **Worlds**, Settings, Menu and the pause.
+- With a mouse and keys the note is in the place of the sticker note, above the toolbar. On a
+  touch screen it is at the right edge, below the place of the "A new world to explore" note
+  and above **Boost**, because that note can show at the same time.
+
+`src/warmth.ts` has the levels, the steps, the SVG and the rule. `src/warmth-note.ts` has the
+arrival note, and `src/warmth.css` has the styles. Run
+`node scripts/thermometer-smoke.mjs "path/to/chrome.exe"` against the dev server for the
+thermometers in **Worlds**, the arrival note at Venus and at the Moon, its rule and the phone
+layout at 390 px and 320 px. An optional second argument sets the server origin. The pictures
+are in `artifacts.local/thermometer/`.
+
 ## Postcard camera
 
 The camera button takes a picture of the flight (F5 of the
@@ -496,6 +676,8 @@ open, and Escape closes it. The panel is in `src/settings.ts`. It has five parts
 confirmation before it removes them: "Remove all 5 stickers? This cannot be
 undone." The reset removes the search stars too: "Remove all 5 stickers and 2 search
 stars?" **Keep the stickers** has the focus, so an extra Enter changes nothing.
+The reset also removes the Moon diary, and the question counts its shapes: "Remove the
+sticker, and the Moon shape?" With no sticker, a diary with a shape can also be reset.
 After a reset, the world where the fairy is gives no sticker until she leaves it.
 The reset also closes the worlds again: only Earth, Blossom Haven and the Moon stay
 open. The fairy look and the home discovery stay. The reset also removes the
@@ -1272,7 +1454,7 @@ Each feature has a browser check in `scripts/`. One command runs them all at the
 node scripts/run-checks.mjs "path/to/chrome.exe"
 ```
 
-The command starts its own dev server on a free port, runs the 20 checks (4 at the same
+The command starts its own dev server on a free port, runs the 23 checks (4 at the same
 time), and prints one line for each check with its time and its error. All the checks take
 about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
 `artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same

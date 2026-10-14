@@ -12,7 +12,7 @@ The learn and play study is the source of F11 to F20:
 [docs/learn-and-play-study.md](docs/learn-and-play-study.md) and
 `/studies/learn-and-play-study.html`.
 
-Last update: 13 October 2026.
+Last update: 14 October 2026.
 
 ## State of each idea
 
@@ -29,18 +29,25 @@ Last update: 13 October 2026.
 | F9 Bedtime timer | Study only | None |
 | F10 Install and fly offline | Study only | None |
 | F11 Animal book | Study only. Not selected on 13 October 2026 | None |
-| F12 Count and shape rings | Selected. The count is built, with no commit yet. The shape lines are not built | `features/f12-count-rings` |
+| F12 Count and shape rings | In `master` | Merged in `4006c18` |
 | F13 Size line-up | Study only. Not selected on 13 October 2026 | None |
-| F14 Moon shapes diary | Selected. Not started | None |
+| F14 Moon shapes diary | In `master` | Merged in `ff7d4b2` |
 | F15 Nature stamps | Study only. Not selected on 13 October 2026 | None |
-| F16 Picture thermometer | Selected. Not started | None |
+| F16 Picture thermometer | In `master` | Merged in `94408c2` |
 | F17 Cottage garden | Study only. Not selected on 13 October 2026 | None |
 | F18 Looks to earn | Study only. Not selected on 13 October 2026 | None |
-| F19 Fairy friend | Selected. Not started | None |
+| F19 Fairy friend | Built on its branch. The player wants changes: a study joins it with the animal book (F11) | `features/f19-fairy-friend`, study on `studies/friend-book` |
 | F20 Postcard album | Study only. Not selected on 13 October 2026 | None |
 | Weather on Earth and Blossom Haven | Earth: steps 1 to 4 in `master`; step 5 is in `TODO.md` | Merged, branch closed |
 
-One idea has an open branch: F12.
+F12, F14 and F16 are in `master` since 14 October 2026. The thermometer note and the Moon note use
+the same place, so each one waits while the other shows (`src/main.ts`).
+
+F19 has an open branch, `features/f19-fairy-friend`, in the worktree
+`../fly-me-to-the-moon-worktrees/f19` (dev server port 5184). The study "friend book" joins F19
+with the animal book (F11) on the branch `studies/friend-book`, in the worktree
+`../fly-me-to-the-moon-worktrees/friend-book`. No branch is on GitHub. The branches and the worktrees of F12, F14 and F16
+are deleted after their merge.
 
 ## Open features
 
@@ -193,8 +200,16 @@ Decisions of the player, 13 October 2026:
 - **In the flight** only the note of a new card shows. The book is in Worlds.
 - **F19:** the child selects the friend from the creatures that she met. The friend comes
   after five hellos. A phone gets a friend model with its parts joined.
-- **Open:** the three decisions of F12, of F14 and of F16 have no answer. F12 uses the
-  recommendation of its study for each one.
+- **Open:** the three decisions of F12, of F14 and of F16 have no answer. Each build uses the
+  recommendation of its study, with these differences that the player must confirm:
+  - F12: the second and the fourth line of a world are shape lines, with a heart as a fifth
+    shape. The count is the number of rings that she took.
+  - F14: the shape comes from the lit part of the disc that the fairy sees. An eclipse gives
+    no shape. The diary counts day and night the same.
+  - F16: the Moon is COOL, not NICE. No world is WARM. The note shows at each arrival.
+  - F19: each friend has the same size and the same joined model on a computer and on a
+    phone. The kinds with no wings ride in a soap bubble. The pegasus foals now say hello.
+    **Reset sticker book** also removes the friend.
 
 | Idea | Kind | What the child gets | Size |
 | --- | --- | --- | --- |

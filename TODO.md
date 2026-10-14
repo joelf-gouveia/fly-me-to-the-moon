@@ -156,6 +156,16 @@ failed to generate a new Earth" (4 of 21 runs). The check climbs for 9 s and the
 Earth in **Worlds**. The result depends on the random start direction: the check passes only
 when a different world is the nearest one after the climb.
 
+### 16. `scripts/search-stars-smoke.mjs` sometimes fails at the canyon of Mars
+
+- [ ] Find the cause. The error is "The canyon is not dark at its place", with two ground
+  colours that are almost the same. It came in about 1 run of 10 on 14 October 2026, also alone,
+  and also on the code before the merges of F12, F14 and F16. The next run passes.
+
+The merge of F14 also changed this check: a search star waits while the Moon note or the
+thermometer note shows, and the texts of the reset can name a Moon shape. Six of six runs then
+passed.
+
 ### 15. `scripts/creature-hello-smoke.mjs` failed when a creature said hello at the start
 
 - [x] Accept a hello in the first second. The check expected no hello before its first

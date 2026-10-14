@@ -49,12 +49,16 @@ import { createFlightInput } from './flight-input'
 import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
+import { createWarmthNote } from './warmth-note'
+import { moonSight } from './moon-diary'
+import { createMoonDiary } from './moon-diary-ui'
 import { greetFoals, popSodaBubble } from './candy'
 import { createSearchStar, nearestCreature, searchProbe } from './search-stars'
 import { SEARCH_CREATURE, searchDone } from './stickers'
 import { createSettings } from './settings'
 import { createPostcardCamera } from './postcard-camera'
-import { createSparkleRings, RING, RING_CHIME, ringGlowTexture } from './rings'
+import { createSparkleRings, RING, RING_SHAPE_NAMES, ringDotsTexture, ringGlowTexture, ringNotes, ringShapeNotes, ringShapePoints } from './rings'
+import type { RingTake } from './rings'
 import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 import { FRIEND_KINDS } from './friend'
@@ -181,6 +185,7 @@ app.innerHTML = `
     </section>
 
     <div id="arrival-note" role="status"></div>
+    <div id="ring-count" role="status"><svg viewBox="-3.3 -3.3 6.6 6.6" aria-hidden="true"><polygon /></svg><b></b><span aria-hidden="true"></span></div>
     <div id="pause-label" class="pause-label"><span>A moment of stillness</span><button id="resume-flight" type="button">▶ Keep flying</button></div>
 
     <nav class="touch-controls" aria-label="Flight controls">
@@ -271,6 +276,9 @@ const skyLabels = createSkyLabels(document.querySelector<HTMLElement>('.game-she
 // The renderer paints the maps of the seven planets (src/planet-paint.ts).
 const worlds = createWorlds(scene, touchDevice, renderer)
 const orbits = createPlanetaryOrbits(scene, worlds)
+// A browser check can give the time of the orbits in seconds: ?test&moon=190 starts with a full Moon (src/moon.ts).
+const testMoon = import.meta.env.DEV ? Number(new URLSearchParams(location.search).get('moon')) : 0
+if (testMoon > 0) orbits.update(testMoon)
 const belt = createAsteroidBelt(scene, touchDevice)
 // F8: a comet on a long orbit, and shooting stars in a dark sky inside the air.
 const comet = createComet(scene, touchDevice)
@@ -296,7 +304,7 @@ const fullDay = daylightAt(90)
 let daylight = fullDay
 const cottageWindow = (home.surface.getObjectByName('cottage-window') as THREE.Mesh).material as THREE.MeshStandardMaterial
 // Sparkle rings over the meadows of Earth, Blossom Haven and the Moon (src/rings.ts).
-const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture() })
+const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture(), dots: ringDotsTexture() })
 // The longer, brighter trail after a ring ends at this time of active flight.
 let sparkleUntil = -Infinity
 
@@ -496,6 +504,8 @@ stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 stickerBook.onChange(() => { if (stickerBook.count) fairyFriend.cheer(reducedMotion.matches) })
 // A person who wants to see each friend at once can give a hello of each kind: ?friend=all. This works on the dev server only.
 if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(FRIEND_KINDS)
+// F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
+const warmthNote = createWarmthNote()
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
@@ -503,11 +513,13 @@ const adventure = createAdventure(worlds, stickerBook, {
   travel: travelTo,
   map: open => { mapOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-map-open', open) },
 })
+// F14 · The Moon shapes diary: a place in Worlds for each shape of the Moon that she sees from Earth.
+const moonDiary = createMoonDiary({ chime: full => playChime(full ? [587.33, 739.99, 880, 1174.66] : [587.33, 880], 0.045) })
 // Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
-  // The reset of the sticker book also removes the fairy friend (F19).
-  stickers: { get count() { return stickerBook.count }, get stars() { return stickerBook.stars }, get friend() { return fairyFriend.has }, reset() { stickerBook.reset(); fairyFriend.reset() } },
+  // Reset sticker book also removes the Moon diary and the fairy friend (F19).
+  stickers: { get count() { return stickerBook.count }, get stars() { return stickerBook.stars }, get shapes() { return moonDiary.count }, get friend() { return fairyFriend.has }, reset: () => { stickerBook.reset(); moonDiary.reset(); fairyFriend.reset() } },
   sound: setSound,
   stars: show => stars.setConstellations(show),
   // The switch shows the paths in the sky only. The Worlds map always shows them.
@@ -749,7 +761,7 @@ function updateNearestWorld() {
   // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
   // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
   const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
-  if (flying && !fairyFriend.noteShown && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
+  if (flying && !fairyFriend.noteShown && !moonDiary.busy && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
     const creature = SEARCH_CREATURE[world.kind]
     searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
   }
@@ -990,6 +1002,25 @@ camera.up.copy(earthOutward)
 camera.position.copy(fairy.position).add(new THREE.Vector3(0, 2.8, 8).applyQuaternion(fairy.quaternion))
 cameraLook.copy(fairy.position).addScaledVector(forward, 12)
 camera.lookAt(cameraLook)
+const ringCount = document.querySelector<HTMLElement>('#ring-count')!
+// The time of flight at which the number of a ring goes away. 0: no number shows.
+let ringCountUntil = 0
+/**
+ * Shows the number of a ring for a moment, large, with the same number of dots. A ring of a shape line
+ * shows the picture of its shape and its name. The moment is time of flight, so a pause does not use it up.
+ */
+function showRingCount(take: RingTake) {
+  const dots = take.shape ? 0 : take.number
+  ringCount.classList.toggle('is-shape', !!take.shape)
+  ringCount.querySelector('polygon')!.setAttribute('points', take.shape ? ringShapePoints(take.shape).map(([x, y]) => `${x.toFixed(2)},${(-y).toFixed(2)}`).join(' ') : '')
+  ringCount.querySelector('b')!.textContent = take.shape ? RING_SHAPE_NAMES[take.shape] : String(take.number)
+  ringCount.querySelector('span')!.replaceChildren(...Array.from({ length: dots }, () => document.createElement('i')))
+  // The class goes off and on again, so the pop starts again for each ring.
+  ringCount.classList.remove('is-visible')
+  void ringCount.offsetWidth
+  ringCount.classList.add('is-visible')
+  ringCountUntil = elapsed + 1.3
+}
 
 let lastPaint = 0
 function animate(timestamp?: number) {
@@ -1039,6 +1070,9 @@ function animate(timestamp?: number) {
   trailCarried.copy(fairy.position)
   guideTarget.copy(homeApproachPoint(home))
   updateNearestWorld()
+  // The thermometer of the world waits for the sticker note, the search-star note and the notes of the fairy home.
+  // The thermometer and the Moon note use the same place: each one waits while the other shows.
+  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null)
   // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
   // updateNearestWorld() reads the bubble first.
   if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
@@ -1046,9 +1080,20 @@ function animate(timestamp?: number) {
   // A ring that the fairy flies through gives a burst, a chime and a longer, brighter trail.
   const ringsTaken = sparkleRings.update(delta, elapsed, fairy.position, nearestWorld, !reducedMotion.matches)
   if (ringsTaken.length) {
-    playChime(RING_CHIME)
+    // The rings count with the child: the number of the ring, the same dots, and its note of the scale.
+    // A ring of a shape line gives the picture and the name of its shape, and the note of that shape.
+    const take = ringsTaken[ringsTaken.length - 1]
+    const notes = take.shape ? ringShapeNotes(take.shape) : ringNotes(take.number)
+    // The last ring of a line adds the high C.
+    playChime(take.complete ? [...notes, 1046.5] : notes)
+    showRingCount(take)
     sparkleUntil = elapsed + RING.trailSeconds
     fairyFriend.cheer(reducedMotion.matches)
+  }
+  // The number goes away after its time of flight, and at once behind a menu. A pause keeps it, as it keeps the flight.
+  if (ringCountUntil && (elapsed >= ringCountUntil || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen)) {
+    ringCount.classList.remove('is-visible')
+    ringCountUntil = 0
   }
   updateCamera(rawDelta)
   // The fairy friend takes her whole move of this frame, also the move that a world gave her, and then comes to
@@ -1061,6 +1106,8 @@ function animate(timestamp?: number) {
     fast: boosted || !nearNearest, light: nearNearest ? daylight.day : 1,
   })
   updateEnvironment()
+  // The Moon diary reads the picture of this frame: the Moon in the view, above the horizon, in a clear sky.
+  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active, warmthNote.state.shown !== null)
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
   // The comet follows the orbit time, so World speed makes it faster. Reduced motion stills the tail.
   comet.update(orbits.elapsed, sun.group.position, camera, fairy.position, forward, reducedMotion.matches ? 0 : elapsed, delta,
@@ -1186,6 +1233,14 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   },
   /** The middles of the ray craters of Mercury, as local directions, for the search star check. */
   rayCraters: () => rayCraters(worlds.find(world => world.kind === 'mercury')!.seed).map(crater => crater.centre.toArray()),
+  /** Turns the fairy to the Moon and holds her in a hover, for the Moon diary check. */
+  faceMoon: () => {
+    destination = null
+    homeGuide.stop()
+    if (!hoverHeld) toggleHover()
+    orientFlight(fairy.quaternion, moon.group.position.clone().sub(fairy.position).normalize(), fairy.position.clone().sub(nearestWorld.group.position).normalize())
+    snapCamera()
+  },
   /** A world object, to read its terrain (`sample`) and its creatures in a browser check. */
   world: (kind: string) => worlds.find(world => world.kind === kind),
   /** Moves the fairy to `height` metres above the ground of a world, over a local direction. The camera moves with her. */
@@ -1215,10 +1270,12 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     postcard: postcard.state,
+    // `aim` is the place of the Moon in the picture: x and y from -1 to 1, and z above 1 when the Moon is behind the camera.
+    moonDiary: { ...moonDiary.state, sight: moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), aim: moon.group.position.clone().project(camera).toArray(), altitude: nearestDistance },
     belt: { ...belt.stats, region: regionLabel.textContent, nearest: nearestWorld.name },
     moon: {
       position: moon.group.position.toArray(), earth: earth.group.position.toArray(), orbitTime: orbits.elapsed,

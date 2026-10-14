@@ -163,6 +163,24 @@ that the child sees from Earth gets its place.
   Moon away from the sunset in 11 s, so three shapes show: crescent, half Moon and almost full.
   In the game the Moon needs 300 s for one cycle. The Moon of the clip is at its real size in the
   sky; the camera has a narrow view (26°).
+- Status: F14 is in the game code on the branch `features/f14-moon-diary`, with the
+  recommendation of its study for each open decision: a shape counts when the fairy is in the
+  air of Earth, the Moon is in the view, and the sky is clear; the new Moon fills its place when
+  the Moon is next to the Sun, with the line "The Moon hides today"; the diary has five shapes.
+  The diary is a block in Worlds below the cards, and only the note of a new shape shows in the
+  flight. See the Moon diary part of `README.md` for the rule and the measured numbers.
+
+Three things in the game are different from the study:
+
+- The shape comes from the lit part of the disc that the fairy sees, not from the angle
+  between the Moon and the Sun. The orbit of the Moon leans 28°, so in some months the new Moon
+  stays 28° from the Sun. The limits are 10%, 35%, 65% and 88% lit, and each month has each shape.
+- "The sky is clear" has three parts: the cloud cover, the air and the eclipse. The air of the
+  game hides a Moon on the horizon from near the ground, and the shadow of Earth is on 8 of the
+  12 full Moons of a game year, for 21 s to 39 s. These Moons give no shape.
+- By day the dark side of the Moon shows as a grey ball, so a shape is hard to read by day, and
+  the new Moon does not hide in the picture. The diary counts the day and the night the same.
+  This is an open decision for the player.
 
 ### F15 · Nature stamps
 
@@ -189,6 +207,17 @@ A thermometer with a face shows hot or cold near each world. It has no numbers.
 - Clip: the fairy comes to Venus, and the level goes up to red. Then she comes to Uranus, and
   the level goes down to blue.
 - Note: Uranus is below Neptune in the table, as the fact of the Uranus sticker says.
+- Status: F16 is in the game code on the branch `features/f16-thermometer`, with the
+  recommendation of its study for each open decision: the card of a world in Worlds and a note
+  for a moment at the arrival, the level, the colour and the face with one word, and one level
+  for each world. See the Picture thermometer part of `README.md`. Four things differ from the
+  study:
+  - The levels are in a new `src/warmth.ts`, not in `src/stickers.ts`.
+  - The face is in the bulb of the thermometer, so one small SVG has the level and the face.
+  - Each of the five words has one colour. The colours of the study clip did not have enough
+    contrast on the pink sticker card.
+  - The Moon is COOL, not NICE: its level is 0.4, not 0.45. NICE is for Earth and Blossom
+    Haven, the worlds with plants and animals. No world is WARM now.
 
 ### F17 · Cottage garden
 
@@ -306,8 +335,16 @@ F12 is in the game code on the branch `features/f12-count-rings`, with the recom
 study for each open decision: each line counts to its own length (5 to 7 rings), dots over the
 ring and the numeral at the pass, and a count that follows the order of the rings she takes.
 One rule is more exact than the study: the number of a ring is the count that she gets when she
-flies to it, so the dots and the count always agree. See the Sparkle rings part of `README.md`.
-The shape lines are not built.
+flies to it from her place, so the dots and the count always agree, and the count is always the
+number of rings that she took. See the Sparkle rings part of `README.md`.
+
+The shape lines are in the game code too. The second and the fourth line of a world are shape
+lines: two on Earth, one on Blossom Haven and one on the Moon. Each ring of a shape line is a
+circle, a triangle, a square, a star or a heart, and its plate shows the picture of the shape.
+A pass shows the picture and the name of the shape in the place of the numeral, with the two
+notes of that shape. The first shape line of a world starts after the end of its first line.
+These rules have no decision of the player yet: which lines are shape lines, the heart as a
+fifth shape, and the notes of a shape.
 
 ## Limits of this study
 

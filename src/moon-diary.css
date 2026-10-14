@@ -1,0 +1,40 @@
+/* F14 · The Moon shapes diary (src/moon-diary-ui.ts). */
+.moon-diary [hidden] { display: none !important; }
+
+/* The note of a new shape: the look and the place of the new-sticker note (src/sticker-book.css). */
+#moon-toast { position: absolute; z-index: 4; right: 40px; bottom: 96px; display: flex; align-items: center; gap: 14px; width: max-content; max-width: min(360px, calc(var(--view-width, 100vw) - 80px)); padding: 14px 20px 14px 14px; border: 1px solid #ffcfdf99; border-radius: 24px; color: #59304c; background: #ffe1eef2; box-shadow: 0 10px 50px #6f3c6230; pointer-events: none; transform-origin: 90% 100%; animation: moon-toast-on .6s cubic-bezier(.2, 1.4, .4, 1) both; transition: opacity .6s; }
+#moon-toast.is-leaving { opacity: 0; }
+#moon-toast small { font: 9px 'DM Mono', monospace; letter-spacing: .2em; }
+#moon-toast h2 { margin: 3px 0 4px; font: 26px 'Italiana', Georgia, serif; }
+#moon-toast p { margin: 0; font-size: 12px; line-height: 1.5; }
+.moon-toast-art { flex-shrink: 0; width: 60px; height: 60px; line-height: 0; }
+.moon-toast-art svg { display: block; width: 100%; height: 100%; filter: drop-shadow(0 3px 6px #39406a55); }
+.touch-ui #moon-toast { top: calc(var(--edge-top, 16px) + 64px); right: var(--edge-right, 16px); bottom: auto; max-width: calc(var(--view-width, 100vw) - 32px); transform-origin: 90% 0; }
+@keyframes moon-toast-on { from { transform: scale(1.4) rotate(-8deg); opacity: 0; } }
+.is-map-open #moon-toast, .is-settings-open #moon-toast { visibility: hidden; }
+
+/* The diary in Worlds: the count next to the sticker count, and five places below the cards. */
+#moon-diary-count { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; color: #d9cfe2; }
+#moon-diary-count svg { width: 16px; height: 16px; }
+.moon-diary-book { margin: 22px 0 14px; padding: 14px 16px 12px; border: 1px solid #c6aed133; border-radius: 18px; background: #080e1b4d; }
+.moon-diary-book h3 { margin: 0 0 10px; font: 22px 'Italiana', Georgia, serif; color: #fff0de; }
+.moon-shapes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.moon-shape { display: flex; flex-direction: column; align-items: center; gap: 6px; min-height: 96px; padding: 10px 2px 8px; border: 1px dashed #ffffff30; border-radius: 16px; background: transparent; color: #c0c7db; }
+.moon-shape svg { width: 48px; height: 48px; opacity: .28; }
+.moon-shape strong { font-size: 11px; font-weight: 500; text-align: center; }
+.moon-shape.is-seen { border: 1px solid #ffe1a2aa; background: #ffffff0d; color: #fff2e7; }
+.moon-shape.is-seen svg { opacity: 1; filter: drop-shadow(0 0 8px #fff3c455); }
+.moon-shape.is-seen strong { font-weight: 700; }
+.moon-shape:hover, .moon-shape:focus-visible { background: #ffffff12; }
+.moon-shape:focus-visible, .moon-shape.is-chosen { outline: 2px solid #ffe1a2; outline-offset: 2px; }
+#moon-diary-line { min-height: 20px; margin: 10px 0 0; font-size: 13px; line-height: 1.5; text-align: center; color: #fff2e7; }
+@media (max-width: 720px) {
+  .moon-diary-book { padding: 12px 8px 10px; }
+  .moon-shapes { gap: 4px; }
+  .moon-shape { min-height: 84px; padding: 8px 0 6px; }
+  .moon-shape svg { width: 38px; height: 38px; }
+  .moon-shape strong { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #moon-toast { animation: none; }
+}
