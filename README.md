@@ -1350,7 +1350,7 @@ Each feature has a browser check in `scripts/`. One command runs them all at the
 node scripts/run-checks.mjs "path/to/chrome.exe"
 ```
 
-The command starts its own dev server on a free port, runs the 20 checks (4 at the same
+The command starts its own dev server on a free port, runs the 23 checks (4 at the same
 time), and prints one line for each check with its time and its error. All the checks take
 about 3.5 minutes, or about 2 minutes with `--jobs 8`. The full output of each check is in
 `artifacts.local/checks/<name>.log`. `npm run checks -- "path/to/chrome.exe"` is the same

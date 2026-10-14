@@ -187,7 +187,12 @@ try {
   /** A find: the star in the book, the note, the gold star on the picture and in the world. */
   async function found(kind, line, seconds = 0.3) {
     await evaluate(`advanceFlight(${seconds})`)
-    const state = await snapshot()
+    let state = await snapshot()
+    // A search star waits while a different note shows: the Moon diary (F14) and the thermometer (F16) can show one.
+    for (let i = 0; i < 30 && !state.searchStars.includes(kind) && (state.moonDiary.note || state.moonDiary.waiting.length || state.warmth.shown); i++) {
+      await evaluate('advanceFlight(0.5)')
+      state = await snapshot()
+    }
     assert(state.searchStars.includes(kind), `No search star at ${kind}: ${state.searchStars}`)
     assert((await text('#sticker-toast small')) === 'SEARCH STAR' && (await text('#sticker-toast .sticker-toast-fact')) === line, `Wrong note at ${kind}: ${await text('#sticker-toast')}`)
     assert(await has('#sticker-toast .search-badge.is-found') && (await text('#sticker-toast .sticker-toast-task')) === '', 'No gold star on the sticker picture')
@@ -405,14 +410,15 @@ try {
 
   step('reset')
   await click('#settings-toggle')
-  assert((await text('#sticker-summary')) === 'The book has 12 of 13 stickers and 12 search stars.', `Wrong summary: ${await text('#sticker-summary')}`)
+  // The flights of this check can also give a Moon shape (F14): the texts then name it too.
+  assert((await text('#sticker-summary')).startsWith('The book has 12 of 13 stickers and 12 search stars.'), `Wrong summary: ${await text('#sticker-summary')}`)
   await click('#reset-stickers')
-  assert((await text('#reset-question')) === 'Remove all 12 stickers and 12 search stars?', `Wrong question: ${await text('#reset-question')}`)
+  assert(/^Remove all 12 stickers(,| and) 12 search stars(, and [^?]+)?\?$/.test(await text('#reset-question')), `Wrong question: ${await text('#reset-question')}`)
   await click('#reset-yes')
   state = await snapshot()
   assert(state.stickers.length === 0 && state.searchStars.length === 0, `The reset keeps stars: ${state.searchStars}`)
   assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).found.length === 0, 'The saved book keeps stars')
-  assert((await text('#reset-status')).startsWith('12 stickers and 12 search stars removed.'), `Wrong status: ${await text('#reset-status')}`)
+  assert(/^12 stickers(,| and) 12 search stars( and [^.]+)? removed\./.test(await text('#reset-status')), `Wrong status: ${await text('#reset-status')}`)
   await click('#close-settings')
 
   const phoneCalls = []
