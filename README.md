@@ -450,8 +450,13 @@ It has four gardens (look B of the [foliage study](#foliage-study)): a lollipop 
 with spiral lollipops and candy canes, also around the cottage; a cotton candy orchard
 with ice cream trees; a mushroom glade with toadstools as tall as trees; and crystal
 peaks on the high ground. The toadstools and the crystals glow at night. Fairytale
-creatures live there: unicorns, dragonlings, kitsune kits, Frog Princes on lily
-pads, and five pegasus foals that circle over the cottage garden.
+creatures live there, each in its garden (see [Animals](#animals)): unicorns, dragonlings and
+gummy bear cubs in the lollipop grove, kitsune kits, candy-floss lambs and bubble fish in the
+orchard, story caterpillars and lantern moths in the mushroom glade, crystal deer, griffin chicks
+and sugar owlets on the crystal peaks, Frog Princes, gummy jellyfish and the soda serpent in the
+soda, a phoenix chick high in the sky, and five pegasus foals that circle over the cottage garden.
+One creature comes with each magic season: honey-drop bees in Blossom time, bubble fish in Bubble
+time, lantern moths in Lantern time and sugar owlets in Crystal time.
 
 The clouds are cotton candy: 50 round tufts of pink, blue and lilac floss with
 spun-sugar strands, in one draw call (half on a phone). The mist in the cloud
@@ -480,6 +485,66 @@ a fresh interval and the initial distant location; discovery stays saved.
 Run `node scripts/blossom-smoke.mjs "path/to/chrome.exe"` against the dev server
 for the five-minute clock, guided lock, arrival, visitor/camera carry, and mobile
 browser checks. Pure simulation tests cover placement and relocation safety.
+
+## Animals
+
+Earth and Blossom Haven have many animals, each one in the place where it belongs (option B of the
+[animals study](#animals-study), with the small life of option C). Earth has 31 kinds that follow the
+real world, and Blossom Haven 17 creatures from stories and candy, about 3,900 and 800 animals in
+herds. Nothing hunts, chases or eats another animal: the fox trots and sits, and the bears pick
+berries.
+
+| Place | Kinds |
+| --- | --- |
+| Palm beach and shore | flamingo, sea turtle, capybara (also the river banks of the jungle) |
+| Jungle | monkey, parrot (loops over the trees), elephant |
+| Savanna | zebra, giraffe, elephant, meerkat, stork in winter |
+| Desert | camel, meerkat |
+| Leaf forest | cow, sheep, rabbit, deer, fox, duck on the rivers, beaver, stork in summer, butterflies in spring and summer, fireflies on summer nights, geese in spring and autumn |
+| Pine forest | moose, brown bear and cub, beaver, fox, arctic hare |
+| Snow line | reindeer, arctic hare (white in the snow, brown in summer), seal, penguin (south only) |
+| The sea and the sky | dolphin, whale (deep sea), silver fish (they show when they jump), seagull |
+| Blossom Haven | see [Blossom Haven](#blossom-haven): the gardens, the soda, the sky and one creature for each magic season |
+
+- **Rules, not places.** Each kind has a rule (`src/creatures/catalog.ts`, `src/creatures/rules.ts`):
+  the climate belts of Earth or the gardens of Blossom Haven of `zoneAt()`, a surface (land, shore,
+  river, sea, deep sea), a half of the planet, the seasons of `src/seasons.ts` or the magic seasons
+  of `src/magic-seasons.ts`, and a flight height. `placeHerds()` in `src/creatures/herds.ts` makes a
+  survey of the planet and puts the herds of each kind where its rule allows, with a gap between the
+  herds. Each animal and each point of its short route is on good ground and in a place of its rule,
+  also at the edge of two belts. Each new Earth gets new herds; Blossom Haven keeps its landscape.
+  A few herds start near the meadow of Earth and near the cottage.
+- **Seasons.** The storks spend the summer in the leaf forest and the winter in the savanna; the geese
+  cross the sky in spring and autumn; the butterflies come in spring and summer; the fireflies glow
+  on summer nights; the coat of the arctic hare follows the snow of its place. On Blossom Haven the
+  honey-drop bees fly in Blossom time, the bubble fish in Bubble time, the lantern moths in Lantern
+  time and the sugar owlets sit by the crystals in Crystal time.
+- **How they draw.** Each kind is one joined model (`src/creatures/shapes.ts`,
+  `src/creatures/joined.ts`): one InstancedMesh draws all the animals of a kind in one draw call, and
+  a shader moves the legs, the head, the tail, the wings and the fins. The near model shows to 45 m
+  (32 m on a phone), a simple far model to 170 m. At most 260 animals show (130 on a phone), each one
+  culled against the view, and the animal models take at most 37 draw calls (17 on a phone). The
+  small life is a tiny model near the fairy and a point to 220 m: all the points are one draw call,
+  and the lights of the fireflies and the lantern moths one more (`src/creatures/points.ts`). The
+  limit of the draw calls of the animals is 40 on a computer and 20 on a phone (TODO item 4). The far
+  herds get a new pose ten times a second, and a resting herd keeps its pose. With reduced motion the
+  herds still walk, but the legs and the wings stand still.
+- **Hello.** Each animal says hello (see [Creature hello](#creature-hello)), and its first hello puts
+  its card in the [animal book](#fairy-friend).
+- **Test hooks.** The snapshot gives `wildlife` with the herds, the near animals (`visible`), the
+  hellos and `stats` (the animals and the draw calls of the frame). `herdPlaces(kind, count, zone)`
+  gives the places of the herds of a kind, with their season and if they show; `wildlifeAudit()`
+  checks the place of each drawn animal; `wildlifeCalls()` renders the view with and without the
+  animals; `wildlifeOn(false)` turns the animals off for a bench.
+
+Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` (with `FAIRY_TEST_URL` for the server) to
+check the animals in the game: the herds of both worlds, the motion and the pause, the creatures of
+Blossom Haven and the pegasus foals, the storks and the bees in their seasons, and five views (the
+start, low over a savanna herd, 30 m over the savanna, a herd of the leaf forest and the lollipop
+grove) at 1280 px and on a phone of 390 px with the limits of the draw calls and a check of the place
+of each drawn animal. `node scripts/animals-bench.mjs "path/to/chrome.exe"` is a tool, not a check: it
+measures the draw calls and the frame time of the five views with and without the animals, on a
+computer page, a phone page and a phone page with the CPU 4 times slower.
 
 ## Sticker book
 
@@ -750,13 +815,17 @@ the animal book in Worlds shows each kind that she met (design A of the
 game has no score, no timer and no fail.
 
 - **The animal book.** **My book** has two tabs: **Worlds** (the map, the cards of the worlds and the
-  Moon diary) and **Animals**. The Animals page has a card for each of the nine kinds, in two
-  groups: **Real animals** on Earth (cow, rabbit, sheep, duck) and **Story creatures** on Blossom
-  Haven (unicorn, dragonling, kitsune kit, Frog Prince, pegasus foal). A card of a kind that she met
-  is a sticker card: a picture rendered from the model of the friend, the name and three picture
-  facts. A kind that she did not meet is a soft shadow of its model, with the picture of its world
-  and of its place, for example Earth and the water. The tab shows the size of the book, for
-  example "4/9". The book is the list of the kinds that she met, so it fills from the first hello.
+  Moon diary) and **Animals**. The Animals page has a card for each of the 48 kinds of
+  [Animals](#animals), on one page for each world: **Earth** (31 real animals) and **Blossom Haven**
+  (17 story creatures). Two buttons with the world pictures and the count of each page change the
+  page; the book opens at the page of the world where she is. A page has a row for each place, with
+  a small picture of the place: Palm beach, Jungle, Savanna, Desert, Leaf forest, Pine forest, Snow
+  line, The sea and The sky on Earth; Lollipop grove, Cotton candy orchard, Mushroom glade, Crystal
+  peaks, Soda water and The sky on Blossom Haven. A card of a kind that she met is a sticker card: a
+  picture rendered from the model of the friend, the name and three picture facts. A kind that she
+  did not meet is a soft shadow of its model, with the picture of its world and of its place, for
+  example Earth and the snow line. The tab shows the size of the book, for example "4/48". The book
+  is the list of the kinds that she met, so it fills from the first hello.
 - **The note at the top.** A tap on a card shows it in the note at the top of the page: the
   picture, the name and the three facts with a short word each. A shadow card shows "Who is it?"
   with its world and its place. The note stays at the top of the dialog while the cards scroll.
@@ -764,7 +833,9 @@ game has no score, no timer and no fail.
 - **The new card in the flight.** The first hello of a kind shows a note for 4 s of flight: the
   picture, "NEW IN YOUR ANIMAL BOOK", the name and the three picture facts. A hello to a kind that
   she met shows no note. A soft chime plays when Sound is on.
-- **The way to the gift.** The friend comes at the fifth hello of a creature. Before the gift, the
+- **The way to the gift.** The friend comes at the fifth hello of a creature. A school or a swarm (the
+  silver fish, the butterflies, the fireflies, the honey-drop bees) gets its card at its first hello,
+  but its hello adds no heart, because it is many small animals and cannot be the friend. Before the gift, the
   note of a new card and the note of the Animals page show five hearts: one pink heart for each
   hello, and the heart of this hello swells. These are the hearts that float over a creature at its
   hello. The hearts are the only count of the hellos: the game shows no number of hellos.
@@ -772,7 +843,8 @@ game has no score, no timer and no fail.
   name, "A friend flies with you now" and five full hearts. At the fifth hello of a new kind, the
   gift note takes the place of the note of the card. The first friend is the kind of the fifth
   hello, and it comes out of the sky with its note.
-- **Fly with me.** After the gift, the note of a met card has **Fly with me ↗**. The tap closes
+- **Fly with me.** After the gift, the note of a met card has **Fly with me ↗** (a school or a swarm
+  has none: its note says "Many little friends"). The tap closes
   Worlds, and the swap plays in the flight: the old friend turns to her and waves (0.9 s), then it
   flies home, up, forward and out to her right, faster and faster, and goes in a puff of sparkles
   (2.1 s). A friend in a bubble floats home in its bubble. 1.5 s after the start, the new friend
@@ -786,10 +858,12 @@ game has no score, no timer and no fail.
   note shows: a new sticker, a search star, the home card, a new landscape, the Moon note or the
   thermometer note. The Moon note, the thermometer note and a search star wait for the note of the
   friend. The time of a note runs only in the flight.
-- **How a cow flies.** A kind with wings flies with its wings: the pegasus foal, the dragonling
-  and the duck. Each other kind rides in a soap bubble that the fairy made. The bubble and its
-  fairy dust have the sparkle colour of her wings, so the bubble is her magic. The friend is
-  small: its body is 1.1 m across. The pegasus foals over the cottage garden say hello too.
+- **How a cow flies.** A kind with wings flies with its wings: the pegasus foal, the dragonling,
+  the duck, the stork, the parrot, the seagull, the goose, the griffin chick, the phoenix chick, the
+  lantern moth and the sugar owlet. Each other kind rides in a soap bubble that the fairy made, also
+  a whale and a giraffe. The bubble and its fairy dust have the sparkle colour of her wings, so the
+  bubble is her magic. The friend is small: its body is 1.1 m across, whatever the size of its kind.
+  The pegasus foals over the cottage garden say hello too.
 - **Reduced motion.** With `prefers-reduced-motion` the change of friend is at once, the first
   friend is at its place at once, and the hearts do not swell.
 - **Reset.** **Reset sticker book** in Settings also removes the friend, the book and the count of
@@ -828,7 +902,8 @@ The friend is three draw calls on a phone and on a computer: the body with its p
 the two wings or the bubble, and the fairy dust (`createFriendModel()`). The puff of sparkles of a
 swap uses the points of the dust, so it adds no draw call. In a swap two friends are in the scene
 for 1.5 s: up to 6 draw calls. The joined model stands still: it has no walk and no magic
-particles. A resident of a world is 14 to 21 draw calls.
+particles. A new kind is the joined model of its herd (`friendParts()` in
+`src/creatures/joined.ts`), split into the body and the wings.
 
 - The saved state, the follow rule, the model, the pictures and the swap are in `src/friend.ts`
   (`swapAt()` gives the parts of a swap, `helloNotes()` the notes of the hellos). The notes, the
@@ -855,14 +930,14 @@ particles. A resident of a world is 14 to 21 draw calls.
   **Fly with me** and **No friend**), `cheer()` and `friendCalls()`, which renders the view of
   one moment with no friend and with the friends and gives the two draw-call counts.
 - On the dev server, `?friend=all` gives a hello of each kind at the start, with no note: the
-  book is full, and the unicorn flies with her at once.
+  book is full, and the deer flies with her at once.
 
 Run `node scripts/friend-smoke.mjs "path/to/chrome.exe" [origin]` against the dev server to
 check the friend in the game: the notes of new cards with their hearts, the Animals page before the
 gift, five hellos on Earth and the gift note, the friend is no resident, a happy loop, the Animals
 page with a met card, a shadow card and the card of the friend, the tabs with the keyboard,
 **Fly with me** and the swap in the flight, **No friend**, Escape, a reload, a broken saved value,
-each of the nine kinds, a low flight with turns, a climb from the meadow to open space with a swap
+the nine kinds of the first book and eleven new kinds, a low flight with turns, a climb from the meadow to open space with a swap
 in a boost and a guided flight back, reduced motion, the reset in Settings, the hello of a pegasus
 foal, notes that wait for each other, a hop of Blossom Haven, and phones of 390 px and 320 px. The
 check prints the draw calls with and without the friend, and in a swap. The screenshots go to
@@ -936,29 +1011,22 @@ features, inspect close-ups, show safe walking/swimming paths, regenerate
 terrain, and shuffle residents. Land animals stay on dry ground and ducks stay
 on water; unsuitable spawns are skipped. Export your study settings as JSON.
 
-All four animals now also live in the flight game on Earth. On Blossom Haven,
-fairytale creatures take their slots (see the fairytale study below).
-Rabbits, sheep, and cows wander on dry ground; ducks paddle on water. Spawns and
-short routes adapt to the rendered terrain and avoid trees, candy scenery, and
-the cottage. Earth gets new residents when its terrain regenerates; Blossom
-Haven keeps its residents on return visits and when its world moves. Flight
-pause also pauses wildlife. Distant animals are culled to keep rendering light.
+The four animals of this study now live in the leaf forest of Earth, in herds with many more
+kinds (see [Animals](#animals)): cows, sheep and rabbits on its meadows, and ducks on its rivers.
 
 The study remains an independent place to try optional features; its settings
 do not change the game. [Design and habitat rules](docs/creature-study.md)
 describe both versions.
 
 Run `node studies/creature-study/creature-smoke.mjs "path/to/chrome.exe"` for its browser checks.
-Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` to check creatures in
-the actual game, including movement, pause, both populations, the fairytale
-residents and pegasus foals after arrival at Blossom Haven, and mobile rendering.
 
 ### Creature hello
 
 The creatures say hello to the fairy. Fly low near an animal on Earth or a
 fairytale creature on Blossom Haven. When the fairy is 6 m or nearer, or comes that near in the next second, the
-creature turns to her and hops two times on its ground. Ducks and Frog Princes
-bob on the water. Two or three small pink hearts float up from the head, sway
+creature turns to her and hops two times on its ground. Ducks, Frog Princes and jellyfish
+bob on the water, and a flier makes a small jump in the air. Each animal of a herd says hello as
+one animal; a school or a swarm says hello as one group. Two or three small pink hearts float up from the head, sway
 and fade. A soft two-note chime plays when Sound is on. Hellos that come close
 together share one chime. Each creature says hello again only after 8 s. The
 pegasus foals in the air say hello too: a foal turns to the fairy, makes two
@@ -966,7 +1034,8 @@ small jumps in the air and sends up hearts (`greetFoals()` in `src/candy.ts`).
 The hellos bring the [fairy friend](#fairy-friend).
 
 - `greet()` of the population (`src/creatures/population.ts`) runs after
-  `update()`, because `update()` puts each model back on its route. The hop goes
+  `update()`, because `update()` puts each animal back on its route. The hop changes the matrix of
+  the instance of the animal. The hop goes
   along the ground normal in the frame of the world. Thus the creature stays on
   its ground when the world turns and when Blossom Haven moves.
 - The rules and the hearts are in `src/creatures/hello.ts`. All the hearts of a
@@ -979,7 +1048,8 @@ The hellos bring the [fairy friend](#fairy-friend).
 Run `node scripts/creature-hello-smoke.mjs "path/to/chrome.exe" [origin]` against
 the dev server to check the hello in the game: a low pass on Earth, the hop, the
 hearts, the chime, the pause, the rest time, a fairytale creature on Blossom
-Haven, a Frog Prince bob when one is near, and a phone at 390 px. The
+Haven, a Frog Prince bob when one is near, and a phone at 390 px. The names of the creatures are
+`creature-<kind>-<index>`: empty markers of the near animals in the group `wildlife`. The
 screenshots go to `artifacts.local/creature-hello/`.
 
 ## Fairytale creature study
@@ -1521,7 +1591,8 @@ calls and the frame time of each option with the real renderer, on a computer pa
 page of 390 px. The page also has the catalog, the animal book with 40 cards, the friend, the plan
 and ten decisions. Its controls do not change the game.
 
-The study uses the lab of the [feature ideas study](#feature-ideas-study) (with a new option
+The recommendation is built in the game (see [Animals](#animals)); the technical study says what
+changed. The study uses the lab of the [feature ideas study](#feature-ideas-study) (with a new option
 `mobile` of `createLab()` for the phone bench) and the page look of the
 [learn and play study](#learn-and-play-study). The recommendation is option B, then the points of C
 for the small life. The [technical study](docs/animals-study.md) gives the findings, the rules, the

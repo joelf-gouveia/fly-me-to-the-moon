@@ -4,6 +4,12 @@ Status: a study, 14 October 2026. Open `/studies/animals-study.html` on the Vite
 does not change the game or the saved game data. It saves its own answers as
 `fairy-animals-study-v1`. The code places below describe `master` at `a320c68`.
 
+**Built in the game, 14 October 2026** (branch `features/more-animals`), with the ten recommended
+decisions of the player: option B, then the point layer of C, the far model to 170 m, the phone
+limit, the four animals of the first game in the leaf forest, the seasons, one creature for each
+magic season, the book with a page for each world, the friend from the catalog, and a calm fox and
+calm bears. See [Built in the game](#built-in-the-game) at the end for what changed from this study.
+
 The player asks: "I want to do a study to add a lot more animals to both Earth and Blossom Haven.
 The animals should fit into biomes better than they do now." This study gives a catalog of animals
 for each place, three options that differ in scope and in the way the renderer draws them, clips
@@ -290,6 +296,71 @@ node studies/animals-study/animals-study-bench.mjs "path/to/chrome.exe"         
 
 The clips go to `public/studies/animals/` (2.2 Mbit/s, 1280 × 720, 30 frames a second, recorded
 frame by frame). `npx vitest run studies/animals-study` runs the tests of the study.
+
+## Built in the game
+
+The build follows the build plan above. The study keeps its own files as the record of the study;
+the game has its own copies in `src/creatures/`.
+
+| Step | Game files |
+| --- | --- |
+| 1. Catalog and rules | `src/creatures/catalog.ts` (31 kinds of Earth, 17 of Blossom Haven), `src/creatures/rules.ts`, `tests/creatures/catalog.test.ts` |
+| 2. Joined models and rig | `src/creatures/shapes.ts`, `src/creatures/joined.ts`, `tests/creatures/joined.test.ts` |
+| 3. Herds | `src/creatures/herds.ts` (`placeHerds()` in place of `populateSphere()`), `tests/creatures/herds.test.ts` |
+| 4. Renderer | `src/creatures/population.ts` (`HERD_LIMITS`, the pose cache, the hello of an instance) |
+| 5. Seasons | `lifeOf()` in `src/main.ts` gives the year, the magic year, the Sun and the camera to the herds |
+| 6. Book and friend | `src/friend.ts` (`BOOK_KINDS`, `FRIEND_KINDS`, `bakeShape()`), `src/animal-book.ts`, `src/animal-book-ui.ts` |
+| 7. Browser check | `scripts/wildlife-smoke.mjs`, and the tool `scripts/animals-bench.mjs` |
+| 8. Small life | `src/creatures/points.ts` |
+
+The measurements of the game (`scripts/animals-bench.mjs`, the method of the bench above, on the
+same graphics card; draw calls of the animals, the animals drawn as models, and the median frame
+with the animals and with no animals):
+
+| View | Computer | Phone page | Phone page, CPU 4 × slower |
+| --- | --- | --- | --- |
+| Start (the meadow) | 17 · 64 · 3.9 ms (4.3) | 9 · 26 · 2.7 ms (2.6) | 7 · 26 · 7.3 ms (6.5) |
+| Low over a savanna herd | 15 · 81 · 3.6 ms (2.9) | 7 · 33 · 3.0 ms (2.2) | 10 · 59 · 8.0 ms (6.3) |
+| Low over a herd of the leaf forest | 20 · 100 · 3.3 ms (3.2) | 9 · 32 · 3.3 ms (2.5) | 10 · 40 · 8.1 ms (6.6) |
+| 30 m over the savanna | 13 · 53 · 3.1 ms (2.7) | 6 · 28 · 2.5 ms (2.6) | 9 · 31 · 8.0 ms (7.5) |
+| Lollipop grove | 16 · 51 · 3.2 ms (2.9) | 7 · 17 · 2.4 ms (2.1) | 9 · 26 · 9.0 ms (8.5) |
+
+Each load makes a new Earth, so the numbers change from run to run. The limits of the browser check
+are 40 draw calls of the animals on a computer and 20 on a phone. With the CPU 4 times slower the
+animals add 0.5 to 1.7 ms to a frame, where B of the study added 2.5 to 4.5 ms: the far herds get a
+new pose ten times a second and a resting herd keeps its pose.
+
+Differences from the study, and why:
+
+- **The order of the steps.** The six new models (the story caterpillar, the griffin chick, the
+  phoenix chick, the honey-drop bees, the bubble fish, the sugar owlet) came before the book, and the
+  butterflies and the fireflies got small models too: each card of the book and each friend needs a
+  picture of its model.
+- **The book has 48 cards, not 40.** Decisions 2 and 7 add the small life and the four creatures of
+  the magic seasons. A school or a swarm (the silver fish, the butterflies, the fireflies, the bees)
+  gets a card but is no friend, so 44 kinds can be the friend; its hello adds no heart, so the gift
+  always comes from an animal that can be the friend. Earth has a row "The sky" for the stork, the
+  seagull and the goose. The magic kinds are in the rows of their gardens.
+- **The rules.** The sheep lives only in the leaf forest and the duck only on its rivers (decision
+  5). The stork has seasons for each zone: summer in the leaf forest, winter in the savanna; a
+  savanna near the equator, which has no season, follows the season of its half at 30°. Each member
+  of a herd and each point of its route must be in a place of its rule, not only the middle of the
+  herd, so no animal stands across the edge of two belts. A pod, a school, a whale and the soda
+  serpent swim a loop that must stay over water deep enough for them; the serpent swims a smaller
+  loop, so it finds room in the soda.
+- **The start.** A herd of the cow, the sheep, the rabbit, the deer, the fox, the moose and the hare
+  starts near the meadow of Earth when its rule allows the place (the meadow is in the leaf forest or
+  in the pine forest), and the unicorn, the dragonling, the kitsune kit and the gummy bear cubs near
+  the cottage.
+- **The renderer.** Each animal is culled against the view, so a kind behind the camera costs no draw
+  call; the models of the animals have a hard limit of 37 draw calls (17 on a phone), and three more
+  are kept for the hearts and the two point layers. The near animals have empty markers with the names
+  `creature-<kind>-<index>`, for the search star, the hello and the checks. The points have the fog
+  of the air. The coat of the arctic hare is the colour of its instance. With reduced motion the
+  legs, the wings and the fins stand still.
+- **Not built.** The spout of the whale, the fizz of the serpent and the bubble rings of the
+  caterpillar at a hello are not effects of their own: each hello is the hop and the hearts of
+  `hello.ts`.
 
 ## Not verified
 

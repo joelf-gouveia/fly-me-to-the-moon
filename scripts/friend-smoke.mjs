@@ -171,7 +171,7 @@ try {
   /** Shows the page of the world of a kind, and taps its card. */
   async function tapCard(kind) {
     const world = HAVEN.includes(kind) ? 'fairy' : 'earth'
-    if ((await snapshot()).animalBook.page !== world) { await click(`.animal-world[data-world="${world}"]`); await pictures() }
+    if ((await snapshot()).animalBook.page !== world) { await click(`.animal-world[data-book-world="${world}"]`); await pictures() }
     await click(`[data-animal="${kind}"]`)
   }
   const cardLooks = async () => (await snapshot()).animalBook.cards
@@ -436,7 +436,7 @@ try {
   looks = await cardLooks()
   assert(TOUR.every(kind => looks[kind] === (kind === 'cow' ? 'friend' : 'met')), `The full book is wrong: ${JSON.stringify(looks)}`)
   await capture('animals-all')
-  await click('.animal-world[data-world="fairy"]')
+  await click('.animal-world[data-book-world="fairy"]')
   await pictures()
   await capture('animals-all-haven')
   await click('#close-map')

@@ -35,9 +35,9 @@ export function createAnimalBook({ worlds, friend, still, here }: Options) {
       <div class="animal-note-buttons"><button id="animal-fly" type="button" hidden>Fly with me ↗</button><button id="animal-none" type="button" hidden>No friend</button></div>
     </div>
     <div class="animal-worlds" role="group" aria-label="The pages of the book">
-      ${BOOK_PAGES.map(book => `<button type="button" class="animal-world" data-world="${book.world}" aria-controls="animal-page-${book.world}">${worldPicture(worlds, book.world)}<span><b>${worldName(book.world)}</b><small class="animal-world-count"></small></span></button>`).join('')}
+      ${BOOK_PAGES.map(book => `<button type="button" class="animal-world" data-book-world="${book.world}" aria-controls="animal-page-${book.world}">${worldPicture(worlds, book.world)}<span><b>${worldName(book.world)}</b><small class="animal-world-count"></small></span></button>`).join('')}
     </div>
-    ${BOOK_PAGES.map(book => `<section class="animal-book-page is-${book.world}" id="animal-page-${book.world}" data-world="${book.world}" aria-label="${book.title} on ${worldName(book.world)}">
+    ${BOOK_PAGES.map(book => `<section class="animal-book-page is-${book.world}" id="animal-page-${book.world}" data-book-world="${book.world}" aria-label="${book.title} on ${worldName(book.world)}">
       ${book.rows.map(row => `<div class="animal-row is-${row.id}">
         <h3 id="animal-row-${row.world}-${row.id}">${factIcon(row.icon)}<b>${row.name}</b></h3>
         <div class="animal-cards" role="group" aria-labelledby="animal-row-${row.world}-${row.id}">${row.kinds.map(kind => `<button type="button" class="animal-card is-${book.world}" data-animal="${kind}"></button>`).join('')}</div>
@@ -109,11 +109,11 @@ export function createAnimalBook({ worlds, friend, still, here }: Options) {
   function render() {
     count.textContent = bookCount(friend.state)
     for (const button of switches) {
-      const world = button.dataset.world as BookWorld, kinds = BOOK_KINDS.filter(kind => ANIMAL_CARDS[kind].world === world)
+      const world = button.dataset.bookWorld as BookWorld, kinds = BOOK_KINDS.filter(kind => ANIMAL_CARDS[kind].world === world)
       button.setAttribute('aria-pressed', String(world === current))
       button.querySelector('.animal-world-count')!.textContent = `${kinds.filter(kind => friend.state.met.includes(kind)).length}/${kinds.length}`
     }
-    for (const book of pages) book.hidden = book.dataset.world !== current
+    for (const book of pages) book.hidden = book.dataset.bookWorld !== current
     if (page.hidden) return
     for (const card of cards) {
       const kind = card.dataset.animal as FriendKind, look = cardLook(friend.state, kind)
@@ -130,7 +130,7 @@ export function createAnimalBook({ worlds, friend, still, here }: Options) {
   }
 
   for (const card of cards) card.onclick = () => { selected = card.dataset.animal as FriendKind; render() }
-  for (const button of switches) button.onclick = () => { current = button.dataset.world as BookWorld; render() }
+  for (const button of switches) button.onclick = () => { current = button.dataset.bookWorld as BookWorld; render() }
   // "Fly with me" and "No friend" close Worlds, so the swap plays in the flight.
   get('#animal-fly').onclick = () => { if (selected && friend.choose(selected, still())) map.close() }
   get('#animal-none').onclick = () => { if (friend.choose(null, still())) map.close() }

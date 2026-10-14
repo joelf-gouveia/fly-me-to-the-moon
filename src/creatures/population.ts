@@ -238,10 +238,10 @@ export function createPopulation(
     firefly: { size: 1.2, colour: new THREE.Color(0xe8f070) },
     lanternMoth: { size: 1.6, colour: new THREE.Color(0xffc870) },
   }
-  /** A point or a light of a small animal that is not a model in this frame, or the light of a model. */
-  function smallPoint(item: Drawn, model: boolean) {
+  /** A point or a light of a small animal that is not a model in this frame, or the light of a model. `glow` false adds no light. */
+  function smallPoint(item: Drawn, model: boolean, glow = true) {
     const p = item.cache.places, m = item.member, species = item.herd.species, light = LIGHTS[species.id]
-    if (light) lights.add(p[m * 3], p[m * 3 + 1], p[m * 3 + 2], light.colour, light.size)
+    if (light && glow) lights.add(p[m * 3], p[m * 3 + 1], p[m * 3 + 2], light.colour, light.size)
     if (model || light) return
     dots.add(p[m * 3], p[m * 3 + 1], p[m * 3 + 2], item.herd.members[m].tint ?? dotColour.set(species.colour), Math.max(0.3, species.size * 1.4))
   }
@@ -323,7 +323,8 @@ export function createPopulation(
       } else if (models >= limits.cap) continue
       const batch = batchOf(item.herd.species, item.near)
       if (!keep.has(batch)) {
-        if (keep.size >= limits.calls) continue
+        // Past the limit of the calls a small animal is a point; a large one is not drawn.
+        if (keep.size >= limits.calls) { if (item.herd.species.layer === 'small') smallPoint(item, false, false); continue }
         keep.add(batch)
       }
       if (batch.used >= batch.mesh.instanceMatrix.count) continue
