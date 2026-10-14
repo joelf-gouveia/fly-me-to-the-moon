@@ -60,8 +60,11 @@ try {
       window.testTime ??= performance.now();
       const gl = document.querySelector('#scene canvas').getContext('webgl2');
       const draw = gl.drawElements, instances = gl.drawElementsInstanced, arrays = gl.drawArrays;
+      // A picture of a card renders into a frame buffer in any frame: those draws stay, so the picture of a note is never empty.
+      if (!gl.boundFrame) { const bind = gl.bindFramebuffer; gl.boundFrame = { on: null }; gl.bindFramebuffer = function (target, frame) { if (target !== gl.READ_FRAMEBUFFER) gl.boundFrame.on = frame; return bind.call(this, target, frame) } }
+      const keep = original => function (...parts) { if (gl.boundFrame.on) return original.apply(this, parts) };
       try {
-        gl.drawElements = () => {}; gl.drawElementsInstanced = () => {}; gl.drawArrays = () => {};
+        gl.drawElements = keep(draw); gl.drawElementsInstanced = keep(instances); gl.drawArrays = keep(arrays);
         for (let i = 0; i < Math.ceil(seconds * 60); i++) window.gameFrame(window.testTime += 1000 / 60);
       } finally { gl.drawElements = draw; gl.drawElementsInstanced = instances; gl.drawArrays = arrays; }
       window.gameFrame(window.testTime += 1000 / 60);
@@ -85,6 +88,13 @@ try {
     await writeFile(`artifacts.local/wildlife/${name}.png`, Buffer.from(shot.data, 'base64'))
   }
   const worldName = kind => kind === 'earth' ? 'Earth' : 'Blossom Haven'
+  /** The colours of a picture, in steps of 8: an empty picture (one plain disc) has very few. -1 when the picture has no address. */
+  const painted = selector => evaluate(`(async () => { const image = document.querySelector(${JSON.stringify(selector)}); if (!image || !image.getAttribute('src')) return -1; await image.decode().catch(() => {}); const canvas = document.createElement('canvas'); canvas.width = canvas.height = 48; const context = canvas.getContext('2d'); context.drawImage(image, 0, 0, 48, 48); const data = context.getImageData(0, 0, 48, 48).data, colours = new Set(); for (let i = 0; i < data.length; i += 4) if (data[i + 3] > 120) colours.add((data[i] >> 3) << 10 | (data[i + 1] >> 3) << 5 | data[i + 2] >> 3); return colours.size })()`)
+  /** Clicks Begin, and waits for the welcome card: it fades in 0.7 s of real time (src/style.css), while the game time of the check runs at once. */
+  async function begin() {
+    await evaluate('document.querySelector("#begin-button").click()')
+    await delay(900)
+  }
   /** Flies over the nearest herd of a kind (in a zone), then to one of its animals, `up` m over the ground, and hovers. */
   async function visit(kind, up = 3, zone) {
     const [place] = await evaluate(`__fairyTest.herdPlaces(${JSON.stringify(kind)}, 1, ${zone ? JSON.stringify(zone) : 'undefined'})`)
@@ -116,7 +126,7 @@ try {
   async function views(device) {
     const mobile = device === 'phone', result = {}
     await load({ mobile })
-    await evaluate('document.querySelector("#begin-button").click()')
+    await begin()
     await advance(1)
     assert((await snapshot()).graphics.mobile === mobile, `The ${device} check does not run as a ${device}`)
     result.start = await view('start', 'Earth', device)
@@ -210,7 +220,61 @@ try {
     const places = await evaluate(`__fairyTest.herdPlaces('honeyBee', 200)`)
     bees[name] = { out: places.filter(place => place.shown).length, wrong: places.filter(place => place.shown !== (place.season === 'blossom')).length, total: places.length }
   }
-  assert(bees.blossom.total && !bees.blossom.wrong && !bees.bubble.wrong && bees.blossom.out > 0 && bees.blossom.out < bees.blossom.total, `The bees do not follow Blossom time: ${JSON.stringify(bees)}`)
+  // A herd shows only in Blossom time at its place; on some loads no bee herd is in the ring of Blossom time.
+  assert(bees.blossom.total && !bees.blossom.wrong && !bees.bubble.wrong && bees.blossom.out + bees.bubble.out > 0 && bees.blossom.out < bees.blossom.total, `The bees do not follow Blossom time: ${JSON.stringify(bees)}`)
+
+  // ---- The pictures: the note of a new card, the gift note, and each card of the book ----------------
+  step('pictures')
+  // The earlier steps saved their hellos: the friend starts again with no hello.
+  await evaluate('localStorage.removeItem("fairy-friend")')
+  await load()
+  await begin()
+  // The fairy goes 30 m up at once, where no animal says hello: the check gives each hello.
+  await evaluate(`(() => { const world = __fairyTest.world('earth'); const here = world.group.position.clone().fromArray(__fairyTest.snapshot().fairy).sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert()).normalize(); __fairyTest.placeOver('earth', here.toArray(), 30) })()`)
+  if (!(await snapshot()).hoverHeld) await evaluate('document.querySelector("#hover-toggle").click()')
+  await advance(0.5)
+  const notes = {}
+  /** Waits for a note (of a kind, or of any kind with null), and reads the colours of its picture. */
+  async function notePicture(kind, label) {
+    for (let t = 0; t < 30; t += 0.25) {
+      if (await evaluate(`!document.querySelector('#friend-note').hidden && (${JSON.stringify(kind)} === null || document.querySelector('#friend-note h2').textContent === ${JSON.stringify(kind)}) && document.querySelector('#friend-note small').textContent === ${JSON.stringify(label)}`)) {
+        kind ??= await evaluate(`document.querySelector('#friend-note h2').textContent`)
+        notes[`${label}: ${kind}`] = await painted('#friend-note img')
+        // The note pops in for 0.6 s of real time (src/friend.css): the picture of the check waits for it.
+        await delay(700)
+        await capture(`note-${kind}`)
+        return notes[`${label}: ${kind}`]
+      }
+      await advance(0.25)
+    }
+    throw new Error(`No note "${label}" for the ${kind}`)
+  }
+  // A hello of the camel, then the hellos that are missing to five hearts: the camel note, then the gift note.
+  const before = (await snapshot()).friend.hellos
+  assert(before < 4, `Too many hellos before the camel: ${before}`)
+  await evaluate('__fairyTest.meet("camel")')
+  assert(await notePicture('Camel', 'NEW IN YOUR ANIMAL BOOK') > 20, `The note of a new card has an empty picture: ${JSON.stringify(notes)}`)
+  await evaluate(`__fairyTest.meet(${JSON.stringify(['zebra', 'whale', 'penguin', 'owlet'].slice(0, 4 - before)).slice(1, -1)})`)
+  assert(await notePicture(null, 'A NEW FRIEND') > 20, `The gift note has an empty picture: ${JSON.stringify(notes)}`)
+  // Each card of the book, on both pages: a picture of its model.
+  await load({ query: '?test&weather=clear&friend=all' })
+  await begin()
+  await advance(0.5)
+  await evaluate('document.querySelector("#open-map").click(); document.querySelector("#tab-animals").click()')
+  const empty = []
+  let cards = 0
+  for (const world of ['earth', 'fairy']) {
+    await evaluate(`document.querySelector('.animal-world[data-book-world="${world}"]').click()`)
+    for (let i = 0; i < 300 && !(await evaluate('[...document.querySelectorAll(".animal-book-page:not([hidden]) .animal-card img")].every(image => image.getAttribute("src") && image.complete)')); i++) await delay(50)
+    const kinds = await evaluate('[...document.querySelectorAll(".animal-book-page:not([hidden]) .animal-card")].map(card => card.dataset.animal)')
+    for (const kind of kinds) {
+      cards++
+      const colours = await painted(`[data-animal="${kind}"] img`)
+      if (colours <= 20) empty.push(`${kind}: ${colours}`)
+    }
+    await capture(`book-${world}`)
+  }
+  assert(cards === 48 && !empty.length, `Cards with an empty picture (${cards} cards): ${empty.join(', ')}`)
 
   // ---- The limits of the draw calls and the places of the animals, on a computer and on a phone --------
   step('computer views')
@@ -223,7 +287,7 @@ try {
   if (errors.length) throw new Error(JSON.stringify(errors))
   console.log(JSON.stringify({
     populations: initial.wildlife.map(({ world, total, herds, kinds }) => ({ world, total, herds, kinds: kinds.length })),
-    visibleAtStart: earth.visible.length, blossomCast: cast, movement: 'passed', pause: 'passed', storks, bees,
+    visibleAtStart: earth.visible.length, blossomCast: cast, movement: 'passed', pause: 'passed', storks, bees, pictures: { notes, cards },
     computer, phone, runtimeExceptions: errors.length,
   }))
 } finally { ws?.close(); browser.kill() }

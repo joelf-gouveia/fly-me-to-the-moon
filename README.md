@@ -539,7 +539,8 @@ berries.
 
 Run `node scripts/wildlife-smoke.mjs "path/to/chrome.exe"` (with `FAIRY_TEST_URL` for the server) to
 check the animals in the game: the herds of both worlds, the motion and the pause, the creatures of
-Blossom Haven and the pegasus foals, the storks and the bees in their seasons, and five views (the
+Blossom Haven and the pegasus foals, the storks and the bees in their seasons, a picture in the note of
+a new card, in the gift note and in each of the 48 cards of the book, and five views (the
 start, low over a savanna herd, 30 m over the savanna, a herd of the leaf forest and the lollipop
 grove) at 1280 px and on a phone of 390 px with the limits of the draw calls and a check of the place
 of each drawn animal. `node scripts/animals-bench.mjs "path/to/chrome.exe"` is a tool, not a check: it

@@ -243,7 +243,7 @@ export function placeHerds(site: HerdSite): Herd[] {
         herd.members.push({ east: x, north: z, scale: young ? 0.55 : 0.88 + random() * 0.12, phase: random() * TAU, yaw: (random() * 2 - 1) * 0.5, tint, ground: [] })
       }
       if (herd.members.length < Math.min(count, species.herd[0])) continue
-      // A short walk: three points, each one good for each member, and the middle of each step too.
+      // A short walk: three points, each one good for each member, and the points of each step too.
       if (walks) {
         for (let step = 0; step < 2; step++) {
           const from = herd.route[herd.route.length - 1]
@@ -251,8 +251,9 @@ export function placeHerds(site: HerdSite): Herd[] {
             const a = random() * TAU, d = 2 + random() * 3
             const next = offset(from, east, north, Math.cos(a) * d, Math.sin(a) * d)
             if (next.angleTo(centre) * radius > 7) continue
-            const mid = from.clone().add(next).normalize()
-            if (herd.members.every(m => standsAt(species, kind, offset(next, east, north, m.east, m.north)) && standsAt(species, kind, offset(mid, east, north, m.east, m.north)))) { herd.route.push(next); break }
+            // The end of the step and five points on the way, about 1 m apart, are good for each member.
+            const points = [1, 1 / 6, 2 / 6, 3 / 6, 4 / 6, 5 / 6].map(t => from.clone().lerp(next, t).normalize())
+            if (herd.members.every(m => points.every(p => standsAt(species, kind, offset(p, east, north, m.east, m.north))))) { herd.route.push(next); break }
           }
         }
         const route = [...herd.route, ...herd.route.slice(0, -1).reverse()]
