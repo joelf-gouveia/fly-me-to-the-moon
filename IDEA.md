@@ -46,8 +46,8 @@ the same place, so each one waits while the other shows (`src/main.ts`).
 F19 has an open branch, `features/f19-fairy-friend`, in the worktree
 `../fly-me-to-the-moon-worktrees/f19` (dev server port 5184). The study "friend book" joins F19
 with the animal book (F11) on the branch `studies/friend-book`, in the worktree
-`../fly-me-to-the-moon-worktrees/friend-book`. No branch is on GitHub. The worktrees `f12`, `f14`
-and `f16` stay for the test servers on ports 5181 to 5183; their branches are merged.
+`../fly-me-to-the-moon-worktrees/friend-book`. No branch is on GitHub. The branches and the worktrees of F12, F14 and F16
+are deleted after their merge.
 
 ## Open features
 
