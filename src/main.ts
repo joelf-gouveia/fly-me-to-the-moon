@@ -918,13 +918,16 @@ function homeHeight() {
   return earthLocal.copy(fairy.position).sub(home.group.position).normalize().applyQuaternion(earthTurn.copy(home.group.quaternion).invert()).y
 }
 const lifeSun = new THREE.Vector3(), lifeTurn = new THREE.Quaternion()
+// False while a bench measures the frame with no animals (the test hook wildlifeOn()).
+let wildlifeOn = true
 /**
  * The time of a world for its herds: the year and the tilt of Earth, the magic year of Blossom Haven,
- * the Sun in the frame of the world (the fireflies come at night) and the camera for the culling.
+ * the Sun in the frame of the world (the fireflies come at night), the camera for the culling, and reduced motion.
  */
 function lifeOf(world: World): LifeState {
   lifeSun.copy(sun.group.position).sub(world.group.position).normalize().applyQuaternion(lifeTurn.copy(world.group.quaternion).invert())
-  return world === home ? { magic: magicYear, sun: lifeSun, view: camera } : { year: earthYear, tilt: earth.tilt?.angle, sun: lifeSun, view: camera }
+  const still = reducedMotion.matches
+  return world === home ? { magic: magicYear, sun: lifeSun, view: camera, still } : { year: earthYear, tilt: earth.tilt?.angle, sun: lifeSun, view: camera, still }
 }
 function earthLatitude() {
   earthLocal.copy(fairy.position).sub(earth.group.position).normalize().applyQuaternion(earthTurn.copy(earth.group.quaternion).invert())
@@ -1138,9 +1141,10 @@ function animate(timestamp?: number) {
     // The clouds of Earth read the weather map at their place, so they do not turn.
     if (!world.weather) world.clouds.rotation.y += delta * 0.001
     // The herds follow the season of their place on Earth and the magic season on Blossom Haven (src/creatures/population.ts).
-    world.creatures?.update(delta, camera.position, lifeOf(world))
+    // A bench can turn the animals off (wildlifeOn() of the test hooks).
+    if (wildlifeOn) world.creatures?.update(delta, camera.position, lifeOf(world))
     // After update(): the hop and the turn go over the place on the route.
-    const hellos = world.creatures?.greet(delta, fairy.position)
+    const hellos = wildlifeOn ? world.creatures?.greet(delta, fairy.position) : undefined
     if (hellos?.length) greeted.push(...hellos)
     world.animate?.(reducedMotion.matches ? 0 : elapsed)
   }
@@ -1376,6 +1380,11 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     }
     const without = calls(false), all = calls(true)
     return { without, with: all, animals: all - without }
+  },
+  /** A bench measures the frame with no animals: false stops the update of the herds and hides them, true brings them back. */
+  wildlifeOn: (on: boolean) => {
+    wildlifeOn = on
+    for (const world of worlds) for (const part of world.creatures?.parts ?? []) part.visible = on
   },
   /** The local directions of the centres of the herds of a kind (in a zone, when it is given), nearest to the fairy first, and true when the season shows the herd: a check flies to them. */
   herdPlaces: (kind: string, count = 5, zone?: string) => {

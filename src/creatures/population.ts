@@ -38,8 +38,9 @@ export type Resident = { kind: KindId; route: THREE.Vector3[]; durations: number
  * The time of the world for the herds: the year of Earth and the tilt of its axis (src/seasons.ts),
  * the magic year of Blossom Haven (src/magic-seasons.ts), the direction of the Sun in the frame of
  * the world, and the camera for the culling. A value that is not given shows each kind in each season.
+ * `still` is reduced motion: the herds still walk their routes, but the legs, the wings and the fins stop.
  */
-export type LifeState = { year?: number; tilt?: number; magic?: number; sun?: THREE.Vector3; view?: THREE.Camera }
+export type LifeState = { year?: number; tilt?: number; magic?: number; sun?: THREE.Vector3; view?: THREE.Camera; still?: boolean }
 export type PopulationWorld = { kind: 'earth' | 'fairy'; radius: number; seed: number; sample: (x: number, y: number, z: number) => TerrainSample; mobile?: boolean }
 
 /** The pose cache of one herd: a matrix, a place, a motion, a hop and a flag "shown" for each member, made at the time `at`. */
@@ -74,7 +75,7 @@ export function createPopulation(
     matrices: new Float32Array(herd.members.length * 16), places: new Float32Array(herd.members.length * 3),
     moving: new Float32Array(herd.members.length), hops: new Float32Array(herd.members.length), shown: new Uint8Array(herd.members.length),
   }))
-  let time = 0, disposed = false, seasonClock = -Infinity, posed = 0
+  let time = 0, rigClock = 0, disposed = false, seasonClock = -Infinity, posed = 0
   // 1 when the season, the magic season and the light let a herd show.
   const out = new Uint8Array(herds.length).fill(1)
 
@@ -254,7 +255,8 @@ export function createPopulation(
   function update(delta: number, cameraPosition: THREE.Vector3, life: LifeState = {}) {
     if (disposed) return
     time += delta
-    RIG_TIME.value = time
+    if (!life.still) rigClock += delta
+    RIG_TIME.value = rigClock
     posed = 0
     seasons(life)
     inverse.copy(parent.quaternion).invert()
