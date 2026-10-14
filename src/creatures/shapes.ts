@@ -603,6 +603,139 @@ const BUILDERS: Record<string, (b: Builder) => Gait> = {
     }
     return gait(0, 0, 6, { wing: 0.6 })
   },
+  // ---- The new creatures of Blossom Haven (decision 7 of the animals study) ----------------------------
+  caterpillar(b) {
+    // The blue caterpillar of the story: soft round segments, the head up, and a ring of bubbles over it.
+    const blue = 0x7fb0e8, deep = 0x5f95dc, belly = 0xd8ecff, feet = 0x3f6fb8
+    for (let i = 0; i < 6; i++) {
+      const z = -0.5 + i * 0.14, r = 0.1 + Math.sin(i / 5 * Math.PI) * 0.035
+      b.ball(i % 2 ? blue : deep, 0, r, z, r * 1.05, r, r * 1.1)
+      b.ball(0xffd27a, 0, r * 1.85, z, r * 0.28, r * 0.18, r * 0.28, [0, 0, 0], true)
+      // A small pair of feet under each segment: the pairs move in turn, as a wave.
+      b.on(i % 2 ? 1 : 2, [0.06, z], () => b.pair(feet, 0.075, 0.025, z, 0.032, 0.025, 0.036))
+    }
+    b.on(3, [0.2, 0.26], () => {
+      b.ball(blue, 0, 0.3, 0.34, 0.16, 0.15, 0.14)
+      b.ball(belly, 0, 0.24, 0.45, 0.08, 0.06, 0.05)
+      b.eyes(0.075, 0.34, 0.45, 0.035)
+      b.cheeks(0.115, 0.27, 0.43, 0.03)
+      for (const side of [-1, 1]) {
+        b.limb(deep, [side * 0.05, 0.42, 0.3], [side * 0.1, 0.56, 0.28], 0.013, 0.011)
+        b.ball(0xffd24a, side * 0.1, 0.575, 0.28, 0.03, 0.03, 0.03, [0, 0, 0], true)
+      }
+      // The ring of bubbles that it blows.
+      for (let k = 0; k < 7; k++) {
+        const a = k / 7 * Math.PI * 2
+        b.ball(0xe6f6ff, Math.cos(a) * 0.1, 0.7, 0.42 + Math.sin(a) * 0.1, 0.026, 0.026, 0.026, [0, 0, 0], true)
+      }
+    })
+    return gait(0.25, 0.2, 6, { tail: 0 })
+  },
+  griffin(b) {
+    // A fluffy chick of the story bird: a golden lion body, a white eagle head and a lion tail tuft.
+    flyingBird(b, { body: 0xf3d9a4, wing: 0xe8c27a, tip: 0xfff3dc, belly: 0xfff3dc, beak: 0xffb347, size: 0.8, neckColour: 0xfff8ee, crest: 0xfff8ee, tail: 0xe8c27a })
+    b.cheeks(0.11, 0.1, 0.5, 0.03)
+    b.on(4, [0, -0.28], () => {
+      b.limb(0xe8c27a, [0, 0, -0.32], [0, -0.06, -0.55], 0.03, 0.025)
+      b.ball(0xb07a3a, 0, -0.07, -0.6, 0.06, 0.06, 0.07)
+    })
+    // Small lion paws under the body.
+    b.pair(0xe8c27a, 0.08, -0.15, 0.08, 0.045, 0.04, 0.05)
+    return gait(0, 0, 6, { wing: 0.6, tail: 0.3 })
+  },
+  phoenix(b) {
+    // A chick of warm light: orange, red and gold, with three long tail plumes. Its glow is soft, never fire.
+    flyingBird(b, { body: 0xffb347, wing: 0xff8a3a, tip: 0xffd24a, belly: 0xffe08a, beak: 0xfff0c0, size: 0.8, crest: 0xffd24a, tail: 0xff6f4a })
+    b.cheeks(0.1, 0.1, 0.48, 0.03)
+    b.on(4, [0, -0.28], () => {
+      for (const [x, colour] of [[-0.07, 0xff6f4a], [0, 0xffd24a], [0.07, 0xff8a3a]] as [number, number][]) {
+        b.limb(colour, [x * 0.5, 0, -0.34], [x * 2, -0.05, -0.75], 0.03, 0.02)
+        b.ball(colour, x * 2, -0.05, -0.78, 0.05, 0.02, 0.07)
+      }
+    })
+    return gait(0, 0, 4, { wing: 0.5, tail: 0.25 })
+  },
+  honeyBee(b) {
+    // A round bee with soft stripes, big eyes and small clear wings. It has no sting.
+    const yellow = 0xffd24a, brown = 0x6b4a2e, wing = 0xeef8ff
+    b.ball(yellow, 0, 0, -0.02, 0.07, 0.065, 0.085)
+    for (const z of [-0.035, 0.015]) b.ball(brown, 0, 0, z, 0.072, 0.067, 0.014)
+    b.ball(yellow, 0, 0.01, 0.075, 0.055)
+    b.eyes(0.03, 0.025, 0.115, 0.018)
+    b.cheeks(0.045, 0, 0.11, 0.012)
+    for (const side of [-1, 1]) {
+      b.limb(brown, [side * 0.015, 0.05, 0.09], [side * 0.035, 0.1, 0.11], 0.005, 0.004, true)
+      b.ball(brown, side * 0.035, 0.1, 0.11, 0.012, 0.012, 0.012, [0, 0, 0], true)
+      b.on(5, [0.05, 0.02], () => {
+        b.ball(wing, side * 0.08, 0.06, 0, 0.065, 0.01, 0.04, [0, 0.3 * side, 0])
+        b.ball(wing, side * 0.065, 0.055, -0.05, 0.045, 0.01, 0.03, [0, -0.3 * side, 0])
+      }, side)
+    }
+    return gait(0, 0, 22, { wing: 0.8 })
+  },
+  bubbleFish(b) {
+    // A small round fish in its own bubble: the bubble is a ring of tiny bubbles and a shine, so the fish shows.
+    const mint = 0x9fe3cf, pink = 0xf7a8c8, rim = 0xdff6ff
+    b.ball(mint, 0, 0, 0, 0.07, 0.08, 0.1)
+    b.ball(0xfff2dc, 0, -0.03, 0.02, 0.05, 0.04, 0.07)
+    b.eyes(0.045, 0.025, 0.07, 0.022)
+    b.cheeks(0.06, -0.01, 0.06, 0.014)
+    b.on(6, [0, -0.08], () => b.ball(pink, 0, 0, -0.13, 0.012, 0.06, 0.05))
+    b.pair(pink, 0.07, -0.02, 0, 0.035, 0.012, 0.03, [0, 0.4, -0.4])
+    b.ball(pink, 0, 0.08, -0.01, 0.01, 0.035, 0.05)
+    for (let k = 0; k < 14; k++) {
+      const a = k / 14 * Math.PI * 2
+      b.ball(rim, Math.cos(a) * 0.17, Math.sin(a) * 0.17, 0, 0.022, 0.022, 0.022)
+    }
+    b.ball(0xffffff, -0.08, 0.11, 0.06, 0.03, 0.02, 0.01, [0, 0, 0.6])
+    return gait(0, 0, 5)
+  },
+  owlet(b) {
+    // A round owlet of sugar glass that sits by the crystals and blinks.
+    const sugar = 0xe9e6fb, belly = 0xffffff, lilac = 0xc9b8f2, gold = 0xf6c982
+    b.ball(sugar, 0, 0.22, 0, 0.17, 0.2, 0.16)
+    b.ball(belly, 0, 0.19, 0.07, 0.12, 0.14, 0.1)
+    for (const [x, y] of [[-0.04, 0.22], [0.04, 0.18], [0, 0.13]]) b.ball(lilac, x, y, 0.16, 0.018, 0.012, 0.01, [0, 0, 0], true)
+    b.legX = 0.06
+    for (const side of [-1, 1]) b.on(side < 0 ? 1 : 2, [0.05, 0.03], () => b.ball(gold, side * 0.06, 0.02, 0.05, 0.04, 0.02, 0.05))
+    for (const side of [-1, 1]) b.on(5, [0.3, 0.13], () => b.ball(lilac, side * 0.16, 0.22, -0.01, 0.04, 0.13, 0.1, [0, 0, side * 0.2]), side)
+    b.on(3, [0.36, 0], () => {
+      b.ball(sugar, 0, 0.42, 0.01, 0.15, 0.12, 0.14)
+      // Big round owl eyes: a white disc with a dark eye on it.
+      for (const side of [-1, 1]) b.ball(0xffffff, side * 0.06, 0.43, 0.12, 0.05, 0.05, 0.02)
+      b.eyes(0.06, 0.43, 0.135, 0.03, 0)
+      b.cone(gold, 0, 0.38, 0.15, 0.02, 0.05, [Math.PI, 0, 0])
+      b.cheeks(0.1, 0.38, 0.11, 0.02)
+      for (const side of [-1, 1]) b.cone(lilac, side * 0.09, 0.55, 0.02, 0.035, 0.08, [0, 0, side * -0.4])
+      b.cone(0x9fe8f0, 0.02, 0.56, -0.02, 0.025, 0.08, [0.2, 0, 0.3], true)
+    })
+    return gait(0.2, 0.15, 6, { wing: 0.3, tail: 0 })
+  },
+  // ---- The small life of Earth: a tiny model near the fairy, a point far away -------------------------
+  butterfly(b) {
+    // White wings: each butterfly of a group gets its colour from its instance.
+    const body = 0x3a2f2a, wing = 0xffffff, spot = 0x3a2f2a
+    b.ball(body, 0, 0, 0, 0.012, 0.012, 0.05)
+    b.ball(body, 0, 0.004, 0.05, 0.014)
+    for (const side of [-1, 1]) {
+      b.limb(body, [side * 0.006, 0.01, 0.06], [side * 0.02, 0.03, 0.085], 0.003, 0.003, true)
+      b.on(5, [0.005, 0.01], () => {
+        b.ball(wing, side * 0.05, 0.004, 0.02, 0.05, 0.004, 0.04, [0, side * 0.3, 0])
+        b.ball(wing, side * 0.04, 0.003, -0.03, 0.035, 0.004, 0.03, [0, side * -0.3, 0])
+        b.ball(spot, side * 0.06, 0.006, 0.03, 0.012, 0.003, 0.01, [0, 0, 0], true)
+      }, side)
+    }
+    return gait(0, 0, 14, { wing: 1.0 })
+  },
+  firefly(b) {
+    // A tiny beetle with a glowing tail.
+    const body = 0x4a3a2e, glow = 0xfff08a
+    b.ball(body, 0, 0, 0.01, 0.015, 0.013, 0.025)
+    b.ball(glow, 0, -0.002, -0.025, 0.017, 0.015, 0.022)
+    b.ball(body, 0, 0.003, 0.04, 0.011)
+    for (const side of [-1, 1]) b.on(5, [0.01, 0.005], () => b.ball(0xd9e6ee, side * 0.022, 0.012, 0.005, 0.02, 0.003, 0.012), side)
+    return gait(0, 0, 18, { wing: 0.9 })
+  },
 }
 
 type DeerLook = { coat: number; belly: number; antler: number; ruff?: number; size: number; crystal: boolean }
@@ -651,7 +784,7 @@ export function shapeOf(id: string): Shape {
   const b = new Builder()
   const gaitOf = make(b)
   // The jelly creatures of Blossom Haven are smooth and shiny; the animals of Earth are faceted, as today.
-  const smooth = ['gummyBear', 'jelly', 'flossLamb', 'serpent', 'lanternMoth', 'crystalDeer'].includes(id)
+  const smooth = ['gummyBear', 'jelly', 'flossLamb', 'serpent', 'lanternMoth', 'crystalDeer', 'caterpillar', 'griffin', 'phoenix', 'honeyBee', 'bubbleFish', 'owlet'].includes(id)
   const shape = { id, parts: b.parts, gait: gaitOf, flat: !smooth, shine: id === 'gummyBear' || id === 'jelly' ? 0.25 : smooth ? 0.6 : 0.92 }
   cache.set(id, shape)
   return shape

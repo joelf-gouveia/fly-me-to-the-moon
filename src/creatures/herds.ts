@@ -110,6 +110,7 @@ const START_KINDS: KindId[] = ['cow', 'sheep', 'rabbit', 'deer', 'fox', 'moose',
 const TINTS: Partial<Record<KindId, number[]>> = {
   gummyBear: [0xff5a6e, 0xffa04a, 0xffe066, 0x7fdc6a, 0xfff0f0],
   jelly: [0xf4a6d6, 0xc3a6e6, 0x9ed8c4],
+  butterfly: [0xffb347, 0xff9ec7, 0xffe066, 0x9fd3ee, 0xffffff],
 }
 /** The young of a family are smaller: an elephant calf, a bear cub, a fawn, a giraffe calf. */
 const FAMILIES: KindId[] = ['elephant', 'bear', 'deer', 'giraffe', 'moose']

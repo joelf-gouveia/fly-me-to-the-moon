@@ -62,7 +62,7 @@ import { createSparkleRings, RING, RING_SHAPE_NAMES, ringDotsTexture, ringGlowTe
 import type { RingTake } from './rings'
 import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
-import { FRIEND_KINDS } from './friend'
+import { BOOK_KINDS, friendName, isBookKind } from './friend'
 import { createFairyFriend } from './friend-ui'
 import { createAnimalBook } from './animal-book-ui'
 
@@ -506,7 +506,7 @@ stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 stickerBook.onChange(() => { if (stickerBook.count) fairyFriend.cheer(reducedMotion.matches) })
 // A person who wants to see each friend at once can give a hello of each kind: ?friend=all. The book is full,
 // and the friend is there with no note. This works on the dev server only.
-if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(FRIEND_KINDS, false, true)
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(BOOK_KINDS, false, true)
 // F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
 const warmthNote = createWarmthNote()
 // Worlds: the map and the book of stickers. Flight waits while it is open.
@@ -519,7 +519,7 @@ const adventure = createAdventure(worlds, stickerBook, {
 // F14 · The Moon shapes diary: a place in Worlds for each shape of the Moon that she sees from Earth.
 const moonDiary = createMoonDiary({ chime: full => playChime(full ? [587.33, 739.99, 880, 1174.66] : [587.33, 880], 0.045) })
 // F19 · The animal book: the Animals page of Worlds, with "Fly with me" on each card that she met.
-const animalBook = createAnimalBook({ worlds, friend: fairyFriend, still: () => reducedMotion.matches })
+const animalBook = createAnimalBook({ worlds, friend: fairyFriend, still: () => reducedMotion.matches, here: () => nearestWorld.kind === 'fairy' ? 'fairy' : 'earth' })
 // Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
@@ -1349,6 +1349,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     friend: fairyFriend.info(fairy.position, camera),
     animalBook: animalBook.state,
   }),
+  /** The name of a kind of the book, as its card shows it. */
+  kindName: (kind: string) => isBookKind(kind) ? friendName(kind) : null,
   /** F19: gives a hello of each kind in the list, as the creatures do. Five hellos bring the fairy friend. */
   meet: (...kinds: string[]) => fairyFriend.hello(kinds),
   /** F19: selects a friend that she met, or null for no friend, as "Fly with me" and "No friend" of the Animals page do. */

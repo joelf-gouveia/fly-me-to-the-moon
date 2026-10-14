@@ -29,10 +29,23 @@
 #animal-none:hover { background: #ffffff12; }
 #animal-fly:focus-visible, #animal-none:focus-visible, .animal-card:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
 
-/* The two groups: real animals on Earth, and story creatures on Blossom Haven. */
-.animal-group h3 { margin: 16px 0 8px; font: 400 10px 'DM Mono', monospace; letter-spacing: .14em; color: #d5bed4; }
-.animal-group h3 b { margin-right: 6px; padding: 3px 9px; border-radius: 10px; background: #3f8a5d; color: #fff; font: 700 9px 'Manrope', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
-.animal-group.is-story h3 b { background: #8a52ad; }
+/* The two pages: one for each world, with the world picture of Worlds and the count of the met kinds. */
+.animal-worlds { display: flex; gap: 10px; margin: 14px 0 4px; }
+.animal-world { flex: 1; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 6px 14px 6px 8px; border-radius: 26px; border: 1px solid #ffffff30; background: #ffffff08; color: #e8dcef; font: inherit; text-align: left; cursor: pointer; }
+.animal-world .planet-picture { width: 36px; height: 36px; margin: 0; flex: none; font-size: 18px; box-shadow: inset -4px -3px 6px #0004; }
+.animal-world span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.animal-world b { font-size: 14px; font-weight: 700; color: #fff2e7; }
+.animal-world small { font: 10px 'DM Mono', monospace; letter-spacing: .12em; color: #d5bed4; }
+.animal-world[aria-pressed="true"] { border: 2px solid #ffe1a2; background: #ffffff16; }
+.animal-world:hover { background: #ffffff12; }
+.animal-world:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+.animal-book-page[hidden] { display: none; }
+
+/* A row for each place, with its picture and its name: warm to cold on Earth, the gardens, the soda and the sky on Blossom Haven. */
+.animal-row h3 { display: flex; align-items: center; gap: 8px; margin: 16px 0 8px; font: 400 10px 'DM Mono', monospace; letter-spacing: .14em; color: #d5bed4; }
+.animal-row h3 .fact-icon { width: 26px; height: 26px; padding: 3px; border-radius: 50%; background: #ffffff14; }
+.animal-row h3 b { padding: 3px 9px; border-radius: 10px; background: #3f8a5d; color: #fff; font: 700 9px 'Manrope', sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+.animal-book-page.is-fairy .animal-row h3 b { background: #8a52ad; }
 .animal-cards { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 
 /* A card: a picture from the friend model, the name and three picture facts. A kind that she did not
@@ -66,6 +79,10 @@
   .animal-card { min-height: 116px; padding: 8px 4px; gap: 4px; }
   .animal-picture { width: 50px; height: 50px; }
   .animal-card strong { font-size: 11px; }
+  .animal-worlds { gap: 8px; }
+  .animal-world { gap: 8px; padding: 5px 10px 5px 6px; }
+  .animal-world .planet-picture { width: 32px; height: 32px; }
+  .animal-world b { font-size: 13px; }
 }
 @media (max-width: 360px) {
   .animal-picture { width: 44px; height: 44px; }

@@ -1,9 +1,12 @@
-import { FRIEND, FRIEND_KINDS, friendName, hasFriendGift } from './friend'
+import { BOOK_KINDS, FRIEND, friendName, hasFriendGift, isFriendKind } from './friend'
 import type { FriendKind, FriendState } from './friend'
+import { speciesById } from './creatures/catalog'
+import type { PlaceId } from './creatures/catalog'
 
-// The animal book (docs/friend-book-study.md, design A): a card for each kind that can be the
-// fairy friend. The book is the `met` list of the saved friend (src/friend.ts): it needs no data of
-// its own. The page in Worlds is in src/animal-book-ui.ts.
+// The animal book (docs/friend-book-study.md, design A, with the pages of docs/animals-study.md): a
+// card for each kind of the catalog of src/creatures/catalog.ts. The book is the `met` list of the
+// saved friend (src/friend.ts): it needs no data of its own. The page in Worlds is in
+// src/animal-book-ui.ts.
 
 /**
  * The small pictures of the facts: drawings of the game, not emoji, because an emoji looks
@@ -37,6 +40,31 @@ const ICONS = {
     const angle = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 4.6 : 10.6
     return `${(12 + Math.cos(angle) * r).toFixed(2)} ${(12.8 + Math.sin(angle) * r).toFixed(2)}`
   }).join('L')}Z" fill="#ffd24a" stroke="#c47a0c" stroke-width="1" stroke-linejoin="round"/>`,
+  // The new pictures of the animals study (docs/animals-study.md): the facts of the new kinds and the places of the rows.
+  leaf: '<path d="M20.5 3.5C11 3.6 4.5 8.4 4.2 16.6l-.8 4 1.2.5 1.6-3.4C14.6 17.4 20.2 12 20.5 3.5Z" fill="#5fb85a"/><path d="M5 19.8 16.4 8.2" stroke="#3d8a3a" stroke-width="1.3" stroke-linecap="round"/>',
+  berry: '<circle cx="8.5" cy="14.5" r="4" fill="#e0475a"/><circle cx="15.5" cy="14.5" r="4" fill="#d43a50"/><circle cx="12" cy="18.6" r="3.6" fill="#ea5568"/><path d="M12 10.5c-.4-3 .8-5.4 3.6-6.8" stroke="#46a246" stroke-width="1.6" stroke-linecap="round" fill="none"/><path d="M12.4 7.2c2.4-1.6 4.8-1.4 6.4.2-2.2 1.2-4.4 1.2-6.4-.2Z" fill="#6cc25e"/>',
+  fish: '<path d="M3 12c3-4.4 8.6-6 13-2.6l4.6-3.4-1.4 6 1.4 6-4.6-3.4C11.6 18 6 16.4 3 12Z" fill="#6fb2e8"/><circle cx="7.6" cy="11.2" r="1.2" fill="#24384a"/>',
+  sun: '<circle cx="12" cy="12" r="4.8" fill="#ffc93c"/><path d="M12 2.4v3M12 18.6v3M2.4 12h3M18.6 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M5.2 18.8l2.1-2.1M16.7 7.3l2.1-2.1" stroke="#f4a62a" stroke-width="2" stroke-linecap="round"/>',
+  snow: '<path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6" stroke="#7fb8e6" stroke-width="2" stroke-linecap="round"/><path d="M9.6 4.2 12 6.4l2.4-2.2M9.6 19.8 12 17.6l2.4 2.2" stroke="#7fb8e6" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+  moon: '<path d="M15.6 3.2A9 9 0 1 0 20.8 16 7.2 7.2 0 0 1 15.6 3.2Z" fill="#ffe08a" stroke="#d4a93a" stroke-width="1"/>',
+  stripes: '<circle cx="12" cy="12" r="9.4" fill="#fff" stroke="#2c2a2e" stroke-width="1.4"/><path d="M7 4.4c2.2 4.6 2.2 10.6 0 15.2M12 2.6c1.6 6 1.6 12.8 0 18.8M17 4.4c-2.2 4.6-2.2 10.6 0 15.2" stroke="#2c2a2e" stroke-width="2.2" fill="none"/>',
+  spots: '<rect x="2.6" y="2.6" width="18.8" height="18.8" rx="5" fill="#f0c76a"/><path d="M7 6.2l2.6.6.4 2.6-2.4 1.2-1.8-1.8ZM14.4 5.2l3 .8-.2 2.8-2.6.6-1.2-2.2ZM10.6 12.2l3 .4.8 2.8-2.4 1.6-2.4-1.8ZM5.6 15.4l2.4.8-.2 2.6-2.6.2ZM17 13.6l2 1.6-1 2.4-2.4-.6Z" fill="#b06a32"/>',
+  antlers: '<path d="M12 21v-8M12 13c-2-2-4.6-2.6-6.6-6M12 13c2-2 4.6-2.6 6.6-6M7.6 9.6 4 8.4M9.2 11.6 7.4 4.6M16.4 9.6 20 8.4M14.8 11.6l1.8-7" stroke="#9a6b3e" stroke-width="2" fill="none" stroke-linecap="round"/>',
+  tree: '<rect x="10.8" y="13" width="2.4" height="8.6" rx="1" fill="#8a5a3a"/><circle cx="12" cy="9.6" r="7" fill="#5fb85a"/><circle cx="9.4" cy="8" r="2.2" fill="#82d26b"/>',
+  pine: '<rect x="10.9" y="17" width="2.2" height="4.6" fill="#8a5a3a"/><path d="M12 2.4 5 11h3.4L4.2 17.4h15.6L15.6 11H19Z" fill="#3f7d4f"/>',
+  palm: '<path d="M12.6 21.6c.4-5.4-.2-9.4-1.8-12.6" stroke="#a87a4a" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M11 9C8.4 5.6 5 5 2.4 6.4c3.2.2 5.6 1.4 8.6 2.6Zm0 0c1.6-3.6 4.6-5.2 8-4.6-2.8 1.2-5 2.8-8 4.6Zm0 0c3.4-1.6 6.8-.8 9.4 1.6-3.2-.4-6 .2-9.4-1.6Zm0 0c-3.4 0-5.8 1.8-7 4.6 2.2-1.8 4.4-3 7-4.6Z" fill="#46a246"/>',
+  acacia: '<path d="M11 21.6v-8.4M11 13.4 7.6 9.4M11 14.6l4.4-5" stroke="#8a5a3a" stroke-width="1.8" fill="none" stroke-linecap="round"/><path d="M2.4 9c1.8-3 6-4.4 9.6-4.4s7.8 1.4 9.6 4.4c-3 1.2-6.4 1.6-9.6 1.6S5.4 10.2 2.4 9Z" fill="#7a9a3a"/>',
+  cactus: '<path d="M10 21.6V5.4a2 2 0 0 1 4 0v16.2ZM10 14H7.4a2 2 0 0 1-2-2V8.6a1.4 1.4 0 0 1 2.8 0V11H10ZM14 12h2.4V7.6a1.4 1.4 0 0 1 2.8 0V12a2.4 2.4 0 0 1-2.4 2.4H14Z" fill="#5fae6a"/>',
+  wave: '<path d="M2 14.6c2.6-4.4 6.4-5.8 9.4-3.6-2.2.2-3 2-1.6 3.2 1.8 1.6 5.4.8 6.8-1.8 1.4 2.6 3.6 3.6 5.4 3v5H2Z" fill="#56b2ee"/><path d="M2 19.4q2.5-1.8 5 0t5 0 5 0 5 0" stroke="#fff" stroke-width="1.2" fill="none"/>',
+  cloud: '<path d="M6.4 18.4a4 4 0 0 1-.6-8 5.6 5.6 0 0 1 10.8-1.6 4.4 4.4 0 0 1 1.4 9.6Z" fill="#fff" stroke="#9cc6e6" stroke-width="1.3"/>',
+  mushroom: '<path d="M9.6 13h4.8l.8 8H8.8Z" fill="#fff3e4"/><path d="M2.6 13.4C3 7.6 7 4 12 4s9 3.6 9.4 9.4Z" fill="#b07ae8"/><circle cx="8" cy="9.6" r="1.5" fill="#fff"/><circle cx="14.4" cy="7.6" r="1.3" fill="#fff"/><circle cx="16.8" cy="11" r="1.1" fill="#fff"/>',
+  lollipop: '<path d="M12 13.6v8" stroke="#e9d6b4" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="8.6" r="6.4" fill="#ff8cbd"/><path d="M12 8.6a2 2 0 1 1 2 2 3.8 3.8 0 1 1-3.8-3.8 5.4 5.4 0 1 1 5.4 5.4" stroke="#fff3f8" stroke-width="1.4" fill="none"/>',
+  crystal: '<path d="M12 2.4 16.6 8 12 21.6 7.4 8Z" fill="#9fe8f0" stroke="#5aaebf" stroke-width="1" stroke-linejoin="round"/><path d="M5.6 10.2 8.2 13 6.4 20 3.6 13ZM18.4 10.2l2 2.8-2.8 7-1.8-7Z" fill="#d8c3ef" stroke="#a68ac8" stroke-width=".9" stroke-linejoin="round"/>',
+  flower: '<g fill="#ff9ec7"><circle cx="12" cy="6.2" r="3.6"/><circle cx="17.6" cy="10.4" r="3.6"/><circle cx="15.4" cy="17" r="3.6"/><circle cx="8.6" cy="17" r="3.6"/><circle cx="6.4" cy="10.4" r="3.6"/></g><circle cx="12" cy="12" r="3" fill="#ffd24a"/>',
+  honey: '<path d="M12 3c3.6 4.6 5.8 8 5.8 10.6a5.8 5.8 0 0 1-11.6 0C6.2 11 8.4 7.6 12 3Z" fill="#ffc23c" stroke="#d4901a" stroke-width="1"/><path d="M9.4 13.4a2.8 2.8 0 0 0 1.8 2.8" stroke="#fff3c4" stroke-width="1.4" fill="none" stroke-linecap="round"/>',
+  glow: '<circle cx="12" cy="12" r="9.6" fill="#ffe7a0" opacity=".45"/><circle cx="12" cy="12" r="6" fill="#ffd27a" opacity=".8"/><circle cx="12" cy="12" r="3.2" fill="#fff6d8"/>',
+  shell: '<ellipse cx="12" cy="13" rx="9.4" ry="7" fill="#6f8f4a"/><path d="M12 6v14M5 10l14 6M5 16l14-6" stroke="#4f6e34" stroke-width="1.2"/><ellipse cx="12" cy="13" rx="3.4" ry="2.6" fill="#8fae5a"/>',
+  heart: '<path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.4 3 4.5 6.7 4.5c2.2 0 3.6 1.2 5.3 3.1 1.7-1.9 3.1-3.1 5.3-3.1 3.7 0 5.8 3.9 4.3 7.3C19.5 16.4 12 21 12 21z" fill="#f06aa3"/>',
 } as const
 
 export type IconId = keyof typeof ICONS
@@ -48,34 +76,107 @@ export function factIcon(id: IconId) {
 
 /** One picture fact: a small picture and a short word for the grown-up who reads it aloud. */
 export type Fact = readonly [icon: IconId, word: string]
+
+/**
+ * A row of the book: a place of a world with its picture. The rows follow a flight: warm to cold on
+ * Earth, then the sea and the sky; the gardens on Blossom Haven, then the soda water and the sky.
+ */
+export type BookPlace = { id: PlaceId; world: 'earth' | 'fairy'; name: string; icon: IconId }
+export const BOOK_PLACES: BookPlace[] = [
+  { id: 'beach', world: 'earth', name: 'Palm beach', icon: 'palm' },
+  { id: 'jungle', world: 'earth', name: 'Jungle', icon: 'leaf' },
+  { id: 'savanna', world: 'earth', name: 'Savanna', icon: 'acacia' },
+  { id: 'desert', world: 'earth', name: 'Desert', icon: 'cactus' },
+  { id: 'temperate', world: 'earth', name: 'Leaf forest', icon: 'tree' },
+  { id: 'taiga', world: 'earth', name: 'Pine forest', icon: 'pine' },
+  { id: 'tundra', world: 'earth', name: 'Snow line', icon: 'snow' },
+  { id: 'sea', world: 'earth', name: 'The sea', icon: 'wave' },
+  { id: 'sky', world: 'earth', name: 'The sky', icon: 'cloud' },
+  { id: 'grove', world: 'fairy', name: 'Lollipop grove', icon: 'lollipop' },
+  { id: 'orchard', world: 'fairy', name: 'Cotton candy orchard', icon: 'candy' },
+  { id: 'glade', world: 'fairy', name: 'Mushroom glade', icon: 'mushroom' },
+  { id: 'peaks', world: 'fairy', name: 'Crystal peaks', icon: 'crystal' },
+  { id: 'soda', world: 'fairy', name: 'Soda water', icon: 'bubbles' },
+  { id: 'heaven', world: 'fairy', name: 'The sky', icon: 'cloud' },
+]
+const placeOf = (kind: FriendKind) => BOOK_PLACES.find(place => place.id === speciesById(kind).place)!
+
 export type AnimalCard = {
   /** "Real animals" live on Earth; "story creatures" live on Blossom Haven. */
   group: 'real' | 'story'
   world: 'earth' | 'fairy'
   /** Three picture facts. */
   facts: readonly [Fact, Fact, Fact]
-  /** The place where she can meet the kind: a kind of place, not a fixed place, so it is true on each new Earth. */
+  /** The place where she can meet the kind: the row of the book, a kind of place, so it is true on each new Earth. */
   place: Fact
 }
 
-/** The nine cards. The facts of the story creatures come from their notes in src/creatures/fairytale.ts. */
-export const ANIMAL_CARDS: Record<FriendKind, AnimalCard> = {
-  cow: { group: 'real', world: 'earth', facts: [['grass', 'Eats grass'], ['milk', 'Gives milk'], ['barn', 'Lives on a farm']], place: ['grass', 'In the meadow'] },
-  rabbit: { group: 'real', world: 'earth', facts: [['carrot', 'Eats carrots'], ['ears', 'Long ears'], ['burrow', 'Lives in a burrow']], place: ['grass', 'In the meadow'] },
-  sheep: { group: 'real', world: 'earth', facts: [['grass', 'Eats grass'], ['wool', 'Gives wool'], ['barn', 'Lives on a farm']], place: ['grass', 'In the meadow'] },
-  duck: { group: 'real', world: 'earth', facts: [['water', 'Swims'], ['egg', 'Lays eggs'], ['feather', 'Has feathers']], place: ['water', 'On the water'] },
-  unicorn: { group: 'story', world: 'fairy', facts: [['rainbow', 'Rainbow mane'], ['horn', 'Golden horn'], ['grass', 'Grazes in the meadow']], place: ['grass', 'In the meadow'] },
-  dragonling: { group: 'story', world: 'fairy', facts: [['wing', 'Tiny wings'], ['candy', 'Puffs candy floss'], ['feet', 'Waddles in a herd']], place: ['grass', 'In the meadow'] },
-  kitsune: { group: 'story', world: 'fairy', facts: [['fox', 'A fox cub'], ['tails', 'Three wish tails'], ['paw', 'Hops and stops']], place: ['grass', 'In the meadow'] },
-  frogPrince: { group: 'story', world: 'fairy', facts: [['crown', 'Golden crown'], ['lily', 'Rides a lily pad'], ['bubbles', 'Wishing bubbles']], place: ['bubbles', 'On the soda water'] },
-  pegasus: { group: 'story', world: 'fairy', facts: [['wing', 'Flies on wings'], ['star', 'Starry mane'], ['cottage', 'Over the cottage']], place: ['cottage', 'Over the cottage'] },
+/** The three picture facts of each kind. The facts of the story creatures of the first game come from src/creatures/fairytale.ts. */
+const FACTS: Record<FriendKind, readonly [Fact, Fact, Fact]> = {
+  cow: [['grass', 'Eats grass'], ['milk', 'Gives milk'], ['barn', 'Lives on a farm']],
+  rabbit: [['carrot', 'Eats carrots'], ['ears', 'Long ears'], ['burrow', 'Lives in a burrow']],
+  sheep: [['grass', 'Eats grass'], ['wool', 'Gives wool'], ['barn', 'Lives on a farm']],
+  duck: [['water', 'Swims'], ['egg', 'Lays eggs'], ['feather', 'Has feathers']],
+  deer: [['leaf', 'Eats leaves'], ['antlers', 'Antlers on its head'], ['tree', 'Lives in the forest']],
+  fox: [['fox', 'Orange and fluffy'], ['tails', 'A bushy tail'], ['burrow', 'Sleeps in a den']],
+  stork: [['wing', 'Flies very far'], ['sun', 'Flies south in winter'], ['egg', 'Nests on roofs']],
+  moose: [['leaf', 'Eats leaves'], ['antlers', 'Very big antlers'], ['water', 'Wades in lakes']],
+  bear: [['berry', 'Eats berries'], ['heart', 'Mother and cub'], ['snow', 'Sleeps all winter']],
+  beaver: [['tree', 'Builds with sticks'], ['water', 'Swims well'], ['paw', 'A flat tail']],
+  reindeer: [['snow', 'Lives in the snow'], ['antlers', 'Big antlers'], ['feet', 'Walks in a herd']],
+  hare: [['snow', 'White in winter'], ['ears', 'Long ears'], ['paw', 'Big snow feet']],
+  penguin: [['fish', 'Eats fish'], ['snow', 'Lives in the cold'], ['water', 'Swims, cannot fly']],
+  seal: [['fish', 'Eats fish'], ['water', 'Swims in the sea'], ['snow', 'Rests on the ice']],
+  zebra: [['stripes', 'Black and white stripes'], ['grass', 'Eats grass'], ['feet', 'Lives in a herd']],
+  giraffe: [['leaf', 'Eats treetop leaves'], ['spots', 'Brown spots'], ['acacia', 'The tallest animal']],
+  elephant: [['grass', 'Eats grass'], ['water', 'Sprays water'], ['heart', 'A big family']],
+  meerkat: [['sun', 'Loves the sun'], ['burrow', 'Lives in burrows'], ['feet', 'Stands up tall']],
+  camel: [['sun', 'Lives in the desert'], ['water', 'Drinks a lot'], ['feet', 'Walks very far']],
+  monkey: [['tree', 'Climbs trees'], ['tails', 'A long tail'], ['berry', 'Eats fruit']],
+  parrot: [['rainbow', 'Bright colours'], ['wing', 'Flies in flocks'], ['berry', 'Eats fruit and nuts']],
+  capybara: [['water', 'Swims in rivers'], ['grass', 'Eats grass'], ['heart', 'Calm and friendly']],
+  flamingo: [['feet', 'Stands on one leg'], ['water', 'Wades in water'], ['fish', 'Eats tiny shrimp']],
+  turtle: [['shell', 'A hard shell'], ['water', 'Swims in the sea'], ['egg', 'Lays eggs in sand']],
+  seagull: [['wing', 'Glides over the sea'], ['fish', 'Eats fish'], ['wave', 'Lives by the sea']],
+  dolphin: [['wave', 'Leaps over waves'], ['fish', 'Eats fish'], ['heart', 'Swims with family']],
+  whale: [['wave', 'The biggest animal'], ['water', 'Blows a spout'], ['fish', 'Eats tiny food']],
+  fish: [['fish', 'Swims in a school'], ['wave', 'Jumps out of water'], ['star', 'Shiny and silver']],
+  butterfly: [['flower', 'Visits flowers'], ['wing', 'Colourful wings'], ['sun', 'Out in summer']],
+  firefly: [['glow', 'Glows at night'], ['moon', 'Out on summer nights'], ['wing', 'Tiny wings']],
+  goose: [['wing', 'Flies in a V'], ['sun', 'Flies south in autumn'], ['grass', 'Eats grass']],
+  unicorn: [['rainbow', 'Rainbow mane'], ['horn', 'Golden horn'], ['grass', 'Grazes in the meadow']],
+  dragonling: [['wing', 'Tiny wings'], ['candy', 'Puffs candy floss'], ['feet', 'Waddles in a herd']],
+  kitsune: [['fox', 'A fox cub'], ['tails', 'Three wish tails'], ['paw', 'Hops and stops']],
+  frogPrince: [['crown', 'Golden crown'], ['lily', 'Rides a lily pad'], ['bubbles', 'Wishing bubbles']],
+  pegasus: [['wing', 'Flies on wings'], ['star', 'Starry mane'], ['cottage', 'Over the cottage']],
+  gummyBear: [['candy', 'Made of jelly'], ['rainbow', 'Many candy colours'], ['feet', 'Bounces and wobbles']],
+  flossLamb: [['candy', 'Candy floss fleece'], ['cloud', 'Floats a little'], ['heart', 'Soft to hug']],
+  caterpillar: [['bubbles', 'Blows bubble rings'], ['mushroom', 'Sits on a mushroom'], ['star', 'From a story']],
+  crystalDeer: [['crystal', 'Crystal antlers'], ['star', 'They sparkle'], ['feet', 'Walks on the peaks']],
+  griffin: [['wing', 'Fluffy wings'], ['crystal', 'Lives on the peaks'], ['feather', 'Soft feathers']],
+  jelly: [['bubbles', 'Swims in soda'], ['candy', 'Made of jelly'], ['glow', 'Glows softly']],
+  serpent: [['wave', 'Three big humps'], ['bubbles', 'Blows fizz'], ['heart', 'Big and friendly']],
+  phoenix: [['glow', 'A warm glow'], ['cloud', 'Flies very high'], ['sun', 'Warm, never hot']],
+  honeyBee: [['flower', 'Visits big flowers'], ['honey', 'Makes honey drops'], ['heart', 'Never stings']],
+  bubbleFish: [['bubbles', 'Swims in a bubble'], ['cloud', 'Swims in the air'], ['star', 'In Bubble time']],
+  lanternMoth: [['glow', 'Glows like a lantern'], ['moon', 'Out at night'], ['mushroom', 'In Lantern time']],
+  owlet: [['crystal', 'Made of sugar glass'], ['moon', 'Blinks sleepy eyes'], ['star', 'In Crystal time']],
 }
 
-/** The two groups of the book, in the order of the page. */
-export const BOOK_GROUPS = [
-  { id: 'real', title: 'Real animals', where: 'on Earth', kinds: FRIEND_KINDS.filter(kind => ANIMAL_CARDS[kind].group === 'real') },
-  { id: 'story', title: 'Story creatures', where: 'on Blossom Haven', kinds: FRIEND_KINDS.filter(kind => ANIMAL_CARDS[kind].group === 'story') },
-] as const
+/** The 48 cards, from the catalog of src/creatures/catalog.ts. */
+export const ANIMAL_CARDS = Object.fromEntries(BOOK_KINDS.map(kind => {
+  const world = speciesById(kind).world, place = placeOf(kind)
+  return [kind, { group: world === 'earth' ? 'real' : 'story', world, facts: FACTS[kind], place: [place.icon, place.name] }]
+})) as unknown as Record<FriendKind, AnimalCard>
+
+/** The two pages of the book, one for each world, with a row for each place that has a kind. */
+export const BOOK_PAGES = (['earth', 'fairy'] as const).map(world => ({
+  world,
+  title: world === 'earth' ? 'Real animals' : 'Story creatures',
+  rows: BOOK_PLACES.filter(place => place.world === world)
+    .map(place => ({ ...place, kinds: BOOK_KINDS.filter(kind => speciesById(kind).place === place.id) }))
+    .filter(row => row.kinds.length),
+}))
 
 /** The name of the world of a card, as in Worlds. */
 export const worldName = (world: AnimalCard['world']) => world === 'earth' ? 'Earth' : 'Blossom Haven'
@@ -87,8 +188,8 @@ export function cardLook(state: FriendState, kind: FriendKind): CardLook {
   return kind === state.friend ? 'friend' : 'met'
 }
 
-/** The count of the met kinds on the tab, as the sticker count: "7/9". It is the size of the book, not a score. */
-export const bookCount = (state: FriendState) => `${state.met.length}/${FRIEND_KINDS.length}`
+/** The count of the met kinds on the tab, as the sticker count: "7/48". It is the size of the book, not a score. */
+export const bookCount = (state: FriendState) => `${state.met.length}/${BOOK_KINDS.length}`
 
 /**
  * The note at the top of the Animals page. `kind` is the picture (null: the empty bubble of no
@@ -105,7 +206,7 @@ export type BookNote = {
   /** A kind that she did not meet shows its world (a world picture) before its place. */
   world: AnimalCard['world'] | null
   hearts: number | null
-  /** "Fly with me": a met kind that is not the friend, after the gift. */
+  /** "Fly with me": a met kind that can be a friend and is not the friend, after the gift. */
   fly: boolean
   /** "No friend": the card of the friend. */
   none: boolean
@@ -123,10 +224,12 @@ export function bookNote(state: FriendState, selected: FriendKind | null): BookN
   }
   const card = ANIMAL_CARDS[selected], look = cardLook(state, selected)
   if (look === 'unmet') return { ...note, kind: selected, shadow: true, label: 'Say hello to meet it', name: 'Who is it?', facts: [card.place], world: card.world }
+  const friendly = isFriendKind(selected)
   return {
     ...note, kind: selected, name: friendName(selected), facts: [...card.facts],
-    label: look === 'friend' ? '✦ Flies with you' : card.group === 'real' ? 'Real animal' : 'Story creature',
-    fly: gift && look === 'met', none: gift && look === 'friend',
+    // A school or a swarm is many small animals: it stays in its place, so it has no "Fly with me".
+    label: look === 'friend' ? '✦ Flies with you' : !friendly ? 'Many little friends' : card.group === 'real' ? 'Real animal' : 'Story creature',
+    fly: gift && look === 'met' && friendly, none: gift && look === 'friend',
   }
 }
 

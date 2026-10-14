@@ -75,9 +75,11 @@ export function joinedGeometry(id: string, quality: Quality) {
 const colour = new THREE.Color()
 function shapePieces(shape: Shape, quality: Quality) {
   const pieces: THREE.BufferGeometry[] = []
+  // The far model leaves out the details and the very small parts: small for the size of the kind, so a bee keeps its body.
+  const extent = Math.max(...shape.parts.map(part => Math.max(Math.abs(part.p[0]), Math.abs(part.p[1]), Math.abs(part.p[2])) + Math.max(...part.s)))
+  const smallest = Math.min(0.035, extent * 0.12)
   for (const part of shape.parts) {
-    // The far model leaves out the details and the very small parts.
-    if (quality === 'far' && (part.detail || Math.max(...part.s) < 0.035)) continue
+    if (quality === 'far' && (part.detail || Math.max(...part.s) < smallest)) continue
     const geometry = primitive(part.shape, quality).clone()
     matrix.compose(new THREE.Vector3(...part.p), quaternion.setFromEuler(euler.set(...part.r)), new THREE.Vector3(...part.s))
     geometry.applyMatrix4(matrix)
@@ -148,8 +150,8 @@ export function gaitOf(id: string): Gait {
 /** The Earth animals are faceted; the jelly and candy creatures of Blossom Haven are smooth. */
 export const flatOf = (id: string) => isFirstKind(id) ? (FIRST_EARTH as readonly string[]).includes(id) : shapeOf(id).flat
 export const shineOf = (id: string) => isFirstKind(id) ? ((FIRST_EARTH as readonly string[]).includes(id) ? 0.92 : 0.72) : shapeOf(id).shine
-/** A kind with a soft light of its own: the phoenix chick and the lantern moth glow. */
-const GLOW: Record<string, number> = { phoenix: 0.45, lanternMoth: 0.5 }
+/** A kind with a soft light of its own: the phoenix chick, the lantern moth and the firefly glow. */
+const GLOW: Record<string, number> = { phoenix: 0.45, lanternMoth: 0.5, firefly: 0.7 }
 
 // ---- The shader of the joined models ----------------------------------------------------------------
 
@@ -220,20 +222,31 @@ function baseMaterial(id: string) {
 /**
  * The parts of a joined model for the friend of src/friend.ts: the body, and the wings (the parts
  * with the code of a wing). The geometries have no index, a colour in each vertex and no rig.
- * `wings` is null for a kind with no wing parts.
+ * `wings` is null for a kind with no wing parts. Each wing turns up by `wingRest` radians about its
+ * root, as the wings of the first friends stand.
  */
-export function friendParts(id: string) {
+export function friendParts(id: string, wingRest = 0) {
   const source = joinedGeometry(id, 'near')
   const flat = source.index ? source.toNonIndexed() : source.clone()
   const position = flat.attributes.position, normal = flat.attributes.normal, colours = flat.attributes.color, rig = flat.attributes.aRig
   const body: number[][] = [[], [], []], wing: number[][] = [[], [], []], pivots: number[] = []
+  const p = new THREE.Vector3(), n = new THREE.Vector3(), turn = new THREE.Matrix4(), pivot = new THREE.Vector3()
   for (let i = 0; i < position.count; i += 3) {
     const isWing = rig.getX(i) > 4.5 && rig.getX(i) < 5.5
     const target = isWing ? wing : body
     if (isWing) pivots.push(rig.getY(i))
+    // A wing turns about the z axis at its root: [side * root x, root y].
+    const side = rig.getW(i)
+    if (isWing) turn.makeRotationZ(side * wingRest)
     for (let k = i; k < i + 3; k++) {
-      target[0].push(position.getX(k), position.getY(k), position.getZ(k))
-      target[1].push(normal.getX(k), normal.getY(k), normal.getZ(k))
+      p.fromBufferAttribute(position, k); n.fromBufferAttribute(normal, k)
+      if (isWing && wingRest) {
+        pivot.set(side * rig.getZ(k), rig.getY(k), 0)
+        p.sub(pivot).applyMatrix4(turn).add(pivot)
+        n.applyMatrix4(turn)
+      }
+      target[0].push(p.x, p.y, p.z)
+      target[1].push(n.x, n.y, n.z)
       target[2].push(colours.getX(k), colours.getY(k), colours.getZ(k))
     }
   }

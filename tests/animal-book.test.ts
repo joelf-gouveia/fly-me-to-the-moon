@@ -1,22 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { ANIMAL_CARDS, BOOK_GROUPS, bookCount, bookNote, cardLook, factIcon, heartsHtml } from '../src/animal-book'
-import { FRIEND_KINDS, parseFriend } from '../src/friend'
+import { ANIMAL_CARDS, BOOK_PAGES, BOOK_PLACES, bookCount, bookNote, cardLook, factIcon, heartsHtml } from '../src/animal-book'
+import { BOOK_KINDS, parseFriend } from '../src/friend'
+import { speciesById } from '../src/creatures/catalog'
 import type { FriendState } from '../src/friend'
 
 const before: FriendState = { hellos: 3, met: ['sheep', 'duck'], friend: null }
 const after: FriendState = { hellos: 5, met: ['cow', 'sheep', 'pegasus', 'duck'], friend: 'pegasus' }
 
 describe('animal book: the cards', () => {
-  it('has a card for each of the nine kinds, in two groups: four real animals and five story creatures', () => {
-    expect(Object.keys(ANIMAL_CARDS).sort()).toEqual([...FRIEND_KINDS].sort())
-    expect(BOOK_GROUPS.map(group => group.kinds)).toEqual([['cow', 'rabbit', 'sheep', 'duck'], ['unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus']])
-    for (const group of BOOK_GROUPS) for (const kind of group.kinds) {
-      expect(ANIMAL_CARDS[kind].world, kind).toBe(group.id === 'real' ? 'earth' : 'fairy')
+  it('has a card for each of the 48 kinds, on one page for each world, with each kind in one row of its place', () => {
+    expect(Object.keys(ANIMAL_CARDS).sort()).toEqual([...BOOK_KINDS].sort())
+    expect(BOOK_PAGES.map(page => page.world)).toEqual(['earth', 'fairy'])
+    for (const page of BOOK_PAGES) {
+      const kinds = page.rows.flatMap(row => row.kinds)
+      expect(kinds.sort()).toEqual(BOOK_KINDS.filter(kind => speciesById(kind).world === page.world).sort())
+      for (const row of page.rows) for (const kind of row.kinds) {
+        expect(ANIMAL_CARDS[kind].world, kind).toBe(page.world)
+        expect(ANIMAL_CARDS[kind].place, kind).toEqual([row.icon, row.name])
+      }
     }
+    expect(BOOK_PAGES[0].rows.map(row => row.name)).toEqual(['Palm beach', 'Jungle', 'Savanna', 'Desert', 'Leaf forest', 'Pine forest', 'Snow line', 'The sea', 'The sky'])
+    expect(BOOK_PAGES[1].rows.map(row => row.name)).toEqual(['Lollipop grove', 'Cotton candy orchard', 'Mushroom glade', 'Crystal peaks', 'Soda water', 'The sky'])
+    for (const place of BOOK_PLACES) expect(factIcon(place.icon), place.id).toMatch(/^<svg/)
   })
 
   it('gives each card three picture facts with short words, and a place', () => {
-    for (const kind of FRIEND_KINDS) {
+    for (const kind of BOOK_KINDS) {
       const card = ANIMAL_CARDS[kind]
       expect(card.facts, kind).toHaveLength(3)
       for (const [icon, word] of [...card.facts, card.place]) {
@@ -34,8 +43,8 @@ describe('animal book: the cards', () => {
     expect(cardLook(after, 'cow')).toBe('met')
     expect(cardLook(after, 'unicorn')).toBe('unmet')
     expect(cardLook(before, 'sheep')).toBe('met')
-    expect(FRIEND_KINDS.map(kind => cardLook(parseFriend(null), kind)).every(look => look === 'unmet')).toBe(true)
-    expect(bookCount(after)).toBe('4/9')
+    expect(BOOK_KINDS.map(kind => cardLook(parseFriend(null), kind)).every(look => look === 'unmet')).toBe(true)
+    expect(bookCount(after)).toBe('4/48')
   })
 })
 
@@ -50,12 +59,12 @@ describe('animal book: the note of the Animals page', () => {
   })
 
   it('shows no hearts after the gift, and never a number', () => {
-    for (const state of [after, { ...after, friend: null }]) for (const selected of [null, ...FRIEND_KINDS]) {
+    for (const state of [after, { ...after, friend: null }]) for (const selected of [null, ...BOOK_KINDS]) {
       const note = bookNote(state, selected)
       expect(note.hearts).toBeNull()
       expect(`${note.label} ${note.name} ${note.facts.map(fact => fact[1]).join(' ')}`).not.toMatch(/\d/)
     }
-    for (const selected of [null, ...FRIEND_KINDS]) expect(bookNote(before, selected).label + bookNote(before, selected).name).not.toMatch(/\d/)
+    for (const selected of [null, ...BOOK_KINDS]) expect(bookNote(before, selected).label + bookNote(before, selected).name).not.toMatch(/\d/)
   })
 
   it('has "Fly with me" on a met card after the gift, and "No friend" on the card of the friend', () => {
@@ -69,8 +78,16 @@ describe('animal book: the note of the Animals page', () => {
   })
 
   it('shows a kind that she did not meet as a shadow with its world and its place', () => {
-    expect(bookNote(after, 'frogPrince')).toMatchObject({ kind: 'frogPrince', shadow: true, world: 'fairy', facts: [['bubbles', 'On the soda water']], fly: false, none: false })
-    expect(bookNote(before, 'cow')).toMatchObject({ shadow: true, world: 'earth', facts: [['grass', 'In the meadow']], hearts: 3 })
+    expect(bookNote(after, 'frogPrince')).toMatchObject({ kind: 'frogPrince', shadow: true, world: 'fairy', facts: [['bubbles', 'Soda water']], fly: false, none: false })
+    expect(bookNote(before, 'cow')).toMatchObject({ shadow: true, world: 'earth', facts: [['tree', 'Leaf forest']], hearts: 3 })
+    // A kind of the far side of Earth: the row of its place.
+    expect(bookNote(before, 'penguin')).toMatchObject({ shadow: true, world: 'earth', facts: [['snow', 'Snow line']] })
+  })
+
+  it('has no "Fly with me" for a school or a swarm: it is in the book, but it is no friend', () => {
+    const swarm: FriendState = { ...after, met: [...after.met, 'butterfly'] }
+    expect(bookNote(swarm, 'butterfly')).toMatchObject({ kind: 'butterfly', fly: false, none: false, label: 'Many little friends' })
+    expect(bookNote(swarm, 'cow')).toMatchObject({ fly: true })
   })
 })
 

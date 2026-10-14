@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { FRIEND_KINDS, parseFriend } from '../../src/friend'
-import { CARDS, CHANGES, CLIPS, COMPARE, DECISIONS, OPTIONS, PARTS, SAVE_EXAMPLE } from './model'
+import { parseFriend } from '../../src/friend'
+import { CARDS, CHANGES, CLIPS, COMPARE, DECISIONS, OPTIONS, PARTS, SAVE_EXAMPLE, FRIEND_KINDS } from './model'
 import { scopeCss } from './scope-css.mjs'
 import captureScript from './friend-book-study-capture.mjs?raw'
 

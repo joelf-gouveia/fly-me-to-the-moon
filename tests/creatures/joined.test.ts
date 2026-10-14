@@ -1,16 +1,14 @@
 import * as THREE from 'three'
 import { describe, expect, it } from 'vitest'
-import { HERD_KINDS, SPECIES } from '../../src/creatures/catalog'
+import { SPECIES } from '../../src/creatures/catalog'
 import { farMaterial, friendParts, hasModel, joinedGeometry, rigMaterial } from '../../src/creatures/joined'
 
-// Four kinds of decision 7 get their models in a later step of the build.
-const LATER = ['caterpillar', 'griffin', 'phoenix', 'owlet']
 const modelled = SPECIES.filter(species => hasModel(species.id))
 const standing = modelled.filter(species => ['walk', 'hop', 'waddle', 'crawl'].includes(species.move) && species.layer !== 'small')
 
 describe('the joined models of the animals', () => {
-  it('has a model for each kind of the herds, except the points of the small life', () => {
-    for (const species of HERD_KINDS) if (species.layer !== 'small' && !LATER.includes(species.id)) expect(hasModel(species.id), species.id).toBe(true)
+  it('has a model for each kind of the catalog: the herds, the small life near the fairy, the cards and the friends', () => {
+    for (const species of SPECIES) expect(hasModel(species.id), species.id).toBe(true)
   })
 
   it('stands each walking kind on y = 0, near and far', () => {
