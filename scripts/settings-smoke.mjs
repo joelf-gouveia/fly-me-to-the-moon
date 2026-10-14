@@ -110,11 +110,12 @@ try {
   state = await snapshot()
   assert(state.settingsOpen && await evaluate('document.querySelector("#settings").open'), 'Settings does not open')
   assert(state.elapsed === before, 'The flight clock runs while Settings is open')
-  assert((await text('#sticker-summary')) === 'The book has 1 of 13 stickers.', `Wrong summary: ${await text('#sticker-summary')}`)
+  // The flight to the Moon can also give a shape of the Moon diary (F14), which the texts then count.
+  assert((await text('#sticker-summary')).startsWith('The book has 1 of 13 stickers.'), `Wrong summary: ${await text('#sticker-summary')}`)
 
   // The confirmation: Cancel has the focus and keeps the book.
   await click('#reset-stickers')
-  assert(await evaluate('!document.querySelector("#reset-confirm").hidden') && (await text('#reset-question')) === 'Remove the sticker?', `Wrong question: ${await text('#reset-question')}`)
+  assert(await evaluate('!document.querySelector("#reset-confirm").hidden') && ['Remove the sticker?', 'Remove the sticker, and the Moon shape?'].includes(await text('#reset-question')), `Wrong question: ${await text('#reset-question')}`)
   assert(await evaluate('document.activeElement.id') === 'reset-cancel', 'The safe answer does not have the focus')
   await screenshot('confirm')
   await click('#reset-cancel')
@@ -127,7 +128,8 @@ try {
   assert(state.stickers.length === 0, `The reset keeps stickers: ${state.stickers}`)
   assert(state.openWorlds.join() === 'earth,moon,fairy', `The reset does not close the worlds again: ${state.openWorlds}`)
   assert(JSON.parse(await evaluate('localStorage.getItem("fairy-sticker-book")')).arrived.length === 0, 'The saved book is not empty')
-  assert((await text('#reset-status')).startsWith('1 sticker removed.') && await evaluate('document.querySelector("#reset-stickers").disabled'), 'No status after the reset')
+  const status = await text('#reset-status')
+  assert(['1 sticker removed.', '1 sticker and 1 Moon shape removed.'].some(start => status.startsWith(start)) && await evaluate('document.querySelector("#reset-stickers").disabled'), 'No status after the reset')
   assert((await text('#sticker-summary')) === 'The book is empty.', 'The summary does not show the empty book')
   await screenshot('reset')
 
