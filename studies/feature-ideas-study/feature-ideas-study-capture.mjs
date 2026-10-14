@@ -19,6 +19,7 @@ const stillTimes = process.env.STILLS?.split(',').map(Number)
 if (!browserPath) throw new Error('Pass a Chromium browser executable as the first argument')
 const FPS = 30, WIDTH = 1280, HEIGHT = 720
 // A different study that uses the lab sets STUDY_OUT (the folder in public/studies/) and STUDY_PAGE (its page).
+// STUDY_BITRATE sets the bit rate of the clips (the default is 3M).
 const out = join(process.cwd(), 'public', 'studies', process.env.STUDY_OUT ?? 'feature-ideas')
 await mkdir(out, { recursive: true })
 
@@ -35,7 +36,7 @@ const ffmpeg = await findFfmpeg()
 function encode(input, output) {
   return new Promise((resolve, reject) => {
     const encoder = spawn(ffmpeg, ['-y', '-hide_banner', '-loglevel', 'error', '-f', 'image2pipe', '-c:v', 'mjpeg', '-framerate', String(FPS), '-i', `file:${input}`,
-      '-c:v', 'libvpx', '-b:v', '3M', '-crf', '8', '-auto-alt-ref', '0', '-pix_fmt', 'yuv420p', `file:${output}`], { stdio: ['ignore', 'ignore', 'pipe'] })
+      '-c:v', 'libvpx', '-b:v', process.env.STUDY_BITRATE ?? '3M', '-crf', '8', '-auto-alt-ref', '0', '-pix_fmt', 'yuv420p', `file:${output}`], { stdio: ['ignore', 'ignore', 'pipe'] })
     let errors = ''
     encoder.stderr.on('data', data => { errors += data })
     encoder.on('error', reject)
