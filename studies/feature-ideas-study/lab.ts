@@ -53,10 +53,15 @@ export function softDisc(color = 'rgba(255,255,255,1)', size = 128) {
   return texture
 }
 
-export function createLab(host: HTMLElement) {
+/**
+ * `mobile` builds the worlds and the renderer as the game does on a touch device: no antialias,
+ * a pixel ratio of at most 1.25 (src/mobile-quality.ts), and the phone budget of src/worlds.ts.
+ * The animals study measures the phone with it. The default is the computer look of before.
+ */
+export function createLab(host: HTMLElement, { mobile = false } = {}) {
   // preserveDrawingBuffer: the postcard (F5) and the clip capture read the canvas after the frame.
-  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true })
-  renderer.setPixelRatio(Math.min(devicePixelRatio, 1.6))
+  const renderer = new THREE.WebGLRenderer({ antialias: !mobile, powerPreference: 'high-performance', preserveDrawingBuffer: true })
+  renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.25 : 1.6))
   renderer.outputColorSpace = THREE.SRGBColorSpace
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.15
@@ -87,7 +92,7 @@ export function createLab(host: HTMLElement) {
   const ambient = new THREE.HemisphereLight(0xd9efff, 0x65794e, 1.1)
   scene.add(ambient)
   const stars = createStarSky(scene)
-  const worlds = createWorlds(scene, false, renderer)
+  const worlds = createWorlds(scene, mobile, renderer)
   const byKind = (kind: Kind) => worlds.find(world => world.kind === kind)!
   const sun = byKind('sun'), earth = byKind('earth'), home = byKind('fairy'), moon = byKind('moon')
   const sunlight = new THREE.PointLight(0xffebcc, 2.4, 0, 0)

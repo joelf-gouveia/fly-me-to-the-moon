@@ -74,8 +74,11 @@ try {
       window.testTime ??= performance.now();
       const gl = document.querySelector('#scene canvas').getContext('webgl2');
       const draw = gl.drawElements, instances = gl.drawElementsInstanced, arrays = gl.drawArrays;
+      // A picture of a card renders into a frame buffer in any frame: those draws stay, so the picture of a note is never empty.
+      if (!gl.boundFrame) { const bind = gl.bindFramebuffer; gl.boundFrame = { on: null }; gl.bindFramebuffer = function (target, frame) { if (target !== gl.READ_FRAMEBUFFER) gl.boundFrame.on = frame; return bind.call(this, target, frame) } }
+      const keep = original => function (...parts) { if (gl.boundFrame.on) return original.apply(this, parts) };
       try {
-        gl.drawElements = () => {}; gl.drawElementsInstanced = () => {}; gl.drawArrays = () => {};
+        gl.drawElements = keep(draw); gl.drawElementsInstanced = keep(instances); gl.drawArrays = keep(arrays);
         for (let i = 0; i < Math.ceil(seconds * 60) - 1; i++) window.gameFrame(window.testTime += 1000 / 60);
       } finally { gl.drawElements = draw; gl.drawElementsInstanced = instances; gl.drawArrays = arrays; }
       window.gameFrame(window.testTime += 1000 / 60);
@@ -97,6 +100,20 @@ try {
     throw new Error('The game did not load')
   }
   const population = (state, world) => state.wildlife.find(item => item.world === world)
+  // The animals that walk near the start of Earth: the meadow is in the leaf forest or in the pine forest (src/creatures/catalog.ts).
+  const LAND = ['cow', 'sheep', 'rabbit', 'deer', 'fox', 'moose', 'bear', 'hare', 'reindeer']
+  /**
+   * A land animal near the fairy. Each load makes a new Earth: when no land animal is near the start
+   * (a phone has the moving model only to 32 m), the fairy flies over the nearest cow herd first.
+   */
+  async function landNear(state) {
+    const found = nearest(state, 'Earth', LAND)
+    if (found) return found
+    const [place] = await evaluate(`__fairyTest.herdPlaces('cow', 1)`)
+    await evaluate(`__fairyTest.placeOver('earth', ${JSON.stringify(place.direction)}, 20)`)
+    await advance(0.2)
+    return nearest(await snapshot(), 'Earth', LAND)
+  }
   /** The visible creature nearest to the fairy, of the given kinds. */
   function nearest(state, world, kinds) {
     return population(state, world).visible.filter(model => kinds.some(kind => model.name.startsWith(`creature-${kind}-`)))
@@ -142,7 +159,7 @@ try {
   let state = await snapshot()
   // A creature near the start meadow can say hello in the first second: the hello starts before the fairy
   // arrives. Then the fairy hovers 30 m up, away from each creature, until each creature has rested (8 s).
-  const first = nearest(state, 'Earth', ['rabbit', 'sheep', 'cow'])
+  const first = await landNear(state)
   assert(first, 'No land animal is near the start meadow')
   if (state.hellos > 0) {
     await evaluate(`__fairyTest.approach(${JSON.stringify(first)}, 40, 30, true)`)
@@ -167,14 +184,14 @@ try {
   if (soundOn) assert(chime >= 2, `No hello chime with the sound on: ${chime}`)
 
   // The picture: the fairy hovers near another animal, and the animal says hello.
-  const animal = nearest(await snapshot(), 'Earth', ['rabbit', 'sheep', 'cow'].filter(kind => !land.startsWith(`creature-${kind}-`))) ?? land
+  const animal = nearest(await snapshot(), 'Earth', LAND.filter(kind => !land.startsWith(`creature-${kind}-`))) ?? land
   const earthHearts = await picture('Earth', animal, 'earth-hello')
 
   // Pause: the hop and the hearts hold still, and no hello starts.
   step('pause')
   await evaluate(`__fairyTest.approach(${JSON.stringify(land)}, 3.6, 2.4, true)`)
   await advance(0.2)
-  const others = nearest(await snapshot(), 'Earth', ['rabbit', 'sheep', 'cow', 'duck'])
+  const others = nearest(await snapshot(), 'Earth', [...LAND, 'duck'])
   await evaluate(`__fairyTest.approach(${JSON.stringify(others)}, 3.6, 2.4, true)`)
   await advance(0.3)
   const beforePause = population(await snapshot(), 'Earth')
@@ -216,7 +233,9 @@ try {
   assert(state.found, 'The fairy did not reach Blossom Haven')
   await advance(1)
   state = await snapshot()
-  const fairytale = nearest(state, 'Blossom Haven', ['rabbit', 'sheep', 'cow'])
+  // The creatures that walk in the gardens of Blossom Haven (src/creatures/catalog.ts).
+  const GARDEN = ['unicorn', 'dragonling', 'kitsune', 'gummyBear', 'flossLamb', 'crystalDeer']
+  const fairytale = nearest(state, 'Blossom Haven', GARDEN)
   assert(fairytale, 'No fairytale creature near the cottage')
   const kind = population(state, 'Blossom Haven').visible.find(model => model.name === fairytale).fairytale
   assert(await evaluate(`__fairyTest.approach(${JSON.stringify(fairytale)}, 9, 2.4, false)`), 'The fairy could not fly to the creature')
@@ -225,12 +244,12 @@ try {
   assert(haven.highest > 0.25, `The ${kind} did not hop: ${haven.highest}`)
   // The picture: the home card has gone, and the creature is beside the fairy.
   await advance(4)
-  const friend = nearest(await snapshot(), 'Blossom Haven', ['rabbit', 'sheep', 'cow'].filter(k => !fairytale.startsWith(`creature-${k}-`))) ?? fairytale
+  const friend = nearest(await snapshot(), 'Blossom Haven', GARDEN.filter(k => !fairytale.startsWith(`creature-${k}-`))) ?? fairytale
   const havenHearts = await picture('Blossom Haven', friend, 'blossom-hello')
   const havenState = await snapshot()
   await capture('blossom-hello')
   // A Frog Prince bobs on the water, lower than a hop.
-  const frog = nearest(havenState, 'Blossom Haven', ['duck'])
+  const frog = nearest(havenState, 'Blossom Haven', ['frogPrince'])
   let bob = null
   if (frog) {
     await evaluate(`__fairyTest.approach(${JSON.stringify(frog)}, 3, 2.4, true)`)
@@ -246,7 +265,7 @@ try {
   await advance(1)
   state = await snapshot()
   assert(state.graphics.mobile, 'The phone check does not run as a phone')
-  const pet = nearest(state, 'Earth', ['rabbit', 'sheep', 'cow'])
+  const pet = await landNear(state)
   const phoneHearts = await picture('Earth', pet, 'phone-hello')
   // A hello now starts before the fairy arrives, so more than one creature can say hello at the same time.
   const phoneHellos = Math.max(1, population(await snapshot(), 'Earth').hellos.active.length)

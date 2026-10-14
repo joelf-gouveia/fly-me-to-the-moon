@@ -50,9 +50,10 @@ a small increase. Pauses/background gaps are excluded. This aims for 60 fps;
 it cannot promise that every device's CPU or GPU can meet it.
 
 Mobile worlds have roughly half the decorative clouds, Earth vegetation and
-candy objects, simpler candy curves, and at most 14 visible wildlife models
-instead of 28. Residents still exist when not drawn. Ground geometry, terrain
-sampling, collision rules, cottage placement and day/night mechanics retain
+candy objects, simpler candy curves, and at most 130 animals with the moving model
+to 32 m (260 and 45 m on a computer). The animals of a phone take at most 20 draw
+calls, 40 on a computer (the Animals part of the README). Animals still exist
+when not drawn. Ground geometry, terrain sampling, collision rules, cottage placement and day/night mechanics retain
 their existing precision. The mobile scenery budget survives planet regeneration.
 The comet draws half of its tail particles (2,600 dust and 1,100 ion) and half of
 its sparkles (96) on a phone.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import * as THREE from 'three'
-import { chooseFriend, createFriend, createFriendFollow, createFriendModel, emptyFriend, FRIEND, FRIEND_KINDS, friendFlies, friendGlance, friendName, friendPlace, friendSize, hasFriendGift, helloNotes, parseFriend, sayHello, SWAP, swapAt } from '../src/friend'
+import { BOOK_KINDS, chooseFriend, createFriend, createFriendFollow, createFriendModel, emptyFriend, FRIEND, FRIEND_KINDS, friendFlies, friendGlance, friendName, friendPlace, friendSize, hasFriendGift, helloNotes, parseFriend, sayHello, SWAP, swapAt } from '../src/friend'
 import type { FriendFrame, FriendGround, FriendKind, FriendState } from '../src/friend'
 
 const wide = 1280 / 800, phone = 390 / 844
@@ -228,10 +228,17 @@ describe('fairy friend: the place at her side', () => {
 })
 
 describe('fairy friend: the saved state', () => {
-  it('has the four animals of Earth and the five story creatures of Blossom Haven', () => {
-    expect(FRIEND_KINDS).toEqual(['cow', 'rabbit', 'sheep', 'duck', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus'])
-    expect(FRIEND_KINDS.map(friendName)).toEqual(['Cow', 'Rabbit', 'Sheep', 'Duck', 'Unicorn', 'Dragonling', 'Kitsune kit', 'Frog Prince', 'Pegasus foal'])
-    expect(FRIEND_KINDS.filter(friendFlies)).toEqual(['duck', 'dragonling', 'pegasus'])
+  it('has a card for each of the 48 kinds of the catalog, and a friend in each kind that is no school or swarm', () => {
+    expect(BOOK_KINDS).toHaveLength(48)
+    expect(FRIEND_KINDS).toHaveLength(44)
+    expect(BOOK_KINDS.filter(kind => !FRIEND_KINDS.includes(kind)).sort()).toEqual(['butterfly', 'firefly', 'fish', 'honeyBee'])
+    // The nine kinds of the first book keep their names.
+    const first: FriendKind[] = ['cow', 'rabbit', 'sheep', 'duck', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus']
+    expect(first.map(friendName)).toEqual(['Cow', 'Rabbit', 'Sheep', 'Duck', 'Unicorn', 'Dragonling', 'Kitsune kit', 'Frog Prince', 'Pegasus foal'])
+    expect(first.filter(friendFlies)).toEqual(['duck', 'dragonling', 'pegasus'])
+    // A kind with wings flies; the others ride in the bubble, also a whale and a giraffe.
+    for (const kind of ['stork', 'parrot', 'seagull', 'goose', 'griffin', 'phoenix', 'lanternMoth', 'owlet'] as FriendKind[]) expect(friendFlies(kind), kind).toBe(true)
+    for (const kind of ['whale', 'giraffe', 'penguin', 'flamingo', 'bubbleFish', 'jelly'] as FriendKind[]) expect(friendFlies(kind), kind).toBe(false)
   })
 
   it('keeps the kinds that she met, and gives the friend at the fifth hello', () => {
@@ -264,9 +271,12 @@ describe('fairy friend: the saved state', () => {
     expect(sayHello(state, ['cow']).state.friend).toBe('unicorn')
   })
 
-  it('ignores a kind that is no friend', () => {
-    const result = sayHello(emptyFriend(), ['butterfly', 7, null, 'cow'])
-    expect(result.state).toEqual({ hellos: 1, met: ['cow'], friend: null })
+  it('ignores an unknown kind, and gives a school or a swarm its card but no heart', () => {
+    const result = sayHello(emptyFriend(), ['dragon', 7, null, 'butterfly', 'cow'])
+    expect(result.state).toEqual({ hellos: 1, met: ['butterfly', 'cow'], friend: null })
+    expect(result.fresh).toEqual(['butterfly', 'cow'])
+    // Five hellos of fish give no friend: a school is not one animal.
+    expect(sayHello(emptyFriend(), ['fish', 'fish', 'fish', 'fish', 'fish', 'fish']).state).toEqual({ hellos: 0, met: ['fish'], friend: null })
   })
 
   it('selects only a friend that she met, or no friend', () => {
@@ -274,6 +284,10 @@ describe('fairy friend: the saved state', () => {
     expect(chooseFriend(state, 'duck').friend).toBe('duck')
     expect(chooseFriend(state, null).friend).toBeNull()
     expect(chooseFriend(state, 'pegasus')).toBe(state)
+    // A school or a swarm that she met is in the book, but it is no friend.
+    const swarm: FriendState = { hellos: 5, met: ['cow', 'honeyBee'], friend: 'cow' }
+    expect(chooseFriend(swarm, 'honeyBee')).toBe(swarm)
+    expect(parseFriend({ ...swarm, friend: 'honeyBee' }).friend).toBeNull()
   })
 
   it('loads a saved state', () => {

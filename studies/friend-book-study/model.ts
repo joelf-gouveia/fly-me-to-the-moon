@@ -1,5 +1,8 @@
-import { FRIEND_KINDS, friendFlies, friendName } from '../../src/friend'
-import type { FriendKind } from '../../src/friend'
+import { friendFlies, friendName } from '../../src/friend'
+
+/** The nine kinds of the game at the time of this study. The game has more kinds now (docs/animals-study.md); the study keeps its own record. */
+export const FRIEND_KINDS = ['cow', 'rabbit', 'sheep', 'duck', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus'] as const
+export type FriendKind = typeof FRIEND_KINDS[number]
 
 /**
  * The friend book study: how the Animal book (F11) and the fairy friend (F19) become one thing.
@@ -47,7 +50,7 @@ export const CARDS: Card[] = FRIEND_KINDS.map(kind => {
   const earth = EARTH_KINDS.includes(kind)
   return { kind, name: friendName(kind), group: earth ? 'real' : 'story', world: earth ? 'earth' : 'fairy', ...FACTS[kind], flies: friendFlies(kind) }
 })
-export const cardOf = (kind: FriendKind) => CARDS.find(card => card.kind === kind)!
+export const cardOf = (kind: string) => CARDS.find(card => card.kind === kind)!
 export const GROUPS = [
   { id: 'real', title: 'REAL ANIMALS', where: 'on Earth' },
   { id: 'story', title: 'STORY CREATURES', where: 'on Blossom Haven' },

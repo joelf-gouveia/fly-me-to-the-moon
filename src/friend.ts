@@ -1,11 +1,13 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
-import { fairytale } from './creatures/fairytale'
 import type { Fairytale } from './creatures/fairytale'
 import { createFairytaleCreature } from './creatures/fairytale-models'
 import { species } from './creatures/habitat'
 import type { Species } from './creatures/habitat'
 import { createCreature } from './creatures/models'
+import { FRIEND_KIND_IDS, isKind, KIND_IDS, speciesById } from './creatures/catalog'
+import type { KindId } from './creatures/catalog'
+import { friendParts, isFirstKind } from './creatures/joined'
 
 /**
  * F19 · Fairy friend (docs/learn-and-play-study.md). After five hellos, a small friend flies with
@@ -16,21 +18,28 @@ import { createCreature } from './creatures/models'
  * and the object in the scene.
  */
 
-/** The creatures that can be a friend: four animals of Earth, then five story creatures of Blossom Haven. */
-export const FRIEND_KINDS = ['cow', 'rabbit', 'sheep', 'duck', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus'] as const
-export type FriendKind = typeof FRIEND_KINDS[number]
+/** A kind of the animal book: each kind of the catalog of src/creatures/catalog.ts (step 6 of docs/animals-study.md). */
+export type FriendKind = KindId
+/** The kinds of the book: 31 animals of Earth, then 17 creatures of Blossom Haven. */
+export const BOOK_KINDS: readonly FriendKind[] = KIND_IDS
+/** The kinds that can be a friend: each kind of the book, except a school or a swarm (the fish, the butterflies, the fireflies, the bees). */
+export const FRIEND_KINDS: readonly FriendKind[] = FRIEND_KIND_IDS
 
+/** True for a kind of the book. */
+export const isBookKind = (value: unknown): value is FriendKind => isKind(value)
+/** True for a kind that can be a friend. */
 export function isFriendKind(value: unknown): value is FriendKind {
   return FRIEND_KINDS.includes(value as FriendKind)
 }
 const isEarthKind = (kind: FriendKind): kind is Species => Object.hasOwn(species, kind)
-/** The name of a kind, as the creature studies give it. */
+/** The name of a kind, as the catalog gives it. */
 export function friendName(kind: FriendKind) {
-  return isEarthKind(kind) ? species[kind].name : fairytale[kind as Fairytale].name
+  return speciesById(kind).name
 }
 /** A kind with wings flies with its wings. Each other kind rides in a bubble that the fairy made. */
 export function friendFlies(kind: FriendKind) {
-  return kind === 'duck' || kind === 'dragonling' || kind === 'pegasus'
+  if (kind === 'duck' || kind === 'dragonling' || kind === 'pegasus') return true
+  return speciesById(kind).friend === 'wings' && !isFirstKind(kind)
 }
 
 export const FRIEND = {
@@ -60,7 +69,9 @@ export const FRIEND = {
 
 /**
  * `hellos` counts to FRIEND.hellos and stops there: it is not a score. `met` has the kinds that
- * said hello, in the order of the first hello. `friend` is the selected kind, or null for no friend.
+ * said hello, in the order of the first hello: the cards of the book. `friend` is the selected kind,
+ * or null for no friend. A school or a swarm gets its card, but its hello adds no heart, because it
+ * cannot be the friend.
  */
 export type FriendState = { hellos: number; met: FriendKind[]; friend: FriendKind | null }
 
@@ -77,10 +88,10 @@ export function hasFriendGift(state: FriendState) {
 export function parseFriend(value: unknown): FriendState {
   if (!value || typeof value !== 'object') return emptyFriend()
   const saved = value as Record<string, unknown>
-  const met = Array.isArray(saved.met) ? [...new Set(saved.met.filter(isFriendKind))] : []
+  const met = Array.isArray(saved.met) ? [...new Set(saved.met.filter(isBookKind))] : []
   const count = typeof saved.hellos === 'number' && Number.isFinite(saved.hellos) ? Math.floor(saved.hellos) : 0
-  // Each hello adds its kind, so a count with no kind is a broken value.
-  const hellos = met.length ? THREE.MathUtils.clamp(count, 1, FRIEND.hellos) : 0
+  // Each heart comes from the hello of a kind that can be a friend, so a count with no such kind is a broken value.
+  const hellos = met.some(isFriendKind) ? THREE.MathUtils.clamp(count, 1, FRIEND.hellos) : 0
   const friend = hellos >= FRIEND.hellos && isFriendKind(saved.friend) && met.includes(saved.friend) ? saved.friend : null
   return { hellos, met, friend }
 }
@@ -94,9 +105,9 @@ export function sayHello(state: FriendState, kinds: readonly unknown[]) {
   const fresh: FriendKind[] = []
   let gift: FriendKind | null = null
   for (const kind of kinds) {
-    if (!isFriendKind(kind)) continue
+    if (!isBookKind(kind)) continue
     if (!next.met.includes(kind)) { next.met.push(kind); fresh.push(kind) }
-    if (next.hellos >= FRIEND.hellos) continue
+    if (next.hellos >= FRIEND.hellos || !isFriendKind(kind)) continue
     next.hellos++
     if (next.hellos === FRIEND.hellos) { gift = kind; next.friend = kind }
   }
@@ -105,7 +116,7 @@ export function sayHello(state: FriendState, kinds: readonly unknown[]) {
 
 /** Selects a friend that she met, or null for no friend. Before the gift, and for a kind that she did not meet, nothing changes. */
 export function chooseFriend(state: FriendState, kind: FriendKind | null): FriendState {
-  if (!hasFriendGift(state) || (kind !== null && !state.met.includes(kind))) return state
+  if (!hasFriendGift(state) || (kind !== null && (!state.met.includes(kind) || !isFriendKind(kind)))) return state
   return { ...state, friend: kind }
 }
 
@@ -307,6 +318,7 @@ function duckWing(side: number) {
  * and a computer draw it in two calls. The body has its middle at the origin and the radius FRIEND.body.
  */
 function bake(kind: FriendKind) {
+  if (!isFirstKind(kind)) return bakeShape(kind)
   const flies = friendFlies(kind)
   let root: THREE.Object3D, dispose: () => void
   if (isEarthKind(kind)) {
@@ -316,7 +328,7 @@ function bake(kind: FriendKind) {
     if (kind === 'duck') model.root.children[0].add(duckWing(-1), duckWing(1))
     root = model.root; dispose = model.dispose
   } else {
-    const model = createFairytaleCreature(kind)
+    const model = createFairytaleCreature(kind as Fairytale)
     model.animate(0, false, { details: true, magic: false, motion: false })
     root = model.root; dispose = model.dispose
   }
@@ -340,15 +352,42 @@ function bake(kind: FriendKind) {
   visit(root, false)
   dispose()
   if (kind === 'duck') root.traverse(object => { if (object instanceof THREE.Mesh && object.parent?.name === 'wing') { object.geometry.dispose(); (object.material as THREE.Material).dispose() } })
-  const body = join(bodyParts)
+  return fit(join(bodyParts), flies && wingParts.length ? join(wingParts) : null, wingRoots.reduce((sum, y) => sum + y, 0) / Math.max(1, wingRoots.length))
+}
+
+/** The candy colour of a friend that has its colour from its instance in a herd: a gummy bear cub, a gummy jellyfish. */
+const FRIEND_TINT: Partial<Record<FriendKind, number>> = { gummyBear: 0xff6f8f, jelly: 0xf4a6d6 }
+
+/** A kind of src/creatures/shapes.ts: the joined model of the herds, split into the body and the wings. */
+function bakeShape(kind: FriendKind) {
+  const parts = friendParts(kind, friendFlies(kind) ? WING_REST : 0)
+  const tint = FRIEND_TINT[kind]
+  for (const geometry of [parts.body, parts.wings]) {
+    if (!geometry) continue
+    if (tint !== undefined) {
+      const colour = new THREE.Color(tint), colours = geometry.attributes.color
+      for (let i = 0; i < colours.count; i++) colours.setXYZ(i, colours.getX(i) * colour.r, colours.getY(i) * colour.g, colours.getZ(i) * colour.b)
+    }
+    // The animals of Earth are faceted: each face gets its own normal.
+    if (parts.flat) geometry.computeVertexNormals()
+  }
+  if (!friendFlies(kind) && parts.wings) { const joined = join([parts.body, parts.wings]); return fit(joined, null, 0) }
+  return fit(parts.body, friendFlies(kind) ? parts.wings : null, parts.wingHeight)
+}
+
+/**
+ * Puts the body of a friend with its middle at the origin and the radius FRIEND.body. The wings get
+ * the same move, and their origin at the wing roots (`wingRoot` in the frame of the model).
+ */
+function fit(body: THREE.BufferGeometry, wingParts: THREE.BufferGeometry | null, wingRoot: number) {
   body.computeBoundingSphere()
   const centre = body.boundingSphere!.center.clone(), scale = FRIEND.body / body.boundingSphere!.radius
   body.translate(-centre.x, -centre.y, -centre.z).scale(scale, scale, scale)
   body.computeBoundingSphere()
   let wings: THREE.BufferGeometry | null = null, wingHeight = 0
-  if (flies && wingParts.length) {
-    wingHeight = (wingRoots.reduce((sum, y) => sum + y, 0) / wingRoots.length - centre.y) * scale
-    wings = join(wingParts)
+  if (wingParts) {
+    wingHeight = (wingRoot - centre.y) * scale
+    wings = wingParts
     // The wing mesh has its origin at the wing roots, so a change of its height is a beat of the two wings.
     wings.translate(-centre.x, -centre.y, -centre.z).scale(scale, scale, scale).translate(0, -wingHeight, 0)
     wings.computeBoundingSphere()
@@ -508,7 +547,7 @@ export function createFriendModel(kind: FriendKind, sparkle: THREE.Texture | nul
 export type FriendModel = ReturnType<typeof createFriendModel>
 
 /** The colour behind a picture: the sky of Earth for an animal, the candy sky of Blossom Haven for a story creature. */
-const pictureSky = (kind: FriendKind) => isEarthKind(kind) ? 0x9fd3ee : 0xf3c6e4
+const pictureSky = (kind: FriendKind) => speciesById(kind).world === 'earth' ? 0x9fd3ee : 0xf3c6e4
 
 /**
  * The look of a picture: 'sky' has the sky of its world behind the friend and its bubble. 'clear'
@@ -537,6 +576,8 @@ export function friendPicture(renderer: THREE.WebGLRenderer, kind: FriendKind, s
   // A card shows the creature: the bubble is not in the picture.
   if (clear) model.root.traverse(object => { if (object instanceof THREE.Mesh && object.material instanceof THREE.ShaderMaterial) object.visible = false })
   model.root.rotation.y = 0.6
+  // A new kind with wings turns its back a little to the camera, so both wings show.
+  if (friendFlies(kind) && !isFirstKind(kind)) model.root.rotation.x = 0.45
   scene.add(model.root)
   const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 30)
   // With no bubble, the camera comes nearer, so the creature fills the picture.

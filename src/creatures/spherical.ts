@@ -106,7 +106,8 @@ export class CreatureObstacles {
 }
 
 export type SphericalResident = {
-  kind: Species
+  /** The kind: one of the four animals of the first game, or a kind of src/creatures/catalog.ts. */
+  kind: string
   route: THREE.Vector3[]
   durations: number[]
   cycle: number

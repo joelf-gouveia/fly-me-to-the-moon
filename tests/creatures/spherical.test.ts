@@ -4,7 +4,7 @@ import { createTerrain, HOME_SEED } from '../../src/terrain'
 import { regenerateWorld, meadowNormal } from '../../src/worlds'
 import type { World } from '../../src/worlds'
 import { CreatureObstacles, offsetNormal, populateSphere, sampleResident, SphericalHabitat } from '../../src/creatures/spherical'
-import { replacements } from '../../src/creatures/fairytale'
+import { speciesById } from '../../src/creatures/catalog'
 import { species } from '../../src/creatures/habitat'
 import type { Species } from '../../src/creatures/habitat'
 import { createPopulation } from '../../src/creatures/population'
@@ -29,23 +29,24 @@ function worldFixture(kind: 'earth' | 'fairy' | 'mars', seed: number): World {
 }
 
 describe('in-game spherical creatures', () => {
-  it('raises only Earth to 40 per species while retaining spacing and the visible limit', () => {
-    for (const fairy of [false, true]) {
-      const radius = fairy ? 110 : 220
-      const geometry = groundMesh(n => n.z > 0 ? 3 : -2, radius)
+  it('draws at most the cap of animals, with a marker for each near animal, on a computer and on a phone', () => {
+    for (const mobile of [false, true]) for (const fairy of [false, true]) {
+      const radius = fairy ? 137.5 : 275, kind = fairy ? 'fairy' as const : 'earth' as const, seed = fairy ? HOME_SEED : 44
+      const sample = createTerrain(kind, seed)
+      const geometry = groundMesh(n => sample(n.x, n.y, n.z).height, radius)
       const water = new THREE.SphereGeometry(radius, 64, 32)
-      const population = createPopulation(new THREE.Group(), geometry, water, radius, fairy,
+      const population = createPopulation(new THREE.Group(), geometry, water, { kind, radius, seed, sample, mobile },
         new CreatureObstacles(), 123, new THREE.Vector3(1, 0, 0.3).normalize())
-      for (const kind of Object.keys(species)) {
-        expect(population.residents.filter(resident => resident.kind === kind)).toHaveLength(fairy ? 32 : 40)
+      expect(population.residents.length).toBeGreaterThan(fairy ? 150 : 1500)
+      for (const item of population.herds.flatMap(herd => herd.members.map(() => herd))) expect(item.species.world).toBe(kind)
+      // From 60 m over a place, each herd in reach is drawn, up to the cap and the limit of the draw calls.
+      for (const herd of population.herds.slice(0, 40)) {
+        population.update(0.1, herd.route[0].clone().multiplyScalar(radius + 60))
+        const stats = population.stats()
+        expect(stats.drawn).toBeLessThanOrEqual(population.limits.cap)
+        expect(stats.batches).toBeLessThanOrEqual(population.limits.calls)
+        expect(population.group.children.filter(model => model.visible).length).toBe(stats.near)
       }
-      for (let i = 0; i < population.residents.length; i++) {
-        for (let j = i + 1; j < population.residents.length; j++) {
-          expect(population.residents[i].route[0].distanceTo(population.residents[j].route[0]) * radius).toBeGreaterThanOrEqual(4)
-        }
-      }
-      population.update(0, new THREE.Vector3(1, 0, 0.3).normalize().multiplyScalar(radius + 10))
-      expect(population.group.children.filter(model => model.visible).length).toBeLessThanOrEqual(28)
       population.dispose(); geometry.dispose(); water.dispose()
     }
   })
@@ -87,16 +88,17 @@ describe('in-game spherical creatures', () => {
         expect(new Set(residents.map(r => r.kind)).size).toBe(4)
         const normal = new THREE.Vector3(), forward = new THREE.Vector3()
         for (const resident of residents) {
+          const kind = resident.kind as Species
           for (let i = 1; i < resident.route.length; i++) {
-            expect(ground.safeSegment(resident.kind, resident.route[i - 1], resident.route[i])).toBe(true)
-            expect(obstacles.clearSegment(resident.route[i - 1], resident.route[i], radius, species[resident.kind].footprint)).toBe(true)
+            expect(ground.safeSegment(kind, resident.route[i - 1], resident.route[i])).toBe(true)
+            expect(obstacles.clearSegment(resident.route[i - 1], resident.route[i], radius, species[kind].footprint)).toBe(true)
           }
           for (let t = 0; t < 120; t += 1.7) {
             sampleResident(resident, t, normal, forward)
             expect(normal.length()).toBeCloseTo(1)
             expect(normal.dot(forward)).toBeCloseTo(0)
             for (let i = 0; i < 8; i++) {
-              const bodyEdge = offsetNormal(normal, i * Math.PI / 4, species[resident.kind].footprint, radius)
+              const bodyEdge = offsetNormal(normal, i * Math.PI / 4, species[kind].footprint, radius)
               const h = ground.radiusAt(bodyEdge) - radius
               if (resident.kind === 'duck') expect(h).toBeLessThan(-0.4)
               else expect(h).toBeGreaterThan(0.4)
@@ -115,15 +117,18 @@ describe('in-game spherical creatures', () => {
     expect(original.residents.length).toBeGreaterThan(50)
     const camera = meadowNormal(earth).multiplyScalar(earth.radius + 12)
     original.update(0, camera)
-    expect(original.group.children.length).toBeGreaterThan(0)
-    expect(original.group.children.every(child => !child.userData.fairytale)).toBe(true)
-    const before = original.group.children.map(child => child.position.toArray())
+    // The markers of the near animals: Earth has no fairytale creature.
+    const shown = () => original.group.children.filter(child => child.visible)
+    expect(shown().length).toBeGreaterThan(0)
+    expect(shown().every(child => !child.userData.fairytale)).toBe(true)
+    const before = shown().map(child => child.position.toArray())
     original.update(0, camera)
-    expect(original.group.children.map(child => child.position.toArray())).toEqual(before)
+    expect(shown().map(child => child.position.toArray())).toEqual(before)
     original.update(5, camera)
-    expect(original.group.children.map(child => child.position.toArray())).not.toEqual(before)
+    expect(shown().map(child => child.position.toArray())).not.toEqual(before)
     original.update(0, new THREE.Vector3(10000, 0, 0))
-    expect(original.group.children.length).toBe(0)
+    expect(shown().length).toBe(0)
+    expect(original.stats().drawn).toBe(0)
     regenerateWorld(earth, 45)
     expect(original.group.parent).toBeNull()
     expect(earth.creatures).not.toBe(original)
@@ -134,14 +139,15 @@ describe('in-game spherical creatures', () => {
     const homePopulation = home.creatures!
     const homeCamera = new THREE.Vector3(0, -205, -20)
     homePopulation.update(0, homeCamera)
-    expect(homePopulation.group.children.length).toBeGreaterThan(0)
-    // Blossom Haven shows only fairytale creatures, each in the slot of the animal it replaces.
-    for (const child of homePopulation.group.children) expect(child.userData.fairytale).toBe(replacements[child.userData.species as Species])
-    const localPositions = homePopulation.group.children.map(child => child.position.toArray())
+    const homeShown = () => homePopulation.group.children.filter(child => child.visible)
+    expect(homeShown().length).toBeGreaterThan(0)
+    // Blossom Haven shows only its own creatures.
+    for (const child of homeShown()) expect(speciesById(child.userData.fairytale).world).toBe('fairy')
+    const localPositions = homeShown().map(child => child.position.toArray())
     const translation = new THREE.Vector3(4100, 500, 800)
     home.group.position.add(translation); homeCamera.add(translation)
     homePopulation.update(0, homeCamera)
-    expect(homePopulation.group.children.map(child => child.position.toArray())).toEqual(localPositions)
+    expect(homeShown().map(child => child.position.toArray())).toEqual(localPositions)
     regenerateWorld(home, 999)
     expect(home.creatures).toBe(homePopulation)
     const mars = worldFixture('mars', 99)

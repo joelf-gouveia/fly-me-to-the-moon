@@ -4,8 +4,8 @@
 // the Animals page has a card for each met kind and a shadow for the others, "Fly with me" swaps the
 // friend in the flight (the old one waves and flies home, the new one comes out of the sky), "No
 // friend" sends the friend home, the tabs work with the keyboard, a reload keeps the friend, the
-// friend stays near her in a climb from the meadow to open space and back, each of the nine kinds
-// shows, a pegasus foal of Blossom Haven says hello, the reset in Settings removes the friend and the
+// friend stays near her in a climb from the meadow to open space and back, the nine kinds of the first
+// book and eleven new kinds show (the book has 48 cards on two pages), a pegasus foal of Blossom Haven says hello, the reset in Settings removes the friend and the
 // book, and phones of 390 px and 320 px show the page and the swap. The check also reads the draw
 // calls with and without the friend, and in a swap. Run against the dev server:
 //   node scripts/friend-smoke.mjs "path/to/chrome.exe" [origin]
@@ -27,8 +27,15 @@ let browserErrors = ''
 browser.stderr.on('data', data => { browserErrors += data })
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const folder = 'artifacts.local/friend'
+// The nine kinds of the first book, then a few kinds of the animals study (src/creatures/catalog.ts): big, small, winged and magic.
 const KINDS = ['cow', 'rabbit', 'sheep', 'duck', 'unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus']
-const NAMES = { cow: 'Cow', rabbit: 'Rabbit', sheep: 'Sheep', duck: 'Duck', unicorn: 'Unicorn', dragonling: 'Dragonling', kitsune: 'Kitsune kit', frogPrince: 'Frog Prince', pegasus: 'Pegasus foal' }
+const NEW_KINDS = ['zebra', 'giraffe', 'whale', 'penguin', 'stork', 'griffin', 'phoenix', 'owlet', 'bubbleFish', 'lanternMoth', 'caterpillar']
+const TOUR = [...KINDS, ...NEW_KINDS]
+// The cards of the book, and the kinds of Blossom Haven: their cards are on the second page.
+const BOOK = 48
+const HAVEN = ['unicorn', 'dragonling', 'kitsune', 'frogPrince', 'pegasus', 'gummyBear', 'flossLamb', 'caterpillar', 'crystalDeer', 'griffin', 'jelly', 'serpent', 'phoenix', 'honeyBee', 'bubbleFish', 'lanternMoth', 'owlet']
+// The animals that walk near the start of Earth: the meadow is in the leaf forest or in the pine forest.
+const LAND = ['cow', 'sheep', 'rabbit', 'deer', 'fox', 'moose', 'bear', 'hare', 'reindeer']
 // The friend is never farther than this from the fairy, in metres (FRIEND.limit in src/friend.ts).
 const LIMIT = 4
 // A swap takes 3 s of flight (SWAP in src/friend.ts); the checks wait a little longer. The happy loop of the new friend takes 1.6 s more.
@@ -84,6 +91,8 @@ try {
   }
   const choose = kind => evaluate(`__fairyTest.chooseFriend(${JSON.stringify(kind)})`)
   const saved = () => evaluate('JSON.parse(localStorage.getItem("fairy-friend"))')
+  /** The name of a kind, as its card shows it. */
+  const nameOf = kind => evaluate(`__fairyTest.kindName(${JSON.stringify(kind)})`)
   const started = Date.now(), step = label => process.stderr.write(`· ${label} (${Math.round((Date.now() - started) / 1000)} s)\n`)
   await mkdir(folder, { recursive: true })
   const capture = async name => {
@@ -149,13 +158,23 @@ try {
   async function openAnimals() {
     if (!(await evaluate('document.querySelector("#world-map").open'))) await click('#open-map')
     await click('#tab-animals')
-    for (let i = 0; i < 100; i++) {
-      if (await evaluate('[...document.querySelectorAll(".animal-card img")].every(image => image.getAttribute("src") && image.complete)')) return
+    await pictures()
+  }
+  /** Waits for the pictures of the cards of the page that shows. They render one at a time. */
+  async function pictures() {
+    for (let i = 0; i < 300; i++) {
+      if (await evaluate('[...document.querySelectorAll(".animal-book-page:not([hidden]) .animal-card img")].every(image => image.getAttribute("src") && image.complete)')) return
       await delay(50)
     }
     throw new Error('The pictures of the cards did not render')
   }
-  const cardLooks = () => evaluate('Object.fromEntries([...document.querySelectorAll(".animal-card")].map(card => [card.dataset.animal, card.className.match(/is-(friend|met|unmet)/)[1]]))')
+  /** Shows the page of the world of a kind, and taps its card. */
+  async function tapCard(kind) {
+    const world = HAVEN.includes(kind) ? 'fairy' : 'earth'
+    if ((await snapshot()).animalBook.page !== world) { await click(`.animal-world[data-book-world="${world}"]`); await pictures() }
+    await click(`[data-animal="${kind}"]`)
+  }
+  const cardLooks = async () => (await snapshot()).animalBook.cards
   const heartsOf = selector => evaluate(`document.querySelectorAll(${JSON.stringify(`${selector} .friend-hearts:not([hidden]) i.is-full`)}).length`)
   /** The swap in the flight, from its start: the friend that goes home and the friend that comes, and the most draw calls of the friends. */
   async function watchSwap(from, to, shots = '') {
@@ -207,7 +226,7 @@ try {
   // Before the gift, the Animals page shows the hearts and the empty bubble, and a met card has no "Fly with me".
   await openAnimals()
   const bookBefore = { hearts: await heartsOf('.animal-note'), bubble: await shown('.animal-note .friend-preview--none'), looks: await cardLooks() }
-  await click('[data-animal="duck"]')
+  await tapCard('duck')
   Object.assign(bookBefore, { fly: await shown('#animal-fly'), none: await shown('#animal-none'), cardHearts: await heartsOf('.animal-note') })
   await capture('animals-before-gift')
   await click('#close-map')
@@ -219,7 +238,7 @@ try {
   assert(KINDS.every(kind => bookBefore.looks[kind] === (kind === 'duck' || start.met.includes(kind) ? 'met' : 'unmet')), `Wrong cards before the gift: ${JSON.stringify(bookBefore.looks)}`)
   while (!gift && tries++ < 40) {
     state = await snapshot()
-    const next = population(state, 'Earth').visible.filter(model => /^creature-(rabbit|sheep|cow)-/.test(model.name) && !used.has(model.name)).sort((a, b) => a.distance - b.distance)[0]
+    const next = population(state, 'Earth').visible.filter(model => LAND.some(kind => model.name.startsWith(`creature-${kind}-`)) && !used.has(model.name)).sort((a, b) => a.distance - b.distance)[0]
     if (!next) { used.clear(); await advance(8); continue }
     used.add(next.name)
     assert(await evaluate(`__fairyTest.approach(${JSON.stringify(next.name)}, 9, 2.4, false)`), 'The fairy could not fly to the animal')
@@ -244,7 +263,7 @@ try {
   await advance(0.4)
   state = await snapshot()
   assert(state.friend.gift && state.friend.friend && state.friend.met.includes(state.friend.friend) && state.friend.kind === state.friend.friend, `The fifth hello gave no friend: ${JSON.stringify(state.friend)}`)
-  assert(state.friend.note && state.friend.noteName === NAMES[state.friend.friend] && state.friend.noteHearts === 5, `No gift note with five hearts: ${JSON.stringify(state.friend)}`)
+  assert(state.friend.note && state.friend.noteName === await nameOf(state.friend.friend) && state.friend.noteHearts === 5, `No gift note with five hearts: ${JSON.stringify(state.friend)}`)
   assert(state.friend.shown && state.friend.swapping, `The first friend does not come out of the sky: ${JSON.stringify(state.friend)}`)
   assert(await evaluate('document.querySelector("#friend-note p").textContent') === 'A friend flies with you now', 'Wrong text in the note')
   assert(await evaluate('getComputedStyle(document.querySelector("#friend-note")).visibility') === 'visible', 'The note does not show in the flight')
@@ -290,7 +309,7 @@ try {
   // The page needs two friends: give a duck when all the hellos came from one kind. Its card note shows and goes.
   if (met.length < 2) { await evaluate('__fairyTest.meet("duck")'); await advance(5, true) }
   met = (await snapshot()).friend.met
-  const other = met.find(kind => kind !== first), unmet = KINDS.find(kind => !met.includes(kind))
+  const other = met.find(kind => kind !== first), unmet = TOUR.find(kind => !met.includes(kind))
   // Your fairy has no Friend row now.
   assert(!(await evaluate('!!document.querySelector("#friend-row, [data-friend]")')), 'The Friend row is still in Your fairy')
   await click('#open-map')
@@ -311,32 +330,36 @@ try {
   assert(await text('#map-title') === 'Your animal friends', 'Wrong title of the Animals page')
   await openAnimals()
   let looks = await cardLooks()
-  assert(KINDS.every(kind => looks[kind] === (kind === first ? 'friend' : met.includes(kind) ? 'met' : 'unmet')), `Wrong cards: ${JSON.stringify(looks)}`)
+  assert(Object.keys(looks).length === BOOK && Object.entries(looks).every(([kind, look]) => look === (kind === first ? 'friend' : met.includes(kind) ? 'met' : 'unmet')), `Wrong cards: ${JSON.stringify(looks)}`)
   assert(await text(`[data-animal="${first}"] .animal-mark`) === '✦ Flies with me', 'The card of the friend has no mark')
   assert(await evaluate(`getComputedStyle(document.querySelector('[data-animal="${first}"]')).boxShadow.includes('255, 225, 162')`), 'The card of the friend has no gold ring')
   for (const kind of met) {
+    await tapCard(kind)
     assert(await painted(`[data-animal="${kind}"] img`) > 20, `The card of the ${kind} has no picture`)
     if (kind !== first) assert(await evaluate(`document.querySelectorAll('[data-animal="${kind}"] .animal-facts svg').length`) === 3, `The card of the ${kind} has no three facts`)
   }
+  await tapCard(unmet)
   const shadow = { text: await evaluate(`document.querySelector('[data-animal="${unmet}"] .animal-unknown')?.textContent`), cover: await covered(`[data-animal="${unmet}"] img`), colours: await painted(`[data-animal="${unmet}"] img`) }
   assert(shadow.text === '?' && shadow.cover > 0.08 && shadow.colours <= 3, `The ${unmet} is not a soft shadow: ${JSON.stringify(shadow)}`)
-  assert(await text('#tab-animals .world-count') === `${met.length}/9`, 'Wrong count on the Animals tab')
-  // After the gift the note shows the friend, with no hearts.
-  assert(await text('.animal-note strong') === NAMES[first] && await heartsOf('.animal-note') === 0, 'The note does not show the friend')
+  assert(await text('#tab-animals .world-count') === `${met.length}/${BOOK}`, 'Wrong count on the Animals tab')
+  // After the gift the note shows the friend, with no hearts. A tap on a card shows that card: Worlds opens again with no card.
+  await click('#close-map')
+  await openAnimals()
+  assert(await text('.animal-note strong') === await nameOf(first) && await heartsOf('.animal-note') === 0, 'The note does not show the friend')
   await capture('animals-some')
-  // Tab goes into the page, and Enter taps the card that has the focus.
-  await press('Tab')
+  // Tab goes into the page, past the two page buttons, and Enter taps the card that has the focus.
+  for (let i = 0; i < 8 && !(await evaluate("document.activeElement.dataset.animal ?? null")); i++) await press("Tab")
   const focused = await evaluate('document.activeElement.dataset.animal ?? null')
   assert(focused, `Tab does not go to a card: ${await evaluate('document.activeElement.outerHTML.slice(0, 80)')}`)
   await press('Enter')
   assert((await snapshot()).animalBook.selected === focused, 'Enter does not tap the card')
   // A shadow: its world and its place, with no "Fly with me".
-  await click(`[data-animal="${unmet}"]`)
+  await tapCard(unmet)
   assert(await text('.animal-note strong') === 'Who is it?' && /Earth|Blossom Haven/.test(await text('.animal-note-facts')) && !(await shown('#animal-fly')), `Wrong note of a shadow: ${await text('.animal-note')}`)
   await capture('animals-shadow')
   // A met card: its facts and "Fly with me".
-  await click(`[data-animal="${other}"]`)
-  assert(await text('.animal-note strong') === NAMES[other] && await evaluate('document.querySelectorAll(".animal-note-facts .animal-fact").length') === 3, 'The note of a met card has no facts')
+  await tapCard(other)
+  assert(await text('.animal-note strong') === await nameOf(other) && await evaluate('document.querySelectorAll(".animal-note-facts .animal-fact").length') === 3, 'The note of a met card has no facts')
   assert(await shown('#animal-fly') && !(await shown('#animal-none')), 'A met card has no "Fly with me"')
   await capture('animals-fly-with-me')
   // "Fly with me" with the keyboard: Enter closes Worlds, and the swap plays in the flight.
@@ -352,7 +375,7 @@ try {
   assert(JSON.stringify(await saved()) === JSON.stringify({ hellos: 5, met, friend: other }), 'The swap did not save the friend')
   // "No friend": a small button in the note of the card of the friend. The friend flies home.
   await openAnimals()
-  await click(`[data-animal="${other}"]`)
+  await tapCard(other)
   assert(await shown('#animal-none') && !(await shown('#animal-fly')), 'The card of the friend has no "No friend"')
   await capture('animals-friend-card')
   await click('#animal-none')
@@ -388,16 +411,16 @@ try {
   assert(!state.friend.gift && !state.friend.shown && state.friend.hellos === 0, `A broken saved value gave a friend: ${JSON.stringify(state.friend)}`)
 
   // ---- Each kind as a friend, and the draw calls on a computer -----------------------------------
-  step('nine friends')
-  await evaluate(`__fairyTest.meet(${KINDS.map(kind => JSON.stringify(kind)).join(', ')})`)
+  step('the friends')
+  await evaluate(`__fairyTest.meet(${TOUR.map(kind => JSON.stringify(kind)).join(', ')})`)
   await click('#begin-button')
   await advance(1)
   state = await snapshot()
-  assert(state.friend.friend === 'unicorn' && state.friend.met.length === 9, `Wrong friend after a hello of each kind: ${JSON.stringify(state.friend)}`)
+  assert(state.friend.friend === 'unicorn' && state.friend.met.length === TOUR.length, `Wrong friend after a hello of each kind: ${JSON.stringify(state.friend)}`)
   await over('earth', 9)
   await advance(7)
   const models = {}
-  for (const kind of KINDS) {
+  for (const kind of TOUR) {
     assert(await choose(kind) || kind === 'unicorn', `Could not select the ${kind}`)
     await advance(SETTLED)
     state = await snapshot()
@@ -411,8 +434,11 @@ try {
   // The full book.
   await openAnimals()
   looks = await cardLooks()
-  assert(KINDS.every(kind => looks[kind] === (kind === 'cow' ? 'friend' : 'met')), `The full book is wrong: ${JSON.stringify(looks)}`)
+  assert(TOUR.every(kind => looks[kind] === (kind === 'cow' ? 'friend' : 'met')), `The full book is wrong: ${JSON.stringify(looks)}`)
   await capture('animals-all')
+  await click('.animal-world[data-book-world="fairy"]')
+  await pictures()
+  await capture('animals-all-haven')
   await click('#close-map')
 
   // A low flight over the ground: the friend stays out of the ground and near her.
@@ -514,7 +540,7 @@ try {
   await advance(0.5)
   state = await snapshot()
   assert(!state.friend.shown && !state.friend.gift && state.friend.hellos === 0 && !state.friend.met.length, `The reset kept the friend: ${JSON.stringify(state.friend)}`)
-  assert(Object.values(state.animalBook.cards).every(look => look === 'unmet') && await text('#tab-animals .world-count') === '0/9', 'The reset kept the cards of the book')
+  assert(Object.values(state.animalBook.cards).every(look => look === 'unmet') && await text('#tab-animals .world-count') === `0/${BOOK}`, 'The reset kept the cards of the book')
   assert(JSON.stringify(await saved()) === JSON.stringify({ hellos: 0, met: [], friend: null }), 'The reset did not save the empty state')
 
   // ---- Blossom Haven: a pegasus foal says hello ------------------------------------------------------
@@ -610,7 +636,7 @@ try {
     await openAnimals()
     await capture(`phone${width}-animals`)
     // The note of a low card stays at the top of Worlds while the cards scroll.
-    await click('[data-animal="pegasus"]')
+    await tapCard('pegasus')
     await evaluate('document.querySelector("#world-map").scrollTop = 99999')
     const place = await evaluate('(() => { const dialog = document.querySelector("#world-map"), note = document.querySelector(".animal-note").getBoundingClientRect(), box = dialog.getBoundingClientRect(); return { scrolled: dialog.scrollTop, top: note.top - box.top, bottom: note.bottom - box.top, height: box.height } })()')
     assert(place.scrolled > 0 && place.top >= -1 && place.bottom < place.height * 0.6 && await shown('#animal-fly'), `The note does not stay on top at ${width} px: ${JSON.stringify(place)}`)
@@ -625,7 +651,7 @@ try {
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
   await advance(0.3)
   await openAnimals()
-  await click('[data-animal="duck"]')
+  await tapCard('duck')
   await click('#animal-fly')
   const phoneSwap = await watchSwap('cow', 'duck', 'phone-swap')
   assert(phoneSwap >= 4 && phoneSwap <= 6, `Wrong draw calls in a swap on a phone: ${phoneSwap}`)

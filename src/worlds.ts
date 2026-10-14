@@ -385,9 +385,9 @@ function buildGround(world: World) {
     }
     const anchor = fairy ? new THREE.Vector3(0, -1, -0.12).normalize() : meadowNormal(world)
     const populationSeed = fairy ? (Math.random() * 0xffffffff) >>> 0 : world.seed ^ 0x71ac
-    world.creatures = createPopulation(world.group, geometry, waterGeometry, world.radius, fairy, obstacles, populationSeed, anchor, world.mobile ? 14 : 28, world.mobile)
+    world.creatures = createPopulation(world.group, geometry, waterGeometry, { kind: fairy ? 'fairy' : 'earth', radius: world.radius, seed: world.seed, sample: world.sample, mobile: world.mobile }, obstacles, populationSeed, anchor)
     // The season plants come last: they keep clear of the plants of the gardens and of the paths of the creatures.
-    if (world.magic) buildMagicPlants(world, obstacles, world.creatures.residents.flatMap(resident => resident.route))
+    if (world.magic) buildMagicPlants(world, obstacles, world.creatures.paths())
   }
 }
 

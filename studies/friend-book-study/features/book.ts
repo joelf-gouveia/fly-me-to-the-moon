@@ -3,10 +3,9 @@ import type { World } from '../../../src/worlds'
 import { worldPicture } from '../../../src/sticker-book'
 import { BOOK_ORDER, stickerById, STICKERS } from '../../../src/stickers'
 import type { StickerId } from '../../../src/stickers'
-import { FRIEND_KINDS } from '../../../src/friend'
-import type { FriendKind } from '../../../src/friend'
 import { hairOptions } from '../../../src/customization'
-import { CARDS, cardOf, GROUPS } from '../model'
+import { CARDS, cardOf, FRIEND_KINDS, GROUPS } from '../model'
+import type { FriendKind } from '../../../src/friend'
 import { heartsHtml, setHearts } from './kit'
 
 /**
@@ -104,7 +103,7 @@ export function createWorldsDialog(shell: HTMLElement, worlds: World[], arrived:
         card.classList.toggle('is-mystery-closed', !met)
         card.classList.toggle('is-friend', met && kind === state.friend)
         card.classList.toggle('is-selected', kind === state.selected)
-        card.style.setProperty('--tilt', met ? `${(FRIEND_KINDS.indexOf(kind) * 37 % 7) - 3}deg` : '0deg')
+        card.style.setProperty('--tilt', met ? `${((FRIEND_KINDS as readonly string[]).indexOf(kind) * 37 % 7) - 3}deg` : '0deg')
       })
       // The note: the friend, or the tapped card with its facts and "Fly with me". Before the gift: the five hearts.
       const kind = state.selected ?? state.friend

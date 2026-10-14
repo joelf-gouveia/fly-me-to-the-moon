@@ -27,6 +27,8 @@ import { rayCraters, updatePlanetLooks } from './planet-paint'
 import { visitTransition } from './terrain'
 import { hoverFlight, nearestWorldAt, orientFlight, stepFlight, worldCarry } from './flight'
 import type { World } from './worlds'
+import type { LifeState } from './creatures/population'
+import { seasonFor } from './creatures/rules'
 import { createFairyRig, createSkyDancerAnimation } from './fairy'
 import { designById } from './fairy-wings/designs'
 import { drawWingIcon } from './fairy-wings/icon'
@@ -61,7 +63,7 @@ import { createSparkleRings, RING, RING_SHAPE_NAMES, ringDotsTexture, ringGlowTe
 import type { RingTake } from './rings'
 import { view, watchView } from './viewport'
 import { createFairyTrail, drawTrailIcon } from './fairy-trail'
-import { FRIEND_KINDS } from './friend'
+import { BOOK_KINDS, friendName, isBookKind } from './friend'
 import { createFairyFriend } from './friend-ui'
 import { createAnimalBook } from './animal-book-ui'
 
@@ -505,7 +507,7 @@ stickerBook.onChange(() => { if (!stickerBook.stars) searchStar.clear() })
 stickerBook.onChange(() => { if (stickerBook.count) fairyFriend.cheer(reducedMotion.matches) })
 // A person who wants to see each friend at once can give a hello of each kind: ?friend=all. The book is full,
 // and the friend is there with no note. This works on the dev server only.
-if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(FRIEND_KINDS, false, true)
+if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(BOOK_KINDS, false, true)
 // F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
 const warmthNote = createWarmthNote()
 // Worlds: the map and the book of stickers. Flight waits while it is open.
@@ -518,7 +520,7 @@ const adventure = createAdventure(worlds, stickerBook, {
 // F14 · The Moon shapes diary: a place in Worlds for each shape of the Moon that she sees from Earth.
 const moonDiary = createMoonDiary({ chime: full => playChime(full ? [587.33, 739.99, 880, 1174.66] : [587.33, 880], 0.045) })
 // F19 · The animal book: the Animals page of Worlds, with "Fly with me" on each card that she met.
-const animalBook = createAnimalBook({ worlds, friend: fairyFriend, still: () => reducedMotion.matches })
+const animalBook = createAnimalBook({ worlds, friend: fairyFriend, still: () => reducedMotion.matches, here: () => nearestWorld.kind === 'fairy' ? 'fairy' : 'earth' })
 // Settings for grown-ups, beside the fairy button. Flight waits while it is open.
 const settings = createSettings({
   open: open => { settingsOpen = open; clearInput(); document.querySelector('.game-shell')!.classList.toggle('is-settings-open', open) },
@@ -916,6 +918,18 @@ const earthLocal = new THREE.Vector3(), earthTurn = new THREE.Quaternion()
 function homeHeight() {
   return earthLocal.copy(fairy.position).sub(home.group.position).normalize().applyQuaternion(earthTurn.copy(home.group.quaternion).invert()).y
 }
+const lifeSun = new THREE.Vector3(), lifeTurn = new THREE.Quaternion()
+// False while a bench measures the frame with no animals (the test hook wildlifeOn()).
+let wildlifeOn = true
+/**
+ * The time of a world for its herds: the year and the tilt of Earth, the magic year of Blossom Haven,
+ * the Sun in the frame of the world (the fireflies come at night), the camera for the culling, and reduced motion.
+ */
+function lifeOf(world: World): LifeState {
+  lifeSun.copy(sun.group.position).sub(world.group.position).normalize().applyQuaternion(lifeTurn.copy(world.group.quaternion).invert())
+  const still = reducedMotion.matches
+  return world === home ? { magic: magicYear, sun: lifeSun, view: camera, still } : { year: earthYear, tilt: earth.tilt?.angle, sun: lifeSun, view: camera, still }
+}
 function earthLatitude() {
   earthLocal.copy(fairy.position).sub(earth.group.position).normalize().applyQuaternion(earthTurn.copy(earth.group.quaternion).invert())
   return THREE.MathUtils.radToDeg(Math.asin(THREE.MathUtils.clamp(earthLocal.y, -1, 1)))
@@ -1127,9 +1141,11 @@ function animate(timestamp?: number) {
   for (const world of worlds) {
     // The clouds of Earth read the weather map at their place, so they do not turn.
     if (!world.weather) world.clouds.rotation.y += delta * 0.001
-    world.creatures?.update(delta, camera.position)
+    // The herds follow the season of their place on Earth and the magic season on Blossom Haven (src/creatures/population.ts).
+    // A bench can turn the animals off (wildlifeOn() of the test hooks).
+    if (wildlifeOn) world.creatures?.update(delta, camera.position, lifeOf(world))
     // After update(): the hop and the turn go over the place on the route.
-    const hellos = world.creatures?.greet(delta, fairy.position)
+    const hellos = wildlifeOn ? world.creatures?.greet(delta, fairy.position) : undefined
     if (hellos?.length) greeted.push(...hellos)
     world.animate?.(reducedMotion.matches ? 0 : elapsed)
   }
@@ -1323,8 +1339,10 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     rings: { ...sparkleRings.stats(), sparkle: sparkleLevel(), trailBonus: fairyTrail.bonus },
     trail: { design: fairyTrail.design, frame: fairyTrail.frame, points: fairyTrail.points, bonus: fairyTrail.bonus },
     wildlife: worlds.filter(world => world.creatures).map(world => ({
-      world: world.name, total: world.creatures!.residents.length,
+      world: world.name, total: world.creatures!.residents.length, herds: world.creatures!.herds.length,
       kinds: [...new Set(world.creatures!.residents.map(resident => resident.kind))],
+      // The animals and the draw calls of this frame (src/creatures/population.ts).
+      stats: world.creatures!.stats(),
       visible: world.creatures!.group.children.filter(model => model.visible).map(model => ({
         name: model.name, position: model.position.toArray(), fairytale: model.userData.fairytale ?? null,
         distance: model.getWorldPosition(new THREE.Vector3()).distanceTo(fairy.position),
@@ -1336,6 +1354,8 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     friend: fairyFriend.info(fairy.position, camera),
     animalBook: animalBook.state,
   }),
+  /** The name of a kind of the book, as its card shows it. */
+  kindName: (kind: string) => isBookKind(kind) ? friendName(kind) : null,
   /** F19: gives a hello of each kind in the list, as the creatures do. Five hellos bring the fairy friend. */
   meet: (...kinds: string[]) => fairyFriend.hello(kinds),
   /** F19: selects a friend that she met, or null for no friend, as "Fly with me" and "No friend" of the Animals page do. */
@@ -1347,6 +1367,37 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     const result = { without: calls(false), with: calls(shown) }
     return result
   },
+  /**
+   * The draw calls of the view of this moment with no animals and with the animals (the herds, the
+   * points of the small life and the hearts), and the time of the two renders. The two renders have the same scene.
+   */
+  wildlifeCalls: () => {
+    const parts = worlds.flatMap(world => world.creatures?.parts ?? [])
+    const shown = parts.map(part => part.visible)
+    const calls = (visible: boolean) => {
+      parts.forEach((part, i) => { part.visible = visible && shown[i] })
+      renderer.render(scene, camera)
+      return renderer.info.render.calls
+    }
+    const without = calls(false), all = calls(true)
+    return { without, with: all, animals: all - without }
+  },
+  /** A bench measures the frame with no animals: false stops the update of the herds and hides them, true brings them back. */
+  wildlifeOn: (on: boolean) => {
+    wildlifeOn = on
+    for (const world of worlds) for (const part of world.creatures?.parts ?? []) part.visible = on
+  },
+  /** The local directions of the centres of the herds of a kind (in a zone, when it is given), nearest to the fairy first, and true when the season shows the herd: a check flies to them. */
+  herdPlaces: (kind: string, count = 5, zone?: string) => {
+    const world = worlds.find(item => item.creatures?.herds.some(herd => herd.species.id === kind))
+    if (!world) return []
+    const here = fairy.position.clone().sub(world.group.position).applyQuaternion(world.group.quaternion.clone().invert()).normalize()
+    return world.creatures!.herds.filter(herd => herd.species.id === kind && (!zone || herd.zone === zone)).sort((a, b) => a.route[0].angleTo(here) - b.route[0].angleTo(here))
+      .slice(0, count).map(herd => ({ world: world.kind, direction: herd.route[0].toArray(), heading: herd.north.toArray(), zone: herd.zone, latitude: herd.latitude, shown: world.creatures!.shown(world.creatures!.herds.indexOf(herd)),
+        season: world === home ? magicAt(herd.route[0].y, magicYear).season.id : seasonFor(herd.species.rule, herd.zone, herd.latitude, earthYear) }))
+  },
+  /** Each animal drawn on the nearest world, with the zone and the surface of its place, and true when its rule allows the place. */
+  wildlifeAudit: () => nearestWorld.creatures?.audit() ?? [],
   /** F19: a happy loop of the friend. False when the last loop was less than 20 s before, and with reduced motion. */
   cheer: () => fairyFriend.cheer(reducedMotion.matches),
   /**

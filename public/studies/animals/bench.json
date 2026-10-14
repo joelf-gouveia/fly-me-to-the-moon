@@ -1,0 +1,685 @@
+{
+  "date": "2026-10-14",
+  "frames": 90,
+  "desktop": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 1280,
+    "height": 720,
+    "pixelRatio": 1,
+    "throttle": 1,
+    "views": [
+      {
+        "id": "savanna",
+        "name": "Earth, low over a savanna herd"
+      },
+      {
+        "id": "meadow",
+        "name": "Earth, low over the meadow of the leaf forest"
+      },
+      {
+        "id": "high",
+        "name": "Earth, 30 m over the savanna"
+      },
+      {
+        "id": "grove",
+        "name": "Blossom Haven, low over the lollipop grove"
+      }
+    ],
+    "rows": [
+      {
+        "view": "savanna",
+        "option": "none",
+        "calls": 96,
+        "triangles": 2435963,
+        "ms": 2.7,
+        "p90": 3.2,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "savanna",
+        "option": "today",
+        "calls": 138,
+        "triangles": 2443019,
+        "ms": 2.6,
+        "p90": 3.1,
+        "shown": 0,
+        "animalCalls": 42
+      },
+      {
+        "view": "savanna",
+        "option": "A",
+        "calls": 600,
+        "triangles": 2518643,
+        "ms": 3.8,
+        "p90": 4.3,
+        "shown": 28,
+        "animalCalls": 504
+      },
+      {
+        "view": "savanna",
+        "option": "B",
+        "calls": 126,
+        "triangles": 2755853,
+        "ms": 3.4,
+        "p90": 3.8,
+        "shown": 260,
+        "animalCalls": 30
+      },
+      {
+        "view": "savanna",
+        "option": "C",
+        "calls": 101,
+        "triangles": 2469203,
+        "ms": 2.8,
+        "p90": 4.9,
+        "shown": 12,
+        "animalCalls": 5
+      },
+      {
+        "view": "meadow",
+        "option": "none",
+        "calls": 98,
+        "triangles": 2461179,
+        "ms": 2.1,
+        "p90": 2.5,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "today",
+        "calls": 98,
+        "triangles": 2461179,
+        "ms": 1.6,
+        "p90": 1.7,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "A",
+        "calls": 524,
+        "triangles": 2530923,
+        "ms": 2.5,
+        "p90": 2.7,
+        "shown": 28,
+        "animalCalls": 426
+      },
+      {
+        "view": "meadow",
+        "option": "B",
+        "calls": 126,
+        "triangles": 2718553,
+        "ms": 2.4,
+        "p90": 2.7,
+        "shown": 247,
+        "animalCalls": 28
+      },
+      {
+        "view": "meadow",
+        "option": "C",
+        "calls": 105,
+        "triangles": 2502019,
+        "ms": 2.3,
+        "p90": 2.6,
+        "shown": 13,
+        "animalCalls": 7
+      },
+      {
+        "view": "high",
+        "option": "none",
+        "calls": 98,
+        "triangles": 2444987,
+        "ms": 1.7,
+        "p90": 1.8,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "high",
+        "option": "today",
+        "calls": 112,
+        "triangles": 2447339,
+        "ms": 1.8,
+        "p90": 2,
+        "shown": 0,
+        "animalCalls": 14
+      },
+      {
+        "view": "high",
+        "option": "A",
+        "calls": 98,
+        "triangles": 2444987,
+        "ms": 2.3,
+        "p90": 2.6,
+        "shown": 28,
+        "animalCalls": 0
+      },
+      {
+        "view": "high",
+        "option": "B",
+        "calls": 126,
+        "triangles": 2718267,
+        "ms": 2.4,
+        "p90": 2.9,
+        "shown": 260,
+        "animalCalls": 28
+      },
+      {
+        "view": "high",
+        "option": "C",
+        "calls": 102,
+        "triangles": 2478227,
+        "ms": 2.2,
+        "p90": 2.5,
+        "shown": 12,
+        "animalCalls": 4
+      },
+      {
+        "view": "grove",
+        "option": "none",
+        "calls": 95,
+        "triangles": 2522443,
+        "ms": 1.4,
+        "p90": 1.5,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "grove",
+        "option": "today",
+        "calls": 148,
+        "triangles": 2557831,
+        "ms": 1.9,
+        "p90": 2.1,
+        "shown": 0,
+        "animalCalls": 53
+      },
+      {
+        "view": "grove",
+        "option": "A",
+        "calls": 337,
+        "triangles": 2563099,
+        "ms": 2.5,
+        "p90": 2.8,
+        "shown": 28,
+        "animalCalls": 242
+      },
+      {
+        "view": "grove",
+        "option": "B",
+        "calls": 107,
+        "triangles": 2953515,
+        "ms": 2.7,
+        "p90": 2.9,
+        "shown": 148,
+        "animalCalls": 12
+      },
+      {
+        "view": "grove",
+        "option": "C",
+        "calls": 101,
+        "triangles": 2602627,
+        "ms": 2.1,
+        "p90": 2.4,
+        "shown": 21,
+        "animalCalls": 6
+      }
+    ]
+  },
+  "phone": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 487,
+    "height": 1055,
+    "pixelRatio": 1.25,
+    "throttle": 1,
+    "views": [
+      {
+        "id": "savanna",
+        "name": "Earth, low over a savanna herd"
+      },
+      {
+        "id": "meadow",
+        "name": "Earth, low over the meadow of the leaf forest"
+      },
+      {
+        "id": "high",
+        "name": "Earth, 30 m over the savanna"
+      },
+      {
+        "id": "grove",
+        "name": "Blossom Haven, low over the lollipop grove"
+      }
+    ],
+    "rows": [
+      {
+        "view": "savanna",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 1.9,
+        "p90": 2.1,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "savanna",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 1.7,
+        "p90": 2,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "savanna",
+        "option": "A",
+        "calls": 369,
+        "triangles": 1479028,
+        "ms": 2.7,
+        "p90": 3.8,
+        "shown": 14,
+        "animalCalls": 274
+      },
+      {
+        "view": "savanna",
+        "option": "B",
+        "calls": 109,
+        "triangles": 1575706,
+        "ms": 2.6,
+        "p90": 2.8,
+        "shown": 130,
+        "animalCalls": 14
+      },
+      {
+        "view": "savanna",
+        "option": "C",
+        "calls": 99,
+        "triangles": 1469180,
+        "ms": 2.7,
+        "p90": 4.5,
+        "shown": 14,
+        "animalCalls": 4
+      },
+      {
+        "view": "meadow",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 1.7,
+        "p90": 1.9,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 1.6,
+        "p90": 1.9,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "A",
+        "calls": 295,
+        "triangles": 1467372,
+        "ms": 1.9,
+        "p90": 2,
+        "shown": 14,
+        "animalCalls": 200
+      },
+      {
+        "view": "meadow",
+        "option": "B",
+        "calls": 116,
+        "triangles": 1575674,
+        "ms": 2,
+        "p90": 2.1,
+        "shown": 130,
+        "animalCalls": 21
+      },
+      {
+        "view": "meadow",
+        "option": "C",
+        "calls": 100,
+        "triangles": 1455748,
+        "ms": 2.1,
+        "p90": 2.4,
+        "shown": 10,
+        "animalCalls": 5
+      },
+      {
+        "view": "high",
+        "option": "none",
+        "calls": 97,
+        "triangles": 1442796,
+        "ms": 1.4,
+        "p90": 1.5,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "high",
+        "option": "today",
+        "calls": 112,
+        "triangles": 1445316,
+        "ms": 1.5,
+        "p90": 1.8,
+        "shown": 0,
+        "animalCalls": 15
+      },
+      {
+        "view": "high",
+        "option": "A",
+        "calls": 262,
+        "triangles": 1470516,
+        "ms": 2.1,
+        "p90": 2.2,
+        "shown": 14,
+        "animalCalls": 165
+      },
+      {
+        "view": "high",
+        "option": "B",
+        "calls": 108,
+        "triangles": 1544842,
+        "ms": 1.8,
+        "p90": 2,
+        "shown": 130,
+        "animalCalls": 11
+      },
+      {
+        "view": "high",
+        "option": "C",
+        "calls": 101,
+        "triangles": 1478204,
+        "ms": 2.1,
+        "p90": 2.3,
+        "shown": 14,
+        "animalCalls": 4
+      },
+      {
+        "view": "grove",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1438748,
+        "ms": 1.5,
+        "p90": 1.7,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "grove",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1438748,
+        "ms": 1.7,
+        "p90": 1.9,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "grove",
+        "option": "A",
+        "calls": 335,
+        "triangles": 1479068,
+        "ms": 2.1,
+        "p90": 2.6,
+        "shown": 14,
+        "animalCalls": 240
+      },
+      {
+        "view": "grove",
+        "option": "B",
+        "calls": 104,
+        "triangles": 1795608,
+        "ms": 2.3,
+        "p90": 2.6,
+        "shown": 130,
+        "animalCalls": 9
+      },
+      {
+        "view": "grove",
+        "option": "C",
+        "calls": 99,
+        "triangles": 1461500,
+        "ms": 2.2,
+        "p90": 2.5,
+        "shown": 6,
+        "animalCalls": 4
+      }
+    ]
+  },
+  "phoneSlow": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 487,
+    "height": 1055,
+    "pixelRatio": 1.25,
+    "throttle": 4,
+    "views": [
+      {
+        "id": "savanna",
+        "name": "Earth, low over a savanna herd"
+      },
+      {
+        "id": "meadow",
+        "name": "Earth, low over the meadow of the leaf forest"
+      },
+      {
+        "id": "high",
+        "name": "Earth, 30 m over the savanna"
+      },
+      {
+        "id": "grove",
+        "name": "Blossom Haven, low over the lollipop grove"
+      }
+    ],
+    "rows": [
+      {
+        "view": "savanna",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 4.7,
+        "p90": 5.5,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "savanna",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 5.3,
+        "p90": 6.2,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "savanna",
+        "option": "A",
+        "calls": 369,
+        "triangles": 1479028,
+        "ms": 9.6,
+        "p90": 11.5,
+        "shown": 14,
+        "animalCalls": 274
+      },
+      {
+        "view": "savanna",
+        "option": "B",
+        "calls": 109,
+        "triangles": 1575706,
+        "ms": 8.3,
+        "p90": 10.5,
+        "shown": 130,
+        "animalCalls": 14
+      },
+      {
+        "view": "savanna",
+        "option": "C",
+        "calls": 99,
+        "triangles": 1469180,
+        "ms": 9,
+        "p90": 11.7,
+        "shown": 14,
+        "animalCalls": 4
+      },
+      {
+        "view": "meadow",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 5.2,
+        "p90": 6.9,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1433772,
+        "ms": 4.9,
+        "p90": 6.1,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "meadow",
+        "option": "A",
+        "calls": 295,
+        "triangles": 1467372,
+        "ms": 8.3,
+        "p90": 12.1,
+        "shown": 14,
+        "animalCalls": 200
+      },
+      {
+        "view": "meadow",
+        "option": "B",
+        "calls": 116,
+        "triangles": 1575674,
+        "ms": 9.5,
+        "p90": 10.6,
+        "shown": 130,
+        "animalCalls": 21
+      },
+      {
+        "view": "meadow",
+        "option": "C",
+        "calls": 100,
+        "triangles": 1455748,
+        "ms": 8.9,
+        "p90": 10.6,
+        "shown": 10,
+        "animalCalls": 5
+      },
+      {
+        "view": "high",
+        "option": "none",
+        "calls": 97,
+        "triangles": 1442796,
+        "ms": 5.8,
+        "p90": 7.2,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "high",
+        "option": "today",
+        "calls": 112,
+        "triangles": 1445316,
+        "ms": 5.2,
+        "p90": 7.2,
+        "shown": 0,
+        "animalCalls": 15
+      },
+      {
+        "view": "high",
+        "option": "A",
+        "calls": 262,
+        "triangles": 1470516,
+        "ms": 8,
+        "p90": 9.9,
+        "shown": 14,
+        "animalCalls": 165
+      },
+      {
+        "view": "high",
+        "option": "B",
+        "calls": 108,
+        "triangles": 1544842,
+        "ms": 7.7,
+        "p90": 9.5,
+        "shown": 130,
+        "animalCalls": 11
+      },
+      {
+        "view": "high",
+        "option": "C",
+        "calls": 101,
+        "triangles": 1478204,
+        "ms": 9.2,
+        "p90": 11.3,
+        "shown": 14,
+        "animalCalls": 4
+      },
+      {
+        "view": "grove",
+        "option": "none",
+        "calls": 95,
+        "triangles": 1438748,
+        "ms": 5.5,
+        "p90": 6.3,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "grove",
+        "option": "today",
+        "calls": 95,
+        "triangles": 1438748,
+        "ms": 6.4,
+        "p90": 8.7,
+        "shown": 0,
+        "animalCalls": 0
+      },
+      {
+        "view": "grove",
+        "option": "A",
+        "calls": 335,
+        "triangles": 1479068,
+        "ms": 9.4,
+        "p90": 11,
+        "shown": 14,
+        "animalCalls": 240
+      },
+      {
+        "view": "grove",
+        "option": "B",
+        "calls": 104,
+        "triangles": 1795608,
+        "ms": 9,
+        "p90": 11.6,
+        "shown": 130,
+        "animalCalls": 9
+      },
+      {
+        "view": "grove",
+        "option": "C",
+        "calls": 99,
+        "triangles": 1461500,
+        "ms": 8.3,
+        "p90": 9.9,
+        "shown": 6,
+        "animalCalls": 4
+      }
+    ]
+  }
+}

@@ -1,26 +1,30 @@
 import type { World } from './worlds'
 import { worldPicture } from './sticker-book'
-import { FRIEND_KINDS, friendName } from './friend'
+import { BOOK_KINDS, friendName } from './friend'
 import type { FriendKind } from './friend'
 import type { FairyFriend } from './friend-ui'
-import { ANIMAL_CARDS, BOOK_GROUPS, bookCount, bookNote, cardLook, factIcon, heartsHtml, worldName } from './animal-book'
+import { ANIMAL_CARDS, BOOK_PAGES, bookCount, bookNote, cardLook, factIcon, heartsHtml, worldName } from './animal-book'
 import './animal-book.css'
 
+type BookWorld = 'earth' | 'fairy'
 type Options = {
   worlds: World[]
   friend: FairyFriend
   /** Reduced motion: "Fly with me" and "No friend" change the friend at once. */
   still: () => boolean
+  /** The world where the fairy is: the book opens at its page. */
+  here: () => BookWorld
 }
 
 /**
- * The Animals page of Worlds (design A of docs/friend-book-study.md): the note at the top, then a
- * card for each of the nine kinds, in two groups. A tap on a card shows it in the note. After the
+ * The Animals page of Worlds (design A of docs/friend-book-study.md, with the pages of
+ * docs/animals-study.md): the note at the top, then one page for each world with a row for each
+ * place and its picture, and a card for each kind. A tap on a card shows it in the note. After the
  * gift, a met card has "Fly with me" and the card of the friend has "No friend": the tap closes
  * Worlds, and the swap plays in the flight. Call it after createAdventure(), because the page is
  * the second tab of the Worlds dialog.
  */
-export function createAnimalBook({ worlds, friend, still }: Options) {
+export function createAnimalBook({ worlds, friend, still, here }: Options) {
   const map = document.querySelector<HTMLDialogElement>('#world-map')!
   const page = map.querySelector<HTMLElement>('#animals-page')!
   const count = map.querySelector<HTMLElement>('#tab-animals .world-count')!
@@ -30,15 +34,22 @@ export function createAnimalBook({ worlds, friend, still }: Options) {
       <div class="animal-note-text"><small></small><strong></strong><span class="animal-note-facts"></span><span class="friend-hearts" role="img"></span></div>
       <div class="animal-note-buttons"><button id="animal-fly" type="button" hidden>Fly with me ↗</button><button id="animal-none" type="button" hidden>No friend</button></div>
     </div>
-    ${BOOK_GROUPS.map(group => `<section class="animal-group is-${group.id}" aria-labelledby="animal-group-${group.id}">
-      <h3 id="animal-group-${group.id}"><b>${group.title}</b> ${group.where}</h3>
-      <div class="animal-cards">${group.kinds.map(kind => `<button type="button" class="animal-card is-${ANIMAL_CARDS[kind].world}" data-animal="${kind}"></button>`).join('')}</div>
+    <div class="animal-worlds" role="group" aria-label="The pages of the book">
+      ${BOOK_PAGES.map(book => `<button type="button" class="animal-world" data-book-world="${book.world}" aria-controls="animal-page-${book.world}">${worldPicture(worlds, book.world)}<span><b>${worldName(book.world)}</b><small class="animal-world-count"></small></span></button>`).join('')}
+    </div>
+    ${BOOK_PAGES.map(book => `<section class="animal-book-page is-${book.world}" id="animal-page-${book.world}" data-book-world="${book.world}" aria-label="${book.title} on ${worldName(book.world)}">
+      ${book.rows.map(row => `<div class="animal-row is-${row.id}">
+        <h3 id="animal-row-${row.world}-${row.id}">${factIcon(row.icon)}<b>${row.name}</b></h3>
+        <div class="animal-cards" role="group" aria-labelledby="animal-row-${row.world}-${row.id}">${row.kinds.map(kind => `<button type="button" class="animal-card is-${book.world}" data-animal="${kind}"></button>`).join('')}</div>
+      </div>`).join('')}
     </section>`).join('')}`
   const note = page.querySelector<HTMLElement>('.animal-note')!
   const get = <T extends HTMLElement>(selector: string) => note.querySelector<T>(selector)!
   const cards = [...page.querySelectorAll<HTMLButtonElement>('.animal-card')]
-  // The card that she tapped. Worlds opens with no card chosen.
-  let selected: FriendKind | null = null
+  const pages = [...page.querySelectorAll<HTMLElement>('.animal-book-page')]
+  const switches = [...page.querySelectorAll<HTMLButtonElement>('.animal-world')]
+  // The card that she tapped, and the page that shows. Worlds opens with no card chosen, at the page of the world where she is.
+  let selected: FriendKind | null = null, current: BookWorld = here()
   const drawn = new Map<HTMLElement, string>()
   // The pictures of the cards render one at a time, so the page opens at once. A card waits with an empty circle.
   const waiting = new Map<string, [FriendKind, 'clear' | 'shadow']>()
@@ -94,33 +105,43 @@ export function createAnimalBook({ worlds, friend, still }: Options) {
     note.classList.toggle('is-chosen', selected !== null)
   }
 
-  /** Draws the page. The pictures render only when the page shows, so a game that never opens it renders none. */
+  /** Draws the page. The pictures render only for the page of the world that shows, so a game that never opens it renders none. */
   function render() {
     count.textContent = bookCount(friend.state)
+    for (const button of switches) {
+      const world = button.dataset.bookWorld as BookWorld, kinds = BOOK_KINDS.filter(kind => ANIMAL_CARDS[kind].world === world)
+      button.setAttribute('aria-pressed', String(world === current))
+      button.querySelector('.animal-world-count')!.textContent = `${kinds.filter(kind => friend.state.met.includes(kind)).length}/${kinds.length}`
+    }
+    for (const book of pages) book.hidden = book.dataset.bookWorld !== current
     if (page.hidden) return
     for (const card of cards) {
-      const kind = card.dataset.animal as FriendKind, look = cardLook(friend.state, kind), html = cardHtml(kind)
+      const kind = card.dataset.animal as FriendKind, look = cardLook(friend.state, kind)
+      if (ANIMAL_CARDS[kind].world !== current) continue
+      const html = cardHtml(kind)
       // The browser writes the SVG of the facts in its own way, so the page keeps the HTML that it gave.
       if (drawn.get(card) !== html) { card.innerHTML = html; drawn.set(card, html) }
       card.className = `animal-card is-${ANIMAL_CARDS[kind].world} is-${look}${kind === selected ? ' is-selected' : ''}`
       card.ariaLabel = label(kind)
       // A met card is a sticker, a little tilted as the sticker cards of the worlds.
-      card.style.setProperty('--tilt', look === 'unmet' ? '0deg' : `${(FRIEND_KINDS.indexOf(kind) * 37 % 7) - 3}deg`)
+      card.style.setProperty('--tilt', look === 'unmet' ? '0deg' : `${(BOOK_KINDS.indexOf(kind) * 37 % 7) - 3}deg`)
     }
     renderNote()
   }
 
   for (const card of cards) card.onclick = () => { selected = card.dataset.animal as FriendKind; render() }
+  for (const button of switches) button.onclick = () => { current = button.dataset.bookWorld as BookWorld; render() }
   // "Fly with me" and "No friend" close Worlds, so the swap plays in the flight.
   get('#animal-fly').onclick = () => { if (selected && friend.choose(selected, still())) map.close() }
   get('#animal-none').onclick = () => { if (friend.choose(null, still())) map.close() }
   map.addEventListener('tabchange', event => { if ((event as CustomEvent<string>).detail === 'animals') render() })
-  map.addEventListener('close', () => { selected = null })
+  // The next visit of Worlds opens at the page of the world where she is.
+  map.addEventListener('close', () => { selected = null; current = here(); render() })
   friend.onChange(render)
   render()
 
   return {
-    /** For the browser checks: the card that she tapped, and the look of each card. */
-    get state() { return { selected, cards: Object.fromEntries(FRIEND_KINDS.map(kind => [kind, cardLook(friend.state, kind)])) } },
+    /** For the browser checks: the card that she tapped, the page that shows, and the look of each card. */
+    get state() { return { selected, page: current, cards: Object.fromEntries(BOOK_KINDS.map(kind => [kind, cardLook(friend.state, kind)])) } },
   }
 }
