@@ -167,7 +167,7 @@ export function placeHerds(site: HerdSite): Herd[] {
     if (kind === 'water' || kind === 'leap') {
       const range = groundRange(n, species.size > 4 ? 3 : foot + 0.6)
       // A pod, a school or a whale swims a loop: each point of the loop is in its zone, over water deep enough for it.
-      return !!range && range[1] < (species.size > 4 ? -2 : species.size > 1.5 ? -1.2 : -0.5) && (kind === 'leap' || species.size > 2 ? placeFits({ ...species, rule: { ...species.rule, surfaces: [] } }, n) : placeFits(species, n))
+      return !!range && range[1] < (species.size > 4 ? -2 : kind === 'leap' && species.size > 1.5 ? -1.2 : -0.5) && (kind === 'leap' || species.size > 2 ? placeFits({ ...species, rule: { ...species.rule, surfaces: [] } }, n) : placeFits(species, n))
     }
     const range = groundRange(n, foot)
     if (!range) return false
@@ -220,8 +220,8 @@ export function placeHerds(site: HerdSite): Herd[] {
         herd.height = Math.max(0, top) + low + random() * (high - low) + (species.rule.zones.includes('jungle') && species.layer !== 'small' ? 3 : 0)
         herd.turn = (species.layer === 'small' ? 0.5 : 0.22 + random() * 0.12) * (random() < 0.5 ? -1 : 1)
       } else if (kind === 'leap' || (kind === 'water' && species.size > 2)) {
-        // A pod, a school or a whale: a loop on the water that stays over deep enough water.
-        herd.loop = species.size > 4 ? 12 : species.layer === 'small' ? 1.5 : 6 + random() * 3
+        // A pod, a school, a whale or the soda serpent: a loop on the water that stays over deep enough water.
+        herd.loop = species.size > 4 ? 12 : species.layer === 'small' ? 1.5 : kind === 'leap' ? 6 + random() * 3 : 4 + random() * 2
         let ok = standsAt(species, kind, centre)
         // Each member swims a ring of its own: the inner and the outer ring stay over the water too.
         const wide = Math.ceil((count - 1) / 2) * lateralOf(species, kind)

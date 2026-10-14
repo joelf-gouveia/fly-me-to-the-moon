@@ -8,20 +8,23 @@ import { canSayHello, createHeartPool, heartCount, heartPool, heartPose, helloLe
 import type { HeartPose } from './hello'
 import { lateralOf, placeHerds } from './herds'
 import type { Herd } from './herds'
-import { farMaterial, gaitOf, hasModel, joinedGeometry, RIG_TIME, rigMaterial } from './joined'
+import { farMaterial, gaitOf, joinedGeometry, RIG_TIME, rigMaterial } from './joined'
 import { fits, magicFits, placeAt, seasonFor, seasonsOf } from './rules'
+import { createPointLayer } from './points'
 import { CreatureObstacles, SphericalHabitat } from './spherical'
 
 /**
  * The limits of the herds (option B of docs/animals-study.md, and the phone limit of TODO item 4).
- * `cap` is the most animals drawn, `near` the distance of the moving model, `far` the distance of
- * the far model. `calls` is the most draw calls of the animal models: the limit of the draw calls of
- * the animals (40 on a computer, 20 on a phone) keeps three more for the hearts and the two kinds
- * of points of the small life. `pose` is the time between two pose updates of a far herd, in seconds.
+ * `cap` is the most animals drawn as models, `near` the distance of the moving model, `far` the
+ * distance of the far model. `calls` is the most draw calls of the animal models: the limit of the
+ * draw calls of the animals (40 on a computer, 20 on a phone) keeps three more for the hearts and the
+ * two kinds of points of the small life. The small life (option C) is a tiny model to `smallNear` m,
+ * at most `smallModels` of them, and a point to `dots` m. `pose` is the time between two pose
+ * updates of a far herd, in seconds.
  */
 export const HERD_LIMITS = {
-  computer: { cap: 260, near: 45, far: 170, calls: 37 },
-  phone: { cap: 130, near: 32, far: 170, calls: 17 },
+  computer: { cap: 260, near: 45, far: 170, calls: 37, smallNear: 60, smallModels: 90, dots: 220 },
+  phone: { cap: 130, near: 32, far: 170, calls: 17, smallNear: 40, smallModels: 45, dots: 220 },
   pose: 0.1,
 } as const
 
@@ -74,8 +77,6 @@ export function createPopulation(
   let time = 0, disposed = false, seasonClock = -Infinity, posed = 0
   // 1 when the season, the magic season and the light let a herd show.
   const out = new Uint8Array(herds.length).fill(1)
-  // A kind of the small life with no model is not drawn as a model.
-  const modelled = herds.map(herd => hasModel(herd.species.id))
 
   // ---- Poses -------------------------------------------------------------------------------------
   const normal = new THREE.Vector3(), forward = new THREE.Vector3(), right = new THREE.Vector3(), basis = new THREE.Matrix4()
@@ -227,6 +228,22 @@ export function createPopulation(
   let callsNow = 0, culled = 0
   /** The animals near the camera, each with a marker: for the hellos, the search star and the checks. */
   const near: Drawn[] = []
+  // The points of the small life and the lights of the fireflies and the lantern moths: two draw calls.
+  const dots = createPointLayer(1600, false), lights = createPointLayer(500, true)
+  layer.add(dots.points, lights.points)
+  const dotColour = new THREE.Color()
+  /** The fireflies and the lantern moths have a soft light around them. */
+  const LIGHTS: Partial<Record<KindId, { size: number; colour: THREE.Color }>> = {
+    firefly: { size: 1.2, colour: new THREE.Color(0xe8f070) },
+    lanternMoth: { size: 1.6, colour: new THREE.Color(0xffc870) },
+  }
+  /** A point or a light of a small animal that is not a model in this frame, or the light of a model. */
+  function smallPoint(item: Drawn, model: boolean) {
+    const p = item.cache.places, m = item.member, species = item.herd.species, light = LIGHTS[species.id]
+    if (light) lights.add(p[m * 3], p[m * 3 + 1], p[m * 3 + 2], light.colour, light.size)
+    if (model || light) return
+    dots.add(p[m * 3], p[m * 3 + 1], p[m * 3 + 2], item.herd.members[m].tint ?? dotColour.set(species.colour), Math.max(0.3, species.size * 1.4))
+  }
   const markers = new Map<number, THREE.Object3D>()
 
   /**
@@ -253,12 +270,13 @@ export function createPopulation(
     drawn.length = 0
     hidden.length = 0
     culled = 0
-    const reach = limits.far + 25
-    if (localCamera.length() < radius + limits.far + 40) {
+    if (localCamera.length() < radius + limits.dots + 40) {
       herds.forEach((herd, i) => {
-        if (!out[i] || !modelled[i]) return
+        if (!out[i]) return
+        // The small life shows as points farther than the far models of the herds.
+        const range = herd.species.layer === 'small' ? limits.dots : limits.far
         const centre = tmp.copy(herd.route[0]).multiplyScalar(radius).distanceTo(localCamera)
-        if (centre > reach) return
+        if (centre > range + 25) return
         const cache = caches[i]
         const due = centre < limits.near + 20 || time - cache.at >= HERD_LIMITS.pose || time < cache.at
         if (due && (delta > 0 || cache.at === -Infinity)) pose(herd, cache, time)
@@ -266,7 +284,7 @@ export function createPopulation(
         for (let m = 0; m < herd.members.length; m++) {
           if (!cache.shown[m]) continue
           const distance = Math.hypot(p[m * 3] - localCamera.x, p[m * 3 + 1] - localCamera.y, p[m * 3 + 2] - localCamera.z)
-          if (distance > limits.far) continue
+          if (distance > range) continue
           if (cull) {
             sphere.center.set(p[m * 3], p[m * 3 + 1], p[m * 3 + 2])
             sphere.radius = herd.species.size * 1.2 + 1
@@ -288,12 +306,19 @@ export function createPopulation(
       })
     }
     drawn.sort((a, b) => a.distance - b.distance)
-    if (drawn.length > limits.cap) drawn.length = limits.cap
-    // The draw calls: the kinds nearest to the camera first, up to the limit of the calls.
+    // The draw calls: the kinds nearest to the camera first, up to the limit of the calls and the cap of
+    // the models. A small animal far away, or past the most small models, is a point.
     for (const batch of batches.values()) batch.used = 0
+    dots.begin(); lights.begin()
     const keep = new Set<Batch>()
-    let kept = 0
+    let kept = 0, models = 0, smallModels = 0
     for (const item of drawn) {
+      if (item.herd.species.layer === 'small') {
+        const model = item.distance < limits.smallNear && smallModels < limits.smallModels && models < limits.cap
+        smallPoint(item, model)
+        if (!model) continue
+        smallModels++
+      } else if (models >= limits.cap) continue
       const batch = batchOf(item.herd.species, item.near)
       if (!keep.has(batch)) {
         if (keep.size >= limits.calls) continue
@@ -302,8 +327,10 @@ export function createPopulation(
       if (batch.used >= batch.mesh.instanceMatrix.count) continue
       item.batch = batch; item.slot = batch.used++
       drawn[kept++] = item
+      models++
     }
     drawn.length = kept
+    dots.end(); lights.end()
     for (const item of drawn) write(item)
     callsNow = 0
     for (const batch of batches.values()) {
@@ -467,7 +494,7 @@ export function createPopulation(
   function stats() {
     return {
       herds: herds.length, animals: residents.length, drawn: drawn.length, near: near.length, culled, posed,
-      calls: callsNow + (hearts.count ? 1 : 0), batches: callsNow,
+      calls: callsNow + (hearts.count ? 1 : 0) + (dots.count ? 1 : 0) + (lights.count ? 1 : 0), batches: callsNow, points: dots.count, lights: lights.count,
       kinds: [...new Set(drawn.map(item => item.herd.species.id))],
     }
   }
@@ -487,7 +514,8 @@ export function createPopulation(
       normal.normalize()
       const place = placeAt(world.kind, normal.x, normal.y, normal.z, world.sample, fields!, radius)
       const kind = item.herd.kind
-      const ok = kind === 'air' ? height > 0.5 : kind === 'leap' ? place.height < -0.5 : fits(item.herd.species.rule, place)
+      // A swimmer of a loop (a pod, a whale, the soda serpent) needs only water under it: its loop can cross a river mouth.
+      const ok = kind === 'air' ? height > 0.5 : kind === 'leap' || item.herd.loop > 0 ? place.height < -0.5 : fits(item.herd.species.rule, place)
       return { kind: item.herd.species.id, herd: kind, zone: place.zone, surface: place.surface, ground: +place.height.toFixed(2), height: +height.toFixed(2), distance: +item.distance.toFixed(1), near: item.near, ok }
     })
   }
@@ -504,7 +532,7 @@ export function createPopulation(
 
   function dispose() {
     disposed = true
-    hellos.clear(); hearts.dispose()
+    hellos.clear(); hearts.dispose(); dots.dispose(); lights.dispose()
     for (const batch of batches.values()) {
       batch.mesh.dispose(); batch.mesh.geometry.dispose(); (batch.mesh.material as THREE.Material).dispose()
     }
