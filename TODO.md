@@ -367,6 +367,19 @@ time only, so do not rely on them.
 
 - [ ] A study of magic weather for Blossom Haven. The weather study is for Earth only.
 
+### Let go to stop: no decision yet
+
+Field study 28 (`studies/let-go-study.html`, `docs/let-go-study.md`, 17 October 2026) examines
+a fairy that stops when no key is down, with no Hover button. The player is not sure about the
+change, so the game does not change now. The study recommends option B (hold to fly), if the
+change comes.
+
+- [ ] Decide if the fairy stops on release: B (hold to fly), A (any key flies), C (rest after
+  a pause), or the flight of today. Answer the ten decisions of the study page.
+- [ ] If the answer is A, B or C, run `npx vitest run studies/let-go-study` first. The tests
+  fail when the flight code changed the numbers of the study. Then start from "The plan for B"
+  in `docs/let-go-study.md`.
+
 ## Housekeeping
 
 - [x] Push `master`. GitHub has merge `30561c9`.

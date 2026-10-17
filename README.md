@@ -1755,6 +1755,27 @@ page look of the [learn and play study](#learn-and-play-study). The clips are in
 for the pictures of the options and the homes, then the same script with no flag for the clips
 and with `--moments` for the moment pictures.
 
+## Let go study
+
+Visit `/studies/let-go-study.html` for **Let go to stop**, a study of a fairy that stops when no
+key is down, with no Hover button. Today she always flies, and no key flies forward, so the study
+compares three rules with the game of today: **A** any key flies, **B** hold to fly (a held Fly
+button, Space on a computer), and **C** rest after a pause of 3 s. A clip from the engine of the
+game flies the same tour with each rule, and a fifth clip flies to the Moon with B. A card in each
+clip shows the buttons of a phone and the keys of a computer that are down. The page also has what
+the change adds and subtracts, the phone and the computer, the numbers of the flight code (hands on
+the controls, the stop, the climb to open space, the trips), eight findings, the plan and ten
+decisions. Its controls do not change the game.
+
+The recommendation, if the change comes, is B with a Settings switch for Fly by tap. The
+[technical study](docs/let-go-study.md) gives the findings, the numbers and the plan. The study
+uses the lab of the [feature ideas study](#feature-ideas-study), with its new optional
+`setStepper()` hook, and the page look of the [learn and play study](#learn-and-play-study). The
+clips are in `public/studies/let-go/`. Against a dev server with no hot reload, run
+`node studies/let-go-study/let-go-study-capture.mjs "path/to/chrome.exe"` for the clips (add
+`--moments` for the moment pictures), and `npx vitest run studies/let-go-study` for the tests of
+the numbers.
+
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:

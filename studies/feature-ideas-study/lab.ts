@@ -34,6 +34,8 @@ export type FeatureRun = {
   dispose(): void
 }
 export type Feature = { id: string; create(lab: Lab): FeatureRun }
+/** A control model: it moves the fairy for one frame, as stepFlight() does. */
+export type Stepper = (state: FlightState, world: World, delta: number, input: FlightInput) => void
 export type Lab = ReturnType<typeof createLab>
 
 const SPACE = new THREE.Color(0x02030f)
@@ -280,6 +282,8 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
   renderer.domElement.addEventListener('blur', () => keys.clear())
   /** Extra input, such as a game controller (F7). It adds to the keys. */
   let extraInput: (() => Partial<FlightInput>) | null = null
+  /** A different control model, such as the stop on release of the let go study. The default is stepFlight(). */
+  let stepper: Stepper | null = null
   function keyInput(): FlightInput {
     const extra = extraInput?.() ?? {}
     return {
@@ -306,7 +310,7 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
       if (script) {
         const input = script(t)
         boost = input.boost
-        if (active) stepFlight(flight, nearestWorldAt(fairy.position, worlds), active, input)
+        if (active) (stepper ?? stepFlight)(flight, nearestWorldAt(fairy.position, worlds), active, input)
       } else {
         placeOnRail(Math.min(t, feature.duration), feature.duration)
         boost = boostCue
@@ -315,7 +319,7 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
     } else if (mode === 'free' && active) {
       const input = keyInput()
       boost = input.boost
-      stepFlight(flight, nearestWorldAt(fairy.position, worlds), active, input)
+      ;(stepper ?? stepFlight)(flight, nearestWorldAt(fairy.position, worlds), active, input)
     }
     if (active) { pushTrail(boost ? 3 : 1); speed = THREE.MathUtils.lerp(speed, from.distanceTo(fairy.position) / active, 0.2) }
     animation.update(active, boost)
@@ -339,7 +343,8 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
 
   function loop(now: number) {
     frame = requestAnimationFrame(loop)
-    const delta = Math.min((now - before) / 1000, 0.05); before = now
+    // The first timestamp of requestAnimationFrame can be older than the start of the lab.
+    const delta = Math.min(Math.max(0, (now - before) / 1000), 0.05); before = now
     if (document.hidden || external) return
     step(delta)
   }
@@ -386,13 +391,15 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
     setFollow(distance = 8, height = 2.8) { followDistance = distance; followHeight = height },
     setBoost(value: boolean) { boostCue = value },
     setExtraInput(input: (() => Partial<FlightInput>) | null) { extraInput = input },
+    /** Moves the fairy with `next` in place of stepFlight(), in a clip with scripted keys and in free flight. */
+    setStepper(next: Stepper | null) { stepper = next },
     onEnd(listener: (t: number) => void) { listeners.add(listener); return () => listeners.delete(listener) },
     /** Starts a feature from the start of its clip. */
     load(next: Feature) {
       silence()
       feature?.dispose()
       overlay.replaceChildren()
-      shot = null; rails = []; script = null; scriptStart = null; boostCue = false; extraInput = null
+      shot = null; rails = []; script = null; scriptStart = null; boostCue = false; extraInput = null; stepper = null
       followDistance = 8; followHeight = 2.8
       setSunElevation(earth, meadowLocal, 25)
       camera.fov = 58; camera.updateProjectionMatrix()

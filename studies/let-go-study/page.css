@@ -1,0 +1,51 @@
+/* The parts of this page that the page looks of the feature ideas study and the learn and play study do not have. */
+.option-cards { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.decisions { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.decisions fieldset:nth-child(4n + 1) { border-left: 0; padding-left: 0 }
+.decisions fieldset:nth-child(n + 5) { border-top: 1px solid #2b3350 }
+.findings { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.steps .pill { margin-left: 8px; vertical-align: 2px }
+.block-title { margin-top: 30px }
+.section-block > .block-title:first-of-type { margin-top: 18px }
+
+/* The option letters. */
+.pill.opt-T { color: #c1cadb; border-color: #c1cadb55 }
+.pill.opt-A { color: #9fd8ff; border-color: #9fd8ff55 }
+.pill.opt-B { color: #f6d9aa; border-color: #e5c28e88; background: #e5c28e14 }
+.pill.opt-C { color: #bfe8cf; border-color: #bfe8cf55 }
+
+/* What it adds and subtracts, and the lists of the phone and the computer. */
+.effects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px; margin-top: 8px }
+.effects > div { min-width: 0 }
+.effect-list, .plain-list { margin: 0; padding: 0; list-style: none; border-top: 1px solid #2b3350 }
+.effect-list li, .plain-list li { padding: 14px 0 14px 18px; border-bottom: 1px solid #2b3350; position: relative }
+.effect-list li::before, .plain-list li::before { content: ''; position: absolute; left: 0; top: 21px; width: 7px; height: 7px; border-radius: 50% }
+.adds li::before { background: #9fe3cf }
+.subtracts li::before { background: #f0a7b7 }
+.plain-list li::before { background: #e5c28e }
+.effect-list h3 { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin: 0 0 4px; font-size: 14.5px }
+.effect-pills { display: flex; gap: 4px }
+.effect-list p, .plain-list li { margin: 0; font-size: 13px; color: #c1cadb }
+
+/* The phones. */
+.phones { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; margin: 18px 0 10px }
+.phone { margin: 0; min-width: 0 }
+.phone svg { display: block; width: 100%; height: auto }
+.phone .body { fill: #0d1326; stroke: #36405a; stroke-width: 2 }
+.phone .screen { fill: #24466a }
+.phone .fairy { fill: #f0a7b7; stroke: #f0a7b7; stroke-width: 2.5; stroke-linecap: round }
+.phone .key { fill: #1b2a43; stroke: #fff3d685 }
+.phone .key.held { fill: #ffe2a6 }
+.phone text { fill: #fff5df; font: 600 10px 'Manrope', system-ui, sans-serif }
+.phone text.held { fill: #3f3048 }
+.phone figcaption { margin-top: 8px; font-size: 13px; color: #dfe5f0 }
+.phone figcaption b { color: #edc68d; margin-right: 6px }
+.phone figcaption span { display: block; font-size: 12px; color: #aab5ca }
+
+@media (max-width: 1100px) { .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)) } .decisions fieldset:nth-child(2n + 1) { border-left: 0; padding-left: 0 } .decisions fieldset:nth-child(n + 3) { border-top: 1px solid #2b3350 } .findings { grid-template-columns: repeat(2, minmax(0, 1fr)) } .option-cards, .phones { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 760px) {
+  .option-cards, .decisions, .findings, .effects, .phones { grid-template-columns: minmax(0, 1fr) }
+  .decisions fieldset { border-left: 0 !important; padding-left: 0 !important }
+  .decisions fieldset + fieldset { border-top: 1px solid #2b3350 }
+  .findings li { padding-left: 0 !important; border-left: 0 !important }
+}

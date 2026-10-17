@@ -1,0 +1,28 @@
+/* The layer, the card and the captions of the clips of the let go study. The card has the look of the touch controls of the game (src/mobile.css). */
+.lg-layer { position: absolute; z-index: 5; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+.lg-caption { position: absolute; z-index: 20; left: 50%; bottom: 104px; translate: -50% 0; margin: 0; padding: 7px 16px; border-radius: 16px; background: #070b18c4; color: #f6e6c8; font: 500 15px 'Manrope', system-ui, sans-serif; white-space: nowrap; visibility: hidden; }
+.lg-caption b { color: #edc68d; margin-right: 6px; font-weight: 600; }
+.lg-tag { position: absolute; z-index: 20; left: 50%; top: 18px; translate: -50% 0; margin: 0; padding: 6px 14px; border-radius: 14px; background: #070b18b0; color: #ffe4ad; font: 600 14px 'Manrope', system-ui, sans-serif; white-space: nowrap; }
+.lg-tag small { color: #c1cadb; font-weight: 500; margin-left: 8px; }
+.lg-card { position: absolute; right: 40px; bottom: 96px; width: 250px; padding: 12px 14px 10px; border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 18px; background: linear-gradient(135deg, rgba(18, 25, 56, 0.72), rgba(5, 8, 26, 0.5)); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16); color: #fff8df; font-family: 'Manrope', system-ui, sans-serif; }
+.lg-head { margin: 0 0 6px; font-size: 9px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: #c9cfe0; }
+.lg-head:not(:first-child) { margin-top: 10px; }
+.lg-phone { display: flex; justify-content: space-between; align-items: end; gap: 10px; }
+.lg-arrows { display: grid; grid-template-columns: repeat(3, 30px); grid-template-rows: repeat(2, 30px); gap: 4px; }
+.lg-arrows [data-arrow=up] { grid-area: 1 / 2; } .lg-arrows [data-arrow=left] { grid-area: 2 / 1; } .lg-arrows [data-arrow=down] { grid-area: 2 / 2; } .lg-arrows [data-arrow=right] { grid-area: 2 / 3; }
+.lg-arrows span, .lg-actions span { display: grid; place-items: center; border: 1px solid #fff3d685; border-radius: 9px; background: #1b2a43e6; color: #fff5df; font: 16px system-ui; transition: background .08s, color .08s; }
+.lg-actions { display: grid; gap: 4px; }
+.lg-actions span { width: 64px; min-height: 30px; grid-auto-flow: column; gap: 4px; padding: 0 6px; font-size: 11px; font-weight: 600; }
+.lg-actions i { font-style: normal; font-size: 13px; }
+.lg-actions em { font-style: normal; }
+.lg-arrows .is-held, .lg-actions .is-held { background: #ffe2a6; color: #3f3048; }
+.lg-actions .is-tap { box-shadow: 0 0 0 3px #ffe2a6aa; }
+.lg-keys { display: flex; flex-wrap: wrap; gap: 4px; }
+.lg-keys kbd { padding: 3px 7px; border: 1px solid #fff3d670; border-bottom-width: 2px; border-radius: 6px; background: #1b2a43e6; color: #fff5df; font: 600 10.5px 'Manrope', system-ui, sans-serif; }
+.lg-keys .is-held { background: #ffe2a6; color: #3f3048; }
+.lg-status { display: flex; align-items: center; gap: 7px; margin: 10px 0 2px; font-size: 12px; font-weight: 600; }
+.lg-dot { width: 8px; height: 8px; border-radius: 50%; background: #9fe3cf; box-shadow: 0 0 8px #9fe3cf; }
+.lg-card[data-phase="glide"] .lg-dot { background: #ffd98f; box-shadow: 0 0 8px #ffd98f; }
+.lg-card[data-phase="wait"] .lg-dot { background: #ffacd5; box-shadow: 0 0 8px #ffacd5; }
+.lg-hands { margin: 0; font-size: 11px; color: #c9cfe0; }
+.lg-hands b { color: #ffe4ad; font-variant-numeric: tabular-nums; }
