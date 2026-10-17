@@ -98,6 +98,9 @@ try {
       await delay(250)
     }
     assert(await evaluate('!!window.__fairyTest'), `The game did not start: ${JSON.stringify(errors).slice(0, 1500)}`)
+    // No animals: a hello of an animal near a ring adds two notes to the chime of the ring, and the animals
+    // that move change the draw calls between two frames. The animals have their own checks.
+    await evaluate('__fairyTest.wildlifeOn(false)')
   }
   await mkdir('artifacts.local/sparkle-rings', { recursive: true })
   const screenshot = async name => {
@@ -253,7 +256,8 @@ try {
     assert(ringsOf(state, 'Earth').taken.includes(second + offset), `The pass did not take the ${name} ring`)
     assert(count.shown && count.shape && count.text === name && count.dots === 0 && count.picture >= 3, `The ${name} ring did not show its picture and its name: ${JSON.stringify(count)}`)
     placed(count, name)
-    assert(await evaluate('window.oscillators') - sounds === 2, `The ${name} ring did not play two notes`)
+    const notes = await evaluate('window.oscillators') - sounds
+    assert(notes === 2, `The ${name} ring did not play two notes: ${notes} new oscillators, hellos ${JSON.stringify(await evaluate('window.__fairyTest.snapshot().friend ?? null'))}`)
     if (name === 'Triangle' || name === 'Heart') { await delay(450); await screenshot(`earth-shape-pass-${name.toLowerCase()}`) }
   }
   // The circle is the last shape of the line that she takes: the two notes of the circle, and the high C of a full line.
@@ -304,28 +308,42 @@ try {
   count = await shown()
   assert(count.shape && count.text === 'Star', `The star ring of Blossom Haven: ${JSON.stringify(count)}`)
   await delay(450); await screenshot('haven-shape-pass')
-  // Five minutes of active play move Blossom Haven. The hovering fairy and the rings move with it.
-  await evaluate('document.querySelector("#hover-toggle").click()')
-  const home = (await snapshot()).home
-  const centre = (await evaluate('__fairyTest.aimRing("fairy", 2, 8)')).centre
-  await evaluate('document.querySelector("#hover-toggle").click()')
-  for (let i = 0; i < 12 && (await snapshot()).moves === 0; i++) await evaluate('advanceFlight(30, 60, false)')
-  state = await snapshot()
-  assert(state.moves === 1, `Blossom Haven did not move: ${state.moves}`)
-  const moved = (await evaluate('__fairyTest.aimRing("fairy", 2, 8)')).centre
-  const shift = state.home.map((value, i) => value - home[i]), ringShift = moved.map((value, i) => value - centre[i])
-  // The world also turns, so the ring moves with the world plus a turn; it stays on the world.
-  const fromHome = (point, at) => Math.hypot(...point.map((value, i) => value - at[i]))
-  assert(Math.hypot(...shift) > 1000 && Math.abs(fromHome(moved, state.home) - fromHome(centre, home)) < 1e-3 && Math.hypot(...ringShift) > 1000, `The rings did not move with Blossom Haven: ${JSON.stringify({ shift, ringShift })}`)
-  await evaluate('advanceFlight(1)')
-  assert(ringsOf(await rings(), 'Blossom Haven').taken.includes(2), 'No pass after the move of Blossom Haven')
-  await screenshot('haven-after-move')
-  // The middle of the day of Blossom Haven: the plates and the shapes against the pink sky.
+  // The middle of the day of Blossom Haven: the plates and the shapes against the pink sky. This
+  // comes before the hop, because a small home after the hop can have no rings.
   let sky = await sunAt('fairy', 0, true)
   assert(sky.elevation > 0, `No day on Blossom Haven: ${JSON.stringify(sky)}`)
   await screenshot('haven-day-rings')
   await sunAt('fairy', havenShapes, true)
   await screenshot('haven-day-shape-line')
+
+  // Two minutes of active play move Blossom Haven. The hovering fairy and the rings move with it.
+  await evaluate('document.querySelector("#hover-toggle").click()')
+  const { home, radius } = await snapshot()
+  const centre = (await evaluate('__fairyTest.aimRing("fairy", 2, 8)')).centre
+  await evaluate('document.querySelector("#hover-toggle").click()')
+  for (let i = 0; i < 12 && (await snapshot()).moves === 0; i++) await evaluate('advanceFlight(30, 60, false)')
+  state = await snapshot()
+  assert(state.moves === 1, `Blossom Haven did not move: ${state.moves}`)
+  // A small home has fewer rings after the hop, or none: the home of the size of Ceres (radius
+  // 32.5 m) has no ring line. The check takes ring 2, or the last ring.
+  const after = ringsOf(await rings(), 'Blossom Haven')
+  if (after.count === 0) {
+    assert(state.radius < 60, `Blossom Haven has no rings after the hop, at the radius ${state.radius}`)
+    step(`no rings on Blossom Haven at the radius ${state.radius}: the move of the rings is not checked`)
+  } else {
+    const index = Math.min(2, after.count - 1)
+    const moved = (await evaluate(`__fairyTest.aimRing("fairy", ${index}, 8)`)).centre
+    const shift = state.home.map((value, i) => value - home[i]), ringShift = moved.map((value, i) => value - centre[i])
+    // The world also turns, and a hop can give it a new size (the wandering home study): the rings
+    // then come again for the new size. A ring stays on the world: 9 to 11 m over the ground, which
+    // is up to 8 m over or 1.3 m under the radius (src/terrain.ts), before and after the hop.
+    const fromHome = (point, at) => Math.hypot(...point.map((value, i) => value - at[i]))
+    const over = [fromHome(centre, home) - radius, fromHome(moved, state.home) - state.radius]
+    assert(Math.hypot(...shift) > 1000 && Math.hypot(...ringShift) > 1000 && over.every(height => height > 5 && height < 22), `The rings did not move with Blossom Haven: ${JSON.stringify({ shift, ringShift, over, radius: [radius, state.radius] })}`)
+    await evaluate('advanceFlight(1)')
+    assert(ringsOf(await rings(), 'Blossom Haven').taken.includes(index), 'No pass after the move of Blossom Haven')
+    await screenshot('haven-after-move')
+  }
 
   step('the Moon')
   await evaluate('__fairyTest.aimRing("moon", 0, 16)'); await evaluate('advanceFlight(0.3)')
@@ -416,12 +434,21 @@ try {
   await screenshot('phone-shape-line-390')
   // The draw calls with a shape line in view. The rings of a world take three of them: the frames, the glow and the
   // plates. A shape line adds no draw call.
-  const calls = (await snapshot()).graphics.calls
+  // Other things in the view (rain, clouds, a burst) can come or go between two frames, so the
+  // count is the middle value of five pairs of frames.
   const show = visible => evaluate(`__fairyTest.world("earth").group.children.filter(child => ["sparkle-rings", "sparkle-ring-glow", "sparkle-ring-dots"].includes(child.name)).forEach(child => { child.visible = ${visible} })`)
-  await show(false); await evaluate('advanceFlight(0.02)')
-  const ringCalls = calls - (await snapshot()).graphics.calls
-  await show(true); await evaluate('advanceFlight(0.02)')
-  assert(ringCalls >= 1 && ringCalls <= 3, `The rings of Earth take ${ringCalls} draw calls`)
+  const pairs = []
+  for (let k = 0; k < 5; k++) {
+    await evaluate('advanceFlight(0.02)')
+    const calls = (await snapshot()).graphics.calls
+    await show(false); await evaluate('advanceFlight(0.02)')
+    pairs.push(calls - (await snapshot()).graphics.calls)
+    await show(true)
+  }
+  await evaluate('advanceFlight(0.02)')
+  const calls = (await snapshot()).graphics.calls
+  const ringCalls = pairs.sort((x, y) => x - y)[2]
+  assert(ringCalls >= 1 && ringCalls <= 3, `The rings of Earth take ${ringCalls} draw calls (pairs ${pairs})`)
   await pass('earth', phoneShapes + 4)
   count = await shown()
   assert(count.shape && count.text === 'Heart' && count.box.left >= 0 && count.box.right <= 390 && count.box.top > menu, `The heart on the phone: ${JSON.stringify(count)}`)
