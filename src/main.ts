@@ -1,12 +1,14 @@
 import './style.css'
 
 import * as THREE from 'three'
-import { createWorlds, regenerateWorld, surfaceRadius, homeCottagePosition, meadowNormal } from './worlds'
+import { createWorlds, regenerateWorld, resizeHome, surfaceRadius, homeCottagePosition, meadowNormal } from './worlds'
 import { createStarSky } from './stars'
 import { createSkyLabels } from './sky-labels'
 import { createAdventure, createGuideFireflies } from './adventure'
 import { createHomeGuide, homeApproachPoint, homeMarkerPosition, journeyHeading } from './journey'
-import { createRelocationClock, createRelocationGlow, findHomePosition, HOME_CARRY_MARGIN, relocateHome } from './relocation'
+import { createRelocationClock, HOME_CARRY_MARGIN, HOME_MOVE_SECONDS, moonHomeOffset, planHop, relocateHome } from './relocation'
+import type { HopPlan } from './relocation'
+import { createHopNova, NOVA_PEAK } from './hop-nova'
 import { createPlanetaryOrbits } from './orbits'
 import { createAsteroidBelt } from './asteroid-belt'
 import { createComet } from './comet-sky'
@@ -202,6 +204,7 @@ app.innerHTML = `
     </nav>
 
     <div class="vignette"></div>
+    <div class="hop-flash" aria-hidden="true"></div>
   </main>
 `
 
@@ -304,7 +307,9 @@ const sunShading = createSunShading(sun.group.position)
 const skyProfiles = new Map(worlds.map(world => [world, skyProfile(world)]))
 const fullDay = daylightAt(90)
 let daylight = fullDay
-const cottageWindow = (home.surface.getObjectByName('cottage-window') as THREE.Mesh).material as THREE.MeshStandardMaterial
+// A hop to a new size builds a new cottage (resizeHome() in src/worlds.ts), so this is found again after it.
+const findCottageWindow = () => (home.surface.getObjectByName('cottage-window') as THREE.Mesh).material as THREE.MeshStandardMaterial
+let cottageWindow = findCottageWindow()
 // Sparkle rings over the meadows of Earth, Blossom Haven and the Moon (src/rings.ts).
 const sparkleRings = createSparkleRings(worlds, { mobile: touchDevice, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), glow: ringGlowTexture(), dots: ringDotsTexture() })
 // The longer, brighter trail after a ring ends at this time of active flight.
@@ -480,7 +485,9 @@ let homeFound = false
 try { homeFound = localStorage.getItem('fairy-home-found') === 'true' } catch { /* Session-only discovery still works. */ }
 const homeGuide = createHomeGuide()
 const homeClock = createRelocationClock()
-const teleportGlow = createRelocationGlow(scene, makeSoftDiscTexture('rgba(255,255,255,1)'))
+// The nova of a hop (look B of docs/wandering-home-study.md), and its soft light in the sky of the home.
+const hopNova = createHopNova(scene, makeSoftDiscTexture('rgba(255,255,255,1)'))
+const hopFlash = document.querySelector<HTMLElement>('.hop-flash')!
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
 let homeSuspended = false
 const guideTarget = homeApproachPoint(home)
@@ -554,27 +561,92 @@ function stopHome() {
   if (destination === home) destination = null
   homeSuspended = false
 }
-function moveHome() {
+/**
+ * A hop of Blossom Haven (docs/wandering-home-study.md): a new size, and a new place around the Sun or
+ * as a moon of a planet. The clock plans the hop NOVA_PEAK s before it moves the home, so the two
+ * novae start first and the home moves at the peak of the flash.
+ */
+let nextHop: HopPlan | null = null
+type HopOptions = { size?: string; host?: string }
+function planNextHop(options: HopOptions = {}) {
   const carrying = !hoverHeld && fairy.position.distanceTo(home.group.position) <= home.radius + home.atmosphere + HOME_CARRY_MARGIN
-  const next = findHomePosition(home, worlds, fairy.position, carrying)
-  if (!next) return false
-  const previous = home.group.position.clone()
+  const plan = planHop(home, worlds, fairy.position, carrying, Math.random, options)
+  if (!plan) return null
+  // A nova where the home leaves and a nova where it arrives: from far away, the second one shows where it went.
+  hopNova.fire(home.group.position, home.radius, reducedMotion.matches)
+  hopNova.fire(plan.position, plan.size.radius, reducedMotion.matches)
+  if (Math.min(fairy.position.distanceTo(home.group.position), fairy.position.distanceTo(plan.position)) < 3000) playChime([523.25, 1046.5], 0.04)
+  return plan
+}
+/** The words of the hop note: the new size and the planet of a moon home. */
+function hopWords(plan: HopPlan) {
+  const size = plan.size.id === 'today' ? 'Blossom Haven has its first size again' : `Blossom Haven is as big as ${plan.size.name} now`
+  return `You and your home moved together! ${size}${plan.host ? `, a moon of ${plan.host.name}` : ''}.`
+}
+function moveHome(options: HopOptions = {}) {
+  const plan = nextHop ?? planNextHop(options)
+  nextHop = null
+  if (!plan) return false
+  // A moon home goes to its place on the path now: the planet moved a little since the plan.
+  const next = plan.host
+    ? moonHomeOffset(plan.distance, plan.angle, Math.atan2(plan.host.group.position.z, plan.host.group.position.x)).add(plan.host.group.position)
+    : plan.position
+  // At a new size the fairy keeps her direction from the middle and her height over the ground.
+  const up = fairy.position.clone().sub(home.group.position).normalize()
+  const height = fairy.position.distanceTo(home.group.position) - surfaceRadius(home, up)
+  const resized = plan.size.radius !== home.radius
   const result = relocateHome(home, next, fairy.position)
+  const shift = result.offset.clone()
+  if (resized) {
+    resizeHome(home, plan.size)
+    cottageWindow = findCottageWindow()
+    // A new landscape needs a new safe line of rings.
+    sparkleRings.rebuild(home)
+    if (result.carrying) {
+      const place = home.group.position.clone().addScaledVector(up, surfaceRadius(home, up) + height)
+      shift.add(place.clone().sub(fairy.position))
+      fairy.position.copy(place)
+    }
+  }
   if (result.carrying) {
     // Translate every world-space follower together: no stretched trail or camera sweep.
-    camera.position.add(result.offset)
-    cameraLook.add(result.offset)
-    previousFlightPosition.add(result.offset)
-    fairyTrail.shift(result.offset)
+    camera.position.add(shift)
+    cameraLook.add(shift)
+    previousFlightPosition.add(shift)
+    fairyTrail.shift(shift)
   }
-  guideTarget.copy(homeApproachPoint(home))
-  orbits.rebase(home)
+  if (plan.host) orbits.moonOf(home, plan.host, plan.distance, plan.angle)
+  else orbits.rebase(home)
   home.group.updateMatrixWorld(true)
-  teleportGlow.begin(previous, next, home.radius)
-  adventure.notifyMove(result.carrying)
+  guideTarget.copy(homeApproachPoint(home))
+  homeSize = plan.size.id
+  adventure.notifyMove(result.carrying, hopWords(plan))
   // The hop brings the next magic season. The look follows in about 20 s.
   magicTarget += MAGIC_STEP
   return true
+}
+let homeSize = 'today'
+/**
+ * The Moon has no fog, so it shows from Earth (src/moon.ts). The planet of a moon home gets the same
+ * while the fairy is at the home: else the air of the home paints the planet in its colour.
+ */
+let foglessHost: World | null = null
+let fogless: (THREE.Material & { fog: boolean })[] = []
+function updateHostFog() {
+  const host = nearestWorld === home ? orbits.homeHost : null
+  if (host === foglessHost) return
+  for (const material of fogless) { material.fog = true; material.needsUpdate = true }
+  fogless = []
+  foglessHost = host
+  host?.group.traverse(object => {
+    if (!(object instanceof THREE.Mesh)) return
+    for (const material of (Array.isArray(object.material) ? object.material : [object.material]) as (THREE.Material & { fog?: boolean })[]) {
+      if (!material.fog) continue
+      material.fog = false
+      material.needsUpdate = true
+      fogless.push(material as THREE.Material & { fog: boolean })
+    }
+  })
 }
 function discoverHome() {
   if (homeFound) return
@@ -1054,7 +1126,11 @@ function animate(timestamp?: number) {
   // Keep the orbit display gently moving behind the Worlds dialog.
   const orbitDelta = started && !paused && !customizing && !menuOpen ? rawDelta : 0
   elapsed += delta
-  homeClock.update(delta, homeGuide.enabled || destination === home, moveHome)
+  const homeGuided = homeGuide.enabled || destination === home
+  // The guide stops the clock: a planned hop goes, and the clock plans again when it runs.
+  if (homeGuided) nextHop = null
+  else if (delta > 0 && !nextHop && homeClock.elapsed + delta >= HOME_MOVE_SECONDS - NOVA_PEAK && homeClock.elapsed + delta < HOME_MOVE_SECONDS) nextHop = planNextHop()
+  homeClock.update(delta, homeGuided, () => moveHome())
   magicYear = stepMagicYear(magicYear, magicTarget, delta)
   // Remember the fairy in the nearest planet's local frame while she is in its
   // atmosphere, or near the airless Moon, which moves fast around Earth.
@@ -1161,7 +1237,9 @@ function animate(timestamp?: number) {
   foliageWind.value.x = reducedMotion.matches ? 0 : elapsed
   // The strength of the wind in the plants comes from the weather of Earth. Away from Earth it is 1.
   foliageWind.value.y = weatherAir.here.wind
-  teleportGlow.update(delta, reducedMotion.matches)
+  hopNova.update(delta, camera, view.height)
+  hopFlash.style.opacity = nearestWorld === home && nearestDistance < home.atmosphere + HOME_CARRY_MARGIN ? String((hopNova.flash * 0.4).toFixed(3)) : '0'
+  updateHostFog()
   searchStar.update(delta, fairy, camera, reducedMotion.matches)
   // The points of the trail stay with the world that carries her. In open space they stay in the scene,
   // and they keep the velocity that the orbit of a world gives her.
@@ -1240,8 +1318,11 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   }
   Object.defineProperty(window, '__fairyTest', { value: {
   aimRing,
-  /** A hop of Blossom Haven now, as the clock of src/relocation.ts makes each 5 minutes. */
-  hop: () => moveHome(),
+  /**
+   * A hop of Blossom Haven now, as the clock of src/relocation.ts makes each 2 minutes. A check can fix
+   * the size (an id of HOME_SIZES) and the place (`host`: 'sun' or a planet of MOON_HOME.hosts).
+   */
+  hop: (options: HopOptions = {}) => moveHome(options),
   /** Puts the fairy at `position`, heading to `target`, with no guide. */
   place: (position: number[], target: number[]) => {
     destination = null
@@ -1288,7 +1369,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
   snapshot: () => ({
     home: home.group.position.toArray(), radius: home.radius, atmosphere: home.atmosphere,
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
-    elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled,
+    elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled, homeSize, homeHost: orbits.homeHost?.kind ?? null, novae: hopNova.count,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
     found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),

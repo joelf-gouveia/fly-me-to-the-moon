@@ -514,6 +514,16 @@ dialog[open] {
   pointer-events: none;
 }
 
+/* The light of a hop nova in the sky of Blossom Haven (src/hop-nova.ts). One soft flash: the edges stay clear. */
+.hop-flash {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 38%, #f4f8ff 0%, #d8e6ffcc 40%, #c9b8ff00 100%);
+  pointer-events: none;
+}
+
 @media (max-width: 720px) {
   .customizer { right: 15px; bottom: 76px; padding: 19px; max-height: calc(var(--view-height, 100dvh) - 100px); }
   .brand { max-width: 42%; }

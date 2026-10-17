@@ -65,6 +65,8 @@ export type World = {
   look?: PlanetLookState
   /** The Sun only: its living look of src/sun-paint.ts. updateEnvironment() in src/main.ts updates it. */
   sunLook?: SunLook
+  /** The shell of the air (addAtmosphere()). resizeHome() gives it a new size. */
+  air?: THREE.Mesh<THREE.SphereGeometry, THREE.ShaderMaterial>
 }
 
 /**
@@ -219,6 +221,7 @@ function addAtmosphere(world: World, sunPosition: THREE.Vector3) {
   const mesh = new THREE.Mesh(new THREE.SphereGeometry(radius, 64, 40), material)
   mesh.renderOrder = -2
   world.group.add(mesh)
+  world.air = mesh
 }
 
 function buildClouds(world: World) {
@@ -470,6 +473,28 @@ export function regenerateWorld(world: World, seed = (Math.random() * 0xffffffff
   if (world.gas) buildGasDeck(world)
   else buildGround(world)
   buildClouds(world)
+}
+
+/**
+ * Blossom Haven at a new size (a hop of src/relocation.ts). Blossom Haven keeps one landscape, so
+ * this sets `visit` to 0 for a new build of the ground, the plants, the candy, the cottage, the
+ * clouds and the animals at the new radius. The seed is the same, so the hills keep their places on
+ * the sphere. The shell of the air gets the new radii. The build takes 0.3 to 0.7 s on a computer
+ * (docs/wandering-home-study.md); the hop does it at the flash of the nova.
+ */
+export function resizeHome(home: World, size: { radius: number; atmosphere: number; cloudHeight: number }) {
+  home.radius = size.radius
+  home.atmosphere = size.atmosphere
+  home.cloudHeight = size.cloudHeight
+  home.visit = 0
+  regenerateWorld(home)
+  if (home.air) {
+    home.air.geometry.dispose()
+    home.air.geometry = new THREE.SphereGeometry(size.radius + size.atmosphere, 64, 40)
+    home.air.material.uniforms.radius.value = size.radius + size.atmosphere
+    home.air.material.uniforms.ground.value = size.radius
+  }
+  home.group.updateMatrixWorld(true)
 }
 
 /** `renderer` paints the maps of the seven planets. Without it, the giants keep their canvas decks. */

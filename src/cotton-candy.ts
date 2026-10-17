@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js'
 import { createNoise3D } from 'simplex-noise'
 import { seededRandom } from './terrain'
+import { PROPORTIONS } from './proportions'
 import type { World } from './worlds'
 
 // Cotton candy clouds for Blossom Haven: option B of the cotton candy cloud study
@@ -165,9 +166,14 @@ export function candyPuffMesh(puffs: CandyPuff[], mobile = false, time = flossTi
   return mesh
 }
 
-/** Blossom Haven clouds: 300 puffs in 50 tufts, or half on a phone, as in buildClouds(). */
+/**
+ * Blossom Haven clouds: 300 puffs in 50 tufts, or half on a phone, as in buildClouds(). A small home
+ * (src/relocation.ts) gets fewer tufts for its smaller area, down to a fifth: 50 tufts on a home as
+ * big as Ceres fill its sky. A big home keeps 50, so its sky is mostly clear.
+ */
 export function buildCottonCandyClouds(world: World, cottage: THREE.Vector3) {
-  const tuftCount = Math.round(300 * (world.mobile ? 0.5 : 1)) / PUFFS_PER_TUFT
+  const area = THREE.MathUtils.clamp((world.radius / (80 * PROPORTIONS.size)) ** 2, 0.2, 1)
+  const tuftCount = Math.max(6, Math.round(300 * area * (world.mobile ? 0.5 : 1) / PUFFS_PER_TUFT))
   const tufts = candyTufts(world.radius, world.cloudHeight, tuftCount, world.seed, cottage)
   world.clouds.add(candyPuffMesh(tufts.flatMap(tuft => tuft.puffs), world.mobile))
 }

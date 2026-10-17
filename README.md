@@ -387,8 +387,8 @@ does not lean, and the Sun does not make them. There are four, in this order:
 | Lantern time | Violet | Giant toadstools that glow | Fireflies |
 | Crystal time | Frost white | Sugar crystals | Glitter |
 
-A visit starts in Blossom time. Each hop of the planet (each 5 minutes) brings the next
-season, so a magic year is 20 minutes, and the look changes in about 20 s. A new season
+A visit starts in Blossom time. Each hop of the planet (each 2 minutes) brings the next
+season, so a magic year is 8 minutes, and the look changes in about 20 s. A new season
 starts at the cottage and goes out over the planet in a ring: the far side gets it three
 seasons later, so the planet shows two or three seasons at one time. The plants of a
 season grow from the ground when it comes and go back when it leaves; the candy of the
@@ -466,25 +466,49 @@ layer is candy pink, and the sky over the cottage stays clear. The clouds are in
 Home starts about **28 km from Earth** in the game's compressed solar system,
 not beside it. The flower marks the cottage on Blossom Haven, including when
 exploring its surface; fireflies show the safe route around intervening terrain.
-Home teleports every **five minutes of active, unguided play** to a clear position
-anywhere within the compact solar-system play area. Candidate positions avoid
-other planets, their atmospheres, Saturn's rings, the Sun, the path and the tails of the
-comet, and a nearby fairy.
-The clock stops for the flower guide, including temporary
-steering overrides while that guide remains enabled. Use **Stop following** to
-return to manual flight and resume the relocation clock. Manual approach does
+Home hops every **two minutes of active, unguided play** (the
+[wandering home study](#wandering-home-study)). Each hop does three things:
+
+- **A nova.** A white flash with four spikes and a shell of light that grows and turns blue
+  and violet, at the old place and at the new place (`src/hop-nova.ts`). The home moves at
+  the peak of the flash. A nova far away keeps 14 px on the screen, so the child sees from
+  across the system where her home went. On the home, a soft light fills her sky. With
+  reduced motion, only a soft glow shows.
+- **A new size.** Any of ten sizes, each the size of a real world: Ceres, the Moon, Mercury,
+  the first size of Blossom Haven, Mars, Venus, Earth, Neptune, Saturn and Jupiter (radius 33 m
+  to 588 m). The air and the clouds grow with the square root of the radius. The plants keep
+  their density up to the count of an Earth-size home, then a bigger home gets wider meadows.
+  A new size is a new build of the same landscape (`resizeHome()` in `src/worlds.ts`): the
+  hills keep their places, and the animals are new.
+- **A new place.** At random, a path around the Sun, or a path as a moon of Earth, Saturn,
+  Uranus or Neptune: each planet with room for the size has the same chance as the Sun. A
+  moon path is tilted 20° and takes 4 minutes for one turn. It is clear of the planet, its
+  air and rings, the Moon, the belt, the whole path of the comet and the circles of the other
+  planets (`moonHomeDistance()` in `src/relocation.ts`). Mars has no room: the belt is too
+  near. While she is at a moon home, the planet in her sky has no fog, as the Moon has.
+
+A place around the Sun avoids other planets, their atmospheres, Saturn's rings, the Sun, the
+path and the tails of the comet, and a nearby fairy. The clock stops for the flower guide,
+including temporary steering overrides while that guide remains enabled. Use **Stop
+following** to return to manual flight and resume the relocation clock. Manual approach does
 not stop relocation.
 
-When she is visiting (inside the atmosphere plus a small margin), the fairy,
-camera, trail, and home move together. The terrain seed, cottage, and discovery
-remain unchanged. The flower guide updates immediately and a gentle notice
-announces the move. No countdown or deadline is shown. Pause, customization,
-the world map, and background tabs do not advance the clock. Reloading starts
-a fresh interval and the initial distant location; discovery stays saved.
+When she is visiting (inside the atmosphere plus a small margin), the fairy, camera, trail,
+and home move together. At a new size she keeps her direction from the middle and her height
+over the ground. The terrain seed, cottage, and discovery remain unchanged. The flower guide
+updates immediately, and a gentle note says the new size and the planet ("Blossom Haven is as
+big as Mars now, a moon of Saturn"). No countdown or deadline is shown. Pause, customization,
+the world map, and background tabs do not advance the clock. Reloading starts a fresh interval
+and the initial distant location at the first size; discovery stays saved.
+
+A new size takes 0.3 to 0.7 s to build on a computer, and the hop does the build at the peak
+of the flash, so the view stops for that time. A slow phone can stop for 1 to 2 s.
 
 Run `node scripts/blossom-smoke.mjs "path/to/chrome.exe"` against the dev server
-for the five-minute clock, guided lock, arrival, visitor/camera carry, and mobile
-browser checks. Pure simulation tests cover placement and relocation safety.
+for the two-minute clock, guided lock, arrival, visitor/camera carry, a hop to a moon of
+Saturn at the size of Ceres and a hop to the size of Jupiter, and mobile browser checks.
+Pure simulation tests cover placement, the sizes, the moon paths and relocation safety
+(`tests/relocation.test.ts`, `tests/wandering-home.test.ts`).
 
 ## Animals
 
@@ -1082,7 +1106,7 @@ Explore seven ecosystem notes in live 3D and compare a fixed outer-rim home,
 a reliable flower doorway, and an optional 20-minute roaming planet. The time
 simulator preserves the original comparison; changing study controls does not
 change the game. The selected live version now uses the candy ecosystem and
-the five-minute relocation rules above, not the original 20-minute proposal.
+the relocation rules above, not the original 20-minute proposal.
 Details and research are in
 [docs/candy-planet-study.md](docs/candy-planet-study.md).
 
@@ -1602,6 +1626,34 @@ server with no hot reload, run
 `node studies/animals-study/animals-study-capture.mjs "path/to/chrome.exe" [A,B,...]` for the clips
 (add `--moments` for the moment pictures, or `--cards` for the card pictures), and
 `node studies/animals-study/animals-study-bench.mjs "path/to/chrome.exe"` for the measurements.
+
+## Wandering home study
+
+Visit `/studies/wandering-home-study.html` for **The wandering home**, a study of four changes to
+the hop of Blossom Haven: a hop each 2 minutes in place of each 5, a small nova at each hop, a
+place as a moon of a planet, and a new size from Ceres to Jupiter. It compares three looks of the
+nova with a clip from the engine of the game for each: **A** a Blossom nova of petals and rings,
+**B** a Star nova with a shell of light, **C** the glow of today, brighter. Three more clips show
+Blossom Haven as a moon of Saturn, the sizes, and a hop with the fairy on board (the home grows to
+the size of Earth and Saturn rises in her sky). The page also has the two clocks, a table of the
+planets with room for a moon home at each size, a bench of each size, eight findings, the plan and
+twelve decisions. Its controls do not change the game.
+
+The study uses the lab of the [feature ideas study](#feature-ideas-study) and the page look of the
+[learn and play study](#learn-and-play-study). The recommendation is look A at the old place and
+at the new place, a moon home around Earth, Saturn, Uranus or Neptune in one hop of two, a size
+walk of one or two steps, and a new home built before the hop. The
+[technical study](docs/wandering-home-study.md) gives the findings, the rules, the measurements
+and the plan. The clips are in `public/studies/wandering-home/`. Against a dev server with no hot
+reload, run `node studies/wandering-home-study/wandering-home-study-capture.mjs "path/to/chrome.exe"`
+for the clips (add `--moments` for the moment pictures), and
+`node studies/wandering-home-study/wandering-home-study-bench.mjs "path/to/chrome.exe"` for the
+measurements.
+
+The player answered the twelve decisions, and the hop is in the game: see
+[Blossom Haven](#blossom-haven), and "Built in the game" in the technical study. The
+player selected look B (the star nova), any size at each hop, a moon home also when it is bigger
+than its planet, and a magic season at each hop.
 
 ## Browser checks
 
