@@ -54,6 +54,7 @@ import { createMobileQuality } from './mobile-quality'
 import { createMobileUI } from './mobile-ui'
 import { createStickerBook } from './sticker-book'
 import { createWarmthNote } from './warmth-note'
+import { createSkyNote, isSkyNoteKind } from './sky-note'
 import { moonSight } from './moon-diary'
 import { createMoonDiary } from './moon-diary-ui'
 import { greetFoals, popSodaBubble } from './candy'
@@ -517,6 +518,10 @@ stickerBook.onChange(() => { if (stickerBook.count) fairyFriend.cheer(reducedMot
 if (import.meta.env.DEV && new URLSearchParams(location.search).get('friend') === 'all') fairyFriend.hello(BOOK_KINDS, false, true)
 // F16 · Picture thermometer: a note for a moment at the arrival at a world. The thermometers are in Worlds.
 const warmthNote = createWarmthNote()
+// A true fact about the sky of a world, from the fairy friend (docs/living-worlds-study.md).
+const skyNote = createSkyNote()
+// The clock of the living skies (src/skies/): it runs in the flight, and it stops with reduced motion.
+let skyClock = 0
 // Worlds: the map and the book of stickers. Flight waits while it is open.
 const adventure = createAdventure(worlds, stickerBook, {
   home: followHome,
@@ -1166,7 +1171,14 @@ function animate(timestamp?: number) {
   updateNearestWorld()
   // The thermometer of the world waits for the sticker note, the search-star note, the notes of the fairy home and the
   // note of the fairy friend. The thermometer and the Moon note use the same place: each one waits while the other shows.
-  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null || fairyFriend.noteVisible)
+  warmthNote.update(nearNearest ? nearestWorld.kind : null, delta, active, stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null || fairyFriend.noteVisible || skyNote.visible)
+  // The sky note: in the air of a world with a living sky (or low over the Moon and Mercury), after the
+  // thermometer, and never with a different note.
+  const skyWorld = nearestWorld.living && isSkyNoteKind(nearestWorld.kind) ? nearestWorld : null
+  const skyHere = skyWorld && nearestDistance < (skyWorld.atmosphere || 80) ? skyWorld.kind as Parameters<typeof skyNote.update>[0] : null
+  skyNote.update(skyHere, !skyWorld?.atmosphere && (skyWorld?.living?.stats().sparks ?? 0) > 0, delta, active,
+    stickerBook.noteShown || adventure.noteShown || moonDiary.state.note !== null || fairyFriend.noteVisible || warmthNote.state.shown !== null,
+    () => { const friend = fairyFriend.state.friend; return friend ? `${friendName(friend)} says` : nearestWorld.name })
   // A soda bubble of Blossom Haven pops when the fairy touches it, with a soft high note. The search star of
   // updateNearestWorld() reads the bubble first.
   if (delta > 0 && nearestWorld === home && popSodaBubble(home, fairy.position)) playChime([1567.98], 0.03)
@@ -1201,7 +1213,7 @@ function animate(timestamp?: number) {
   })
   updateEnvironment()
   // The Moon diary reads the picture of this frame: the Moon in the view, above the horizon, in a clear sky.
-  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active, warmthNote.state.shown !== null || fairyFriend.noteVisible)
+  moonDiary.update(moonSight(fairy.position, camera, earth, moon, sun.group.position, nearestWorld === earth, weatherAir.here.cover), delta, active, warmthNote.state.shown !== null || fairyFriend.noteVisible || skyNote.visible)
   belt.update(orbits.elapsed, camera, fairy.position, reducedMotion.matches ? 0 : elapsed, renderer.domElement.height, skyVisibility)
   // The comet follows the orbit time, so World speed makes it faster. Reduced motion stills the tail.
   comet.update(orbits.elapsed, sun.group.position, camera, fairy.position, forward, reducedMotion.matches ? 0 : elapsed, delta,
@@ -1214,9 +1226,12 @@ function animate(timestamp?: number) {
     started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen, near: nearNearest,
   })
   updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
+  skyClock += reducedMotion.matches ? 0 : delta
   for (const world of worlds) {
-    // The clouds of Earth read the weather map at their place, so they do not turn.
-    if (!world.weather) world.clouds.rotation.y += delta * 0.001
+    // The clouds of Earth read the weather map at their place, and a living sky moves with the winds of its
+    // world (src/skies/), so they do not turn.
+    if (!world.weather && !world.living) world.clouds.rotation.y += delta * 0.001
+    world.living?.update({ time: skyClock, camera, still: reducedMotion.matches })
     // The herds follow the season of their place on Earth and the magic season on Blossom Haven (src/creatures/population.ts).
     // A bench can turn the animals off (wildlifeOn() of the test hooks).
     if (wildlifeOn) world.creatures?.update(delta, camera.position, lifeOf(world))
@@ -1371,7 +1386,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled, homeSize, homeHost: orbits.homeHost?.kind ?? null, novae: hopNova.count,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
-    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
+    found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, skyNote: skyNote.state, skies: Object.fromEntries(worlds.filter(world => world.living).map(world => [world.kind, world.living!.stats()])), skyClock, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },
     postcard: postcard.state,

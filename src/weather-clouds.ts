@@ -15,7 +15,7 @@ import type { WeatherUniforms } from './weather'
  * - Rain curtains: soft columns from a rain cloud to the ground, so rain shows from far away.
  * - The grey layer: it closes the sky under a front, between the heap clouds.
  *
- * The other worlds keep the puffs of buildClouds() in src/worlds.ts.
+ * Venus, Mars, the giants, the Moon and Mercury have the living skies of src/skies/.
  */
 const TAU = Math.PI * 2
 

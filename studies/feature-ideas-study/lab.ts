@@ -323,6 +323,8 @@ export function createLab(host: HTMLElement, { mobile = false } = {}) {
     for (const world of worlds) {
       world.creatures?.update(active, camera.position)
       world.animate?.(t)
+      // The living skies of src/skies/ move with the clip time, as with the clock of the game.
+      world.living?.update({ time: t, camera, still: false })
     }
     if (shot && mode === 'clip') shot(camera, t)
     else followCamera(Math.max(active, 0.0001), boost)

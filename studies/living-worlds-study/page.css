@@ -1,0 +1,31 @@
+/* The parts of this page that the page looks of the feature ideas study, the learn and play study and the animals study do not have. */
+.worlds { display: grid; gap: 26px; margin-top: 22px }
+.world { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 26px; padding-top: 22px; border-top: 1px solid #2b3350 }
+.world h3 { margin: 0 0 10px; font: 400 26px/1.15 Georgia, 'Times New Roman', serif; color: #f6d9aa }
+.world dl { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 7px 14px; margin: 0; font-size: 13.5px }
+.world dt { color: #8f9bb6; font: 600 11px/1.6 'Manrope', sans-serif; letter-spacing: .08em; text-transform: uppercase }
+.world dd { margin: 0; color: #dbe2ef }
+.world .facts { margin: 14px 0 0; padding: 12px 14px; border-radius: 12px; background: #fff6ec; color: #4a3550; font: 600 14px/1.45 'Manrope', sans-serif }
+.world .facts p { margin: 0 }
+.world .facts p + p { margin-top: 6px }
+.world .sources { margin-top: 10px; font-size: 12px; color: #8f9bb6 }
+.world .sources a { color: #c1cadb }
+.world-pics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-content: start }
+.world-pics figure { margin: 0; min-width: 0 }
+.world-pics img { display: block; width: 100%; height: auto; border-radius: 10px; border: 1px solid #263049; background: #02030f }
+.world-pics figcaption { margin-top: 6px; font-size: 12px; color: #c1cadb }
+.world-pics .none { display: grid; place-items: center; aspect-ratio: 16 / 9; border-radius: 10px; border: 1px dashed #2b3350; color: #8f9bb6; font-size: 13px; text-align: center; padding: 10px }
+.wind-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; margin-top: 18px }
+.wind-grid table { width: 100% }
+.wind-grid td, .wind-grid th { font-size: 12px; font-variant-numeric: tabular-nums }
+.life { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; margin-top: 18px }
+.life article { padding-top: 14px; border-top: 1px solid #2b3350; min-width: 0 }
+.life .year { font: 400 30px/1 Georgia, 'Times New Roman', serif; color: #f6d9aa }
+.life h3 { margin: 6px 0; font-size: 15px }
+.life p { margin: 0 0 6px; font-size: 13px; color: #c1cadb }
+.life a, .mark-grid a { font-size: 12px; color: #c1cadb }
+@media (max-width: 1100px) { .wind-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 760px) {
+  .world, .life, .wind-grid { grid-template-columns: minmax(0, 1fr) }
+  .world dl { grid-template-columns: minmax(0, 1fr) }
+}

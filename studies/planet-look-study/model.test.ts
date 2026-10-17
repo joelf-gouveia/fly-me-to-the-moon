@@ -20,11 +20,15 @@ const fileBytes = (name: string) => {
 }
 
 describe('planet look study', () => {
+  // The living worlds study (docs/living-worlds-study.md) made Neptune the pale blue of the pictures of 2024
+  // after this study. The study keeps its record; the game has the new colours.
+  const LATER: Partial<Record<string, { color: number; sky: number }>> = { neptune: { color: 0x7fb0dc, sky: 0x9cc4ec } }
+
   it('copies the planet values of the game', () => {
     const worlds = source('worlds.ts'), main = source('main.ts')
     for (const id of PLANET_IDS) {
       const planet = PLANETS[id]
-      const color = `0x${planet.color.toString(16).padStart(6, '0')}`
+      const color = `0x${(LATER[id]?.color ?? planet.color).toString(16).padStart(6, '0')}`
       expect(worlds).toContain(`['${planet.name}', '${id}', ${planet.radius}, ${planet.orbit}, ${planet.angle}, ${color}, ${planet.atmosphere}, ${planet.cloudHeight}]`)
       expect(main).toContain(`${id}: ${planet.spin}`)
     }
@@ -40,7 +44,7 @@ describe('planet look study', () => {
   it('uses the game look of option B: the same tilts, sky and cloud colours, and ring limit', () => {
     for (const id of PLANET_IDS) {
       expect(PLANET_LOOKS[id].obliquity).toBe(PLANETS[id].obliquity)
-      expect(PLANET_LOOKS[id].sky).toBe(PLANETS[id].retune.sky)
+      expect(PLANET_LOOKS[id].sky).toBe(LATER[id]?.sky ?? PLANETS[id].retune.sky)
       expect(PLANET_LOOKS[id].cloud).toBe(PLANETS[id].retune.cloud)
     }
     // The study's Before option copies the old air; the game shader keeps its old depth rule inside the air.

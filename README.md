@@ -87,13 +87,13 @@ The seven planets have the look of their pictures (option B of the
 [planet look study](#planet-look-study)). The graphics card paints a map for each
 giant and for the closed cloud deck of Venus: Jupiter's belts and Great Red Spot,
 Saturn's bands and polar hexagon, the pale cyan of Uranus, and Neptune's dark spot and
-white streaks. Mars has dark regions, ice caps and a long canyon; Mercury has dark
+white streaks. Neptune has the pale blue of the pictures that NASA processed again in 2024. Mars has dark regions, ice caps and a long canyon; Mercury has dark
 plains and bright ray craters. Mercury and Mars have half the relief, so they are
 round from space; the flight ground is lower too. Each planet has its real axial
 tilt, and Uranus lies on its side. Saturn's rings are on its equator, with the
 Cassini gap and a shadow on the planet; Uranus has thin rings. From far away the
-night sides are dark, the air is a thin rim, and the cloud puffs show only inside
-the air. A new visit to a giant gives new storms. The maps are 2048 × 1024 on a
+night sides are dark, the air is a thin rim, and the clouds show only inside
+the air (see [Living worlds](#living-worlds)). A new visit to a giant gives new storms. The maps are 2048 × 1024 on a
 computer and 1024 × 512 on a phone. Earth, the Moon, Ceres, Vesta and Blossom Haven
 keep their look. The recipes are in `src/planet-paint.ts`; the numbers are in
 `src/planet-look.ts`.
@@ -435,12 +435,48 @@ With reduced motion the rain stands still and the thunder does not flash. A phon
 half the heap clouds and half the rain lines, and no high wisps. The weather code is in
 `src/weather.ts`, `src/weather-clouds.ts` and `src/weather-air.ts`; the
 [weather study](docs/weather-study.md) gives the model and the decisions. The sound of
-the weather, the creatures and the sticker tasks are the next step. The other worlds
-keep their puffs.
+the weather, the creatures and the sticker tasks are the next step. The other worlds with
+air have their own skies (see [Living worlds](#living-worlds)).
 
 Run `node scripts/weather-smoke.mjs "path/to/chrome.exe"` against the dev server for the
 browser check. `/?test&weather=rain` gives the whole planet one weather (`clear`, `rain`, `shower`,
 `storm` or `mist`) on the dev server.
+
+## Living worlds
+
+Each world has the clouds that it really has, and real things move and happen there (option B
+of the [living worlds study](#living-worlds-study)). The puffs of before are gone.
+
+| World | The clouds | What happens |
+| --- | --- | --- |
+| Jupiter | White zones of ammonia ice, gaps over the belts with brown clouds deeper down | The Great Red Spot turns where the map paints it. Storm towers rise from the South Equatorial Belt, and lightning lights them from inside. |
+| Saturn | Soft cream bands under a haze | Storm towers with lightning in "storm alley", near 35° N. |
+| Uranus | A pale haze with almost nothing in it, and a few bright clouds | The clouds blow backwards at the equator. |
+| Neptune | A pale blue deck, and high white streaks with their shadows on it | The Great Dark Spot turns where the map paints it, with bright clouds at its south edge. The winds are the fastest of all. |
+| Venus | The closed deck, with dark streaks and chevrons on top | The deck goes around the planet fast. Under it, acid rain falls and goes back to gas before the ground. Faint flashes show in the deck. |
+| Mars | Thin wisps of water ice in patches | Dust devils turn and walk slowly over the low plains. |
+| The Moon, Mercury | None: the sky stays black | On the night side, small stones from space hit the ground and make a short spark. |
+
+- **The winds.** The bands of the giants and the deck of Venus move with the real jets of each latitude,
+  at 7% of their real speed (`WIND_SCALE` in `src/skies/data.ts`): the bands of Jupiter go in opposite
+  directions, and the equators of Uranus and Neptune go backwards.
+- **How they draw.** A cloud layer is one sphere with a shader (one draw call). The near clouds are
+  tufts of a few joined balls with a flat base, as the heap clouds of Earth, in one InstancedMesh for
+  each set. The clouds show only inside the air; from far away the painted maps show. Each new visit
+  gives new places for the storm towers and the dust devils.
+- **The friend.** Once in each visit, after 4 s in the air of a world (or at the first spark on the
+  Moon or Mercury), a note gives a true fact about its sky, from the fairy friend. The note of Venus
+  says that scientists are not sure that Venus has lightning. The note is in the place of the
+  thermometer note, and it never shows with a different note (`src/sky-note.ts`).
+- **Reduced motion and phones.** With reduced motion the skies stand still: no flash, no spark. A phone
+  gets half the tufts, fewer storm towers and dust devils, and fewer points in each dust devil.
+
+The code is in `src/skies/`: `data.ts` has the jets and the layers, `giants.ts`, `venus.ts`, `mars.ts`
+and `airless.ts` have the skies, and `buildClouds()` in `src/worlds.ts` builds them. Run
+`node scripts/living-worlds-smoke.mjs "path/to/chrome.exe"` against the dev server for the browser
+check: no puffs, the clouds only inside the air, the lightning of Jupiter, the dust devils of Mars, the
+sparks on the night side of the Moon only, the notes, reduced motion and the phone. The pictures are in
+`artifacts.local/living-worlds/`.
 
 ## Blossom Haven
 
@@ -1655,6 +1691,29 @@ The player answered the twelve decisions, and the hop is in the game: see
 player selected look B (the star nova), any size at each hop, a moon home also when it is bigger
 than its planet, and a magic season at each hop.
 
+## Living worlds study
+
+Visit `/studies/living-worlds-study.html` for **Living worlds**, a study of the real clouds of each
+world and of real things that move and happen there. The airless worlds (Mercury, the Moon, Ceres
+and Vesta) had no clouds; Venus, Mars and the four giants all had the same white puffs. The study
+compares three options: **A** the real kind of cloud of each world (cloud shells and soft tufts, with
+bands that move with the real jets), **B** A and one or two real events on each world, and **C** B and
+the floaters that Carl Sagan and Edwin Salpeter imagined in the clouds of Jupiter. Eight clips from the
+engine of the game fly the same route on Jupiter today and with each option, and option B on Venus,
+Mars, Neptune and the Moon. A bench measures the draw calls and the frame time on a computer page and
+on a phone page of 390 px. The page also gives each world with its real clouds, its events, a true fact
+for a child and the sources, the real jets, eight findings, the plan and six decisions. Its controls do
+not change the game.
+
+Option B is built in the game (see [Living worlds](#living-worlds)), with the answers to the decisions:
+no floaters, the friend says when scientists are not sure, all the giants first, faster winds, and the
+pale blue Neptune. The [technical study](docs/living-worlds-study.md) gives the findings, the research,
+the prototypes, the measurements and what was built. The study uses the lab of the
+[feature ideas study](#feature-ideas-study). The clips are in `public/studies/living-worlds/`. Against a
+dev server with no hot reload, run
+`node studies/living-worlds-study/living-worlds-study-capture.mjs "path/to/chrome.exe" [T,A,...]` for
+the clips (add `--moments` for the moment pictures), and
+`node studies/living-worlds-study/living-worlds-study-bench.mjs "path/to/chrome.exe"` for the measurements.
 ## Browser checks
 
 Each feature has a browser check in `scripts/`. One command runs them all at the same time:

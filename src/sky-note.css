@@ -1,0 +1,10 @@
+/* The sky note (src/sky-note.ts): in the place of the thermometer note, and never with it. */
+#sky-note[hidden] { display: none; }
+#sky-note { position: absolute; z-index: 4; right: 40px; bottom: 96px; width: min(360px, calc(100% - 80px)); padding: 14px 20px 16px; border: 1px solid #ffffff40; border-radius: 24px; color: #fff6e7; background: #182335f2; box-shadow: 0 10px 40px #0006; pointer-events: none; transform-origin: 90% 100%; animation: sky-note-on .5s cubic-bezier(.2, 1.4, .4, 1) both; transition: opacity .6s; }
+#sky-note.is-leaving { opacity: 0; }
+#sky-note small { display: block; margin-bottom: 6px; font: 10px 'DM Mono', monospace; letter-spacing: .2em; text-transform: uppercase; color: #d9cfe2; }
+#sky-note p { margin: 0; font: 500 16px/1.45 'Manrope', sans-serif; }
+.touch-ui #sky-note { top: min(calc(20% + 72px), calc(100% - var(--edge-bottom, 14px) - 227px)); right: var(--edge-right, 16px); bottom: auto; width: min(300px, calc(100% - var(--edge-right, 16px) * 2)); padding: 10px 16px 12px; border-radius: 20px; transform-origin: 90% 0; }
+.touch-ui #sky-note p { font-size: 15px; }
+@keyframes sky-note-on { from { transform: scale(.7); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { #sky-note { animation: none; } }

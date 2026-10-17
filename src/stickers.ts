@@ -68,7 +68,7 @@ export const STICKERS: Sticker[] = [
   { id: 'uranus', name: 'Uranus', group: 'giant', color: 0x96d9df, atmosphere: 100, path: 8,
     fact: 'Uranus is the coldest planet of all, even colder than Neptune.',
     search: { task: 'Find the thin rings of the planet that lies on its side.', found: 'You found the thin rings!', check: 'place', rule: 'Near the ring plane, 1.64 to 2 radii from the centre (URANUS_RING_SPAN)' } },
-  { id: 'neptune', name: 'Neptune', group: 'giant', color: 0x638ecb, atmosphere: 105, path: 9,
+  { id: 'neptune', name: 'Neptune', group: 'giant', color: 0x7fb0dc, atmosphere: 105, path: 9,
     fact: 'Neptune has the fastest winds of all the planets.',
     search: { task: 'Find the dark storm and its white cloud.', found: 'You found the dark storm!', check: 'place', rule: 'Below cloudHeight over the Great Dark Spot (DARK_SPOT in src/search-places.ts)' } },
   { id: 'fairy', name: 'Blossom Haven', group: 'pretend', color: 0xf3acd1, atmosphere: 52, path: null,

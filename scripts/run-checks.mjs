@@ -50,6 +50,7 @@ const CHECKS = [
   { name: 'seasons', script: 'scripts/seasons-smoke.mjs', url: 'arg', files: ['src/seasons.ts', 'src/season-air.ts', 'src/foliage/'] },
   { name: 'magic-seasons', script: 'scripts/magic-seasons-smoke.mjs', url: 'arg', files: ['src/magic-seasons.ts', 'src/foliage/'] },
   { name: 'weather', script: 'scripts/weather-smoke.mjs', url: 'arg', files: ['src/weather'] },
+  { name: 'living-worlds', script: 'scripts/living-worlds-smoke.mjs', url: 'arg', files: ['src/skies/', 'src/sky-note', 'src/planet-paint.ts', 'src/planet-look.ts', 'src/warmth', 'src/moon-diary'] },
 ]
 
 /**
