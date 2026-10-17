@@ -87,13 +87,13 @@ try {
   const distance = (a, b) => Math.hypot(...a.map((v, i) => v - b[i]))
   const initial = await snapshot()
   if (initial.radius !== 137.5 || initial.candy.some(value => !value)) throw new Error('Candy world is missing or the wrong size')
-  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceFlight(0.05); document.querySelector("#stop-home").click(); advanceFlight(295)')
+  await evaluate('document.querySelector("#begin-button").click(); document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceFlight(0.05); document.querySelector("#stop-home").click(); advanceFlight(115)')
   let state = await snapshot()
-  if (state.moves !== 0) throw new Error('Planet moved before five active minutes')
+  if (state.moves !== 0) throw new Error('Planet moved before two active minutes')
   await evaluate('document.querySelector("[data-world=fairy]").click(); document.querySelector("#world-fly").click(); advanceFlight(2)')
   const locked = await snapshot()
   if (!locked.guided || locked.moves !== 0 || Math.abs(locked.elapsed - state.elapsed) > 0.05) throw new Error('Guided navigation did not pause relocation')
-  console.log('Five-minute interval and guided navigation lock verified')
+  console.log('Two-minute interval and guided navigation lock verified')
   for (let i = 0; i < 100; i++) {
     await evaluate('advanceFlight(2)')
     state = await snapshot()
@@ -117,12 +117,36 @@ try {
   const before = await snapshot()
   await evaluate('advanceFlight(6)')
   const after = await snapshot()
-  if (after.moves !== 1 || distance(before.home, after.home) < 1400 * 2.5) throw new Error('Five-minute relocation failed')
+  if (after.moves !== 1 || distance(before.home, after.home) < 1400 * 2.5) throw new Error('Two-minute relocation failed')
+  if (!after.novae) throw new Error('The hop made no nova')
   if (distance(after.fairy, after.home) > after.radius + after.atmosphere + 12) throw new Error('Visiting fairy was not carried with home')
   if (distance(after.camera, after.fairy) > 40) throw new Error('Camera did not travel with fairy')
-  if (before.seed !== after.seed || before.visit !== after.visit) throw new Error('Teleport rerolled the landscape')
+  // A new size is a new build of the same landscape: the seed stays. With the same size the build stays too.
+  if (before.seed !== after.seed || (before.radius === after.radius && before.visit !== after.visit)) throw new Error('Teleport rerolled the landscape')
   if (distance(after.target, before.target) < 1400 * 2.5) throw new Error('Home approach target was not refreshed')
   await screenshot('blossom-home-teleported')
+  console.log('The hop of the clock:', JSON.stringify({ size: after.homeSize, host: after.homeHost, radius: after.radius }))
+  // Two hops with her on board: a moon of Saturn (or Uranus) as big as Ceres, then around the Sun as big as Jupiter.
+  // She keeps her height over the ground at each new size.
+  const height = () => evaluate(`(() => {
+    const s = __fairyTest.snapshot(), w = __fairyTest.world('fairy')
+    const p = w.group.position.clone().fromArray(s.fairy).sub(w.group.position)
+    const d = p.clone().normalize().applyQuaternion(w.group.quaternion.clone().invert())
+    return p.length() - w.radius - Math.max(0, w.sample(d.x, d.y, d.z).height)
+  })()`)
+  // A hop goes to a new planet: the home cannot hop on the path of the planet that it goes around now.
+  const saturn = after.homeHost === 'saturn' ? 'uranus' : 'saturn'
+  for (const [size, host, radius] of [['ceres', saturn, 32.5], ['jupiter', 'sun', 587.5]]) {
+    const was = await height()
+    if (!await evaluate(`__fairyTest.hop({ size: '${size}', host: '${host}' })`)) throw new Error(`No hop to ${size} around ${host}`)
+    await evaluate('advanceFlight(0.05)')
+    const moved = await snapshot(), now = await height()
+    if (moved.radius !== radius || (moved.homeHost ?? 'sun') !== host) throw new Error('Wrong hop: ' + JSON.stringify({ radius: moved.radius, host: moved.homeHost }))
+    if (distance(moved.fairy, moved.home) > moved.radius + moved.atmosphere + 12) throw new Error(`The fairy was not carried to the home as big as ${size}`)
+    if (Math.abs(now - was) > 3) throw new Error(`Her height over the ground changed from ${was.toFixed(1)} to ${now.toFixed(1)} m`)
+    await screenshot(`blossom-hop-${size}`)
+    console.log(`Hop to ${size} around ${host}: radius ${moved.radius}, height ${was.toFixed(1)} -> ${now.toFixed(1)} m`)
+  }
   console.log('Visitor, camera, terrain and updated target survived relocation')
   await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true })
   await evaluate('advanceFlight(0.2)')

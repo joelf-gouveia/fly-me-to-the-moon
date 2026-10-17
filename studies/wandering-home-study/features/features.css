@@ -1,0 +1,8 @@
+/* The layer and the captions of the clips of the wandering home study. */
+.wh-layer { position: absolute; z-index: 5; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+.wh-caption { position: absolute; z-index: 20; left: 50%; bottom: 22px; translate: -50% 0; margin: 0; padding: 7px 16px; border-radius: 16px; background: #070b18c4; color: #f6e6c8; font: 500 15px 'Manrope', sans-serif; white-space: nowrap; visibility: hidden; }
+.wh-caption b { color: #edc68d; margin-right: 6px; font-weight: 600; }
+.wh-tag { position: absolute; z-index: 20; left: 50%; top: 18px; translate: -50% 0; margin: 0; padding: 6px 14px; border-radius: 14px; background: #070b18b0; color: #ffd9ec; font: 600 14px 'Manrope', sans-serif; letter-spacing: .02em; white-space: nowrap; visibility: hidden; }
+.wh-tag small { color: #c1cadb; font-weight: 500; margin-left: 6px; }
+/* The flash of a hop in the sky of the fairy, when she is on the home. Soft pink, never white. */
+.wh-flash { position: absolute; inset: 0; z-index: 4; background: radial-gradient(circle at 50% 40%, #ffe6f2 0%, #ffb3d6 45%, #c99bff00 100%); opacity: 0; }

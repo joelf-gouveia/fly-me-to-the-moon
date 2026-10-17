@@ -60,7 +60,7 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
         return `<circle class="solar-orbit" data-orbit="${world.kind}" cx="300" cy="250" r="${mapRadius}" stroke="#${new THREE.Color(world.color).getHexString()}"/><g data-orbit-marker="${world.kind}"><circle class="solar-planet" r="${moon ? 4 : 6}" fill="#${new THREE.Color(world.color).getHexString()}"/><text y="${moon ? -9 : 18}">${world.name}</text></g>`
       }).join('')}</svg></section>
       <div class="book-cards">${BOOK_ORDER.map((id, index) => `<button type="button" data-world="${id}" class="book-card" style="--tilt:${(index * 37 % 9) - 4}deg"></button>`).join('')}</div>
-      <p class="map-footnote">Blossom Haven wanders every five minutes. Choose its flower to keep it still while we fly there. Pictures are not to scale.</p>
+      <p class="map-footnote">Blossom Haven wanders every two minutes, and it can grow, shrink or become a moon. Choose its flower to keep it still while we fly there. Pictures are not to scale.</p>
       </div>
       <div id="animals-page" role="tabpanel" aria-labelledby="tab-animals" hidden></div>
     </dialog>
@@ -208,12 +208,13 @@ export function createAdventure(worlds: World[], stickers: StickerBook, actions:
   return {
     /** True while the note of the found home or of a hop shows. The thermometer note waits for it (src/warmth-note.ts). */
     get noteShown() { return !get('home-celebration').hidden || !get('home-move-note').hidden },
-    notifyMove(carrying: boolean) {
+    /** `words` tells the new size and the planet of a moon home (moveHome() in src/main.ts). */
+    notifyMove(carrying: boolean, words = 'A little hop through the stars. You and your home moved together!') {
       // A move far away is quiet; the flower guide always finds the new spot.
       if (!carrying) return
       moveNoticeTime = 9
       get('home-move-note').hidden = false
-      get('home-move-note').querySelector('p')!.textContent = 'A little hop through the stars. You and your home moved together!'
+      get('home-move-note').querySelector('p')!.textContent = words
     },
     celebrate() {
       celebrationTime = 8

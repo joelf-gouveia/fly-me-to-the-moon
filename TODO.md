@@ -5,7 +5,7 @@ steps of the game.
 
 Mark an item with `[x]` when it is done, and write the commit that closed it.
 
-Last update: 15 October 2026.
+Last update: 17 October 2026.
 
 ## Faults
 
@@ -80,6 +80,35 @@ Some study scripts in `studies/` can have the same fault, for example
 
 The check passes with the two numbers. The cause is not known. The phone budget is in
 `docs/mobile-play.md`.
+
+### 18. The view stops at a hop of Blossom Haven to a new size
+
+- [ ] Build the home of the next hop before the hop, so the hop is only a swap of two groups
+  under the flash of the nova. This is step 4 of the plan in `docs/wandering-home-study.md`.
+- [ ] Measure the stop again on the computer and on the slow phone page
+  (`studies/wandering-home-study/wandering-home-study-bench.mjs`), and add a limit to
+  `scripts/blossom-smoke.mjs`.
+
+A hop with a new size (9 hops of 10) builds the ground, the plants, the candy, the cottage, the
+clouds and the animals again at the peak of the flash (`resizeHome()` in `src/worlds.ts`, called
+from `moveHome()` in `src/main.ts`). On the bench computer the hop takes 0.35 to 0.45 s, and the
+view stops for that time. The bench gives 0.9 to 1.9 s for the same build on the slow phone page.
+A player can see the stop when the fairy is on the home or near it.
+
+Ways to do it:
+
+- Choose the next size and place at the start of a stay (`planHop()` in `src/relocation.ts`):
+  there are 2 minutes to build.
+- Build into a second set of groups, in parts over many frames. `regenerateWorld()` is one
+  function today: split it into steps (the ground, the water, the plants, the cottage and the
+  candy, the animals, the season plants, the clouds), each one less than about 8 ms.
+- The terrain samples and the plan of the plants (`plan()` in `src/foliage/planting.ts`) are pure
+  math, so a worker can make them.
+- At the hop, swap the new groups into `home.surface` and `home.clouds`, with the new creature
+  population, and remove the old ones.
+- Small homes build slower than the home of today (535 ms at Ceres size against 346 ms on the
+  bench computer). The season plants try 60 places for each plant, and a small home has little
+  room. Examine this too.
 
 ## Open check results
 
@@ -279,6 +308,12 @@ No feature branch is open. F1 is in `master`. F2 and F6 are rejected as built: s
 - [x] Merge into `master`: merge `a9fe189`. The type check and the 429 unit tests pass on
   `master`.
 - [x] Delete the worktree and the branch. The branch was never on GitHub.
+
+### `features/wandering-home`
+
+- [x] Run the Blossom Haven, magic seasons and friend browser checks on the branch.
+- [x] Merge into `master`: merge `56515ff` of 17 October 2026. The type check and the 611 unit
+  tests pass on the merged files. The branch is on GitHub. TODO item 18 is the open fault.
 
 ## Next steps
 
