@@ -11,13 +11,13 @@ function fixture(kind: World['kind'], radius: number, position: number[]): World
   return { name: kind, kind, radius, atmosphere: kind === 'sun' ? 0 : 52, cloudHeight: 24, color: 0, sky: new THREE.Color(), group, surface: new THREE.Group(), clouds: new THREE.Group(), sample: createTerrain(kind === 'sun' ? 'mercury' : kind, 1), seed: 1, visit: 1, armed: false, gas: false }
 }
 
-describe('five-minute magical relocation', () => {
-  it('moves at five active minutes, freezes time for guided trips, and resumes afterwards', () => {
+describe('two-minute magical relocation', () => {
+  it('moves at two active minutes, freezes time for guided trips, and resumes afterwards', () => {
     const clock = createRelocationClock(); let attempts = 0
     const move = () => { attempts++; return true }
-    expect(clock.update(299, false, move)).toBe(false)
+    expect(clock.update(119, false, move)).toBe(false)
     expect(clock.update(900, true, move)).toBe(false)
-    expect(clock.elapsed).toBe(299)
+    expect(clock.elapsed).toBe(119)
     expect(clock.update(0, false, move)).toBe(false)
     expect(clock.update(1, false, move)).toBe(true)
     expect(attempts).toBe(1)
@@ -26,7 +26,7 @@ describe('five-minute magical relocation', () => {
   })
   it('allows a manual approach and does not catch up with multiple jumps or count failed moves', () => {
     const clock = createRelocationClock()
-    expect(clock.update(300, false, () => false)).toBe(false)
+    expect(clock.update(120, false, () => false)).toBe(false)
     expect(clock.moves).toBe(0)
     expect(clock.update(1000, false, () => true)).toBe(true)
     expect(clock.moves).toBe(1)

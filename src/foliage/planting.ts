@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { seededRandom } from '../terrain'
+import { PROPORTIONS } from '../proportions'
 import type { TerrainSample } from '../terrain'
 import { SPECIES, speciesTriangles } from './species'
 import type { SpeciesId } from './species'
@@ -19,6 +20,11 @@ export type PlanStats = { trees: number; small: number; kinds: number; triangles
 
 /** One candidate point for each 7.5 square metres of the planet. A phone gets half. */
 export const CANDIDATE_AREA = 7.5
+/**
+ * The plants keep their density up to the area of a world as big as Earth, then their count. A big
+ * Blossom Haven (src/relocation.ts) gets wider meadows, not ten times the plants.
+ */
+export const PLANT_AREA_RADIUS = 220 * PROPORTIONS.size
 /** The share of the land that is wood, when the woods and glades lever is off. */
 const EVEN_WOOD = 0.42
 /** Two trees do not stand in the same cell of this size, in metres. */
@@ -36,7 +42,7 @@ export function plan(option: OptionId, site: Site, levers: Levers = ALL_LEVERS):
   const random = seededRandom(site.seed + 977)
   const fields = createFields(site.seed)
   const earth = site.kind === 'earth'
-  const candidates = Math.round(4 * Math.PI * site.radius ** 2 / CANDIDATE_AREA * (site.mobile ? 0.5 : 1))
+  const candidates = Math.round(4 * Math.PI * Math.min(site.radius, PLANT_AREA_RADIUS) ** 2 / CANDIDATE_AREA * (site.mobile ? 0.5 : 1))
   const lists = new Map<SpeciesId, { matrices: number[]; colours: number[] }>()
   const taken = new Set<string>()
   const stats: PlanStats = { trees: 0, small: 0, kinds: 0, triangles: 0, zones: {} }

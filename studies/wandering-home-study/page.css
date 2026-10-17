@@ -1,0 +1,46 @@
+/* The parts of this page that the page looks of the feature ideas study and the learn and play study do not have. */
+.option-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) }
+.decisions { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.decisions fieldset:nth-child(4n + 1) { border-left: 0; padding-left: 0 }
+.decisions fieldset:nth-child(n + 5) { border-top: 1px solid #2b3350 }
+.findings { grid-template-columns: repeat(4, minmax(0, 1fr)) }
+.steps .pill { margin-left: 8px; vertical-align: 2px }
+
+/* The moon table: one cell for each size and planet. */
+.moon-table td, .moon-table th { text-align: center; white-space: nowrap }
+.moon-table tbody th { text-align: left }
+.moon-table td.fits { color: #bfe8cf }
+.moon-table td.stay { color: #f6d9aa }
+.moon-table td.none { color: #59617a }
+.moon-table td small { display: block; color: #8e98b0; font-size: 10px }
+.moon-table td.big { box-shadow: inset 0 -2px 0 #f0a7b766 }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; font-size: 12px; color: #aab5ca }
+.legend span::before { content: ''; display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 0 }
+.legend .fits::before { background: #bfe8cf }
+.legend .stay::before { background: #f6d9aa }
+.legend .none::before { background: #59617a }
+.legend .big::before { border-radius: 0; height: 2px; background: #f0a7b7 }
+
+/* The two clocks. */
+.clock-grid { display: grid; grid-template-columns: 1.6fr 1fr; gap: 40px; margin-top: 22px; align-items: start }
+.timeline { width: 100%; height: auto; display: block }
+.timeline text { fill: #aab5ca; font: 11px Inter, 'Segoe UI', sans-serif }
+.timeline .label { fill: #dfe5f0; font-size: 12px; font-weight: 600 }
+.timeline .axis { stroke: #36405a }
+.timeline .tick { stroke: #2b3350 }
+.timeline .hop { fill: #ffacd5 }
+.timeline .hop-ring { fill: none; stroke: #ffacd5; stroke-opacity: .45 }
+.timeline .season-0 { fill: #f0a3c4 } .timeline .season-1 { fill: #9fe3cf } .timeline .season-2 { fill: #9577d6 } .timeline .season-3 { fill: #e9e6fb }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px }
+.stat { padding: 14px 16px; border: 1px solid #2b3350; border-radius: 10px; background: #0d1326 }
+.stat strong { display: block; font: 400 28px/1.15 Georgia, 'Times New Roman', serif; color: #f6d9aa }
+.stat span { font-size: 12px; color: #aab5ca }
+.size-note { margin-top: 10px }
+
+@media (max-width: 1100px) { .decisions { grid-template-columns: repeat(2, minmax(0, 1fr)) } .decisions fieldset:nth-child(2n + 1) { border-left: 0; padding-left: 0 } .decisions fieldset:nth-child(n + 3) { border-top: 1px solid #2b3350 } .findings { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
+@media (max-width: 760px) {
+  .option-cards, .decisions, .clock-grid, .findings { grid-template-columns: minmax(0, 1fr) }
+  .decisions fieldset { border-left: 0 !important; padding-left: 0 !important }
+  .decisions fieldset + fieldset { border-top: 1px solid #2b3350 }
+  .findings li { padding-left: 0 !important; border-left: 0 !important }
+}

@@ -63,8 +63,8 @@ describe('the clock of the magic year', () => {
     expect(stepMagicYear(0.25, 0.25, 1)).toBe(0.25)
   })
 
-  it('makes a year of 20 minutes: four hops of 5 minutes', () => {
-    expect(HOME_MOVE_SECONDS / MAGIC_STEP).toBe(20 * 60)
+  it('makes a year of 8 minutes: four hops of 2 minutes', () => {
+    expect(HOME_MOVE_SECONDS / MAGIC_STEP).toBe(8 * 60)
     expect(MAGIC_CHANGE_SECONDS).toBeLessThan(HOME_MOVE_SECONDS)
   })
 })
