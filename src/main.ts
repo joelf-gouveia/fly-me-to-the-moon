@@ -1012,6 +1012,7 @@ function updateCamera(delta: number) {
   if (building) {
     // Build mode turns the camera around the home. The panel is at the side on a computer and at the bottom on a phone.
     homeBuild.cameraPose(camera, delta)
+    camera.near = 0.08
     camera.fov = THREE.MathUtils.lerp(camera.fov, 58, 1 - Math.exp(-delta * 2.5))
     camera.setViewOffset(view.width, view.height, view.width > 720 ? view.width * 0.13 : 0, view.width > 720 ? 0 : view.height * 0.3, view.width, view.height)
     camera.updateProjectionMatrix()
@@ -1032,6 +1033,10 @@ function updateCamera(delta: number) {
   if (camera.position.distanceTo(nearestWorld.group.position) < safeRadius) {
     camera.position.copy(nearestWorld.group.position).addScaledVector(normal, safeRadius)
   }
+  // The depth buffer has more precision with a far near plane. Without it, the water and the ground of a
+  // flat shore flicker when seen from far away. Near the ground, the near plane stays close for the plants.
+  const clearance = camera.position.distanceTo(nearestWorld.group.position) - safeRadius
+  camera.near = customizing ? 0.08 : THREE.MathUtils.clamp(clearance / 500, 0.08, 2)
   lookGoal.copy(fairy.position).addScaledVector(forward, customizing ? 0 : 12)
   cameraLook.lerp(lookGoal, 1 - Math.exp(-delta * 6))
   cameraUpGoal.set(0, 1, 0).applyQuaternion(fairy.quaternion)
