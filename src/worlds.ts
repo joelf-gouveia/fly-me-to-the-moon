@@ -27,6 +27,8 @@ import { createGroundPainter, createLookState, lookMaterial, paintedMap, planetR
 import type { PlanetLookState } from './planet-paint'
 import { createSunLook } from './sun-paint'
 import type { SunLook } from './sun-paint'
+import { buildSky } from './skies'
+import type { Sky } from './skies'
 
 export type World = {
   name: string
@@ -65,13 +67,19 @@ export type World = {
   look?: PlanetLookState
   /** The Sun only: its living look of src/sun-paint.ts. updateEnvironment() in src/main.ts updates it. */
   sunLook?: SunLook
+  /**
+   * Venus, Mars, the giants, the Moon and Mercury: the living sky of src/skies/ (the real clouds and
+   * events of the living worlds study). The loop of src/main.ts updates it; regenerateWorld() makes it again.
+   */
+  living?: Sky
 }
 
 /**
  * `weather` false makes an Earth with the puffs of before and no weather. The weather study uses it
- * for its own prototype (studies/weather-study/).
+ * for its own prototype (studies/weather-study/). `living` false gives Venus, Mars and the giants the
+ * puffs of before and no living sky: the living worlds study uses it for its clips of today.
  */
-export const WORLD_OPTIONS = { weather: true }
+export const WORLD_OPTIONS = { weather: true, living: true }
 
 /** The Sun's live position, for the ring shadow on Saturn. createWorlds() sets it. */
 let sunCentre: THREE.Vector3 | undefined
@@ -109,7 +117,7 @@ export const WORLD_DATA = [
   ['Jupiter', 'jupiter', 470, 6300, 4.2, 0xd7bb9c, 145, 38],
   ['Saturn', 'saturn', 390, 8500, 5.18, 0xe1cb9e, 130, 35],
   ['Uranus', 'uranus', 285, 10900, 3.05, 0x96d9df, 100, 28],
-  ['Neptune', 'neptune', 275, 13600, 5.82, 0x638ecb, 105, 32],
+  ['Neptune', 'neptune', 275, 13600, 5.82, 0x7fb0dc, 105, 32],
 ] as const
 
 function disposeGroup(group: THREE.Group) {
@@ -222,6 +230,12 @@ function addAtmosphere(world: World, sunPosition: THREE.Vector3) {
 }
 
 function buildClouds(world: World) {
+  // Venus, Mars, the giants, the Moon and Mercury: their real clouds and events (src/skies/), not the puffs.
+  world.living = WORLD_OPTIONS.living && sunCentre ? buildSky(world, sunCentre) : undefined
+  if (world.living) {
+    if (world.kind === 'venus' && world.look) world.clouds.add(venusDeck(world, world.look, PLANET_LOOKS.venus.cloud))
+    return
+  }
   if (!world.cloudHeight) return
   // Earth has the clouds of the weather: heap clouds, high wisps, rain curtains and a grey layer.
   if (world.weather && sunCentre) {
@@ -457,6 +471,8 @@ export function regenerateWorld(world: World, seed = (Math.random() * 0xffffffff
   if (world.kind === 'sun' || ((world.kind === 'fairy' || world.kind === 'moon') && world.visit > 0)) return
   world.creatures?.dispose()
   world.creatures = undefined
+  world.living?.dispose()
+  world.living = undefined
   disposeGroup(world.surface)
   disposeGroup(world.clouds)
   world.seed = world.kind === 'fairy' ? HOME_SEED : world.kind === 'moon' ? MOON.seed : seed

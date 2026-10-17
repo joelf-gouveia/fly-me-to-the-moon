@@ -154,7 +154,7 @@ const RECIPES: Partial<Record<LookedPlanet, string>> = {
     return c;
   }`,
   neptune: bandShader([
-    [-68, 0x2c3a94], [-50, 0x30429f], [-34, 0x3958bb], [-14, 0x3d6ccd], [12, 0x4384dc], [30, 0x3d6bcb], [50, 0x3553b4], [90, 0x2d388d],
+    [-68, 0x5b88bb], [-50, 0x6592c4], [-34, 0x72a2cf], [-14, 0x7daed8], [12, 0x87badf], [30, 0x7caad6], [50, 0x6b94c6], [90, 0x5a82b6],
   ], 5) + /* glsl */`
   vec3 paint(vec3 p, float lat, float lon) {
     vec3 q = vec3(p.x * 1.5, p.y * 8.0, p.z * 1.5) + seed;
@@ -165,7 +165,7 @@ const RECIPES: Partial<Record<LookedPlanet, string>> = {
     float belts = exp(-pow((lat - 27.0) / 4.0, 2.0)) + exp(-pow((lat + 43.0) / 3.0, 2.0)) * 0.8;
     c = mix(c, ${vec3(0xeef4ff)}, streak * belts * 0.85);
     // The Great Dark Spot with its white companion cloud.
-    c = mix(c, ${vec3(0x1f2f80)}, oval(lat, lon, ${glsl(DARK_SPOT.latitude)}, ${glsl(DARK_SPOT.longitude)}, ${glsl(DARK_SPOT.width)}, ${glsl(DARK_SPOT.height)}) * 0.9);
+    c = mix(c, ${vec3(0x2f4f86)}, oval(lat, lon, ${glsl(DARK_SPOT.latitude)}, ${glsl(DARK_SPOT.longitude)}, ${glsl(DARK_SPOT.width)}, ${glsl(DARK_SPOT.height)}) * 0.9);
     c = mix(c, ${vec3(0xf4f7ff)}, oval(lat, lon, -27.5, 196.0, 10.0, 1.3) * 0.9);
     // The Scooter: a small bright cloud further south.
     return mix(c, ${vec3(0xe6eeff)}, oval(lat, lon, -42.0, 300.0, 4.0, 1.6) * 0.8);

@@ -22,7 +22,8 @@ export const PLANET_LOOKS: Record<LookedPlanet, PlanetLook> = {
   jupiter: { obliquity: 3.1, sky: 0xe6d3bb, cloud: 0xf4ece0 },
   saturn: { obliquity: 26.7, sky: 0xeedcb4, cloud: 0xfcf0d8 },
   uranus: { obliquity: 97.8, sky: 0xb6e7ee, cloud: 0xe9fbff },
-  neptune: { obliquity: 28.3, sky: 0x6f9cf0, cloud: 0xeef4ff },
+  // The pale blue of the pictures of Voyager 2 that NASA processed again in 2024 (docs/living-worlds-study.md).
+  neptune: { obliquity: 28.3, sky: 0x9cc4ec, cloud: 0xeef4ff },
 }
 
 export const isLookedPlanet = (kind: string): kind is LookedPlanet => kind in PLANET_LOOKS
