@@ -1,0 +1,607 @@
+{
+  "date": "2026-10-17",
+  "frames": 60,
+  "desktop": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 1280,
+    "height": 720,
+    "pixelRatio": 1,
+    "throttle": 1,
+    "views": [
+      {
+        "id": "jupiter-top",
+        "name": "Jupiter, in the top layer"
+      },
+      {
+        "id": "jupiter-under",
+        "name": "Jupiter, under the top layer"
+      },
+      {
+        "id": "venus",
+        "name": "Venus, under the deck"
+      },
+      {
+        "id": "mars",
+        "name": "Mars, low over the plain"
+      },
+      {
+        "id": "neptune",
+        "name": "Neptune, among the high streaks"
+      }
+    ],
+    "rows": [
+      {
+        "view": "jupiter-top",
+        "option": "today",
+        "clip": "T",
+        "calls": 96,
+        "triangles": 2452158,
+        "ms": 2,
+        "p90": 3.4,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-top",
+        "option": "A",
+        "clip": "A",
+        "calls": 98,
+        "triangles": 2775102,
+        "ms": 1.7,
+        "p90": 2.3,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-top",
+        "option": "B",
+        "clip": "B",
+        "calls": 100,
+        "triangles": 2804242,
+        "ms": 1.7,
+        "p90": 2.3,
+        "extraCalls": 4
+      },
+      {
+        "view": "jupiter-top",
+        "option": "C",
+        "clip": "C",
+        "calls": 102,
+        "triangles": 2813762,
+        "ms": 1.9,
+        "p90": 3.1,
+        "extraCalls": 6
+      },
+      {
+        "view": "jupiter-under",
+        "option": "today",
+        "clip": "T",
+        "calls": 94,
+        "triangles": 2443134,
+        "ms": 1.3,
+        "p90": 1.6,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-under",
+        "option": "A",
+        "clip": "A",
+        "calls": 96,
+        "triangles": 2766078,
+        "ms": 1.3,
+        "p90": 1.4,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-under",
+        "option": "B",
+        "clip": "B",
+        "calls": 99,
+        "triangles": 2795220,
+        "ms": 1.3,
+        "p90": 1.7,
+        "extraCalls": 5
+      },
+      {
+        "view": "jupiter-under",
+        "option": "C",
+        "clip": "C",
+        "calls": 101,
+        "triangles": 2804740,
+        "ms": 1.4,
+        "p90": 1.8,
+        "extraCalls": 7
+      },
+      {
+        "view": "venus",
+        "option": "today",
+        "clip": "V-today",
+        "calls": 104,
+        "triangles": 2580734,
+        "ms": 1.6,
+        "p90": 2,
+        "extraCalls": 0
+      },
+      {
+        "view": "venus",
+        "option": "A",
+        "clip": "V-A",
+        "calls": 105,
+        "triangles": 2482622,
+        "ms": 1.6,
+        "p90": 1.9,
+        "extraCalls": 1
+      },
+      {
+        "view": "venus",
+        "option": "B",
+        "clip": "V",
+        "calls": 106,
+        "triangles": 2482710,
+        "ms": 1.7,
+        "p90": 2,
+        "extraCalls": 2
+      },
+      {
+        "view": "mars",
+        "option": "today",
+        "clip": "M-today",
+        "calls": 94,
+        "triangles": 2373534,
+        "ms": 1.2,
+        "p90": 1.6,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "A",
+        "clip": "M-A",
+        "calls": 94,
+        "triangles": 2378878,
+        "ms": 1.7,
+        "p90": 2.4,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "B",
+        "clip": "M",
+        "calls": 95,
+        "triangles": 2378878,
+        "ms": 2.1,
+        "p90": 2.9,
+        "extraCalls": 1
+      },
+      {
+        "view": "neptune",
+        "option": "today",
+        "clip": "N-today",
+        "calls": 96,
+        "triangles": 2452158,
+        "ms": 1.5,
+        "p90": 2,
+        "extraCalls": 0
+      },
+      {
+        "view": "neptune",
+        "option": "A",
+        "clip": "N-A",
+        "calls": 98,
+        "triangles": 2679102,
+        "ms": 1.9,
+        "p90": 2.5,
+        "extraCalls": 2
+      },
+      {
+        "view": "neptune",
+        "option": "B",
+        "clip": "N",
+        "calls": 100,
+        "triangles": 2713102,
+        "ms": 1.8,
+        "p90": 2.2,
+        "extraCalls": 4
+      }
+    ]
+  },
+  "phone": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 487,
+    "height": 1055,
+    "pixelRatio": 1.25,
+    "throttle": 1,
+    "views": [
+      {
+        "id": "jupiter-top",
+        "name": "Jupiter, in the top layer"
+      },
+      {
+        "id": "jupiter-under",
+        "name": "Jupiter, under the top layer"
+      },
+      {
+        "id": "venus",
+        "name": "Venus, under the deck"
+      },
+      {
+        "id": "mars",
+        "name": "Mars, low over the plain"
+      },
+      {
+        "id": "neptune",
+        "name": "Neptune, among the high streaks"
+      }
+    ],
+    "rows": [
+      {
+        "view": "jupiter-top",
+        "option": "today",
+        "clip": "T",
+        "calls": 96,
+        "triangles": 1283957,
+        "ms": 1.8,
+        "p90": 3.4,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-top",
+        "option": "A",
+        "clip": "A",
+        "calls": 98,
+        "triangles": 1450901,
+        "ms": 1.8,
+        "p90": 2.8,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-top",
+        "option": "B",
+        "clip": "B",
+        "calls": 100,
+        "triangles": 1483241,
+        "ms": 1.8,
+        "p90": 2.9,
+        "extraCalls": 4
+      },
+      {
+        "view": "jupiter-top",
+        "option": "C",
+        "clip": "C",
+        "calls": 102,
+        "triangles": 1492761,
+        "ms": 2,
+        "p90": 3.2,
+        "extraCalls": 6
+      },
+      {
+        "view": "jupiter-under",
+        "option": "today",
+        "clip": "T",
+        "calls": 94,
+        "triangles": 1274933,
+        "ms": 1.4,
+        "p90": 2.3,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-under",
+        "option": "A",
+        "clip": "A",
+        "calls": 96,
+        "triangles": 1441877,
+        "ms": 1.3,
+        "p90": 2.4,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-under",
+        "option": "B",
+        "clip": "B",
+        "calls": 98,
+        "triangles": 1474217,
+        "ms": 1.2,
+        "p90": 2,
+        "extraCalls": 4
+      },
+      {
+        "view": "jupiter-under",
+        "option": "C",
+        "clip": "C",
+        "calls": 100,
+        "triangles": 1483737,
+        "ms": 1.2,
+        "p90": 1.4,
+        "extraCalls": 6
+      },
+      {
+        "view": "venus",
+        "option": "today",
+        "clip": "V-today",
+        "calls": 104,
+        "triangles": 1412533,
+        "ms": 1.6,
+        "p90": 2.3,
+        "extraCalls": 0
+      },
+      {
+        "view": "venus",
+        "option": "A",
+        "clip": "V-A",
+        "calls": 105,
+        "triangles": 1374421,
+        "ms": 1.4,
+        "p90": 1.9,
+        "extraCalls": 1
+      },
+      {
+        "view": "venus",
+        "option": "B",
+        "clip": "V",
+        "calls": 106,
+        "triangles": 1374509,
+        "ms": 1.4,
+        "p90": 1.8,
+        "extraCalls": 2
+      },
+      {
+        "view": "mars",
+        "option": "today",
+        "clip": "M-today",
+        "calls": 94,
+        "triangles": 1262533,
+        "ms": 1,
+        "p90": 1.2,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "A",
+        "clip": "M-A",
+        "calls": 94,
+        "triangles": 1270677,
+        "ms": 1.1,
+        "p90": 1.4,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "B",
+        "clip": "M",
+        "calls": 95,
+        "triangles": 1270677,
+        "ms": 1.4,
+        "p90": 1.8,
+        "extraCalls": 1
+      },
+      {
+        "view": "neptune",
+        "option": "today",
+        "clip": "N-today",
+        "calls": 96,
+        "triangles": 1283957,
+        "ms": 1.1,
+        "p90": 1.4,
+        "extraCalls": 0
+      },
+      {
+        "view": "neptune",
+        "option": "A",
+        "clip": "N-A",
+        "calls": 98,
+        "triangles": 1402901,
+        "ms": 1.5,
+        "p90": 2.3,
+        "extraCalls": 2
+      },
+      {
+        "view": "neptune",
+        "option": "B",
+        "clip": "N",
+        "calls": 100,
+        "triangles": 1436901,
+        "ms": 1.5,
+        "p90": 2.3,
+        "extraCalls": 4
+      }
+    ]
+  },
+  "phoneSlow": {
+    "gpu": "ANGLE (NVIDIA, NVIDIA GeForce RTX 4080 SUPER (0x00002702) Direct3D11 vs_5_0 ps_5_0, D3D11)",
+    "width": 487,
+    "height": 1055,
+    "pixelRatio": 1.25,
+    "throttle": 4,
+    "views": [
+      {
+        "id": "jupiter-top",
+        "name": "Jupiter, in the top layer"
+      },
+      {
+        "id": "jupiter-under",
+        "name": "Jupiter, under the top layer"
+      },
+      {
+        "id": "venus",
+        "name": "Venus, under the deck"
+      },
+      {
+        "id": "mars",
+        "name": "Mars, low over the plain"
+      },
+      {
+        "id": "neptune",
+        "name": "Neptune, among the high streaks"
+      }
+    ],
+    "rows": [
+      {
+        "view": "jupiter-top",
+        "option": "today",
+        "clip": "T",
+        "calls": 96,
+        "triangles": 1283957,
+        "ms": 7.9,
+        "p90": 10.2,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-top",
+        "option": "A",
+        "clip": "A",
+        "calls": 98,
+        "triangles": 1450901,
+        "ms": 3.2,
+        "p90": 4.2,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-top",
+        "option": "B",
+        "clip": "B",
+        "calls": 100,
+        "triangles": 1483241,
+        "ms": 3.3,
+        "p90": 6.7,
+        "extraCalls": 4
+      },
+      {
+        "view": "jupiter-top",
+        "option": "C",
+        "clip": "C",
+        "calls": 102,
+        "triangles": 1492761,
+        "ms": 5.9,
+        "p90": 8.2,
+        "extraCalls": 6
+      },
+      {
+        "view": "jupiter-under",
+        "option": "today",
+        "clip": "T",
+        "calls": 94,
+        "triangles": 1274933,
+        "ms": 4.9,
+        "p90": 7.2,
+        "extraCalls": 0
+      },
+      {
+        "view": "jupiter-under",
+        "option": "A",
+        "clip": "A",
+        "calls": 96,
+        "triangles": 1441877,
+        "ms": 2.9,
+        "p90": 5.9,
+        "extraCalls": 2
+      },
+      {
+        "view": "jupiter-under",
+        "option": "B",
+        "clip": "B",
+        "calls": 98,
+        "triangles": 1474217,
+        "ms": 3.9,
+        "p90": 7.2,
+        "extraCalls": 4
+      },
+      {
+        "view": "jupiter-under",
+        "option": "C",
+        "clip": "C",
+        "calls": 100,
+        "triangles": 1483737,
+        "ms": 7.7,
+        "p90": 8.9,
+        "extraCalls": 6
+      },
+      {
+        "view": "venus",
+        "option": "today",
+        "clip": "V-today",
+        "calls": 104,
+        "triangles": 1412533,
+        "ms": 5.6,
+        "p90": 7.5,
+        "extraCalls": 0
+      },
+      {
+        "view": "venus",
+        "option": "A",
+        "clip": "V-A",
+        "calls": 105,
+        "triangles": 1374421,
+        "ms": 5,
+        "p90": 6.6,
+        "extraCalls": 1
+      },
+      {
+        "view": "venus",
+        "option": "B",
+        "clip": "V",
+        "calls": 106,
+        "triangles": 1374509,
+        "ms": 5.3,
+        "p90": 7.5,
+        "extraCalls": 2
+      },
+      {
+        "view": "mars",
+        "option": "today",
+        "clip": "M-today",
+        "calls": 94,
+        "triangles": 1262533,
+        "ms": 4.1,
+        "p90": 6.3,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "A",
+        "clip": "M-A",
+        "calls": 94,
+        "triangles": 1270677,
+        "ms": 4.7,
+        "p90": 6,
+        "extraCalls": 0
+      },
+      {
+        "view": "mars",
+        "option": "B",
+        "clip": "M",
+        "calls": 95,
+        "triangles": 1270677,
+        "ms": 7.7,
+        "p90": 10.1,
+        "extraCalls": 1
+      },
+      {
+        "view": "neptune",
+        "option": "today",
+        "clip": "N-today",
+        "calls": 96,
+        "triangles": 1283957,
+        "ms": 8.1,
+        "p90": 11.3,
+        "extraCalls": 0
+      },
+      {
+        "view": "neptune",
+        "option": "A",
+        "clip": "N-A",
+        "calls": 98,
+        "triangles": 1402901,
+        "ms": 5,
+        "p90": 8,
+        "extraCalls": 2
+      },
+      {
+        "view": "neptune",
+        "option": "B",
+        "clip": "N",
+        "calls": 100,
+        "triangles": 1436901,
+        "ms": 4.5,
+        "p90": 7.2,
+        "extraCalls": 4
+      }
+    ]
+  }
+}
