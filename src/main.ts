@@ -68,6 +68,8 @@ import { createFairyTrail, drawTrailIcon } from './fairy-trail'
 import { BOOK_KINDS, friendName, isBookKind } from './friend'
 import { createFairyFriend } from './friend-ui'
 import { createAnimalBook } from './animal-book-ui'
+import { loadHomeLook, setHomeLook } from './home'
+import { createHomeBuild } from './home-build'
 
 function colorSwatches(part: LookPart, label: string, options: readonly { id: string; label: string; color: number }[]) {
   return `
@@ -178,6 +180,25 @@ app.innerHTML = `
       <p class="customizer-note">Changes are saved automatically</p>
     </section>
 
+    <section id="home-builder" class="customizer home-builder" aria-labelledby="home-builder-title" aria-hidden="true">
+      <div class="customizer-heading">
+        <div>
+          <p class="eyebrow">YOUR HOME</p>
+          <h2 id="home-builder-title">Make it yours</h2>
+        </div>
+        <button id="home-builder-close" class="customizer-close" type="button" aria-label="Close build mode">
+          <i data-icon="close"></i>
+        </button>
+      </div>
+      <div data-home-content></div>
+      <div class="home-tools">
+        <button id="home-surprise" type="button"><span aria-hidden="true">✦</span> Surprise me</button>
+        <button id="home-done" type="button">Done</button>
+      </div>
+      <p class="customizer-note">Changes are saved automatically</p>
+    </section>
+    <button id="build-home" class="build-home" type="button" hidden><span aria-hidden="true">✦</span> Build your home</button>
+
     <section id="welcome" class="welcome-card">
       <div class="welcome-sparkle"><i></i><i></i><i></i></div>
       <p class="eyebrow">YOUR WINGS ARE READY</p>
@@ -216,6 +237,7 @@ function mountIcon(target: Element | null, icon: typeof Pause) {
 mountIcon(document.querySelector('[data-icon="pause"]'), Pause)
 mountIcon(document.querySelector('[data-icon="customize"]'), Palette)
 mountIcon(document.querySelector('[data-icon="close"]'), X)
+mountIcon(document.querySelector('#home-builder-close [data-icon="close"]'), X)
 
 const sceneHost = document.querySelector<HTMLDivElement>('#scene')!
 const scene = new THREE.Scene()
@@ -278,6 +300,8 @@ function makeSoftDiscTexture(color: string, size = 128) {
 const stars = createStarSky(scene)
 const skyLabels = createSkyLabels(document.querySelector<HTMLElement>('.game-shell')!, stars)
 
+// The home that the fairy built (src/home.ts), before the first build of Blossom Haven.
+setHomeLook(loadHomeLook((() => { try { return localStorage } catch { return undefined } })()))
 // The renderer paints the maps of the seven planets (src/planet-paint.ts).
 const worlds = createWorlds(scene, touchDevice, renderer)
 const orbits = createPlanetaryOrbits(scene, worlds)
@@ -431,6 +455,7 @@ let customizing = false
 let customizerOpener: HTMLElement = customizeButton
 
 function setCustomizerOpen(open: boolean) {
+  if (open && building) homeBuild.close()
   if (open && !customizing && document.activeElement instanceof HTMLElement) customizerOpener = document.activeElement
   customizing = open
   clearInput()
@@ -462,6 +487,8 @@ function clearInput() {
 }
 let started = false
 let paused = false
+// Build mode (src/home-build.ts): the flight waits while the fairy changes her home.
+let building = false
 let hoverHeld = false
 let boosted = false
 // World speed of Settings: 1×, 8×, 16×, 32× or 64×. It starts at 1× at each visit.
@@ -489,6 +516,27 @@ const homeClock = createRelocationClock()
 const hopNova = createHopNova(scene, makeSoftDiscTexture('rgba(255,255,255,1)'))
 const hopFlash = document.querySelector<HTMLElement>('.hop-flash')!
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)')
+const buildButton = document.querySelector<HTMLButtonElement>('#build-home')!
+const homeBuild = createHomeBuild({
+  panel: document.querySelector<HTMLElement>('#home-builder')!, button: buildButton, canvas: renderer.domElement,
+  scene, home, sparkle: makeSoftDiscTexture('rgba(255,255,255,1)'), reducedMotion,
+  chime: notes => playChime(notes, 0.035, 0.12),
+  onOpen: open => {
+    if (open && customizing) setCustomizerOpen(false)
+    building = open
+    clearInput()
+    // The look of the fairy panel: the touch buttons, the welcome card and the notes hide.
+    document.querySelector('.game-shell')!.classList.toggle('is-customizing', open)
+    document.querySelector('.game-shell')!.classList.toggle('is-building', open)
+    if (open) document.querySelector<HTMLElement>('#home-builder-close')!.focus()
+    // The focus goes back to the Build button, which shows again near the cottage.
+    else if (!buildButton.hidden) buildButton.focus()
+    else renderer.domElement.focus()
+  },
+})
+buildButton.addEventListener('click', () => homeBuild.openAt(fairy.position))
+document.querySelector('#home-builder-close')!.addEventListener('click', () => homeBuild.close())
+document.querySelector('#home-done')!.addEventListener('click', () => homeBuild.close())
 let homeSuspended = false
 const guideTarget = homeApproachPoint(home)
 const updateFireflies = createGuideFireflies(scene, makeSoftDiscTexture('rgba(255,255,255,1)'))
@@ -551,6 +599,7 @@ const postcard = createPostcardCamera({
 function followHome() {
   if (!started) startFlight()
   if (customizing) setCustomizerOpen(false)
+  if (building) homeBuild.close()
   homeGuide.start()
   destination = home
   homeSuspended = false
@@ -683,7 +732,7 @@ function setKey(code: string, down: boolean) {
 }
 
 function toggleHover() {
-  if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen) return
+  if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || building || menuOpen) return
   hoverHeld = !hoverHeld
   clearInput()
   document.getElementById('hover-toggle')!.setAttribute('aria-pressed', String(hoverHeld))
@@ -696,7 +745,11 @@ window.addEventListener('keydown', (event) => {
     setCustomizerOpen(false)
     return
   }
-  if (customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || event.target instanceof HTMLSelectElement) return
+  if (event.code === 'Escape' && building && !postcardOpen) {
+    homeBuild.close()
+    return
+  }
+  if (customizing || mapOpen || settingsOpen || postcardOpen || building || menuOpen || event.target instanceof HTMLSelectElement) return
   if (!started || (paused && event.code !== 'Space')) return
   if (event.target instanceof HTMLButtonElement && ['Space', 'Enter'].includes(event.code)) return
   // Q toggles hover. Ctrl did before, but Ctrl+W closes the tab and Ctrl+D or Ctrl+S opens a browser dialog.
@@ -715,7 +768,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-key]').forEach((button) => {
   const release = (event: PointerEvent) => { keys.release(event.pointerId); button.classList.toggle('is-held', keys.has(code)) }
   button.addEventListener('pointerdown', (event) => {
     event.preventDefault()
-    if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen || contextLost) return
+    if (!started || paused || customizing || mapOpen || settingsOpen || postcardOpen || building || menuOpen || contextLost) return
     button.setPointerCapture(event.pointerId)
     keys.press(event.pointerId, code)
     button.classList.add('is-held')
@@ -838,7 +891,7 @@ function updateNearestWorld() {
   if (started) stickerBook.arrive(world, near)
   // F1 · Search stars: after the hello sticker, one small task on each world (searchDone() in src/stickers.ts).
   // A find counts only in flight, so the note never comes behind Worlds, Settings, the menu or the pause.
-  const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
+  const flying = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !building && !menuOpen
   if (flying && !fairyFriend.noteShown && !moonDiary.busy && stickerBook.searching(world.kind) && searchDone(world.kind, searchProbe(world, fairy.position, near, { rainbow: weatherAir.bowShown, turn: sun.sunLook!.prominences?.rotation.y })) && stickerBook.find(world.kind)) {
     const creature = SEARCH_CREATURE[world.kind]
     searchStar.pop(world, creature ? nearestCreature(world, fairy.position, creature) : null)
@@ -951,6 +1004,14 @@ function updateFairy(delta: number) {
 }
 
 function updateCamera(delta: number) {
+  if (building) {
+    // Build mode turns the camera around the home. The panel is at the side on a computer and at the bottom on a phone.
+    homeBuild.cameraPose(camera, delta)
+    camera.fov = THREE.MathUtils.lerp(camera.fov, 58, 1 - Math.exp(-delta * 2.5))
+    camera.setViewOffset(view.width, view.height, view.width > 720 ? view.width * 0.13 : 0, view.width > 720 ? 0 : view.height * 0.3, view.width, view.height)
+    camera.updateProjectionMatrix()
+    return
+  }
   // Follow translation immediately; smooth the view direction without letting
   // high space speeds leave the fairy far ahead of the camera.
   cameraTranslation.copy(fairy.position).sub(previousFlightPosition)
@@ -1117,14 +1178,14 @@ function animate(timestamp?: number) {
   timer.update(timestamp)
   if (document.hidden || contextLost) { requestAnimationFrame(animate); return }
   const rawDelta = Math.min(timer.getDelta(), 0.05)
-  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen
+  const active = started && !paused && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !building && !menuOpen
   if (touchDevice && mobileQuality.sample(timer.getDelta(), active)) renderer.setPixelRatio(renderRatio())
   const paintTime = timestamp ?? performance.now()
-  if (!active && !customizing && !mapOpen && paintTime - lastPaint < 100) { requestAnimationFrame(animate); return }
+  if (!active && !customizing && !building && !mapOpen && paintTime - lastPaint < 100) { requestAnimationFrame(animate); return }
   lastPaint = paintTime
   const delta = active ? rawDelta : 0
   // Keep the orbit display gently moving behind the Worlds dialog.
-  const orbitDelta = started && !paused && !customizing && !menuOpen ? rawDelta : 0
+  const orbitDelta = started && !paused && !customizing && !building && !menuOpen ? rawDelta : 0
   elapsed += delta
   const homeGuided = homeGuide.enabled || destination === home
   // The guide stops the clock: a planned hop goes, and the clock plans again when it runs.
@@ -1185,10 +1246,12 @@ function animate(timestamp?: number) {
     fairyFriend.cheer(reducedMotion.matches)
   }
   // The number goes away after its time of flight, and at once behind a menu. A pause keeps it, as it keeps the flight.
-  if (ringCountUntil && (elapsed >= ringCountUntil || customizing || mapOpen || settingsOpen || postcardOpen || menuOpen)) {
+  if (ringCountUntil && (elapsed >= ringCountUntil || customizing || mapOpen || settingsOpen || postcardOpen || building || menuOpen)) {
     ringCount.classList.remove('is-visible')
     ringCountUntil = 0
   }
+  // The Build button shows near the cottage in flight; build mode turns the camera and plays the changes.
+  homeBuild.update(rawDelta, fairy.position, started && !paused && nearestWorld === home && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
   updateCamera(rawDelta)
   // The fairy friend takes her whole move of this frame, also the move that a world gave her, and then comes to
   // its place at her side. The look menu stops the flight; the friend comes near there, so the child sees her choice.
@@ -1211,9 +1274,9 @@ function animate(timestamp?: number) {
   const homeHeading = journeyHeading(fairy.position, guideTarget, nearestWorld, nearestWorld === home)
   const homeMarker = homeMarkerPosition(home)
   adventure.update(camera, homeMarker, nearestWorld, delta, {
-    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || mapOpen || settingsOpen || postcardOpen, near: nearNearest,
+    started, following: homeGuide.enabled, suspended: homeSuspended, obscured: customizing || building || mapOpen || settingsOpen || postcardOpen, near: nearNearest,
   })
-  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !menuOpen)
+  updateFireflies(fairy.position, homeHeading, elapsed, homeGuide.enabled && !homeSuspended && !customizing && !mapOpen && !settingsOpen && !postcardOpen && !building && !menuOpen)
   for (const world of worlds) {
     // The clouds of Earth read the weather map at their place, so they do not turn.
     if (!world.weather) world.clouds.rotation.y += delta * 0.001
@@ -1371,6 +1434,7 @@ if (import.meta.env.DEV && new URLSearchParams(location.search).has('test')) {
     fairy: fairy.position.toArray(), camera: camera.position.toArray(), target: guideTarget.toArray(),
     elapsed: homeClock.elapsed, moves: homeClock.moves, guided: homeGuide.enabled, homeSize, homeHost: orbits.homeHost?.kind ?? null, novae: hopNova.count,
     destination: destination?.name ?? null, orbitSpeed: orbitSpeedFactor, orbitPaths: orbits.paths.visible, sound: soundOn, earthVisit: earth.visit,
+    homeBuild: { look: homeBuild.look, building, button: !buildButton.hidden, near: homeBuild.near },
     found: homeFound, paused, mapOpen, settingsOpen, postcardOpen, menuOpen, stickers: stickerBook.book.arrived, searchStars: stickerBook.book.found, searchStar: searchStar.state, warmth: warmthNote.state, openWorlds: worlds.map(world => world.kind).filter(id => stickerBook.canFly(id)), hoverHeld, boosted, seed: home.seed, visit: home.visit,
     input: ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ShiftLeft'].filter(code => keys.has(code)),
     graphics: { mobile: touchDevice, pixelRatio: renderer.getPixelRatio(), calls: renderer.info.render.calls, triangles: renderer.info.render.triangles },

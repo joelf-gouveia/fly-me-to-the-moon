@@ -562,3 +562,30 @@ dialog[open] {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
   #ring-count.is-visible { animation: none; }
 }
+
+/* Build mode (src/home-build.ts): the Build button near the cottage and the panel of the home.
+   The panel has the look of the fairy panel; its pictures come from public/home/. */
+.build-home {
+  position: absolute; z-index: 3; left: 50%; bottom: 96px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; padding: 12px 22px; min-height: 48px;
+  color: #fff6d8; border: 1px solid rgba(255,224,161,.6); border-radius: 26px;
+  background: linear-gradient(145deg, rgba(48, 38, 66, .92), rgba(16, 18, 40, .92));
+  box-shadow: 0 10px 34px rgba(0,0,0,.35), 0 0 22px rgba(255,200,140,.18);
+  font-weight: 500; letter-spacing: .02em; cursor: pointer;
+}
+.build-home[hidden] { display: none; }
+.build-home span { color: #ffd38a; }
+.build-home:hover { border-color: #ffe0a1; }
+.build-home:focus-visible, .home-builder button:focus-visible { outline: 2px solid #ffe0a1; outline-offset: 3px; }
+.home-builder { width: min(344px, calc(var(--view-width, 100vw) - 32px)); }
+.home-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 18px; }
+.home-tabs button { height: 34px; padding: 0; color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.11); border-radius: 17px; background: rgba(255,255,255,.035); cursor: pointer; font-size: 11px; }
+.home-tabs button[aria-selected="true"] { color: #fff6d8; border-color: rgba(255,224,161,.58); background: rgba(255,224,161,.1); }
+.home-builder .customizer-group { margin-top: 14px; }
+.option-grid.home-options button { height: auto; padding: 4px 4px 6px; gap: 4px; }
+.home-options img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; background: rgba(255,255,255,.06); }
+.swatch-grid.home-swatches { grid-template-columns: repeat(6, 1fr); }
+.option-grid + .swatch-grid.home-swatches { margin-top: 10px; }
+.home-tools { display: flex; gap: 8px; margin-top: 16px; }
+.home-tools button { flex: 1; min-height: 40px; color: rgba(255,255,255,.75); border: 1px solid rgba(255,255,255,.16); border-radius: 20px; background: rgba(255,255,255,.05); cursor: pointer; font-size: 12px; }
+.home-tools #home-done { color: #fff6d8; border-color: rgba(255,224,161,.58); background: rgba(255,224,161,.12); }

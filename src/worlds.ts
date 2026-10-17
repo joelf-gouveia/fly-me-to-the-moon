@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { createNoise3D } from 'simplex-noise'
+import { buildHome, homeLook } from './home'
 import { createTerrain, groundHeight, HOME_CLEARING_HEIGHT, HOME_SEED, isGasWorld, OCCATOR, seededRandom } from './terrain'
 import type { PlanetKind } from './terrain'
 import { buildCandyEcosystem } from './candy'
@@ -394,65 +395,16 @@ function buildGround(world: World) {
   }
 }
 
+/**
+ * The home of the fairy: the look of homeLook() (src/home.ts), on the clearing at the south pole.
+ * Build mode changes the look; a new build of Blossom Haven (a new size) builds the same home.
+ */
 function buildFlowerCottage(world: World) {
-  const cottage = new THREE.Group()
-  cottage.name = 'flower-cottage'
+  const { group } = buildHome(homeLook(), { groundRadius: world.radius + HOME_CLEARING_HEIGHT })
   const normal = homeCottageNormal()
-  cottage.position.copy(normal).multiplyScalar(surfaceRadius(world, normal))
-  cottage.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal)
-  const cream = new THREE.MeshStandardMaterial({ color: 0xffefd0, roughness: 0.9 })
-  const pink = new THREE.MeshStandardMaterial({ color: 0xe66aa4, roughness: 0.8 })
-  const petalMaterial = new THREE.MeshStandardMaterial({ color: 0xffa8cf, roughness: 0.8, side: THREE.DoubleSide })
-  const gold = new THREE.MeshStandardMaterial({ color: 0xffdc8e, roughness: 0.7, emissive: 0xffb849, emissiveIntensity: 0.18 })
-  const windowMaterial = new THREE.MeshStandardMaterial({ color: 0xffe8a0, emissive: 0xffc25a, emissiveIntensity: 0.05 })
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.7, 4.7, 24), cream)
-  body.position.y = 2.2
-  cottage.add(body)
-  const petalGeometry = new THREE.SphereGeometry(1, 16, 10)
-  for (let i = 0; i < 7; i++) {
-    const angle = i / 7 * Math.PI * 2
-    const petal = new THREE.Mesh(petalGeometry, petalMaterial)
-    petal.position.set(Math.sin(angle) * 2.1, 4.8, Math.cos(angle) * 2.1)
-    petal.scale.set(1.6, 0.65, 3)
-    petal.rotation.y = angle
-    cottage.add(petal)
-  }
-  const flowerCenter = new THREE.Mesh(new THREE.SphereGeometry(1.6, 20, 12), gold)
-  flowerCenter.position.y = 5.6
-  flowerCenter.scale.y = 0.65
-  cottage.add(flowerCenter)
-  const door = new THREE.Mesh(new THREE.CapsuleGeometry(0.8, 1.2, 4, 12), pink)
-  door.position.set(0, 1.45, 3.45)
-  door.scale.z = 0.13
-  cottage.add(door)
-  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), gold)
-  knob.position.set(0.42, 1.45, 3.59)
-  cottage.add(knob)
-  for (const side of [-1, 1]) {
-    const window = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 12), windowMaterial)
-    window.name = 'cottage-window'
-    window.position.set(side * 2.3, 2.7, 2.4)
-    window.scale.z = 0.15
-    window.rotation.y = side * 0.6
-    cottage.add(window)
-  }
-  // Small flowers make a friendly garden without adding hundreds of draw calls.
-  const garden = new THREE.InstancedMesh(petalGeometry, gold, 32)
-  const dummy = new THREE.Object3D()
-  for (let i = 0; i < 32; i++) {
-    const angle = i / 32 * Math.PI * 2
-    const radius = 7 + (i % 3) * 1.4
-    const x = Math.cos(angle) * radius, z = Math.sin(angle) * radius
-    // Match the spherical clearing rather than hovering over a flat disk.
-    const clearingRadius = world.radius + HOME_CLEARING_HEIGHT
-    const y = Math.sqrt(clearingRadius ** 2 - radius ** 2) - clearingRadius
-    dummy.position.set(x, y + 0.35, z)
-    dummy.scale.set(0.55, 0.3, 0.55)
-    dummy.updateMatrix()
-    garden.setMatrixAt(i, dummy.matrix)
-  }
-  cottage.add(garden)
-  world.surface.add(cottage)
+  group.position.copy(normal).multiplyScalar(surfaceRadius(world, normal))
+  group.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), normal)
+  world.surface.add(group)
 }
 
 export function regenerateWorld(world: World, seed = (Math.random() * 0xffffffff) >>> 0) {

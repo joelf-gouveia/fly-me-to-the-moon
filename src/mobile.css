@@ -69,3 +69,7 @@ html, body, .game-shell { touch-action: pan-x pan-y; }
 .graphics-message { position: fixed; z-index: 20; inset: 0; display: grid; place-content: center; text-align: center; background: #172039f5; color: #fff0d8; padding: 28px; font: 18px/1.6 system-ui; }
 .graphics-message[hidden] { display: none; }.graphics-message p { max-width: 460px; }.graphics-message button { min-height: 52px; padding: 12px 24px; border: 0; border-radius: 14px; background: #ffe4ad; font: inherit; }
 @media (max-height: 500px) { .touch-ui .welcome-card { padding: 20px; }.touch-ui .welcome-card h2 { font-size: 34px; }.touch-ui .welcome-sparkle { display: none; }.touch-ui .welcome-card > p:not(.eyebrow) { margin-bottom: 14px; }.touch-ui .welcome-card small { margin-top: 10px; }.touch-ui .customizer { width: min(370px, calc(var(--view-width, 100vw) - 32px)); }.touch-ui .customizer-group { margin-top: 14px; } }
+/* Build mode on a phone: the Build button under the top buttons, and the panel of the home as the fairy panel. */
+.touch-ui .build-home { top: calc(var(--edge-top) + 60px); bottom: auto; }
+.touch-ui .home-builder { right: var(--edge-right); bottom: var(--edge-bottom); max-height: calc(var(--view-height, 100dvh) - var(--edge-top) - var(--edge-bottom)); }
+.touch-ui .home-tabs button, .touch-ui .home-tools button { min-height: 44px; }

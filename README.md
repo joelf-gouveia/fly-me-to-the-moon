@@ -501,6 +501,28 @@ big as Mars now, a moon of Saturn"). No countdown or deadline is shown. Pause, c
 the world map, and background tabs do not advance the clock. Reloading starts a fresh interval
 and the initial distant location at the first size; discovery stays saved.
 
+### Build mode: her own home
+
+Near her cottage (25 m or less), a button **Build your home** shows. Build mode stops the flight,
+as the fairy panel does, and the camera turns slowly around the home; a drag turns it and the
+wheel moves it nearer. The panel has four tabs: **Roof** (petal crown, toadstool, acorn cap, star
+spire, frosting swirl, leaf thatch), **Walls** (flower cottage, tree stump, teapot, pumpkin, pebble
+tower, honey hive), **Door** (round, plank arch, heart, leaf curtain, star) and **Yard** (flower ring,
+fairy ring, path and fence, lantern garden, lily pond, candy garden). Each tab has twelve colour
+dots for that part. A new shape comes in its own colour (a cherry toadstool, an apricot pumpkin),
+and then she can paint it. **Surprise me** gives a whole new home: half the time a home of the
+stories (toadstool house, teapot house, candy house and five more), half the time a mix. A
+change pops with a small bounce, a puff of petals in its colour and a soft chime; with reduced
+motion it changes at once. A soft light from the camera shows the true colours, because the Sun
+stays low at the south pole. **Done**, the close button or Escape ends build mode.
+
+All the options are open from the start. The home saves at each change (`fairy-home` in the
+browser storage), and each build of Blossom Haven, also a new size, builds the saved home. The
+parts are in `src/home.ts` and build mode is in `src/home-build.ts` (the
+[fairy home study](#fairy-home-study)). Each roof fits each walls with one rule, every home stays
+under the flower of the guide (7.5 m) and inside the 12 m that the animals keep free, and a
+home has at most 17 draw calls. The pictures of the panel are in `public/home/`.
+
 A new size takes 0.3 to 0.7 s to build on a computer, and the hop does the build at the peak
 of the flash, so the view stops for that time. A slow phone can stop for 1 to 2 s.
 
@@ -1654,6 +1676,24 @@ The player answered the twelve decisions, and the hop is in the game: see
 [Blossom Haven](#blossom-haven), and "Built in the game" in the technical study. The
 player selected look B (the star nova), any size at each hop, a moon home also when it is bigger
 than its planet, and a magic season at each hop.
+
+## Fairy home study
+
+Visit `/studies/fairy-home-study.html` for **The fairy home**, a study of a simple build mode for
+the cottage of Blossom Haven. The study looks at how fairy homes look (eight homes of stories,
+gardens and games), finds the parts that make sense, and builds them with the engine of the game:
+**roof**, **walls**, **door** and **yard**, with one colour for each part from twelve colours. The
+windows go with the walls, and a topper (a star, a cherry) goes with its roof. Each roof fits each
+walls with one rule, the socket of the walls (`studies/fairy-home-study/parts.ts`). Seven clips show
+the build mode and each part, and **Build it yourself** runs the build mode live with the real
+worlds. The page has nine decisions; the answers save in the browser, and **Save study** exports
+them. The [technical study](docs/fairy-home-study.md) gives the findings, the rules, the numbers
+and the plan. The study uses the lab of the [feature ideas study](#feature-ideas-study) and the
+page look of the [learn and play study](#learn-and-play-study). The clips are in
+`public/studies/fairy-home/`. Against a dev server with no hot reload, run
+`node studies/fairy-home-study/fairy-home-study-capture.mjs "path/to/chrome.exe" --sheets` first
+for the pictures of the options and the homes, then the same script with no flag for the clips
+and with `--moments` for the moment pictures.
 
 ## Browser checks
 
