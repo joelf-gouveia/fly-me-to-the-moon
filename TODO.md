@@ -309,6 +309,12 @@ No feature branch is open. F1 is in `master`. F2 and F6 are rejected as built: s
   `master`.
 - [x] Delete the worktree and the branch. The branch was never on GitHub.
 
+### `features/wandering-home`
+
+- [x] Run the Blossom Haven, magic seasons and friend browser checks on the branch.
+- [x] Merge into `master`: merge `56515ff` of 17 October 2026. The type check and the 611 unit
+  tests pass on the merged files. The branch is on GitHub. TODO item 18 is the open fault.
+
 ## Next steps
 
 ### The weather of Earth, step 5
