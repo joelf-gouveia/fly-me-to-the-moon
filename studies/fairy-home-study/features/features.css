@@ -1,0 +1,31 @@
+/* The layer and the captions of the clips of the fairy home study. */
+.fh-layer { position: absolute; z-index: 5; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+.fh-caption { position: absolute; z-index: 20; left: 50%; bottom: 22px; translate: -50% 0; margin: 0; padding: 7px 16px; border-radius: 16px; background: #070b18c4; color: #f6e6c8; font: 500 15px 'Manrope', sans-serif; white-space: nowrap; visibility: hidden; }
+.fh-caption b { color: #edc68d; margin-right: 6px; font-weight: 600; }
+.fh-tag { position: absolute; z-index: 20; left: 50%; top: 18px; translate: -50% 0; margin: 0; padding: 6px 14px; border-radius: 14px; background: #070b18b0; color: #ffd9ec; font: 600 14px 'Manrope', sans-serif; letter-spacing: .06em; white-space: nowrap; visibility: hidden; }
+
+/* C: the colours of the four parts. */
+.fh-swatches { position: absolute; right: 36px; top: 96px; display: grid; gap: 10px; padding: 16px 18px; border: 1px solid rgba(255,255,255,.18); border-radius: 20px; background: linear-gradient(145deg, rgba(17, 23, 51, .94), rgba(7, 10, 28, .92)); }
+.fh-swatches div { display: grid; grid-template-columns: 58px auto; align-items: center; gap: 10px; opacity: .55; }
+.fh-swatches div.is-active { opacity: 1; }
+.fh-swatches span { color: #f6e6c8; font: 400 10px 'DM Mono', monospace; letter-spacing: .14em; text-transform: uppercase; }
+.fh-swatches p { display: flex; gap: 6px; margin: 0; }
+.fh-swatches i { width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(255,255,255,.35); }
+.fh-swatches i.is-on { box-shadow: 0 0 0 2px #10152f, 0 0 0 4px #ffe0a1; }
+
+/* X: the names of the parts. */
+.fh-labels span { position: absolute; translate: -100% -50%; display: grid; padding: 6px 12px; border-radius: 12px; background: #070b18c8; color: #c9d2e4; font: 500 12px 'Manrope', sans-serif; text-align: right; white-space: nowrap; }
+.fh-labels b { color: #ffe0a1; font: 400 20px/1.1 'Italiana', Georgia, serif; letter-spacing: .02em; }
+
+/* B: the button near the home, the panel and the tap. The panel has the classes of the fairy panel (src/style.css). */
+.fh-build-button { position: absolute; left: 50%; bottom: 74px; display: flex; align-items: center; gap: 10px; padding: 12px 22px; border: 1px solid rgba(255,224,161,.6); border-radius: 26px; background: linear-gradient(145deg, rgba(48, 38, 66, .92), rgba(16, 18, 40, .92)); color: #fff6d8; font: 500 15px 'Manrope', sans-serif; letter-spacing: .02em; box-shadow: 0 10px 34px rgba(0,0,0,.35), 0 0 22px rgba(255,200,140,.18); opacity: 0; }
+.fh-build-button span { color: #ffd38a; }
+.fh-layer .fh-panel { transition: none; pointer-events: none; right: 36px; bottom: 76px; width: 344px; max-height: none; overflow: visible; }
+.fh-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 16px; }
+.fh-tabs button { height: 34px; padding: 0; border: 1px solid rgba(255,255,255,.11); border-radius: 17px; background: rgba(255,255,255,.035); color: rgba(255,255,255,.6); font: 500 11px 'Manrope', sans-serif; }
+.fh-tabs button[aria-selected="true"] { color: #fff6d8; border-color: rgba(255,224,161,.58); background: rgba(255,224,161,.12); }
+.fh-panel .fh-options button { height: auto; padding: 4px 4px 6px; gap: 4px; }
+.fh-panel .fh-options img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; }
+.fh-panel .fh-swatch-grid { grid-template-columns: repeat(6, 1fr); }
+.fh-panel .fh-done { width: auto; height: 31px; padding: 0 14px; border-radius: 16px; font: 500 11px 'Manrope', sans-serif; color: #fff6d8; }
+.fh-tap { position: absolute; z-index: 30; width: 46px; height: 46px; border-radius: 50%; border: 2px solid #fff6d8; background: rgba(255, 246, 216, .25); box-shadow: 0 0 18px rgba(255, 224, 161, .6); opacity: 0; }
